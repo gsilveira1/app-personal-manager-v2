@@ -1,4 +1,5 @@
 
+
 import React, { useState } from 'react';
 import { useStore } from '../store';
 import { Client, ClientStatus, ClientType, CheckInFrequency, Plan } from '../types';
@@ -8,7 +9,8 @@ import { useNavigate } from 'react-router-dom';
 
 const WEEKS_IN_MONTH = 4.33;
 
-const calculateMonthlyPrice = (plan: Plan) => {
+// FIX: Changed signature to be more flexible, only requiring properties it uses.
+const calculateMonthlyPrice = (plan: Pick<Plan, 'pricePerSession' | 'sessionsPerWeek'>) => {
   return plan.pricePerSession * plan.sessionsPerWeek * WEEKS_IN_MONTH;
 };
 
@@ -144,15 +146,14 @@ export const Clients = () => {
   );
 };
 
-const AddClientModal = ({ onClose, onSave }: { onClose: () => void; onSave: (c: Client) => void }) => {
+const AddClientModal = ({ onClose, onSave }: { onClose: () => void; onSave: (c: Omit<Client, 'id'>) => void }) => {
   const { plans } = useStore();
   const [clientType, setClientType] = useState<ClientType>('In-Person');
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const newClient: Client = {
-      id: Math.random().toString(36).substr(2, 9),
+    const newClient: Omit<Client, 'id' | 'avatar'> = {
       name: formData.get('name') as string,
       email: formData.get('email') as string,
       phone: formData.get('phone') as string,
@@ -161,7 +162,6 @@ const AddClientModal = ({ onClose, onSave }: { onClose: () => void; onSave: (c: 
       type: clientType,
       checkInFrequency: clientType === 'Online' ? formData.get('frequency') as CheckInFrequency : undefined,
       goal: formData.get('goal') as string,
-      avatar: `https://picsum.photos/200/200?random=${Math.floor(Math.random() * 1000)}`,
       planId: formData.get('planId') as string
     };
     onSave(newClient);

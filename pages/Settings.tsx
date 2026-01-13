@@ -6,7 +6,8 @@ import { DollarSign, Trash2, Edit2, Plus, X, Repeat, Clock, Bot } from 'lucide-r
 
 const WEEKS_IN_MONTH = 4.33;
 
-const calculateMonthlyPrice = (plan: Plan) => {
+// FIX: Changed signature to be more flexible, only requiring properties it uses.
+const calculateMonthlyPrice = (plan: Pick<Plan, 'pricePerSession' | 'sessionsPerWeek'>) => {
   return plan.pricePerSession * plan.sessionsPerWeek * WEEKS_IN_MONTH;
 };
 
@@ -35,7 +36,7 @@ export const Settings = () => {
     if (editingPlan) {
       updatePlan(editingPlan.id, planData);
     } else {
-      addPlan({ ...planData, id: Math.random().toString(36).substr(2, 9) });
+      addPlan(planData);
     }
     setIsModalOpen(false);
   };
@@ -118,8 +119,10 @@ const PlanCard: React.FC<PlanCardProps> = ({ plan, onEdit, onDelete }) => {
         <div className="flex justify-between items-start">
            <h3 className="text-xl font-bold text-slate-900">{plan.name}</h3>
            <div className="flex items-center space-x-1">
-             <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={onEdit}><Edit2 className="h-4 w-4 text-slate-500" /></Button>
-             <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={onDelete}><Trash2 className="h-4 w-4 text-red-500" /></Button>
+             {/* FIX: Removed invalid 'size' prop from Button */}
+             <Button variant="ghost" className="h-7 w-7 p-0" onClick={onEdit}><Edit2 className="h-4 w-4 text-slate-500" /></Button>
+             {/* FIX: Removed invalid 'size' prop from Button */}
+             <Button variant="ghost" className="h-7 w-7 p-0" onClick={onDelete}><Trash2 className="h-4 w-4 text-red-500" /></Button>
            </div>
         </div>
         
@@ -184,7 +187,8 @@ const PlanEditorModal = ({ isOpen, onClose, onSave, initialData }: { isOpen: boo
       <Card className="w-full max-w-md bg-white shadow-xl animate-in fade-in zoom-in duration-200">
         <div className="p-6 border-b border-slate-100 flex justify-between items-center">
           <h2 className="text-lg font-bold text-slate-900">{initialData ? 'Edit Plan' : 'Create New Plan'}</h2>
-          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={onClose}><X className="h-5 w-5" /></Button>
+          {/* FIX: Removed invalid 'size' prop from Button */}
+          <Button variant="ghost" className="h-7 w-7 p-0" onClick={onClose}><X className="h-5 w-5" /></Button>
         </div>
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div className="space-y-2">

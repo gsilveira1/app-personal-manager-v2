@@ -13,7 +13,8 @@ import { WorkoutEditorModal } from '../components/WorkoutEditorModal';
 
 const WEEKS_IN_MONTH = 4.33;
 
-const calculateMonthlyPrice = (plan: Plan) => {
+// FIX: Changed signature to be more flexible, only requiring properties it uses.
+const calculateMonthlyPrice = (plan: Pick<Plan, 'pricePerSession' | 'sessionsPerWeek'>) => {
   return plan.pricePerSession * plan.sessionsPerWeek * WEEKS_IN_MONTH;
 };
 
@@ -226,10 +227,10 @@ const WorkoutCard: React.FC<{ workout: WorkoutPlan; onDelete: (id: string) => vo
 };
 
 const initialEvalState: Omit<Evaluation, 'id' | 'clientId' | 'date'> = { weight: 0, height: 0, bodyFatPercentage: 0, leanMass: 0, notes: '', perimeters: {}, skinfolds: {} };
-const EvaluationModal = ({ clientId, onClose, onSave, initialData }: { clientId: string; onClose: () => void; onSave: (e: Evaluation) => void; initialData?: Evaluation | null }) => {
+const EvaluationModal = ({ clientId, onClose, onSave, initialData }: { clientId: string; onClose: () => void; onSave: (e: Omit<Evaluation, 'id'>) => void; initialData?: Evaluation | null }) => {
     const [data, setData] = useState(initialData || initialEvalState);
     const [tab, setTab] = useState('vitals');
-    const handleSubmit = (e: React.FormEvent) => { e.preventDefault(); const newEval: Evaluation = { ...data, id: initialData?.id || Math.random().toString(36).substr(2, 9), clientId, date: initialData?.date || new Date().toISOString() }; onSave(newEval); onClose(); };
+    const handleSubmit = (e: React.FormEvent) => { e.preventDefault(); const newEval: Omit<Evaluation, 'id'> = { ...data, clientId, date: initialData?.date || new Date().toISOString() }; onSave(newEval); onClose(); };
     const handleNumericChange = (key: keyof Evaluation, value: string) => setData(d => ({...d, [key]: value === '' ? undefined : parseFloat(value)}));
     const handleNestedChange = (category: 'perimeters' | 'skinfolds', key: string, value: string) => setData(d => ({...d, [category]: {...d[category], [key]: value === '' ? undefined : parseFloat(value)}}));
 
