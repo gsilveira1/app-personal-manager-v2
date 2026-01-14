@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useStore } from '../store';
 import { Card, Button, Badge, Label, Select, Input } from '../components/ui';
 import { ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon, Clock, MapPin, Video, CheckCircle2, User, ArrowUpRight, Dumbbell, Save, X, LayoutGrid, List, CalendarDays, Edit2, Repeat, AlertTriangle, ChevronsLeft, ChevronsRight, Info } from 'lucide-react';
-// FIX: Use ESM submodule imports for date-fns to ensure correct module resolution and prevent "not callable" errors.
+// FIX: Switched to individual submodule imports for date-fns functions to resolve module resolution errors.
 import format from 'date-fns/format';
 import startOfWeek from 'date-fns/startOfWeek';
 import addDays from 'date-fns/addDays';

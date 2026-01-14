@@ -42,7 +42,9 @@ export const generateWorkoutPlan = async (params: GenerateWorkoutParams) => {
                   sets: { type: Type.NUMBER },
                   reps: { type: Type.STRING },
                   notes: { type: Type.STRING },
-                }
+                },
+                // Add propertyOrdering for consistent output
+                propertyOrdering: ['name', 'sets', 'reps', 'notes'],
               }
             },
             tags: {
@@ -53,7 +55,8 @@ export const generateWorkoutPlan = async (params: GenerateWorkoutParams) => {
         }
       }
     });
-    const jsonString = response.text?.trim();
+    // FIX: Add a null check for response.text before trimming
+    const jsonString = response.text ? response.text.trim() : undefined;
     if (!jsonString) {
       throw new Error("Received an empty response from the AI.");
     }
@@ -146,7 +149,8 @@ export const generateWorkoutInsights = async ({ client, latestEvaluation, archiv
           },
         },
       });
-      const jsonString = response.text?.trim();
+      // FIX: Add a null check for response.text before trimming
+      const jsonString = response.text ? response.text.trim() : undefined;
       if (!jsonString) {
         throw new Error("Received an empty response from the AI.");
       }

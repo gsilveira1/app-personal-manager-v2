@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useStore } from '../store';
 import { Card, Button, Badge, Label, Input, Select } from '../components/ui';
 import { ArrowLeft, Calendar, Mail, Phone, HeartPulse, Edit2, Save, FileText, Activity, TrendingUp, AlertCircle, Plus, CheckCircle2, XCircle, Trash2, Dumbbell, ChevronDown, ChevronUp, History, Archive, Flame, DollarSign, Clock, CreditCard, Ruler, Droplets, X } from 'lucide-react';
-// FIX: Use ESM submodule imports for date-fns to ensure correct module resolution.
+// FIX: Switched to individual submodule imports for date-fns functions to resolve module resolution errors.
 import format from 'date-fns/format';
 import parseISO from 'date-fns/parseISO';
 import isPast from 'date-fns/isPast';

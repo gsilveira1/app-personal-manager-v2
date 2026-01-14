@@ -1,15 +1,12 @@
-
-
 import React, { useState } from 'react';
 import { useStore } from '../store';
-import { Client, ClientStatus, ClientType, CheckInFrequency, Plan } from '../types';
+import { Client, ClientStatus, ClientType, CheckInFrequency, Plan, MedicalHistory } from '../types';
 import { Card, Button, Input, Badge, Select, Label } from '../components/ui';
-import { Search, Plus, MoreHorizontal, Phone, Mail, Globe, MapPin, Eye, Wallet } from 'lucide-react';
+import { Search, Plus, MoreHorizontal, Phone, Mail, Globe, MapPin, Eye, Wallet, ChevronDown, HeartPulse } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const WEEKS_IN_MONTH = 4.33;
 
-// FIX: Changed signature to be more flexible, only requiring properties it uses.
 const calculateMonthlyPrice = (plan: Pick<Plan, 'pricePerSession' | 'sessionsPerWeek'>) => {
   return plan.pricePerSession * plan.sessionsPerWeek * WEEKS_IN_MONTH;
 };
@@ -146,13 +143,30 @@ export const Clients = () => {
   );
 };
 
-const AddClientModal = ({ onClose, onSave }: { onClose: () => void; onSave: (c: Omit<Client, 'id'>) => void }) => {
+const AddClientModal = ({ onClose, onSave }: { onClose: () => void; onSave: (clientData: Omit<Client, 'id' | 'avatar'>, customPlanData?: Omit<Plan, 'id'>) => void }) => {
   const { plans } = useStore();
   const [clientType, setClientType] = useState<ClientType>('In-Person');
+  const [isCustomPlan, setIsCustomPlan] = useState(false);
+  const [showMedical, setShowMedical] = useState(false);
+  
+  const [customPlan, setCustomPlan] = useState({ name: '', sessionsPerWeek: 2, sessionDurationMinutes: 60, pricePerSession: 50 });
+
+  const handleCustomPlanChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setCustomPlan(prev => ({ ...prev, [name]: name === 'name' ? value : Number(value) }));
+  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+
+    const medicalHistory: MedicalHistory = {
+        injuries: formData.get('injuries') as string,
+        medications: formData.get('medications') as string,
+        surgeries: formData.get('surgeries') as string,
+        observations: formData.get('observations') as string,
+    };
+    
     const newClient: Omit<Client, 'id' | 'avatar'> = {
       name: formData.get('name') as string,
       email: formData.get('email') as string,
@@ -162,89 +176,56 @@ const AddClientModal = ({ onClose, onSave }: { onClose: () => void; onSave: (c: 
       type: clientType,
       checkInFrequency: clientType === 'Online' ? formData.get('frequency') as CheckInFrequency : undefined,
       goal: formData.get('goal') as string,
-      planId: formData.get('planId') as string
+      planId: isCustomPlan ? undefined : formData.get('planId') as string,
+      medicalHistory: showMedical ? medicalHistory : undefined,
     };
-    onSave(newClient);
+    
+    const customPlanData = isCustomPlan ? { ...customPlan, name: customPlan.name || `${newClient.name}'s Plan` } : undefined;
+
+    onSave(newClient, customPlanData);
     onClose();
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <Card className="w-full max-w-md bg-white shadow-xl animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto">
+      <Card className="w-full max-w-lg bg-white shadow-xl animate-in fade-in zoom-in duration-200 max-h-[90vh] flex flex-col">
         <div className="p-6 border-b border-slate-100 flex justify-between items-center sticky top-0 bg-white">
           <h2 className="text-lg font-bold text-slate-900">Add New Client</h2>
         </div>
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
-              <Input id="name" name="name" required placeholder="John Doe" />
-            </div>
-             <div className="space-y-2">
-              <Label htmlFor="dateOfBirth">Date of Birth</Label>
-              <Input id="dateOfBirth" name="dateOfBirth" type="date" required />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" name="email" type="email" required placeholder="john@example.com" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone</Label>
-              <Input id="phone" name="phone" required placeholder="+1 555 0000" />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-             <div className="space-y-2">
-              <Label htmlFor="status">Status</Label>
-              <Select id="status" name="status">
-                <option value={ClientStatus.Active}>Active</option>
-                <option value={ClientStatus.Inactive}>Inactive</option>
-                <option value={ClientStatus.Lead}>Lead</option>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="type">Type</Label>
-              <Select 
-                id="type" 
-                name="type" 
-                value={clientType} 
-                onChange={(e) => setClientType(e.target.value as ClientType)}
-              >
-                <option value="In-Person">In-Person</option>
-                <option value="Online">Online</option>
-              </Select>
-            </div>
-          </div>
+        <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
+          {/* ... basic info fields */}
+          <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label htmlFor="name">Full Name</Label><Input id="name" name="name" required placeholder="John Doe" /></div><div className="space-y-2"><Label htmlFor="dateOfBirth">Date of Birth</Label><Input id="dateOfBirth" name="dateOfBirth" type="date" required /></div></div>
+          <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label htmlFor="email">Email</Label><Input id="email" name="email" type="email" required placeholder="john@example.com" /></div><div className="space-y-2"><Label htmlFor="phone">Phone</Label><Input id="phone" name="phone" required placeholder="+1 555 0000" /></div></div>
+          <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label htmlFor="status">Status</Label><Select id="status" name="status"><option value={ClientStatus.Active}>Active</option><option value={ClientStatus.Inactive}>Inactive</option><option value={ClientStatus.Lead}>Lead</option></Select></div><div className="space-y-2"><Label htmlFor="type">Type</Label><Select id="type" name="type" value={clientType} onChange={(e) => setClientType(e.target.value as ClientType)}><option value="In-Person">In-Person</option><option value="Online">Online</option></Select></div></div>
+          {clientType === 'Online' && (<div className="space-y-2 p-3 bg-indigo-50 rounded-lg border border-indigo-100"><Label htmlFor="frequency" className="text-indigo-900">Plan Check-in Frequency</Label><Select id="frequency" name="frequency" className="border-indigo-200 focus:ring-indigo-500"><option value="Weekly">Weekly</option><option value="Bi-weekly">Bi-weekly</option><option value="Monthly">Monthly</option></Select><p className="text-xs text-indigo-600 mt-1">This determines the follow-up schedule.</p></div>)}
+          <div className="space-y-2"><Label htmlFor="goal">Primary Goal</Label><Input id="goal" name="goal" placeholder="e.g. Weight Loss" /></div>
           
-          {clientType === 'Online' && (
-             <div className="space-y-2 p-3 bg-indigo-50 rounded-lg border border-indigo-100">
-               <Label htmlFor="frequency" className="text-indigo-900">Plan Check-in Frequency</Label>
-               <Select id="frequency" name="frequency" className="border-indigo-200 focus:ring-indigo-500">
-                 <option value="Weekly">Weekly</option>
-                 <option value="Bi-weekly">Bi-weekly</option>
-                 <option value="Monthly">Monthly</option>
-               </Select>
-               <p className="text-xs text-indigo-600 mt-1">This determines the follow-up schedule.</p>
-             </div>
-          )}
-
-          <div className="space-y-2">
-             <Label htmlFor="planId">Subscription Plan</Label>
-             <Select id="planId" name="planId" required>
-                 <option value="">Select a plan...</option>
-                 {plans.map(plan => (
-                     <option key={plan.id} value={plan.id}>
-                         {plan.name} (${calculateMonthlyPrice(plan).toFixed(2)}/mo)
-                     </option>
-                 ))}
-             </Select>
+          <div className="space-y-2 pt-2">
+            <div className="flex justify-between items-center"><Label>Subscription Plan</Label><Button type="button" variant="ghost" className="h-auto p-1 text-xs text-indigo-600 hover:text-indigo-800" onClick={() => setIsCustomPlan(!isCustomPlan)}>{isCustomPlan ? 'Select Existing Plan' : 'Or Create Custom'}</Button></div>
+            {isCustomPlan ? (
+              <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg space-y-3">
+                 <Input name="name" placeholder="Custom Plan Name (optional)" value={customPlan.name} onChange={handleCustomPlanChange} />
+                 <div className="grid grid-cols-3 gap-2">
+                    <Input name="sessionsPerWeek" type="number" value={customPlan.sessionsPerWeek} onChange={handleCustomPlanChange} title="Sessions per week" />
+                    <Input name="sessionDurationMinutes" type="number" step="15" value={customPlan.sessionDurationMinutes} onChange={handleCustomPlanChange} title="Duration (mins)" />
+                    <Input name="pricePerSession" type="number" step="5" value={customPlan.pricePerSession} onChange={handleCustomPlanChange} title="Price per session" />
+                 </div>
+              </div>
+            ) : (
+              <Select id="planId" name="planId"><option value="">Select a plan...</option>{plans.map(plan => (<option key={plan.id} value={plan.id}>{plan.name} (${calculateMonthlyPrice(plan).toFixed(2)}/mo)</option>))}</Select>
+            )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="goal">Primary Goal</Label>
-            <Input id="goal" name="goal" placeholder="e.g. Weight Loss" />
+          <div className="space-y-2 pt-2">
+            <Button type="button" variant="outline" className="w-full" onClick={() => setShowMedical(!showMedical)}><HeartPulse className="h-4 w-4 mr-2" /> Medical History (Optional) <ChevronDown className={`ml-auto h-4 w-4 transition-transform ${showMedical ? 'rotate-180' : ''}`} /></Button>
+            {showMedical && (
+                <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg space-y-3 animate-in fade-in">
+                    <div className="space-y-2"><Label>Injuries</Label><Input name="injuries" placeholder="e.g. Right knee pain" /></div>
+                    <div className="space-y-2"><Label>Medications</Label><Input name="medications" placeholder="e.g. None" /></div>
+                    <div className="space-y-2"><Label>Surgeries</Label><Input name="surgeries" placeholder="e.g. Appendix, 2018" /></div>
+                    <div className="space-y-2"><Label>General Observations</Label><Input name="observations" placeholder="e.g. Low flexibility" /></div>
+                </div>
+            )}
           </div>
           
           <div className="flex justify-end space-x-3 pt-4 border-t border-slate-100">

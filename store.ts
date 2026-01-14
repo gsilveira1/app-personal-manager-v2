@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Client, ClientStatus, Session, WorkoutPlan, FinanceRecord, PaymentStatus, PaymentMethod, Evaluation, Plan, Product } from './types';
+import { Client, Session, WorkoutPlan, FinanceRecord, Evaluation, Plan, Product, PaymentMethod } from './types';
 import * as api from './services/apiService';
 
 interface AppState {
@@ -11,11 +11,11 @@ interface AppState {
   plans: Plan[];
   products: Product[];
   aiPromptInstructions: string;
-  isInitialized: boolean;
 
   fetchInitialData: () => Promise<void>;
+  clearDataOnLogout: () => void;
   
-  addClient: (client: Omit<Client, 'id' | 'avatar'>) => Promise<void>;
+  addClient: (clientData: Omit<Client, 'id' | 'avatar'>, customPlanData?: Omit<Plan, 'id'>) => Promise<void>;
   updateClient: (id: string, client: Partial<Client>) => Promise<void>;
   deleteClient: (id: string) => Promise<void>;
   
@@ -34,6 +34,8 @@ interface AppState {
   markFinanceRecordPaid: (id: string, method: PaymentMethod) => Promise<void>;
   
   addEvaluation: (evaluation: Omit<Evaluation, 'id'>) => Promise<void>;
+  updateEvaluation: (id: string, evaluation: Partial<Evaluation>) => Promise<void>;
+  deleteEvaluation: (id: string) => Promise<void>;
 
   addPlan: (plan: Omit<Plan, 'id'>) => Promise<void>;
   updatePlan: (id: string, plan: Partial<Plan>) => Promise<void>;
@@ -42,7 +44,7 @@ interface AppState {
   updateAiPromptInstructions: (instructions: string) => Promise<void>;
 }
 
-export const useStore = create<AppState>((set, get) => ({
+const initialState = {
   clients: [],
   sessions: [],
   workouts: [],
@@ -51,10 +53,12 @@ export const useStore = create<AppState>((set, get) => ({
   plans: [],
   products: [],
   aiPromptInstructions: '',
-  isInitialized: false,
+};
+
+export const useStore = create<AppState>((set, get) => ({
+  ...initialState,
 
   fetchInitialData: async () => {
-    if (get().isInitialized) return;
     try {
       const [clients, sessions, workouts, finances, evaluations, plans, products, settings] = await Promise.all([
         api.getClients(),
@@ -75,16 +79,24 @@ export const useStore = create<AppState>((set, get) => ({
         plans, 
         products, 
         aiPromptInstructions: settings.aiPromptInstructions,
-        isInitialized: true 
       });
     } catch (error) {
       console.error("Failed to fetch initial data:", error);
-      // Here you could set an error state to show a message to the user
     }
   },
+  
+  clearDataOnLogout: () => {
+    set(initialState);
+  },
 
-  addClient: async (clientData) => {
-    const newClient = await api.createClient(clientData);
+  addClient: async (clientData, customPlanData) => {
+    let finalClientData = { ...clientData };
+    if (customPlanData) {
+      const newPlan = await api.createPlan(customPlanData);
+      set((state) => ({ plans: [...state.plans, newPlan] }));
+      finalClientData.planId = newPlan.id;
+    }
+    const newClient = await api.createClient(finalClientData);
     set((state) => ({ clients: [...state.clients, newClient] }));
   },
   updateClient: async (id, updates) => {
@@ -168,6 +180,16 @@ export const useStore = create<AppState>((set, get) => ({
   addEvaluation: async (evaluationData) => {
     const newEvaluation = await api.createEvaluation(evaluationData);
     set((state) => ({ evaluations: [newEvaluation, ...state.evaluations] }));
+  },
+  updateEvaluation: async (id, updates) => {
+    const updatedEvaluation = await api.updateEvaluation(id, updates);
+    set((state) => ({
+      evaluations: state.evaluations.map(e => e.id === id ? updatedEvaluation : e)
+    }));
+  },
+  deleteEvaluation: async (id) => {
+    await api.deleteEvaluation(id);
+    set((state) => ({ evaluations: state.evaluations.filter(e => e.id !== id) }));
   },
 
   addPlan: async (planData) => {

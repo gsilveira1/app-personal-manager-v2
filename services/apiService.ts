@@ -1,10 +1,61 @@
-import { Client, Session, WorkoutPlan, FinanceRecord, Evaluation, Plan, Product, PaymentMethod, PaymentStatus } from '../types';
+import { Client, Session, WorkoutPlan, FinanceRecord, Evaluation, Plan, Product, PaymentMethod, PaymentStatus, User } from '../types';
 import * as mock from './mockData';
 import { format } from 'date-fns';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 const generateAvatar = (seed: string) => `https://i.pravatar.cc/150?u=${seed}`;
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+// --- Auth API ---
+export const login = async (email: string, pass: string) => {
+    await delay(500);
+    const user = mock.users.find(u => u.email === email && u.password === pass);
+    if (user) {
+        const token = `mock-token-${user.id}`;
+        localStorage.setItem('authToken', token);
+        const { password, ...userWithoutPassword } = user;
+        return { user: userWithoutPassword, token };
+    }
+    throw new Error('Invalid credentials');
+};
+
+export const signup = async (name: string, email: string, pass: string) => {
+    await delay(500);
+    if (mock.users.find(u => u.email === email)) {
+        throw new Error('User already exists');
+    }
+    const newUser = { id: generateId(), name, email, password: pass };
+    mock.users.push(newUser);
+    const token = `mock-token-${newUser.id}`;
+    localStorage.setItem('authToken', token);
+    const { password, ...userWithoutPassword } = newUser;
+    return { user: userWithoutPassword, token };
+};
+
+export const logout = async () => {
+    await delay(100);
+    localStorage.removeItem('authToken');
+};
+
+export const getCurrentUser = async () => {
+    await delay(200);
+    const token = localStorage.getItem('authToken');
+    if (token) {
+        const userId = token.replace('mock-token-', '');
+        const user = mock.users.find(u => u.id === userId);
+        if (user) {
+            const { password, ...userWithoutPassword } = user;
+            return userWithoutPassword;
+        }
+    }
+    return null;
+};
+
+export const requestPasswordReset = async (email: string) => {
+    await delay(500);
+    console.log(`Password reset requested for ${email}. In a real app, an email would be sent.`);
+    return true;
+};
 
 // --- Clients API ---
 export const getClients = async () => { await delay(100); return mock.clients; };
@@ -27,7 +78,6 @@ export const updateClient = async (id: string, updates: Partial<Client>) => {
 };
 export const deleteClient = async (id: string) => {
   await delay(200);
-  // FIX: Cannot assign to 'clients' because it is a read-only property.
   const clientIndex = mock.clients.findIndex(c => c.id === id);
   if (clientIndex !== -1) {
     mock.clients.splice(clientIndex, 1);
@@ -80,7 +130,6 @@ export const updateRecurringSessions = async (id: string, updates: Partial<Sessi
     const updatedSeries: Session[] = [];
     const sessionDate = new Date(session.date);
 
-    // FIX: Cannot assign to 'sessions' because it is a read-only property.
     const sessionsToKeep: Session[] = [];
     for (const s of mock.sessions) {
       if (s.recurrenceId === session.recurrenceId && new Date(s.date) >= sessionDate) {
@@ -127,8 +176,7 @@ export const updateWorkout = async (id: string, updates: Partial<WorkoutPlan>) =
 };
 export const deleteWorkout = async (id: string) => {
   await delay(200);
-  // FIX: Cannot assign to 'workouts' because it is a read-only property.
-  const workoutIndex = mock.workouts.findIndex(w => w.id !== id);
+  const workoutIndex = mock.workouts.findIndex(w => w.id === id);
   if (workoutIndex !== -1) {
     mock.workouts.splice(workoutIndex, 1);
   }
@@ -169,7 +217,6 @@ export const generateMonthlyInvoices = async () => {
         clientId: client.id,
         amount: parseFloat(amount.toFixed(2)),
         date: new Date().toISOString(),
-        // FIX: Type '"Pending"' is not assignable to type 'PaymentStatus'.
         status: PaymentStatus.Pending,
         method: PaymentMethod.CreditCard, // Default
         description: `Subscription - ${format(new Date(), 'MMMM yyyy')}`,
@@ -186,7 +233,6 @@ export const markFinanceRecordPaid = async (id: string, method: PaymentMethod) =
   await delay(200);
   const record = mock.finances.find(f => f.id === id);
   if (!record) throw new Error('Record not found');
-  // FIX: Type '"Paid"' is not assignable to type 'PaymentStatus'.
   record.status = PaymentStatus.Paid;
   record.method = method;
   return { ...record };
@@ -199,6 +245,21 @@ export const createEvaluation = async (evaluation: Omit<Evaluation, 'id'>) => {
   const newEval: Evaluation = { ...evaluation, id: generateId() };
   mock.evaluations.unshift(newEval);
   return newEval;
+};
+export const updateEvaluation = async (id: string, updates: Partial<Evaluation>) => {
+  await delay(200);
+  const evalIndex = mock.evaluations.findIndex(e => e.id === id);
+  if (evalIndex === -1) throw new Error('Evaluation not found');
+  mock.evaluations[evalIndex] = { ...mock.evaluations[evalIndex], ...updates };
+  return mock.evaluations[evalIndex];
+};
+export const deleteEvaluation = async (id: string) => {
+  await delay(200);
+  const evalIndex = mock.evaluations.findIndex(e => e.id === id);
+  if (evalIndex !== -1) {
+    mock.evaluations.splice(evalIndex, 1);
+  }
+  return;
 };
 
 // --- Plans & Products API ---
@@ -218,7 +279,6 @@ export const updatePlan = async (id: string, updates: Partial<Plan>) => {
 };
 export const deletePlan = async (id: string) => {
   await delay(200);
-  // FIX: Cannot assign to 'plans' because it is a read-only property.
   const planIndex = mock.plans.findIndex(p => p.id === id);
   if (planIndex !== -1) {
     mock.plans.splice(planIndex, 1);

@@ -2,7 +2,7 @@ import React from 'react';
 import { useStore } from '../store';
 import { Card, Button } from '../components/ui';
 import { Users, Calendar, UserPlus, AlertCircle, CheckCircle2, Clock, Video, MapPin, Activity } from 'lucide-react';
-// FIX: Use ESM submodule imports for date-fns to ensure correct module resolution.
+// FIX: Switched to individual submodule imports for date-fns functions to resolve module resolution errors.
 import format from 'date-fns/format';
 import isSameDay from 'date-fns/isSameDay';
 import parseISO from 'date-fns/parseISO';

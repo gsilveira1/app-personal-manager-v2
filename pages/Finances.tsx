@@ -3,7 +3,7 @@ import { useStore } from '../store';
 import { PaymentStatus, PaymentMethod, FinanceRecord, TransactionType } from '../types';
 import { Card, Badge, Button, Input, Select, Label } from '../components/ui';
 import { DollarSign, Download, Filter, Search, PlusCircle, CheckCircle2, AlertCircle, X, ShoppingBag, Wallet } from 'lucide-react';
-// FIX: Use ESM submodule imports for date-fns to ensure correct module resolution.
+// FIX: Switched to individual submodule imports for date-fns functions to resolve module resolution errors.
 import format from 'date-fns/format';
 import parseISO from 'date-fns/parseISO';
 import startOfDay from 'date-fns/startOfDay';

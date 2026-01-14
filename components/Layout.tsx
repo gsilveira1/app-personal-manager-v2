@@ -1,11 +1,10 @@
 
-import React from 'react';
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, Calendar, Dumbbell, DollarSign, Menu, X, Settings } from 'lucide-react';
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { LayoutDashboard, Users, Calendar, Dumbbell, DollarSign, Menu, X, Settings, User, LogOut } from 'lucide-react';
+import { useAuthStore } from '../store/authStore';
 
 const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
-  const location = useLocation();
   const navItems = [
     { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/clients', icon: Users, label: 'Clients' },
@@ -45,6 +44,41 @@ const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
   );
 };
 
+const UserMenu = () => {
+    const { user, logout } = useAuthStore();
+    const navigate = useNavigate();
+    const [isOpen, setIsOpen] = useState(false);
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
+
+    return (
+        <div className="relative">
+            <button onClick={() => setIsOpen(!isOpen)} className="flex items-center space-x-2 p-1 rounded-full hover:bg-slate-100">
+                <img src={`https://i.pravatar.cc/150?u=${user?.email}`} alt="Profile" className="h-8 w-8 rounded-full border border-slate-200" />
+                <span className="hidden md:block text-sm font-medium text-slate-700">{user?.name}</span>
+            </button>
+            {isOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 z-50">
+                    <div className="px-4 py-2 text-sm text-slate-700 border-b">
+                        <p className="font-semibold">{user?.name}</p>
+                        <p className="text-xs text-slate-500 truncate">{user?.email}</p>
+                    </div>
+                    <button
+                        onClick={handleLogout}
+                        className="w-full text-left flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-slate-100"
+                    >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Logout
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+};
+
 export const Layout = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
 
@@ -52,17 +86,13 @@ export const Layout = () => {
     <div className="min-h-screen bg-slate-50 flex">
       <Sidebar isOpen={isSidebarOpen} onClose={() => setSidebarOpen(false)} />
       
-      {/* Added min-w-0 to prevent flex items from breaking layout width */}
       <div className="flex-1 flex flex-col md:ml-64 transition-all duration-200 min-w-0">
         <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200 h-16 flex items-center justify-between px-4 md:px-8">
           <button onClick={() => setSidebarOpen(true)} className="md:hidden p-2 text-slate-500 hover:bg-slate-100 rounded-md">
             <Menu className="h-6 w-6" />
           </button>
           <div className="flex items-center ml-auto space-x-4">
-             <div className="flex items-center space-x-2">
-                <img src="https://picsum.photos/32/32?random=99" alt="Profile" className="h-8 w-8 rounded-full border border-slate-200" />
-                <span className="hidden md:block text-sm font-medium text-slate-700">Coach Alex</span>
-             </div>
+             <UserMenu />
           </div>
         </header>
 
@@ -73,7 +103,6 @@ export const Layout = () => {
         </main>
       </div>
       
-      {/* Overlay for mobile sidebar */}
       {isSidebarOpen && (
         <div 
           className="fixed inset-0 bg-black/50 z-40 md:hidden"
