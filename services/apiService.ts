@@ -1,79 +1,246 @@
-import { Client, Session, WorkoutPlan, FinanceRecord, Evaluation, Plan, Product, PaymentMethod } from '../types';
+import { Client, Session, WorkoutPlan, FinanceRecord, Evaluation, Plan, Product, PaymentMethod, PaymentStatus } from '../types';
+import * as mock from './mockData';
+import { format } from 'date-fns';
 
-const API_BASE_URL = '/api'; // Using a relative path, assumes backend is on the same host
-
-/**
- * A generic helper function for making API requests.
- * It handles setting JSON headers, parsing the response, and error handling.
- * @param url The API endpoint to call (e.g., '/clients')
- * @param options The standard fetch options (method, body, etc.)
- * @returns A promise that resolves with the JSON response.
- */
-async function apiRequest<T>(url: string, options: RequestInit = {}): Promise<T> {
-  const headers = {
-    'Content-Type': 'application/json',
-    ...options.headers,
-  };
-
-  try {
-    const response = await fetch(`${API_BASE_URL}${url}`, { ...options, headers });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'An unknown API error occurred.' }));
-      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-    }
-    
-    // Handle 204 No Content response for DELETE requests
-    if (response.status === 204) {
-      return null as T;
-    }
-
-    return response.json();
-  } catch (error) {
-    console.error(`API request to ${url} failed:`, error);
-    throw error;
-  }
-}
+const generateId = () => Math.random().toString(36).substr(2, 9);
+const generateAvatar = (seed: string) => `https://i.pravatar.cc/150?u=${seed}`;
+const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
 // --- Clients API ---
-export const getClients = () => apiRequest<Client[]>('/clients');
-export const createClient = (client: Omit<Client, 'id'>) => apiRequest<Client>('/clients', { method: 'POST', body: JSON.stringify(client) });
-export const updateClient = (id: string, updates: Partial<Client>) => apiRequest<Client>(`/clients/${id}`, { method: 'PUT', body: JSON.stringify(updates) });
-export const deleteClient = (id: string) => apiRequest<void>(`/clients/${id}`, { method: 'DELETE' });
+export const getClients = async () => { await delay(100); return mock.clients; };
+export const createClient = async (client: Omit<Client, 'id'>) => {
+  await delay(200);
+  const newClient: Client = {
+    ...client,
+    id: generateId(),
+    avatar: generateAvatar(client.email),
+  };
+  mock.clients.push(newClient);
+  return newClient;
+};
+export const updateClient = async (id: string, updates: Partial<Client>) => {
+  await delay(200);
+  const clientIndex = mock.clients.findIndex(c => c.id === id);
+  if (clientIndex === -1) throw new Error('Client not found');
+  mock.clients[clientIndex] = { ...mock.clients[clientIndex], ...updates };
+  return mock.clients[clientIndex];
+};
+export const deleteClient = async (id: string) => {
+  await delay(200);
+  // FIX: Cannot assign to 'clients' because it is a read-only property.
+  const clientIndex = mock.clients.findIndex(c => c.id === id);
+  if (clientIndex !== -1) {
+    mock.clients.splice(clientIndex, 1);
+  }
+  return;
+};
 
 // --- Sessions API ---
-export const getSessions = () => apiRequest<Session[]>('/sessions');
-export const createSession = (session: Omit<Session, 'id' | 'completed'>) => apiRequest<Session>('/sessions', { method: 'POST', body: JSON.stringify(session) });
-export const createRecurringSessions = (data: { baseSession: Omit<Session, 'id' | 'date' | 'completed'>, startDateStr: string, frequency: 'weekly' | 'bi-weekly', untilDateStr: string }) => apiRequest<Session[]>('/sessions/recurring', { method: 'POST', body: JSON.stringify(data) });
-export const updateSession = (id: string, updates: Partial<Session>) => apiRequest<Session>(`/sessions/${id}`, { method: 'PUT', body: JSON.stringify(updates) });
-export const updateRecurringSessions = (id: string, updates: Partial<Session>) => apiRequest<Session[]>(`/sessions/${id}/recurring`, { method: 'PUT', body: JSON.stringify(updates) });
-export const toggleSessionComplete = (id: string) => apiRequest<Session>(`/sessions/${id}/toggle-complete`, { method: 'PATCH' });
+export const getSessions = async () => { await delay(100); return mock.sessions; };
+export const createSession = async (session: Omit<Session, 'id' | 'completed'>) => {
+  await delay(200);
+  const newSession: Session = { ...session, id: generateId(), completed: false };
+  mock.sessions.push(newSession);
+  return newSession;
+};
+export const createRecurringSessions = async (data: { baseSession: Omit<Session, 'id' | 'date' | 'completed'>, startDateStr: string, frequency: 'weekly' | 'bi-weekly', untilDateStr: string }) => {
+    await delay(300);
+    const { baseSession, startDateStr, frequency, untilDateStr } = data;
+    const newSessions: Session[] = [];
+    const recurrenceId = generateId();
+    let currentDate = new Date(startDateStr);
+    const untilDate = new Date(untilDateStr);
+    const increment = frequency === 'weekly' ? 7 : 14;
 
+    while (currentDate <= untilDate) {
+        newSessions.push({
+            ...baseSession,
+            id: generateId(),
+            date: currentDate.toISOString(),
+            completed: false,
+            recurrenceId,
+        });
+        currentDate = new Date(currentDate.setDate(currentDate.getDate() + increment));
+    }
+    mock.sessions.push(...newSessions);
+    return newSessions;
+};
+export const updateSession = async (id: string, updates: Partial<Session>) => {
+  await delay(200);
+  const sessionIndex = mock.sessions.findIndex(s => s.id === id);
+  if (sessionIndex === -1) throw new Error('Session not found');
+  mock.sessions[sessionIndex] = { ...mock.sessions[sessionIndex], ...updates };
+  return mock.sessions[sessionIndex];
+};
+export const updateRecurringSessions = async (id: string, updates: Partial<Session>) => {
+    await delay(300);
+    const session = mock.sessions.find(s => s.id === id);
+    if (!session?.recurrenceId) return [await updateSession(id, updates)];
+
+    const updatedSeries: Session[] = [];
+    const sessionDate = new Date(session.date);
+
+    // FIX: Cannot assign to 'sessions' because it is a read-only property.
+    const sessionsToKeep: Session[] = [];
+    for (const s of mock.sessions) {
+      if (s.recurrenceId === session.recurrenceId && new Date(s.date) >= sessionDate) {
+        // Create a new session object with the updates, but preserve original ID and date for this specific instance
+        const updatedSessionData = { ...s, ...updates };
+        // Ensure the date isn't accidentally overwritten by updates if only time changed
+        updatedSessionData.date = updates.date || s.date;
+        updatedSeries.push(updatedSessionData);
+        // This session will be removed and replaced by the updated version.
+      } else {
+        sessionsToKeep.push(s);
+      }
+    }
+
+    mock.sessions.length = 0;
+    mock.sessions.push(...sessionsToKeep);
+    
+    mock.sessions.push(...updatedSeries.map(us => ({...us, id: us.id}))); // Ensure they are new objects
+    return updatedSeries;
+};
+
+export const toggleSessionComplete = async (id: string) => {
+  await delay(200);
+  const session = mock.sessions.find(s => s.id === id);
+  if (!session) throw new Error('Session not found');
+  session.completed = !session.completed;
+  return { ...session };
+};
 
 // --- Workouts API ---
-export const getWorkouts = () => apiRequest<WorkoutPlan[]>('/workouts');
-export const createWorkout = (workout: Omit<WorkoutPlan, 'id'>) => apiRequest<WorkoutPlan>('/workouts', { method: 'POST', body: JSON.stringify(workout) });
-export const updateWorkout = (id: string, updates: Partial<WorkoutPlan>) => apiRequest<WorkoutPlan>(`/workouts/${id}`, { method: 'PUT', body: JSON.stringify(updates) });
-export const deleteWorkout = (id: string) => apiRequest<void>(`/workouts/${id}`, { method: 'DELETE' });
+export const getWorkouts = async () => { await delay(100); return mock.workouts; };
+export const createWorkout = async (workout: Omit<WorkoutPlan, 'id'>) => {
+  await delay(200);
+  const newWorkout: WorkoutPlan = { ...workout, id: generateId() };
+  mock.workouts.push(newWorkout);
+  return newWorkout;
+};
+export const updateWorkout = async (id: string, updates: Partial<WorkoutPlan>) => {
+  await delay(200);
+  const workoutIndex = mock.workouts.findIndex(w => w.id === id);
+  if (workoutIndex === -1) throw new Error('Workout not found');
+  mock.workouts[workoutIndex] = { ...mock.workouts[workoutIndex], ...updates };
+  return mock.workouts[workoutIndex];
+};
+export const deleteWorkout = async (id: string) => {
+  await delay(200);
+  // FIX: Cannot assign to 'workouts' because it is a read-only property.
+  const workoutIndex = mock.workouts.findIndex(w => w.id !== id);
+  if (workoutIndex !== -1) {
+    mock.workouts.splice(workoutIndex, 1);
+  }
+  return;
+};
 
 // --- Finances API ---
-export const getFinances = () => apiRequest<FinanceRecord[]>('/finances');
-export const createFinanceRecord = (record: Omit<FinanceRecord, 'id'>) => apiRequest<FinanceRecord>('/finances', { method: 'POST', body: JSON.stringify(record) });
-export const generateMonthlyInvoices = () => apiRequest<FinanceRecord[]>('/finances/generate-invoices', { method: 'POST' });
-export const markFinanceRecordPaid = (id: string, method: PaymentMethod) => apiRequest<FinanceRecord>(`/finances/${id}/mark-paid`, { method: 'PATCH', body: JSON.stringify({ method }) });
+export const getFinances = async () => { await delay(100); return mock.finances; };
+export const createFinanceRecord = async (record: Omit<FinanceRecord, 'id'>) => {
+  await delay(200);
+  const newRecord: FinanceRecord = { ...record, id: generateId() };
+  mock.finances.unshift(newRecord);
+  return newRecord;
+};
+export const generateMonthlyInvoices = async () => {
+  await delay(500);
+  const today = new Date();
+  const thisMonth = today.getMonth();
+  const thisYear = today.getFullYear();
+  const activeClients = mock.clients.filter(c => c.status === 'Active' && c.planId);
+  const newInvoices: FinanceRecord[] = [];
+
+  for (const client of activeClients) {
+    const plan = mock.plans.find(p => p.id === client.planId);
+    if (!plan) continue;
+    
+    const existingInvoice = mock.finances.find(f => 
+      f.clientId === client.id &&
+      f.type === 'Subscription' &&
+      new Date(f.date).getMonth() === thisMonth &&
+      new Date(f.date).getFullYear() === thisYear
+    );
+    
+    if (!existingInvoice) {
+      const amount = plan.pricePerSession * plan.sessionsPerWeek * 4.33;
+      const newInvoice: FinanceRecord = {
+        id: generateId(),
+        clientId: client.id,
+        amount: parseFloat(amount.toFixed(2)),
+        date: new Date().toISOString(),
+        // FIX: Type '"Pending"' is not assignable to type 'PaymentStatus'.
+        status: PaymentStatus.Pending,
+        method: PaymentMethod.CreditCard, // Default
+        description: `Subscription - ${format(new Date(), 'MMMM yyyy')}`,
+        type: 'Subscription',
+        relatedId: plan.id,
+      };
+      newInvoices.push(newInvoice);
+    }
+  }
+  mock.finances.unshift(...newInvoices);
+  return newInvoices;
+};
+export const markFinanceRecordPaid = async (id: string, method: PaymentMethod) => {
+  await delay(200);
+  const record = mock.finances.find(f => f.id === id);
+  if (!record) throw new Error('Record not found');
+  // FIX: Type '"Paid"' is not assignable to type 'PaymentStatus'.
+  record.status = PaymentStatus.Paid;
+  record.method = method;
+  return { ...record };
+};
 
 // --- Evaluations API ---
-export const getEvaluations = () => apiRequest<Evaluation[]>('/evaluations');
-export const createEvaluation = (evaluation: Omit<Evaluation, 'id'>) => apiRequest<Evaluation>('/evaluations', { method: 'POST', body: JSON.stringify(evaluation) });
+export const getEvaluations = async () => { await delay(100); return mock.evaluations; };
+export const createEvaluation = async (evaluation: Omit<Evaluation, 'id'>) => {
+  await delay(200);
+  const newEval: Evaluation = { ...evaluation, id: generateId() };
+  mock.evaluations.unshift(newEval);
+  return newEval;
+};
 
 // --- Plans & Products API ---
-export const getPlans = () => apiRequest<Plan[]>('/plans');
-export const createPlan = (plan: Omit<Plan, 'id'>) => apiRequest<Plan>('/plans', { method: 'POST', body: JSON.stringify(plan) });
-export const updatePlan = (id: string, updates: Partial<Plan>) => apiRequest<Plan>(`/plans/${id}`, { method: 'PUT', body: JSON.stringify(updates) });
-export const deletePlan = (id: string) => apiRequest<void>(`/plans/${id}`, { method: 'DELETE' });
-export const getProducts = () => apiRequest<Product[]>('/products');
-
+export const getPlans = async () => { await delay(100); return mock.plans; };
+export const createPlan = async (plan: Omit<Plan, 'id'>) => {
+  await delay(200);
+  const newPlan: Plan = { ...plan, id: generateId() };
+  mock.plans.push(newPlan);
+  return newPlan;
+};
+export const updatePlan = async (id: string, updates: Partial<Plan>) => {
+  await delay(200);
+  const planIndex = mock.plans.findIndex(p => p.id === id);
+  if (planIndex === -1) throw new Error('Plan not found');
+  mock.plans[planIndex] = { ...mock.plans[planIndex], ...updates };
+  return mock.plans[planIndex];
+};
+export const deletePlan = async (id: string) => {
+  await delay(200);
+  // FIX: Cannot assign to 'plans' because it is a read-only property.
+  const planIndex = mock.plans.findIndex(p => p.id === id);
+  if (planIndex !== -1) {
+    mock.plans.splice(planIndex, 1);
+  }
+  // Also unassign from clients
+  mock.clients.forEach(c => {
+    if (c.planId === id) {
+      c.planId = undefined;
+    }
+  });
+  return;
+};
+export const getProducts = async () => { await delay(100); return mock.products; };
 
 // --- Settings API ---
-export const getSettings = () => apiRequest<{ aiPromptInstructions: string }>('/settings');
-export const updateAiPromptInstructions = (instructions: string) => apiRequest<{ aiPromptInstructions: string }>('/settings/ai-instructions', { method: 'PUT', body: JSON.stringify({ instructions }) });
+let settings = { aiPromptInstructions: 'Focus on compound movements and functional fitness.' };
+export const getSettings = async () => {
+    await delay(50);
+    return settings;
+};
+export const updateAiPromptInstructions = async (instructions: string) => {
+    await delay(100);
+    settings.aiPromptInstructions = instructions;
+    return settings;
+};
