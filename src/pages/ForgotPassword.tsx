@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import * as api from '../services/apiService';
+import * as api from '../services/authService';
 import { Card, Button, Input, Label } from '../components/ui';
 import { Loader2, CheckCircle2 } from 'lucide-react';
 
