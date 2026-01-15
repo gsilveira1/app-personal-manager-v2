@@ -1,306 +1,147 @@
-import { Client, Session, WorkoutPlan, FinanceRecord, Evaluation, Plan, Product, PaymentMethod, PaymentStatus, User } from '../types';
-import * as mock from './mockData';
-import { format } from 'date-fns';
-
-const generateId = () => Math.random().toString(36).substr(2, 9);
-const generateAvatar = (seed: string) => `https://i.pravatar.cc/150?u=${seed}`;
-const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+import { Client, Session, WorkoutPlan, FinanceRecord, Evaluation, Plan, Product, PaymentMethod, User } from '../types';
+import apiClient from '../utils/apiClient';
 
 // --- Auth API ---
 export const login = async (email: string, pass: string) => {
-    await delay(500);
-    const user = mock.users.find(u => u.email === email && u.password === pass);
-    if (user) {
-        const token = `mock-token-${user.id}`;
-        localStorage.setItem('authToken', token);
-        const { password, ...userWithoutPassword } = user;
-        return { user: userWithoutPassword, token };
-    }
-    throw new Error('Invalid credentials');
+    const data = await apiClient<{ user: User, token: string }>('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email, password: pass }),
+    });
+    localStorage.setItem('authToken', data.token);
+    return { user: data.user, token: data.token };
 };
 
 export const signup = async (name: string, email: string, pass: string) => {
-    await delay(500);
-    if (mock.users.find(u => u.email === email)) {
-        throw new Error('User already exists');
-    }
-    const newUser = { id: generateId(), name, email, password: pass };
-    mock.users.push(newUser);
-    const token = `mock-token-${newUser.id}`;
-    localStorage.setItem('authToken', token);
-    const { password, ...userWithoutPassword } = newUser;
-    return { user: userWithoutPassword, token };
+    const data = await apiClient<{ user: User, token: string }>('/auth/signup', {
+        method: 'POST',
+        body: JSON.stringify({ name, email, password: pass }),
+    });
+    localStorage.setItem('authToken', data.token);
+    return { user: data.user, token: data.token };
 };
 
 export const logout = async () => {
-    await delay(100);
+    // In a real app, you might want to invalidate the token on the server
+    // await apiClient('/auth/logout', { method: 'POST' });
     localStorage.removeItem('authToken');
 };
 
 export const getCurrentUser = async () => {
-    await delay(200);
     const token = localStorage.getItem('authToken');
-    if (token) {
-        const userId = token.replace('mock-token-', '');
-        const user = mock.users.find(u => u.id === userId);
-        if (user) {
-            const { password, ...userWithoutPassword } = user;
-            return userWithoutPassword;
-        }
+    if (!token) return null;
+    try {
+        return await apiClient<User>('/auth/me');
+    } catch (error) {
+        // If token is invalid, the API will throw an error (e.g. 401)
+        console.error("Failed to get current user:", error);
+        localStorage.removeItem('authToken'); // Clean up invalid token
+        return null;
     }
-    return null;
 };
 
 export const requestPasswordReset = async (email: string) => {
-    await delay(500);
-    console.log(`Password reset requested for ${email}. In a real app, an email would be sent.`);
-    return true;
+    return await apiClient<void>('/auth/forgot-password', {
+        method: 'POST',
+        body: JSON.stringify({ email }),
+    });
 };
 
 // --- Clients API ---
-export const getClients = async () => { await delay(100); return mock.clients; };
-export const createClient = async (client: Omit<Client, 'id'>) => {
-  await delay(200);
-  const newClient: Client = {
-    ...client,
-    id: generateId(),
-    avatar: generateAvatar(client.email),
-  };
-  mock.clients.push(newClient);
-  return newClient;
-};
-export const updateClient = async (id: string, updates: Partial<Client>) => {
-  await delay(200);
-  const clientIndex = mock.clients.findIndex(c => c.id === id);
-  if (clientIndex === -1) throw new Error('Client not found');
-  mock.clients[clientIndex] = { ...mock.clients[clientIndex], ...updates };
-  return mock.clients[clientIndex];
-};
-export const deleteClient = async (id: string) => {
-  await delay(200);
-  const clientIndex = mock.clients.findIndex(c => c.id === id);
-  if (clientIndex !== -1) {
-    mock.clients.splice(clientIndex, 1);
-  }
-  return;
-};
+export const getClients = async () => apiClient<Client[]>('/clients');
+export const createClient = async (client: Omit<Client, 'id' | 'avatar'>) => apiClient<Client>('/clients', {
+    method: 'POST',
+    body: JSON.stringify(client),
+});
+export const updateClient = async (id: string, updates: Partial<Client>) => apiClient<Client>(`/clients/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(updates),
+});
+export const deleteClient = async (id: string) => apiClient<void>(`/clients/${id}`, {
+    method: 'DELETE',
+});
 
 // --- Sessions API ---
-export const getSessions = async () => { await delay(100); return mock.sessions; };
-export const createSession = async (session: Omit<Session, 'id' | 'completed'>) => {
-  await delay(200);
-  const newSession: Session = { ...session, id: generateId(), completed: false };
-  mock.sessions.push(newSession);
-  return newSession;
-};
-export const createRecurringSessions = async (data: { baseSession: Omit<Session, 'id' | 'date' | 'completed'>, startDateStr: string, frequency: 'weekly' | 'bi-weekly', untilDateStr: string }) => {
-    await delay(300);
-    const { baseSession, startDateStr, frequency, untilDateStr } = data;
-    const newSessions: Session[] = [];
-    const recurrenceId = generateId();
-    let currentDate = new Date(startDateStr);
-    const untilDate = new Date(untilDateStr);
-    const increment = frequency === 'weekly' ? 7 : 14;
-
-    while (currentDate <= untilDate) {
-        newSessions.push({
-            ...baseSession,
-            id: generateId(),
-            date: currentDate.toISOString(),
-            completed: false,
-            recurrenceId,
-        });
-        currentDate = new Date(currentDate.setDate(currentDate.getDate() + increment));
-    }
-    mock.sessions.push(...newSessions);
-    return newSessions;
-};
-export const updateSession = async (id: string, updates: Partial<Session>) => {
-  await delay(200);
-  const sessionIndex = mock.sessions.findIndex(s => s.id === id);
-  if (sessionIndex === -1) throw new Error('Session not found');
-  mock.sessions[sessionIndex] = { ...mock.sessions[sessionIndex], ...updates };
-  return mock.sessions[sessionIndex];
-};
-export const updateRecurringSessions = async (id: string, updates: Partial<Session>) => {
-    await delay(300);
-    const session = mock.sessions.find(s => s.id === id);
-    if (!session?.recurrenceId) return [await updateSession(id, updates)];
-
-    const updatedSeries: Session[] = [];
-    const sessionDate = new Date(session.date);
-
-    const sessionsToKeep: Session[] = [];
-    for (const s of mock.sessions) {
-      if (s.recurrenceId === session.recurrenceId && new Date(s.date) >= sessionDate) {
-        // Create a new session object with the updates, but preserve original ID and date for this specific instance
-        const updatedSessionData = { ...s, ...updates };
-        // Ensure the date isn't accidentally overwritten by updates if only time changed
-        updatedSessionData.date = updates.date || s.date;
-        updatedSeries.push(updatedSessionData);
-        // This session will be removed and replaced by the updated version.
-      } else {
-        sessionsToKeep.push(s);
-      }
-    }
-
-    mock.sessions.length = 0;
-    mock.sessions.push(...sessionsToKeep);
-    
-    mock.sessions.push(...updatedSeries.map(us => ({...us, id: us.id}))); // Ensure they are new objects
-    return updatedSeries;
-};
-
-export const toggleSessionComplete = async (id: string) => {
-  await delay(200);
-  const session = mock.sessions.find(s => s.id === id);
-  if (!session) throw new Error('Session not found');
-  session.completed = !session.completed;
-  return { ...session };
-};
+export const getSessions = async () => apiClient<Session[]>('/sessions');
+export const createSession = async (session: Omit<Session, 'id' | 'completed'>) => apiClient<Session>('/sessions', {
+    method: 'POST',
+    body: JSON.stringify(session),
+});
+export const createRecurringSessions = async (data: { baseSession: Omit<Session, 'id' | 'date' | 'completed'>, startDateStr: string, frequency: 'weekly' | 'bi-weekly', untilDateStr: string }) => apiClient<Session[]>('/sessions/recurring', {
+    method: 'POST',
+    body: JSON.stringify(data),
+});
+export const updateSession = async (id: string, updates: Partial<Session>) => apiClient<Session>(`/sessions/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(updates),
+});
+export const updateRecurringSessions = async (id: string, updates: Partial<Session>) => apiClient<Session[]>(`/sessions/recurring/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(updates),
+});
+export const toggleSessionComplete = async (id: string) => apiClient<Session>(`/sessions/${id}/toggle-complete`, {
+    method: 'POST',
+});
 
 // --- Workouts API ---
-export const getWorkouts = async () => { await delay(100); return mock.workouts; };
-export const createWorkout = async (workout: Omit<WorkoutPlan, 'id'>) => {
-  await delay(200);
-  const newWorkout: WorkoutPlan = { ...workout, id: generateId() };
-  mock.workouts.push(newWorkout);
-  return newWorkout;
-};
-export const updateWorkout = async (id: string, updates: Partial<WorkoutPlan>) => {
-  await delay(200);
-  const workoutIndex = mock.workouts.findIndex(w => w.id === id);
-  if (workoutIndex === -1) throw new Error('Workout not found');
-  mock.workouts[workoutIndex] = { ...mock.workouts[workoutIndex], ...updates };
-  return mock.workouts[workoutIndex];
-};
-export const deleteWorkout = async (id: string) => {
-  await delay(200);
-  const workoutIndex = mock.workouts.findIndex(w => w.id === id);
-  if (workoutIndex !== -1) {
-    mock.workouts.splice(workoutIndex, 1);
-  }
-  return;
-};
+export const getWorkouts = async () => apiClient<WorkoutPlan[]>('/workouts');
+export const createWorkout = async (workout: Omit<WorkoutPlan, 'id'>) => apiClient<WorkoutPlan>('/workouts', {
+    method: 'POST',
+    body: JSON.stringify(workout),
+});
+export const updateWorkout = async (id: string, updates: Partial<WorkoutPlan>) => apiClient<WorkoutPlan>(`/workouts/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(updates),
+});
+export const deleteWorkout = async (id: string) => apiClient<void>(`/workouts/${id}`, {
+    method: 'DELETE',
+});
 
 // --- Finances API ---
-export const getFinances = async () => { await delay(100); return mock.finances; };
-export const createFinanceRecord = async (record: Omit<FinanceRecord, 'id'>) => {
-  await delay(200);
-  const newRecord: FinanceRecord = { ...record, id: generateId() };
-  mock.finances.unshift(newRecord);
-  return newRecord;
-};
-export const generateMonthlyInvoices = async () => {
-  await delay(500);
-  const today = new Date();
-  const thisMonth = today.getMonth();
-  const thisYear = today.getFullYear();
-  const activeClients = mock.clients.filter(c => c.status === 'Active' && c.planId);
-  const newInvoices: FinanceRecord[] = [];
-
-  for (const client of activeClients) {
-    const plan = mock.plans.find(p => p.id === client.planId);
-    if (!plan) continue;
-    
-    const existingInvoice = mock.finances.find(f => 
-      f.clientId === client.id &&
-      f.type === 'Subscription' &&
-      new Date(f.date).getMonth() === thisMonth &&
-      new Date(f.date).getFullYear() === thisYear
-    );
-    
-    if (!existingInvoice) {
-      const amount = plan.pricePerSession * plan.sessionsPerWeek * 4.33;
-      const newInvoice: FinanceRecord = {
-        id: generateId(),
-        clientId: client.id,
-        amount: parseFloat(amount.toFixed(2)),
-        date: new Date().toISOString(),
-        status: PaymentStatus.Pending,
-        method: PaymentMethod.CreditCard, // Default
-        description: `Subscription - ${format(new Date(), 'MMMM yyyy')}`,
-        type: 'Subscription',
-        relatedId: plan.id,
-      };
-      newInvoices.push(newInvoice);
-    }
-  }
-  mock.finances.unshift(...newInvoices);
-  return newInvoices;
-};
-export const markFinanceRecordPaid = async (id: string, method: PaymentMethod) => {
-  await delay(200);
-  const record = mock.finances.find(f => f.id === id);
-  if (!record) throw new Error('Record not found');
-  record.status = PaymentStatus.Paid;
-  record.method = method;
-  return { ...record };
-};
+export const getFinances = async () => apiClient<FinanceRecord[]>('/finances');
+export const createFinanceRecord = async (record: Omit<FinanceRecord, 'id'>) => apiClient<FinanceRecord>('/finances', {
+    method: 'POST',
+    body: JSON.stringify(record),
+});
+export const generateMonthlyInvoices = async () => apiClient<FinanceRecord[]>('/finances/generate-invoices', {
+    method: 'POST',
+});
+export const markFinanceRecordPaid = async (id: string, method: PaymentMethod) => apiClient<FinanceRecord>(`/finances/${id}/mark-paid`, {
+    method: 'POST',
+    body: JSON.stringify({ method }),
+});
 
 // --- Evaluations API ---
-export const getEvaluations = async () => { await delay(100); return mock.evaluations; };
-export const createEvaluation = async (evaluation: Omit<Evaluation, 'id'>) => {
-  await delay(200);
-  const newEval: Evaluation = { ...evaluation, id: generateId() };
-  mock.evaluations.unshift(newEval);
-  return newEval;
-};
-export const updateEvaluation = async (id: string, updates: Partial<Evaluation>) => {
-  await delay(200);
-  const evalIndex = mock.evaluations.findIndex(e => e.id === id);
-  if (evalIndex === -1) throw new Error('Evaluation not found');
-  mock.evaluations[evalIndex] = { ...mock.evaluations[evalIndex], ...updates };
-  return mock.evaluations[evalIndex];
-};
-export const deleteEvaluation = async (id: string) => {
-  await delay(200);
-  const evalIndex = mock.evaluations.findIndex(e => e.id === id);
-  if (evalIndex !== -1) {
-    mock.evaluations.splice(evalIndex, 1);
-  }
-  return;
-};
+export const getEvaluations = async () => apiClient<Evaluation[]>('/evaluations');
+export const createEvaluation = async (evaluation: Omit<Evaluation, 'id'>) => apiClient<Evaluation>('/evaluations', {
+    method: 'POST',
+    body: JSON.stringify(evaluation),
+});
+export const updateEvaluation = async (id: string, updates: Partial<Evaluation>) => apiClient<Evaluation>(`/evaluations/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(updates),
+});
+export const deleteEvaluation = async (id: string) => apiClient<void>(`/evaluations/${id}`, {
+    method: 'DELETE',
+});
 
 // --- Plans & Products API ---
-export const getPlans = async () => { await delay(100); return mock.plans; };
-export const createPlan = async (plan: Omit<Plan, 'id'>) => {
-  await delay(200);
-  const newPlan: Plan = { ...plan, id: generateId() };
-  mock.plans.push(newPlan);
-  return newPlan;
-};
-export const updatePlan = async (id: string, updates: Partial<Plan>) => {
-  await delay(200);
-  const planIndex = mock.plans.findIndex(p => p.id === id);
-  if (planIndex === -1) throw new Error('Plan not found');
-  mock.plans[planIndex] = { ...mock.plans[planIndex], ...updates };
-  return mock.plans[planIndex];
-};
-export const deletePlan = async (id: string) => {
-  await delay(200);
-  const planIndex = mock.plans.findIndex(p => p.id === id);
-  if (planIndex !== -1) {
-    mock.plans.splice(planIndex, 1);
-  }
-  // Also unassign from clients
-  mock.clients.forEach(c => {
-    if (c.planId === id) {
-      c.planId = undefined;
-    }
-  });
-  return;
-};
-export const getProducts = async () => { await delay(100); return mock.products; };
+export const getPlans = async () => apiClient<Plan[]>('/plans');
+export const createPlan = async (plan: Omit<Plan, 'id'>) => apiClient<Plan>('/plans', {
+    method: 'POST',
+    body: JSON.stringify(plan),
+});
+export const updatePlan = async (id: string, updates: Partial<Plan>) => apiClient<Plan>(`/plans/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(updates),
+});
+export const deletePlan = async (id: string) => apiClient<void>(`/plans/${id}`, {
+    method: 'DELETE',
+});
+export const getProducts = async () => apiClient<Product[]>('/products');
 
 // --- Settings API ---
-let settings = { aiPromptInstructions: 'Focus on compound movements and functional fitness.' };
-export const getSettings = async () => {
-    await delay(50);
-    return settings;
-};
-export const updateAiPromptInstructions = async (instructions: string) => {
-    await delay(100);
-    settings.aiPromptInstructions = instructions;
-    return settings;
-};
+export const getSettings = async () => apiClient<{ aiPromptInstructions: string }>('/settings');
+export const updateAiPromptInstructions = async (instructions: string) => apiClient<{ aiPromptInstructions: string }>('/settings', {
+    method: 'POST',
+    body: JSON.stringify({ aiPromptInstructions: instructions }),
+});

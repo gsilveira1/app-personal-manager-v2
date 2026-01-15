@@ -1,22 +1,25 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useStore } from '../store';
 import { Card, Button } from '../components/ui';
-import { Users, Calendar, UserPlus, AlertCircle, CheckCircle2, Clock, Video, MapPin, Activity } from 'lucide-react';
-// FIX: Switched to individual submodule imports for date-fns functions to resolve module resolution errors.
-import format from 'date-fns/format';
-import isSameDay from 'date-fns/isSameDay';
-import parseISO from 'date-fns/parseISO';
-import startOfWeek from 'date-fns/startOfWeek';
-import endOfWeek from 'date-fns/endOfWeek';
-import eachDayOfInterval from 'date-fns/eachDayOfInterval';
-import isAfter from 'date-fns/isAfter';
-import subDays from 'date-fns/subDays';
+import { Users, Calendar, UserPlus, AlertCircle, CheckCircle2, Clock, Video, MapPin, Activity, AlertTriangle } from 'lucide-react';
+// FIX: Consolidate date-fns imports to resolve module resolution errors.
+import { format } from 'date-fns/format';
+import { isSameDay } from 'date-fns/isSameDay';
+import { parseISO } from 'date-fns/parseISO';
+import { startOfWeek } from 'date-fns/startOfWeek';
+import { endOfWeek } from 'date-fns/endOfWeek';
+import { eachDayOfInterval } from 'date-fns/eachDayOfInterval';
+import { isAfter } from 'date-fns/isAfter';
+import { subDays } from 'date-fns/subDays';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ClientStatus, PaymentStatus, Session } from '../types';
+import { findSchedulingConflicts } from '../utils/scheduleUtils';
 
 export const Dashboard = () => {
   const { clients, sessions, finances, toggleSessionComplete } = useStore();
+  
+  const conflicts = useMemo(() => findSchedulingConflicts(sessions), [sessions]);
 
   const today = new Date();
   const weekStart = startOfWeek(today, { weekStartsOn: 1 });
@@ -62,6 +65,8 @@ export const Dashboard = () => {
             <Button>+ New Session</Button>
          </Link>
       </div>
+
+      {conflicts.length > 0 && <ConflictsCard conflicts={conflicts} />}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatsCard 
@@ -198,3 +203,45 @@ const StatsCard = ({ title, value, icon: Icon, description, isAlert }: { title: 
     </p>
   </Card>
 );
+
+const ConflictsCard = ({ conflicts }: { conflicts: Session[][] }) => {
+  const { clients } = useStore();
+  const navigate = useNavigate();
+
+  return (
+    <Card className="col-span-full bg-red-50 border-red-200 animate-in fade-in">
+      <div className="p-6">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-red-100 rounded-lg">
+            <AlertTriangle className="h-6 w-6 text-red-600" />
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-red-900">{conflicts.length} Scheduling Conflict{conflicts.length > 1 ? 's' : ''} Detected</h3>
+            <p className="text-sm text-red-700">Some sessions are overlapping. Please resolve them.</p>
+          </div>
+        </div>
+        <div className="mt-4 space-y-3 max-h-48 overflow-y-auto pr-2">
+          {conflicts.map((group, index) => (
+            <div key={index} className="p-3 bg-white rounded-md border border-red-200">
+              <p className="text-xs font-semibold text-red-800 mb-2">Conflict Group {index + 1}</p>
+              <div className="space-y-1">
+                {group.map(session => {
+                  const client = clients.find(c => c.id === session.clientId);
+                  return (
+                    <div key={session.id} className="flex justify-between items-center text-sm">
+                      <span className="font-medium text-slate-700">{client?.name || '...'}</span>
+                      <span className="text-slate-500">{format(parseISO(session.date), 'MMM d, h:mm a')}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+        <Button variant="danger" className="mt-4 w-full" onClick={() => navigate('/schedule')}>
+          Resolve Conflicts in Schedule
+        </Button>
+      </div>
+    </Card>
+  )
+}

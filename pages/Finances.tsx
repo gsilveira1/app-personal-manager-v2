@@ -3,13 +3,13 @@ import { useStore } from '../store';
 import { PaymentStatus, PaymentMethod, FinanceRecord, TransactionType } from '../types';
 import { Card, Badge, Button, Input, Select, Label } from '../components/ui';
 import { DollarSign, Download, Filter, Search, PlusCircle, CheckCircle2, AlertCircle, X, ShoppingBag, Wallet } from 'lucide-react';
-// FIX: Switched to individual submodule imports for date-fns functions to resolve module resolution errors.
-import format from 'date-fns/format';
-import parseISO from 'date-fns/parseISO';
-import startOfDay from 'date-fns/startOfDay';
-import endOfDay from 'date-fns/endOfDay';
-import subMonths from 'date-fns/subMonths';
-import isSameMonth from 'date-fns/isSameMonth';
+// FIX: Consolidate date-fns imports to resolve module resolution errors.
+import { format } from 'date-fns/format';
+import { parseISO } from 'date-fns/parseISO';
+import { startOfDay } from 'date-fns/startOfDay';
+import { endOfDay } from 'date-fns/endOfDay';
+import { subMonths } from 'date-fns/subMonths';
+import { isSameMonth } from 'date-fns/isSameMonth';
 import { Link, useSearchParams } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 

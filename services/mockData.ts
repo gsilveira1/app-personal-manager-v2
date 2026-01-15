@@ -1,8 +1,8 @@
 import { Client, ClientStatus, Session, WorkoutPlan, FinanceRecord, PaymentStatus, PaymentMethod, Evaluation, Plan, Product, User } from '../types';
-// FIX: Switched to individual submodule imports for date-fns functions to resolve module resolution errors.
-import subDays from 'date-fns/subDays';
-import addDays from 'date-fns/addDays';
-import formatISO from 'date-fns/formatISO';
+// FIX: Consolidate date-fns imports to resolve module resolution errors.
+import { subDays } from 'date-fns/subDays';
+import { addDays } from 'date-fns/addDays';
+import { formatISO } from 'date-fns/formatISO';
 
 // FIX: Added missing 'users' mock data required by the auth logic in apiService.ts
 export let users: (User & { password?: string })[] = [

@@ -2,26 +2,27 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useStore } from '../store';
 import { Card, Button, Badge, Label, Select, Input } from '../components/ui';
 import { ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon, Clock, MapPin, Video, CheckCircle2, User, ArrowUpRight, Dumbbell, Save, X, LayoutGrid, List, CalendarDays, Edit2, Repeat, AlertTriangle, ChevronsLeft, ChevronsRight, Info } from 'lucide-react';
-// FIX: Switched to individual submodule imports for date-fns functions to resolve module resolution errors.
-import format from 'date-fns/format';
-import startOfWeek from 'date-fns/startOfWeek';
-import addDays from 'date-fns/addDays';
-import isSameDay from 'date-fns/isSameDay';
-import parseISO from 'date-fns/parseISO';
-import isToday from 'date-fns/isToday';
-import startOfMonth from 'date-fns/startOfMonth';
-import endOfMonth from 'date-fns/endOfMonth';
-import endOfWeek from 'date-fns/endOfWeek';
-import eachDayOfInterval from 'date-fns/eachDayOfInterval';
-import addMonths from 'date-fns/addMonths';
-import addWeeks from 'date-fns/addWeeks';
-import isSameMonth from 'date-fns/isSameMonth';
-import getHours from 'date-fns/getHours';
-import setHours from 'date-fns/setHours';
-import startOfDay from 'date-fns/startOfDay';
-import add from 'date-fns/add';
+// FIX: Consolidate date-fns imports to resolve module resolution errors.
+import { format } from 'date-fns/format';
+import { startOfWeek } from 'date-fns/startOfWeek';
+import { addDays } from 'date-fns/addDays';
+import { isSameDay } from 'date-fns/isSameDay';
+import { parseISO } from 'date-fns/parseISO';
+import { isToday } from 'date-fns/isToday';
+import { startOfMonth } from 'date-fns/startOfMonth';
+import { endOfMonth } from 'date-fns/endOfMonth';
+import { endOfWeek } from 'date-fns/endOfWeek';
+import { eachDayOfInterval } from 'date-fns/eachDayOfInterval';
+import { addMonths } from 'date-fns/addMonths';
+import { addWeeks } from 'date-fns/addWeeks';
+import { isSameMonth } from 'date-fns/isSameMonth';
+import { getHours } from 'date-fns/getHours';
+import { setHours } from 'date-fns/setHours';
+import { startOfDay } from 'date-fns/startOfDay';
+import { add } from 'date-fns/add';
 import { Client, Session, WorkoutPlan } from '../types';
 import { useNavigate, Link } from 'react-router-dom';
+import { isTimeSlotTaken } from '../utils/scheduleUtils';
 
 type ViewType = 'day' | 'week' | 'month';
 
@@ -177,7 +178,7 @@ export const Schedule = () => {
            </Card>
            <div className="animate-in fade-in duration-300">{renderView()}</div>
       </div>
-      {sessionEditorOpen && <SessionEditorModal isOpen={sessionEditorOpen} onClose={() => setSessionEditorOpen(false)} onSaveNew={addSession} onSaveRecurring={addRecurringSessions} onUpdate={updateSessionWithScope} sessionToEdit={editingSession} clients={clients} initialDate={preselectedDate || currentDate} />}
+      {sessionEditorOpen && <SessionEditorModal isOpen={sessionEditorOpen} onClose={() => setSessionEditorOpen(false)} onSaveNew={addSession} onSaveRecurring={addRecurringSessions} onUpdate={updateSessionWithScope} sessionToEdit={editingSession} clients={clients} sessions={sessions} initialDate={preselectedDate || currentDate} />}
       {selectedSession && <SessionDetailsModal session={selectedSession} clients={clients} workouts={workouts} onClose={() => setSelectedSession(null)} onUpdate={updateSession} onEdit={handleEditSession} />}
       {isOverviewModalOpen && <OverviewModal isOpen={isOverviewModalOpen} onClose={() => setIsOverviewModalOpen(false)} sessions={rangeSessions} clients={clients} headerText={`${view.charAt(0).toUpperCase() + view.slice(1)}ly Overview`} workouts={workouts} />}
     </div>
@@ -216,20 +217,20 @@ const MonthView = ({ date, sessions, clients, onDayClick }: any) => {
 
 // --- Subcomponents ---
 const SessionCard = ({ session, client, onClick, onToggle, onDragStart, onDragEnd, isDragged }: any) => {
-    return <Card draggable="true" onDragStart={(e) => onDragStart(e, session.id)} onDragEnd={onDragEnd} className={`p-3 sm:p-4 transition-all hover:shadow-md cursor-pointer group ${session.completed ? 'opacity-70 bg-slate-50' : 'bg-white hover:border-indigo-300'} ${isDragged ? 'opacity-50 ring-2 ring-indigo-500' : ''}`} onClick={onClick}><div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4"><div className="flex items-start space-x-3 sm:space-x-4"><div className={`px-2 sm:px-3 py-1 rounded text-xs sm:text-sm whitespace-nowrap font-semibold ${session.category === 'Check-in' ? 'bg-purple-100 text-purple-700' : 'bg-indigo-50 text-indigo-700'}`}>{format(parseISO(session.date), 'h:mm a')}</div><div>{/* FIX: Wrap Repeat icon in a span with a title attribute for tooltip */}
+    return <Card draggable="true" onDragStart={(e) => onDragStart(e, session.id)} onDragEnd={onDragEnd} className={`p-3 sm:p-4 transition-all hover:shadow-md cursor-pointer group ${session.completed ? 'opacity-70 bg-slate-50' : 'bg-white hover:border-indigo-300'} ${isDragged ? 'opacity-50 ring-2 ring-indigo-500' : ''}`} onClick={onClick}><div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4"><div className="flex items-start space-x-3 sm:space-x-4"><div className={`px-2 sm:px-3 py-1 rounded text-xs sm:text-sm whitespace-nowrap font-semibold ${session.category === 'Check-in' ? 'bg-purple-100 text-purple-700' : 'bg-indigo-50 text-indigo-700'}`}>{format(parseISO(session.date), 'h:mm a')}</div><div>
 <h4 className="font-semibold text-sm sm:text-base text-slate-900 flex items-center gap-2 group-hover:text-indigo-700">{client?.name || 'Unknown Client'}{session.recurrenceId && <span title="Recurring session"><Repeat className="h-3 w-3 text-slate-400" /></span>}</h4><div className="flex flex-wrap items-center text-xs text-slate-500 mt-1 gap-x-3 gap-y-1"><span className="flex items-center"><Clock className="h-3 w-3 mr-1"/> {session.durationMinutes} min</span><span className="flex items-center">{session.type === 'Online' ? <Video className="h-3 w-3 mr-1"/> : <MapPin className="h-3 w-3 mr-1"/>}{session.type}</span></div></div></div><div className="flex items-center justify-end sm:justify-start space-x-2"><button onClick={(e) => { e.stopPropagation(); onToggle(session.id); }} className={`text-xs px-3 py-1.5 rounded-full border ${session.completed ? 'bg-green-100 text-green-700 border-green-200' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}>{session.completed ? 'Completed' : 'Mark Complete'}</button></div></div></Card>;
 };
-const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurring, onUpdate, sessionToEdit, clients, initialDate }: any) => {
+const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurring, onUpdate, sessionToEdit, clients, sessions, initialDate }: any) => {
     const [formData, setFormData] = useState({ clientId: clients[0]?.id || '', date: format(initialDate, 'yyyy-MM-dd'), time: format(initialDate, 'HH:mm'), durationMinutes: 60, notes: '', linkedWorkoutId: '' });
     const [isRecurring, setIsRecurring] = useState(false);
     const [recurrence, setRecurrence] = useState({ frequency: 'weekly', until: format(add(initialDate, { months: 3 }), 'yyyy-MM-dd') });
     const [isRecurrencePromptOpen, setIsRecurrencePromptOpen] = useState(false);
     const [pendingUpdate, setPendingUpdate] = useState<Partial<Session> | null>(null);
+    const [error, setError] = useState('');
 
     useEffect(() => { if (sessionToEdit) { const d = parseISO(sessionToEdit.date); setFormData({ clientId: sessionToEdit.clientId, date: format(d, 'yyyy-MM-dd'), time: format(d, 'HH:mm'), durationMinutes: sessionToEdit.durationMinutes, notes: sessionToEdit.notes || '', linkedWorkoutId: sessionToEdit.linkedWorkoutId || '' }); setIsRecurring(!!sessionToEdit.recurrenceId); } }, [sessionToEdit]);
     
     const client = clients.find((c: Client) => c.id === formData.clientId);
-    // FIX: Explicitly type constants to ensure correct type inference for baseSession
     const sessionType: 'Online' | 'In-Person' = client?.type === 'Online' ? 'Online' : 'In-Person';
     const sessionCategory: 'Check-in' | 'Workout' = client?.type === 'Online' ? 'Check-in' : 'Workout';
     
@@ -237,22 +238,37 @@ const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurring, onUpd
     
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        const combinedDate = new Date(`${formData.date}T${formData.time}`).toISOString();
-        const baseSession = { clientId: formData.clientId, date: combinedDate, durationMinutes: Number(formData.durationMinutes), type: sessionType, category: sessionCategory, notes: formData.notes, linkedWorkoutId: formData.linkedWorkoutId };
+        setError('');
+        const combinedDate = new Date(`${formData.date}T${formData.time}`);
+        
+        const conflictingSession = isTimeSlotTaken(
+            sessions,
+            combinedDate,
+            Number(formData.durationMinutes),
+            sessionToEdit?.id
+        );
+
+        if (conflictingSession) {
+            const conflictClientName = clients.find(c => c.id === conflictingSession.clientId)?.name || 'a client';
+            setError(`This time slot conflicts with a session for ${conflictClientName} at ${format(parseISO(conflictingSession.date), 'h:mm a')}.`);
+            return;
+        }
+
+        const baseSession = { clientId: formData.clientId, date: combinedDate.toISOString(), durationMinutes: Number(formData.durationMinutes), type: sessionType, category: sessionCategory, notes: formData.notes, linkedWorkoutId: formData.linkedWorkoutId };
         
         if (sessionToEdit) { // Editing
-            const dateChanged = combinedDate !== sessionToEdit.date;
+            const dateChanged = combinedDate.toISOString() !== sessionToEdit.date;
             if (sessionToEdit.recurrenceId && dateChanged) { setPendingUpdate(baseSession); setIsRecurrencePromptOpen(true); } 
             else { onUpdate(sessionToEdit.id, baseSession, 'single'); onClose(); }
         } else { // Creating
-            if (isRecurring) { onSaveRecurring({ ...baseSession }, combinedDate, recurrence.frequency, new Date(`${recurrence.until}T23:59:59`).toISOString()); } 
-            else { onSaveNew({ ...baseSession, id: Math.random().toString(36).substr(2, 9), completed: false }); }
+            if (isRecurring) { onSaveRecurring({ ...baseSession }, combinedDate.toISOString(), recurrence.frequency, new Date(`${recurrence.until}T23:59:59`).toISOString()); } 
+            else { onSaveNew(baseSession); }
             onClose();
         }
     };
     if (!isOpen) return null;
     return <>
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"><Card className="w-full max-w-md bg-white shadow-xl animate-in fade-in zoom-in duration-200 overflow-y-auto max-h-[90vh]"><div className="p-6 border-b border-slate-100 sticky top-0 bg-white z-10"><h2 className="text-lg font-bold text-slate-900">{sessionToEdit ? 'Edit Session' : 'New Session'}</h2></div><form onSubmit={handleSubmit} className="p-6 space-y-4"><div className="space-y-2"><Label>Client</Label><Select name="clientId" value={formData.clientId} onChange={handleChange}>{clients.filter((c:Client) => c.status === 'Active').map((c: Client) => <option key={c.id} value={c.id}>{c.name} ({c.type})</option>)}</Select></div><div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label>Date</Label><Input name="date" type="date" required value={formData.date} onChange={handleChange} /></div><div className="space-y-2"><Label>Time</Label><Input name="time" type="time" required value={formData.time} onChange={handleChange} /></div></div><div className="space-y-2"><Label>Duration (minutes)</Label><Select name="durationMinutes" value={formData.durationMinutes} onChange={handleChange}><option value="30">30 min</option><option value="45">45 min</option><option value="60">60 min</option></Select></div>{!sessionToEdit && <div className="space-y-2 pt-2"><label className="flex items-center gap-2 text-sm font-medium"><input type="checkbox" checked={isRecurring} onChange={(e) => setIsRecurring(e.target.checked)} className="rounded" /> Make this a recurring session</label></div>}{isRecurring && !sessionToEdit && <div className="p-4 bg-indigo-50 border border-indigo-100 rounded-lg space-y-3 animate-in fade-in"><div className="space-y-2"><Label>Frequency</Label><Select value={recurrence.frequency} onChange={(e) => setRecurrence(r => ({ ...r, frequency: e.target.value }))}><option value="weekly">Weekly</option><option value="bi-weekly">Bi-weekly</option></Select></div><div className="space-y-2"><Label>Ends on</Label><Input type="date" value={recurrence.until} onChange={(e) => setRecurrence(r => ({ ...r, until: e.target.value }))}/></div></div>}<div className="space-y-2"><Label>Notes</Label><Input name="notes" placeholder="Focus for this session..." value={formData.notes} onChange={handleChange} /></div><div className="flex justify-end space-x-3 pt-4 border-t border-slate-100"><Button type="button" variant="outline" onClick={onClose}>Cancel</Button><Button type="submit">Save Session</Button></div></form></Card></div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"><Card className="w-full max-w-md bg-white shadow-xl animate-in fade-in zoom-in duration-200 overflow-y-auto max-h-[90vh]"><div className="p-6 border-b border-slate-100 sticky top-0 bg-white z-10"><h2 className="text-lg font-bold text-slate-900">{sessionToEdit ? 'Edit Session' : 'New Session'}</h2></div><form onSubmit={handleSubmit} className="p-6 space-y-4"><div className="space-y-2"><Label>Client</Label><Select name="clientId" value={formData.clientId} onChange={handleChange}>{clients.filter((c:Client) => c.status === 'Active').map((c: Client) => <option key={c.id} value={c.id}>{c.name} ({c.type})</option>)}</Select></div><div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label>Date</Label><Input name="date" type="date" required value={formData.date} onChange={handleChange} /></div><div className="space-y-2"><Label>Time</Label><Input name="time" type="time" required value={formData.time} onChange={handleChange} /></div></div><div className="space-y-2"><Label>Duration (minutes)</Label><Select name="durationMinutes" value={formData.durationMinutes} onChange={handleChange}><option value="30">30 min</option><option value="45">45 min</option><option value="60">60 min</option></Select></div>{!sessionToEdit && <div className="space-y-2 pt-2"><label className="flex items-center gap-2 text-sm font-medium"><input type="checkbox" checked={isRecurring} onChange={(e) => setIsRecurring(e.target.checked)} className="rounded" /> Make this a recurring session</label></div>}{isRecurring && !sessionToEdit && <div className="p-4 bg-indigo-50 border border-indigo-100 rounded-lg space-y-3 animate-in fade-in"><div className="space-y-2"><Label>Frequency</Label><Select value={recurrence.frequency} onChange={(e) => setRecurrence(r => ({ ...r, frequency: e.target.value }))}><option value="weekly">Weekly</option><option value="bi-weekly">Bi-weekly</option></Select></div><div className="space-y-2"><Label>Ends on</Label><Input type="date" value={recurrence.until} onChange={(e) => setRecurrence(r => ({ ...r, until: e.target.value }))}/></div></div>}<div className="space-y-2"><Label>Notes</Label><Input name="notes" placeholder="Focus for this session..." value={formData.notes} onChange={handleChange} /></div>{error && <div className="p-3 bg-red-50 border border-red-200 text-red-800 text-sm rounded-md flex items-start gap-2"><AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" /><span>{error}</span></div>}<div className="flex justify-end space-x-3 pt-4 border-t border-slate-100"><Button type="button" variant="outline" onClick={onClose}>Cancel</Button><Button type="submit">Save Session</Button></div></form></Card></div>
         {isRecurrencePromptOpen && <RecurrenceUpdateModal onConfirm={(scope) => { onUpdate(sessionToEdit.id, pendingUpdate, scope); onClose(); }} onCancel={() => setIsRecurrencePromptOpen(false)} />}
     </>;
 };

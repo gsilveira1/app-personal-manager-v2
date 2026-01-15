@@ -3,10 +3,10 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useStore } from '../store';
 import { Card, Button, Badge, Label, Input, Select } from '../components/ui';
 import { ArrowLeft, Calendar, Mail, Phone, HeartPulse, Edit2, Save, FileText, Activity, TrendingUp, AlertCircle, Plus, CheckCircle2, XCircle, Trash2, Dumbbell, ChevronDown, ChevronUp, History, Archive, Flame, DollarSign, Clock, CreditCard, Ruler, Droplets, X } from 'lucide-react';
-// FIX: Switched to individual submodule imports for date-fns functions to resolve module resolution errors.
-import format from 'date-fns/format';
-import parseISO from 'date-fns/parseISO';
-import isPast from 'date-fns/isPast';
+// FIX: Consolidate date-fns imports to resolve module resolution errors.
+import { format } from 'date-fns/format';
+import { parseISO } from 'date-fns/parseISO';
+import { isPast } from 'date-fns/isPast';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Evaluation, WorkoutPlan, PaymentStatus, Plan, Skinfolds, Perimeters, Client } from '../types';
 import { WorkoutEditorModal } from '../components/WorkoutEditorModal';

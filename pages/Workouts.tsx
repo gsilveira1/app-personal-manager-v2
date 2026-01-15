@@ -5,9 +5,9 @@ import { Card, Button, Input, Label, Badge, Select } from '../components/ui';
 import { generateWorkoutPlan } from '../services/geminiService';
 import { Sparkles, Dumbbell, Clock, ChevronDown, ChevronUp, Loader2, Plus, Edit2, Trash2, Calendar, Flame } from 'lucide-react';
 import { WorkoutEditorModal } from '../components/WorkoutEditorModal';
-// FIX: Switched to individual submodule imports for date-fns functions to resolve module resolution errors.
-import format from 'date-fns/format';
-import parseISO from 'date-fns/parseISO';
+// FIX: Consolidate date-fns imports to resolve module resolution errors.
+import { format } from 'date-fns/format';
+import { parseISO } from 'date-fns/parseISO';
 
 export const Workouts = () => {
   const { workouts, addWorkout, updateWorkout, deleteWorkout } = useStore();
