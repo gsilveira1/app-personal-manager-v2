@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-// FIX: Split react-router-dom imports to fix module resolution errors.
 import { useNavigate } from 'react-router';
 import { Link } from 'react-router-dom';
+
 import { useAuthStore } from '../store/authStore';
 import { Card, Button, Input, Label } from '../components/ui';
 import { Loader2 } from 'lucide-react';

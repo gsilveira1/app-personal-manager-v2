@@ -74,7 +74,7 @@ const ProtectedRoute = () => {
 };
 
 function App() {
-  const { checkAuthStatus, isLoading } = useAuthStore();
+ /* const { checkAuthStatus, isLoading } = useAuthStore();
 
   useEffect(() => {
     checkAuthStatus();
@@ -84,20 +84,20 @@ function App() {
     return (
       <FullScreenLoader message="Checking session..." />
     );
-  }
+  }*/
 
   return (
     <HashRouter>
       <Routes>
-        {/* Public Auth Routes */}
+        {/* Public Auth 
         <Route element={<AuthLayout />}>
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
         </Route>
-
-        {/* Protected App Routes */}
-        <Route element={<ProtectedRoute />}>
+Routes */}
+        {/* Protected 
+        <Route element={<ProtectedRoute />}>App Routes */}
           <Route element={<Layout />}>
             <Route path="/" element={<Dashboard />} />
             <Route path="clients" element={<Clients />} />
@@ -107,7 +107,7 @@ function App() {
             <Route path="finances" element={<Finances />} />
             <Route path="settings" element={<Settings />} />
           </Route>
-        </Route>
+        {/*</Route>*/}
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
