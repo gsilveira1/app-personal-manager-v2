@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useStore } from '../store/store';
-import { Card, Button, Input, Label } from './ui';
+import { Card, Button, Input, Label, Select } from './ui';
 import { X, Plus, Trash2, Save, Dumbbell, ArrowUp, ArrowDown, Flame, Sparkles, Loader2, Lightbulb } from 'lucide-react';
 import { type WorkoutPlan, type WorkoutExercise, type Client } from '../types';
 import { generateWorkoutInsights } from '../services/geminiService';
@@ -141,7 +141,39 @@ export const WorkoutEditorModal = ({ isOpen, onClose, onSave, initialData, clien
 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2"><Label htmlFor="title">Plan Title</Label><Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required placeholder="e.g. Upper Body Power" /></div>
+            <div className="space-y-2">
+              {!initialData && (
+                  <div className="mb-4 p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                    <Label htmlFor="import-workout" className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 block">Load from Previous Workout</Label>
+                    <Select 
+                        id="import-workout" 
+                        onChange={(e) => {
+                            const w = allWorkouts.find(w => w.id === e.target.value);
+                            if (w) {
+                                setTitle(w.title);
+                                setDescription(w.description || '');
+                                setTags(w.tags.join(', '));
+                                setExercises(w.exercises);
+                            }
+                        }}
+                        value=""
+                    >
+                        <option value="" disabled>Select a workout to copy...</option>
+                        {allWorkouts.map(w => (
+                            <option key={w.id} value={w.id}>
+                                {w.title} ({w.exercises.length} items)
+                            </option>
+                        ))}
+                    </Select>
+                  </div>
+              )}  
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="title">Plan Title</Label>
+              <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required placeholder="e.g. Upper Body Power" />
+            </div>
             <div className="space-y-2"><Label htmlFor="tags">Tags (comma separated)</Label><Input id="tags" value={tags} onChange={(e) => setTags(e.target.value)} placeholder="Strength, Hypertrophy, 45min" /></div>
           </div>
           <div className="space-y-2"><Label htmlFor="description">Description</Label><Input id="description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Brief overview of the workout goals..." /></div>
