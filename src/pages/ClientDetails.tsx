@@ -154,7 +154,7 @@ export const ClientDetails = () => {
   const handleArchiveWorkout = (workoutId: string) => updateWorkout(workoutId, { status: 'Archived' });
   const handleActivateWorkout = (workoutId: string) => updateWorkout(workoutId, { status: 'Active' });
   const handleEditWorkout = (workout: WorkoutPlan) => { setEditingWorkout(workout); setIsWorkoutModalOpen(true); };
-  const handleSaveWorkout = (workout: any) => { if (editingWorkout) updateWorkout(workout.id, workout); else addWorkout(workout); setIsWorkoutModalOpen(false); };
+  const handleSaveWorkout = (workout: any) => { if (editingWorkout) updateWorkout(editingWorkout.id, workout); else addWorkout(workout); setIsWorkoutModalOpen(false); };
   
   const age = client.dateOfBirth ? new Date().getFullYear() - new Date(client.dateOfBirth).getFullYear() : 'N/A';
 
