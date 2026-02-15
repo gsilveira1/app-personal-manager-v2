@@ -266,10 +266,13 @@ const EvaluationCard: React.FC<EvaluationCardProps> = ({ evaluation }) => {
     const [isRemoveEvalModalOpen, setIsRemoveEvalModalOpen] = useState(false);
     const { updateEvaluation, deleteEvaluation } = useStore();
    
-    const editEvaluation = (evaluationId: string) => {
-      updateEvaluation(evaluationId, {});
-      setIsEditEvalModalOpen(false);};
+    const editEvaluation = (evaluationId: string, data: Partial<Evaluation>) => {
+      updateEvaluation(evaluationId, data);
+      setIsEditEvalModalOpen(false);
+    };
+    
     const removeEvaluation = (evaluationId: string) => {
+      deleteEvaluation(evaluationId);
       setIsRemoveEvalModalOpen(false);
     }
 
@@ -307,7 +310,7 @@ const EvaluationCard: React.FC<EvaluationCardProps> = ({ evaluation }) => {
                 </div>
             )}
         </Card>
-        {isEditEvalModalOpen && <EvaluationModal clientId={evaluation.clientId} onClose={() => setIsEditEvalModalOpen(false)} onSave={() => editEvaluation(evaluation.id)} />}
+        {isEditEvalModalOpen && <EvaluationModal clientId={evaluation.clientId} initialData={evaluation} onClose={() => setIsEditEvalModalOpen(false)} onSave={(data) => editEvaluation(evaluation.id, data)} />}
         {isRemoveEvalModalOpen && <ConfirmationModal title="Delete Evaluation" message="Are you sure you want to delete this evaluation? This action cannot be undone." onConfirm={() => removeEvaluation(evaluation.id)} onCancel={() => setIsRemoveEvalModalOpen(false)} />}
       </>
     );
