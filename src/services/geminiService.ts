@@ -1,14 +1,14 @@
-import { GoogleGenAI, Type } from "@google/genai";
-import { type Client, type Evaluation, type WorkoutPlan } from "../types";
+import { GoogleGenAI, Type } from '@google/genai'
+import { type Client, type Evaluation, type WorkoutPlan } from '../types'
 
-const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY });
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY })
 
 interface GenerateWorkoutParams {
-  clientName: string;
-  goal: string;
-  experienceLevel: string;
-  limitations?: string;
-  daysPerWeek: number;
+  clientName: string
+  goal: string
+  experienceLevel: string
+  limitations?: string
+  daysPerWeek: number
 }
 
 export const generateWorkoutPlan = async (params: GenerateWorkoutParams) => {
@@ -20,14 +20,14 @@ export const generateWorkoutPlan = async (params: GenerateWorkoutParams) => {
     Frequency: ${params.daysPerWeek} days per week.
 
     Please provide a structured response with a title, description, and a list of exercises for a single representative session.
-  `;
+  `
 
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-3-pro-preview',
       contents: prompt,
       config: {
-        responseMimeType: "application/json",
+        responseMimeType: 'application/json',
         responseSchema: {
           type: Type.OBJECT,
           properties: {
@@ -45,39 +45,39 @@ export const generateWorkoutPlan = async (params: GenerateWorkoutParams) => {
                 },
                 // Add propertyOrdering for consistent output
                 propertyOrdering: ['name', 'sets', 'reps', 'notes'],
-              }
+              },
             },
             tags: {
               type: Type.ARRAY,
-              items: { type: Type.STRING }
-            }
-          }
-        }
-      }
-    });
+              items: { type: Type.STRING },
+            },
+          },
+        },
+      },
+    })
     // FIX: Add a null check for response.text before trimming
-    const jsonString = response.text ? response.text.trim() : undefined;
+    const jsonString = response.text ? response.text.trim() : undefined
     if (!jsonString) {
-      throw new Error("Received an empty response from the AI.");
+      throw new Error('Received an empty response from the AI.')
     }
-    return JSON.parse(jsonString);
+    return JSON.parse(jsonString)
   } catch (error) {
-    console.error("Error generating workout:", error);
-    throw error;
+    console.error('Error generating workout:', error)
+    throw error
   }
-};
+}
 
 interface WorkoutInsightParams {
-    client: Client;
-    latestEvaluation?: Evaluation;
-    archivedPlans: WorkoutPlan[];
-    customInstructions?: string;
+  client: Client
+  latestEvaluation?: Evaluation
+  archivedPlans: WorkoutPlan[]
+  customInstructions?: string
 }
 
 export const generateWorkoutInsights = async ({ client, latestEvaluation, archivedPlans, customInstructions }: WorkoutInsightParams) => {
-    const age = client.dateOfBirth ? new Date().getFullYear() - new Date(client.dateOfBirth).getFullYear() : 'N/A';
-    
-    const prompt = `
+  const age = client.dateOfBirth ? new Date().getFullYear() - new Date(client.dateOfBirth).getFullYear() : 'N/A'
+
+  const prompt = `
       You are an expert personal trainer and fitness consultant assisting another trainer.
       Your task is to provide actionable suggestions for a new workout plan based on the client's detailed profile.
 
@@ -96,7 +96,7 @@ export const generateWorkoutInsights = async ({ client, latestEvaluation, archiv
       - Evaluation Notes: ${latestEvaluation?.notes || 'None'}
 
       PAST WORKOUTS (Archived Plans):
-      ${archivedPlans.length > 0 ? archivedPlans.map(p => `- ${p.title}: ${p.description}`).join('\n') : 'No past plans available.'}
+      ${archivedPlans.length > 0 ? archivedPlans.map((p) => `- ${p.title}: ${p.description}`).join('\n') : 'No past plans available.'}
 
       TASK:
       Based on all of the information above, provide 3-5 specific and actionable suggestions for the new workout plan. For each suggestion, provide the rationale ("reason") and a concrete exercise suggestion with name, sets, reps, and optional notes.
@@ -113,50 +113,50 @@ export const generateWorkoutInsights = async ({ client, latestEvaluation, archiv
         },
         "reason": "This addresses the client's goal of marathon prep and helps strengthen the muscles around their sensitive right knee."
       }
-    `;
+    `
 
-    try {
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-pro-preview',
-        contents: prompt,
-        config: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              insights: {
-                type: Type.ARRAY,
-                items: {
-                  type: Type.OBJECT,
-                  properties: {
-                    suggestion: {
-                      type: Type.OBJECT,
-                      properties: {
-                        name: { type: Type.STRING },
-                        sets: { type: Type.NUMBER },
-                        reps: { type: Type.STRING },
-                        notes: { type: Type.STRING },
-                      },
-                      required: ['name', 'sets', 'reps']
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-pro-preview',
+      contents: prompt,
+      config: {
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            insights: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  suggestion: {
+                    type: Type.OBJECT,
+                    properties: {
+                      name: { type: Type.STRING },
+                      sets: { type: Type.NUMBER },
+                      reps: { type: Type.STRING },
+                      notes: { type: Type.STRING },
                     },
-                    reason: { type: Type.STRING },
+                    required: ['name', 'sets', 'reps'],
                   },
-                  required: ['suggestion', 'reason']
+                  reason: { type: Type.STRING },
                 },
+                required: ['suggestion', 'reason'],
               },
             },
-            required: ['insights']
           },
+          required: ['insights'],
         },
-      });
-      // FIX: Add a null check for response.text before trimming
-      const jsonString = response.text ? response.text.trim() : undefined;
-      if (!jsonString) {
-        throw new Error("Received an empty response from the AI.");
-      }
-      return JSON.parse(jsonString);
-    } catch (error) {
-      console.error("Error generating workout insights:", error);
-      throw new Error("Failed to get insights from AI. Please check your connection or API key.");
+      },
+    })
+    // FIX: Add a null check for response.text before trimming
+    const jsonString = response.text ? response.text.trim() : undefined
+    if (!jsonString) {
+      throw new Error('Received an empty response from the AI.')
     }
+    return JSON.parse(jsonString)
+  } catch (error) {
+    console.error('Error generating workout insights:', error)
+    throw new Error('Failed to get insights from AI. Please check your connection or API key.')
+  }
 }

@@ -1,45 +1,45 @@
-import React, { useState, useEffect } from 'react';
-import { DollarSign, Trash2, Edit2, Plus, X, Repeat, Clock, Bot } from 'lucide-react';
+import React, { useState, useEffect } from 'react'
+import { DollarSign, Trash2, Edit2, Plus, X, Repeat, Clock, Bot } from 'lucide-react'
 
-import { useStore } from '../store/store';
-import { type Plan } from '../types';
-import { Card, Button, Input, Label, Select } from '../components/ui';
+import { useStore } from '../store/store'
+import { type Plan } from '../types'
+import { Card, Button, Input, Label, Select } from '../components/ui'
 
-const WEEKS_IN_MONTH = 4.33;
+const WEEKS_IN_MONTH = 4.33
 
 const calculateMonthlyPrice = (plan: Pick<Plan, 'pricePerSession' | 'sessionsPerWeek'>) => {
-  return plan.pricePerSession * plan.sessionsPerWeek * WEEKS_IN_MONTH;
-};
+  return plan.pricePerSession * plan.sessionsPerWeek * WEEKS_IN_MONTH
+}
 
 export const Settings = () => {
-  const { plans, addPlan, updatePlan, deletePlan, aiPromptInstructions, updateAiPromptInstructions } = useStore();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingPlan, setEditingPlan] = useState<Plan | null>(null);
+  const { plans, addPlan, updatePlan, deletePlan, aiPromptInstructions, updateAiPromptInstructions } = useStore()
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingPlan, setEditingPlan] = useState<Plan | null>(null)
 
   const handleCreate = () => {
-    setEditingPlan(null);
-    setIsModalOpen(true);
-  };
+    setEditingPlan(null)
+    setIsModalOpen(true)
+  }
 
   const handleEdit = (plan: Plan) => {
-    setEditingPlan(plan);
-    setIsModalOpen(true);
-  };
+    setEditingPlan(plan)
+    setIsModalOpen(true)
+  }
 
   const handleDelete = (id: string) => {
     if (window.confirm('Are you sure you want to delete this plan? This will also unassign it from any clients.')) {
-      deletePlan(id);
+      deletePlan(id)
     }
-  };
-  
+  }
+
   const handleSave = (planData: Omit<Plan, 'id'>) => {
     if (editingPlan) {
-      updatePlan(editingPlan.id, planData);
+      updatePlan(editingPlan.id, planData)
     } else {
-      addPlan(planData);
+      addPlan(planData)
     }
-    setIsModalOpen(false);
-  };
+    setIsModalOpen(false)
+  }
 
   return (
     <div className="space-y-6">
@@ -47,29 +47,27 @@ export const Settings = () => {
 
       <Card>
         <div className="p-6 border-b border-slate-200">
-            <h2 className="text-lg font-semibold text-slate-900 flex items-center">
-                <Bot className="mr-3 h-5 w-5 text-indigo-600" />
-                AI Custom Instructions
-            </h2>
-            <p className="text-sm text-slate-500 mt-1">
-                Provide general instructions for the AI to consider when generating workout insights. This is optional.
-            </p>
+          <h2 className="text-lg font-semibold text-slate-900 flex items-center">
+            <Bot className="mr-3 h-5 w-5 text-indigo-600" />
+            AI Custom Instructions
+          </h2>
+          <p className="text-sm text-slate-500 mt-1">Provide general instructions for the AI to consider when generating workout insights. This is optional.</p>
         </div>
         <div className="p-6">
-            <Label htmlFor="ai-instructions">General Prompt Instructions</Label>
-            <textarea
-                id="ai-instructions"
-                name="ai-instructions"
-                rows={5}
-                className="mt-2 w-full p-3 text-sm border-slate-300 rounded-md focus:ring-2 focus:ring-indigo-500 ring-offset-white focus-visible:outline-none placeholder:text-slate-500"
-                placeholder="e.g., Always include at least one compound movement. Prioritize free weights over machines. Focus on exercises that are safe for clients with lower back pain."
-                value={aiPromptInstructions}
-                onChange={(e) => updateAiPromptInstructions(e.target.value)}
-            />
-            <p className="text-xs text-slate-400 mt-2">Changes are saved automatically.</p>
+          <Label htmlFor="ai-instructions">General Prompt Instructions</Label>
+          <textarea
+            id="ai-instructions"
+            name="ai-instructions"
+            rows={5}
+            className="mt-2 w-full p-3 text-sm border-slate-300 rounded-md focus:ring-2 focus:ring-indigo-500 ring-offset-white focus-visible:outline-none placeholder:text-slate-500"
+            placeholder="e.g., Always include at least one compound movement. Prioritize free weights over machines. Focus on exercises that are safe for clients with lower back pain."
+            value={aiPromptInstructions}
+            onChange={(e) => updateAiPromptInstructions(e.target.value)}
+          />
+          <p className="text-xs text-slate-400 mt-2">Changes are saved automatically.</p>
         </div>
       </Card>
-      
+
       <Card>
         <div className="p-6 border-b border-slate-200 flex items-center justify-between">
           <div>
@@ -81,73 +79,71 @@ export const Settings = () => {
           </Button>
         </div>
         <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {plans.map(plan => (
-            <PlanCard 
-              key={plan.id} 
-              plan={plan} 
-              onEdit={() => handleEdit(plan)} 
-              onDelete={() => handleDelete(plan.id)}
-            />
+          {plans.map((plan) => (
+            <PlanCard key={plan.id} plan={plan} onEdit={() => handleEdit(plan)} onDelete={() => handleDelete(plan.id)} />
           ))}
         </div>
       </Card>
 
-      {isModalOpen && (
-        <PlanEditorModal 
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onSave={handleSave}
-          initialData={editingPlan}
-        />
-      )}
+      {isModalOpen && <PlanEditorModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSave={handleSave} initialData={editingPlan} />}
     </div>
-  );
-};
+  )
+}
 
 interface PlanCardProps {
-  plan: Plan;
-  onEdit: () => void;
-  onDelete: () => void;
+  plan: Plan
+  onEdit: () => void
+  onDelete: () => void
 }
 
 const PlanCard: React.FC<PlanCardProps> = ({ plan, onEdit, onDelete }) => {
-  const monthlyPrice = calculateMonthlyPrice(plan);
+  const monthlyPrice = calculateMonthlyPrice(plan)
 
   return (
     <Card className="flex flex-col justify-between shadow-md hover:shadow-lg transition-shadow bg-gradient-to-br from-white to-slate-50">
       <div className="p-6">
         <div className="flex justify-between items-start">
-           <h3 className="text-xl font-bold text-slate-900">{plan.name}</h3>
-           <div className="flex items-center space-x-1">
-             {/* FIX: Removed invalid 'size' prop from Button */}
-             <Button variant="ghost" className="h-7 w-7 p-0" onClick={onEdit}><Edit2 className="h-4 w-4 text-slate-500" /></Button>
-             {/* FIX: Removed invalid 'size' prop from Button */}
-             <Button variant="ghost" className="h-7 w-7 p-0" onClick={onDelete}><Trash2 className="h-4 w-4 text-red-500" /></Button>
-           </div>
+          <h3 className="text-xl font-bold text-slate-900">{plan.name}</h3>
+          <div className="flex items-center space-x-1">
+            {/* FIX: Removed invalid 'size' prop from Button */}
+            <Button variant="ghost" className="h-7 w-7 p-0" onClick={onEdit}>
+              <Edit2 className="h-4 w-4 text-slate-500" />
+            </Button>
+            {/* FIX: Removed invalid 'size' prop from Button */}
+            <Button variant="ghost" className="h-7 w-7 p-0" onClick={onDelete}>
+              <Trash2 className="h-4 w-4 text-red-500" />
+            </Button>
+          </div>
         </div>
-        
+
         <div className="mt-4 space-y-3 text-sm text-slate-600">
           <div className="flex items-center">
             <Repeat className="h-4 w-4 mr-3 text-indigo-500" />
-            <span><strong>{plan.sessionsPerWeek}</strong> sessions / week</span>
+            <span>
+              <strong>{plan.sessionsPerWeek}</strong> sessions / week
+            </span>
           </div>
           <div className="flex items-center">
             <Clock className="h-4 w-4 mr-3 text-indigo-500" />
-            <span><strong>{plan.sessionDurationMinutes}</strong> min / session</span>
+            <span>
+              <strong>{plan.sessionDurationMinutes}</strong> min / session
+            </span>
           </div>
           <div className="flex items-center">
             <DollarSign className="h-4 w-4 mr-3 text-indigo-500" />
-            <span><strong>${plan.pricePerSession}</strong> / session</span>
+            <span>
+              <strong>${plan.pricePerSession}</strong> / session
+            </span>
           </div>
         </div>
       </div>
       <div className="bg-slate-800 text-white p-4 rounded-b-lg mt-4 text-center">
-         <p className="text-sm opacity-80">Estimated Monthly</p>
-         <p className="text-2xl font-bold">${monthlyPrice.toFixed(2)}</p>
+        <p className="text-sm opacity-80">Estimated Monthly</p>
+        <p className="text-2xl font-bold">${monthlyPrice.toFixed(2)}</p>
       </div>
     </Card>
-  );
-};
+  )
+}
 
 const PlanEditorModal = ({ isOpen, onClose, onSave, initialData }: { isOpen: boolean; onClose: () => void; onSave: (p: Omit<Plan, 'id'>) => void; initialData: Plan | null }) => {
   const [plan, setPlan] = useState({
@@ -155,32 +151,32 @@ const PlanEditorModal = ({ isOpen, onClose, onSave, initialData }: { isOpen: boo
     sessionsPerWeek: 2,
     sessionDurationMinutes: 60,
     pricePerSession: 40,
-  });
+  })
 
   useEffect(() => {
     if (initialData) {
-      setPlan(initialData);
+      setPlan(initialData)
     } else {
       setPlan({
         name: '',
         sessionsPerWeek: 2,
         sessionDurationMinutes: 60,
         pricePerSession: 40,
-      });
+      })
     }
-  }, [initialData]);
+  }, [initialData])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setPlan(prev => ({ ...prev, [name]: name === 'name' ? value : Number(value) }));
-  };
+    const { name, value } = e.target
+    setPlan((prev) => ({ ...prev, [name]: name === 'name' ? value : Number(value) }))
+  }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    onSave(plan);
-  };
+    e.preventDefault()
+    onSave(plan)
+  }
 
-  if (!isOpen) return null;
+  if (!isOpen) return null
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
@@ -188,7 +184,9 @@ const PlanEditorModal = ({ isOpen, onClose, onSave, initialData }: { isOpen: boo
         <div className="p-6 border-b border-slate-100 flex justify-between items-center">
           <h2 className="text-lg font-bold text-slate-900">{initialData ? 'Edit Plan' : 'Create New Plan'}</h2>
           {/* FIX: Removed invalid 'size' prop from Button */}
-          <Button variant="ghost" className="h-7 w-7 p-0" onClick={onClose}><X className="h-5 w-5" /></Button>
+          <Button variant="ghost" className="h-7 w-7 p-0" onClick={onClose}>
+            <X className="h-5 w-5" />
+          </Button>
         </div>
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div className="space-y-2">
@@ -219,11 +217,13 @@ const PlanEditorModal = ({ isOpen, onClose, onSave, initialData }: { isOpen: boo
             <p className="text-2xl font-bold">${calculateMonthlyPrice(plan).toFixed(2)}</p>
           </div>
           <div className="flex justify-end space-x-3 pt-4 border-t border-slate-100">
-            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
             <Button type="submit">Save Plan</Button>
           </div>
         </form>
       </Card>
     </div>
-  );
-};
+  )
+}

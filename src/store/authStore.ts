@@ -1,16 +1,16 @@
-import { create } from 'zustand';
+import { create } from 'zustand'
 
-import { type User } from '../types';
-import * as api from '../services/apiService';
+import { type User } from '../types'
+import * as api from '../services/apiService'
 
 interface AuthState {
-  user: User | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  login: (email: string, pass: string) => Promise<void>;
-  signup: (name: string, email: string, pass: string) => Promise<void>;
-  logout: () => Promise<void>;
-  checkAuthStatus: () => Promise<void>;
+  user: User | null
+  isAuthenticated: boolean
+  isLoading: boolean
+  login: (email: string, pass: string) => Promise<void>
+  signup: (name: string, email: string, pass: string) => Promise<void>
+  logout: () => Promise<void>
+  checkAuthStatus: () => Promise<void>
 }
 
 export const useAuthStore = create<AuthState>((set, _get) => ({
@@ -19,34 +19,34 @@ export const useAuthStore = create<AuthState>((set, _get) => ({
   isLoading: true,
 
   login: async (email, pass) => {
-    const { user } = await api.login(email, pass);
-    set({ user, isAuthenticated: true });
+    const { user } = await api.login(email, pass)
+    set({ user, isAuthenticated: true })
   },
 
   signup: async (name, email, pass) => {
-    const { user } = await api.signup(name, email, pass);
-    set({ user, isAuthenticated: true });
+    const { user } = await api.signup(name, email, pass)
+    set({ user, isAuthenticated: true })
   },
 
   logout: async () => {
-    await api.logout();
-    set({ user: null, isAuthenticated: false });
+    await api.logout()
+    set({ user: null, isAuthenticated: false })
   },
 
   checkAuthStatus: async () => {
-    set({ isLoading: true });
+    set({ isLoading: true })
     try {
-      const user = await api.getCurrentUser();
+      const user = await api.getCurrentUser()
       if (user) {
-        set({ user, isAuthenticated: true });
+        set({ user, isAuthenticated: true })
       } else {
-        set({ user: null, isAuthenticated: false });
+        set({ user: null, isAuthenticated: false })
       }
     } catch (error) {
-      console.error("Auth check failed", error);
-      set({ user: null, isAuthenticated: false });
+      console.error('Auth check failed', error)
+      set({ user: null, isAuthenticated: false })
     } finally {
-      set({ isLoading: false });
+      set({ isLoading: false })
     }
   },
-}));
+}))

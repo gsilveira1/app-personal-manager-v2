@@ -1,27 +1,27 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import * as api from '../services/apiService';
-import { Card, Button, Input, Label } from '../components/ui';
-import { Loader2, CheckCircle2 } from 'lucide-react';
+import React, { useState } from 'react'
+import { Link } from 'react-router-dom'
+import * as api from '../services/apiService'
+import { Card, Button, Input, Label } from '../components/ui'
+import { Loader2, CheckCircle2 } from 'lucide-react'
 
 export const ForgotPassword = () => {
-  const [email, setEmail] = useState('');
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState('')
+  const [isSubmitted, setIsSubmitted] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
+    e.preventDefault()
+    setIsLoading(true)
     try {
-      await api.requestPasswordReset(email);
-      setIsSubmitted(true);
+      await api.requestPasswordReset(email)
+      setIsSubmitted(true)
     } catch (err) {
       // In a real app, you might show an error, but here we'll just succeed.
-      setIsSubmitted(true);
+      setIsSubmitted(true)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   return (
     <Card className="p-8 shadow-lg">
@@ -34,14 +34,7 @@ export const ForgotPassword = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                placeholder="john@example.com"
-              />
+              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="john@example.com" />
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -59,8 +52,11 @@ export const ForgotPassword = () => {
         </div>
       )}
       <p className="text-center text-sm text-slate-500 mt-6">
-        Remembered your password? <Link to="/login" className="font-medium text-indigo-600 hover:underline">Sign in</Link>
+        Remembered your password?{' '}
+        <Link to="/login" className="font-medium text-indigo-600 hover:underline">
+          Sign in
+        </Link>
       </p>
     </Card>
-  );
-};
+  )
+}

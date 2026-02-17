@@ -3,29 +3,37 @@ import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
-import { defineConfig, globalIgnores } from 'eslint/config'
+import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended'
 
-export default defineConfig([
-  globalIgnores(['dist']),
+export default tseslint.config(
+  { ignores: ['dist'] },
   {
+    extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ['**/*.{ts,tsx}'],
-    extends: [
-      js.configs.recommended,
-      tseslint.configs.recommended,
-      reactHooks.configs['recommended-latest'],
-      reactRefresh.configs.vite,
-      'standard',
-      'plugin:prettier/recommended'
-    ],
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    plugins: {
+      'react-hooks': reactHooks,
+      'react-refresh': reactRefresh,
+    },
+    rules: {
+      ...reactHooks.configs.recommended.rules,
+      'react-refresh/only-export-components': [
+        'warn',
+        { allowConstantExport: true },
+      ],
+    },
+  },
+  eslintPluginPrettierRecommended,
+  {
+    // Override prettier rule to apply custom options
     rules: {
       'prettier/prettier': [
         'error',
         {
-          printWidth: 110,
+          printWidth: 200,
           singleQuote: true,
           semi: false,
           trailingComma: 'es5',
@@ -34,5 +42,5 @@ export default defineConfig([
         },
       ],
     },
-  },
-])
+  }
+)

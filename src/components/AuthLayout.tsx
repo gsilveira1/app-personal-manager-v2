@@ -1,5 +1,5 @@
-import { Outlet } from 'react-router';
-import { Dumbbell } from 'lucide-react';
+import { Outlet } from 'react-router'
+import { Dumbbell } from 'lucide-react'
 
 export const AuthLayout = () => {
   return (
@@ -14,5 +14,5 @@ export const AuthLayout = () => {
         <Outlet />
       </div>
     </div>
-  );
-};
+  )
+}
