@@ -16,6 +16,9 @@ export interface FinanceSlice {
   _updatePlan: (plan: Plan) => void
   _removePlan: (planId: string) => void
   _setProducts: (products: Product[]) => void
+  _addProduct: (product: Product) => void
+  _updateProduct: (product: Product) => void
+  _removeProduct: (productId: string) => void
 }
 
 export const createFinanceSlice: StateCreator<AppState, [], [], FinanceSlice> = (set) => ({
@@ -40,4 +43,13 @@ export const createFinanceSlice: StateCreator<AppState, [], [], FinanceSlice> = 
       plans: state.plans.filter((p) => p.id !== planId),
     })),
   _setProducts: (products) => set({ products }),
+  _addProduct: (product) => set((state) => ({ products: [...state.products, product] })),
+  _updateProduct: (product) =>
+    set((state) => ({
+      products: state.products.map((p) => (p.id === product.id ? product : p)),
+    })),
+  _removeProduct: (productId) =>
+    set((state) => ({
+      products: state.products.filter((p) => p.id !== productId),
+    })),
 })

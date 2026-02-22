@@ -2,17 +2,24 @@ import { useState } from 'react'
 // FIX: Split react-router-dom imports to fix module resolution errors
 import { Outlet, useNavigate } from 'react-router'
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Users, Calendar, Dumbbell, DollarSign, Menu, X, Settings, LogOut } from 'lucide-react'
+import { LayoutDashboard, Users, Calendar, Dumbbell, DollarSign, Menu, X, Settings, LogOut, Package, UserPlus } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
 import { useStore } from '../store/store'
 
 const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
-  const navItems = [
+  const { clients } = useStore()
+  const leadCount = clients.filter((c) => c.status === 'Lead').length
+
+  type NavItem = { to: string; icon: React.ElementType; label: string; badge?: number }
+
+  const navItems: NavItem[] = [
     { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/clients', icon: Users, label: 'Clients' },
     { to: '/schedule', icon: Calendar, label: 'Schedule' },
     { to: '/workouts', icon: Dumbbell, label: 'Workouts' },
     { to: '/finances', icon: DollarSign, label: 'Finances' },
+    { to: '/leads', icon: UserPlus, label: 'Leads', badge: leadCount > 0 ? leadCount : undefined },
+    { to: '/products', icon: Package, label: 'Products' },
     { to: '/settings', icon: Settings, label: 'Settings' },
   ]
 
@@ -43,6 +50,11 @@ const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
           >
             <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
             {item.label}
+            {item.badge !== undefined && (
+              <span className="ml-auto bg-red-500 text-white text-xs font-bold h-5 min-w-[20px] px-1 rounded-full flex items-center justify-center">
+                {item.badge > 9 ? '9+' : item.badge}
+              </span>
+            )}
           </NavLink>
         ))}
       </nav>

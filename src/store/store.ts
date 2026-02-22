@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 
 import { PaymentMethod } from '../types'
-import type { Client, Session, WorkoutPlan, FinanceRecord, Evaluation, Plan } from '../types'
+import type { Client, Session, WorkoutPlan, FinanceRecord, Evaluation, Plan, Product } from '../types'
 import * as api from '../services/apiService'
 import { ApiError } from '../utils/apiClient'
 import { type ClientSlice, createClientSlice } from './clientSlice'
@@ -25,6 +25,7 @@ export type AppState = ClientSlice &
     addClient: (clientData: Omit<Client, 'id' | 'avatar'>, customPlanData?: Omit<Plan, 'id'>) => Promise<void>
     updateClient: (id: string, client: Partial<Client>) => Promise<void>
     deleteClient: (id: string) => Promise<void>
+    convertLead: (id: string, planId?: string) => Promise<void>
     addSession: (session: Omit<Session, 'id' | 'completed' | 'recurrenceId'>) => Promise<void>
     addRecurringSessions: (baseSession: Omit<Session, 'id' | 'date' | 'completed'>, startDateStr: string, frequency: 'weekly' | 'bi-weekly', untilDateStr: string) => Promise<void>
     updateSession: (id: string, session: Partial<Session>) => Promise<void>
@@ -42,6 +43,9 @@ export type AppState = ClientSlice &
     addPlan: (plan: Omit<Plan, 'id'>) => Promise<void>
     updatePlan: (id: string, plan: Partial<Plan>) => Promise<void>
     deletePlan: (id: string) => Promise<void>
+    addProduct: (product: Omit<Product, 'id'>) => Promise<void>
+    updateProduct: (id: string, product: Partial<Product>) => Promise<void>
+    deleteProduct: (id: string) => Promise<void>
     updateAiPromptInstructions: (instructions: string) => Promise<void>
   }
 
@@ -70,10 +74,16 @@ export const useStore = create<AppState>()((set, get) => ({
         api.getSettings(),
       ]);*/
 
-      const [clients, evaluations, plans, sessions, workouts] = await Promise.all([api.getClients(), api.getEvaluations(), api.getPlans(), api.getSessions(), api.getWorkouts()])
+      const [clients, evaluations, plans, sessions, workouts, products] = await Promise.all([
+        api.getClients(),
+        api.getEvaluations(),
+        api.getPlans(),
+        api.getSessions(),
+        api.getWorkouts(),
+        api.getProducts().catch(() => []),
+      ])
 
       const finances: any = [],
-        products: any = [],
         settings: any = []
 
       get()._setClients(clients || [])
@@ -128,6 +138,10 @@ export const useStore = create<AppState>()((set, get) => ({
   deleteClient: async (id) => {
     await api.deleteClient(id)
     get()._removeClient(id)
+  },
+  convertLead: async (id, planId) => {
+    const updatedClient = await api.convertLead(id, planId)
+    get()._updateClient(updatedClient)
   },
 
   addSession: async (sessionData) => {
@@ -213,6 +227,19 @@ export const useStore = create<AppState>()((set, get) => ({
     set((state) => ({
       clients: state.clients.map((c) => (c.planId === id ? { ...c, planId: undefined } : c)),
     }))
+  },
+
+  addProduct: async (productData) => {
+    const newProduct = await api.createProduct(productData)
+    get()._addProduct(newProduct)
+  },
+  updateProduct: async (id, updates) => {
+    const updatedProduct = await api.updateProduct(id, updates)
+    get()._updateProduct(updatedProduct)
+  },
+  deleteProduct: async (id) => {
+    await api.deleteProduct(id)
+    get()._removeProduct(id)
   },
 
   updateAiPromptInstructions: async (instructions: string) => {

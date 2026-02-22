@@ -13,6 +13,8 @@ import { Schedule } from './pages/Schedule'
 import { Workouts } from './pages/Workouts'
 import { Finances } from './pages/Finances'
 import { Settings } from './pages/Settings'
+import { Products } from './pages/Products'
+import { Leads } from './pages/Leads'
 import { Login } from './pages/Login'
 import { SignUp } from './pages/SignUp'
 import { ForgotPassword } from './pages/ForgotPassword'
@@ -101,6 +103,8 @@ function App() {
             <Route path="schedule" element={<Schedule />} />
             <Route path="workouts" element={<Workouts />} />
             <Route path="finances" element={<Finances />} />
+            <Route path="leads" element={<Leads />} />
+            <Route path="products" element={<Products />} />
             <Route path="settings" element={<Settings />} />
           </Route>
         </Route>

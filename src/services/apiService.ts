@@ -67,6 +67,12 @@ export const deleteClient = async (id: string) =>
   apiClient<void>(`/clients/${id}`, {
     method: 'DELETE',
   })
+export const getLeads = async () => apiClient<Client[]>('/clients/leads')
+export const convertLead = async (id: string, planId?: string) =>
+  apiClient<Client>(`/clients/${id}/convert`, {
+    method: 'PATCH',
+    body: JSON.stringify(planId ? { planId } : {}),
+  })
 
 // --- Sessions API ---
 export const getSessions = async () => apiClient<Session[]>('/sessions')
@@ -163,6 +169,30 @@ export const deletePlan = async (id: string) =>
     method: 'DELETE',
   })
 export const getProducts = async () => apiClient<Product[]>('/products')
+export const createProduct = async (product: Omit<Product, 'id'>) =>
+  apiClient<Product>('/products', {
+    method: 'POST',
+    body: JSON.stringify(product),
+  })
+export const updateProduct = async (id: string, updates: Partial<Product>) =>
+  apiClient<Product>(`/products/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(updates),
+  })
+export const deleteProduct = async (id: string) =>
+  apiClient<void>(`/products/${id}`, { method: 'DELETE' })
+
+// --- Payments API ---
+export const generatePix = async (financeRecordId: string) =>
+  apiClient<{ pixCopiaECola: string; qrCodeBase64: string; externalId: string; status: string; ticketUrl?: string }>(
+    `/payments/pix/${financeRecordId}`,
+    { method: 'POST' }
+  )
+export const generateBatchPix = async (ids: string[]) =>
+  apiClient<Array<{ id: string; success?: boolean; pixCopiaECola?: string; status?: string; message?: string }>>(
+    '/payments/pix/batch',
+    { method: 'POST', body: JSON.stringify({ ids }) }
+  )
 
 // --- Settings API ---
 export const getSettings = async () => apiClient<{ aiPromptInstructions: string }>('/settings')

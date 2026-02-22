@@ -34,7 +34,7 @@ import { format, parseISO, isPast } from 'date-fns'
 
 import { useStore } from '../store/store'
 import { Card, Button, Badge, Label, Input, Select } from '../components/ui'
-import { type Evaluation, type WorkoutPlan, PaymentStatus, type Plan, type Skinfolds, type Perimeters, type MedicalHistory } from '../types'
+import { type Evaluation, type WorkoutPlan, type Session, PaymentStatus, type Plan, type Skinfolds, type Perimeters, type MedicalHistory } from '../types'
 import { WorkoutEditorModal } from '../components/WorkoutEditorModal'
 
 const WEEKS_IN_MONTH = 4.33
@@ -65,11 +65,12 @@ const initialEvalState: Omit<Evaluation, 'id' | 'clientId' | 'date'> = { weight:
 export const ClientDetails = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { clients, sessions, evaluations, workouts, finances, plans, updateClient, addEvaluation, addWorkout, updateWorkout, deleteWorkout } = useStore()
+  const { clients, sessions, evaluations, workouts, finances, plans, updateClient, addEvaluation, addSession, addWorkout, updateWorkout, deleteWorkout } = useStore()
 
   const [activeTab, setActiveTab] = useState<'history' | 'evaluations' | 'workouts'>('history')
   const [isEvalModalOpen, setIsEvalModalOpen] = useState(false)
   const [isWorkoutModalOpen, setIsWorkoutModalOpen] = useState(false)
+  const [isSessionModalOpen, setIsSessionModalOpen] = useState(false)
   const [editingWorkout, setEditingWorkout] = useState<WorkoutPlan | null>(null)
 
   const [isEditingNotes, setIsEditingNotes] = useState(false)
@@ -338,6 +339,12 @@ export const ClientDetails = () => {
           </div>
           {activeTab === 'history' && (
             <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-slate-900">Session History</h3>
+                <Button onClick={() => setIsSessionModalOpen(true)}>
+                  <Plus className="mr-2 h-4 w-4" /> New Session
+                </Button>
+              </div>
               {clientSessions.length > 0 ? (
                 clientSessions.map((session) => (
                   <Card key={session.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -356,7 +363,11 @@ export const ClientDetails = () => {
                   </Card>
                 ))
               ) : (
-                <div className="text-center py-12 text-slate-500">No session history available.</div>
+                <div className="text-center py-12 bg-slate-50 rounded-lg border border-dashed border-slate-200">
+                  <History className="h-12 w-12 text-slate-300 mx-auto mb-3" />
+                  <h3 className="text-lg font-medium text-slate-900">No sessions yet</h3>
+                  <Button className="mt-3" onClick={() => setIsSessionModalOpen(true)}>Log First Session</Button>
+                </div>
               )}
             </div>
           )}
@@ -464,6 +475,7 @@ export const ClientDetails = () => {
         </div>
       </div>
       {isEvalModalOpen && <EvaluationModal clientId={client.id} onClose={() => setIsEvalModalOpen(false)} onSave={addEvaluation} />}
+      {isSessionModalOpen && <SessionModal clientId={client.id} onClose={() => setIsSessionModalOpen(false)} onSave={addSession} />}
       {isWorkoutModalOpen && <WorkoutEditorModal client={client} initialData={editingWorkout} isOpen={isWorkoutModalOpen} onClose={() => setIsWorkoutModalOpen(false)} onSave={handleSaveWorkout} />}
     </div>
   )
@@ -675,6 +687,103 @@ const WorkoutCard: React.FC<{
         </div>
       )}
     </Card>
+  )
+}
+
+const SessionModal = ({
+  clientId,
+  onClose,
+  onSave,
+}: {
+  clientId: string
+  onClose: () => void
+  onSave: (s: Omit<Session, 'id' | 'completed' | 'recurrenceId'>) => Promise<void>
+}) => {
+  const now = new Date()
+  const localDateStr = now.toISOString().slice(0, 10)
+  const localTimeStr = now.toTimeString().slice(0, 5)
+
+  const [date, setDate] = useState(localDateStr)
+  const [time, setTime] = useState(localTimeStr)
+  const [durationMinutes, setDurationMinutes] = useState(60)
+  const [type, setType] = useState<'In-Person' | 'Online'>('In-Person')
+  const [category, setCategory] = useState<'Workout' | 'Check-in'>('Workout')
+  const [notes, setNotes] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+    const dateISO = new Date(`${date}T${time}`).toISOString()
+    await onSave({ clientId, date: dateISO, durationMinutes, type, category, notes: notes || undefined })
+    setIsSubmitting(false)
+    onClose()
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+      <Card className="w-full max-w-md bg-white shadow-xl">
+        <div className="p-4 border-b border-slate-100 flex justify-between items-center">
+          <h3 className="font-bold text-slate-900">Log New Session</h3>
+          <button onClick={onClose}>
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <form onSubmit={handleSubmit}>
+          <div className="p-6 space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="session-date">Date</Label>
+                <Input id="session-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="session-time">Time</Label>
+                <Input id="session-time" type="time" value={time} onChange={(e) => setTime(e.target.value)} required />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="session-duration">Duration (minutes)</Label>
+              <Input
+                id="session-duration"
+                type="number"
+                min={1}
+                value={durationMinutes}
+                onChange={(e) => setDurationMinutes(parseInt(e.target.value, 10))}
+                required
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="session-type">Type</Label>
+                <Select id="session-type" value={type} onChange={(e) => setType(e.target.value as 'In-Person' | 'Online')}>
+                  <option value="In-Person">In-Person</option>
+                  <option value="Online">Online</option>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="session-category">Category</Label>
+                <Select id="session-category" value={category} onChange={(e) => setCategory(e.target.value as 'Workout' | 'Check-in')}>
+                  <option value="Workout">Workout</option>
+                  <option value="Check-in">Check-in</option>
+                </Select>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="session-notes">Notes (optional)</Label>
+              <Input id="session-notes" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Session notes..." />
+            </div>
+          </div>
+          <div className="flex justify-end space-x-3 p-4 border-t border-slate-100 bg-slate-50">
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Saving...' : 'Save Session'}
+            </Button>
+          </div>
+        </form>
+      </Card>
+    </div>
   )
 }
 
