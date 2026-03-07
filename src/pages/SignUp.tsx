@@ -2,11 +2,13 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { Link } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import { useAuthStore } from '../store/authStore'
 import { Card, Button, Input, Label } from '../components/ui'
 
 export const SignUp = () => {
+  const { t } = useTranslation('auth')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -23,7 +25,7 @@ export const SignUp = () => {
       await signup(name, email, password)
       navigate('/login')
     } catch (err: any) {
-      setError(err.message || 'Failed to create account')
+      setError(err.message || t('failedSignup'))
     } finally {
       setIsLoading(false)
     }
@@ -32,20 +34,20 @@ export const SignUp = () => {
   return (
     <Card className="p-8 shadow-lg">
       <div className="text-center mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">Create an Account</h1>
-        <p className="text-slate-500 text-sm">Start managing your clients today.</p>
+        <h1 className="text-2xl font-bold text-slate-900">{t('createAccount')}</h1>
+        <p className="text-slate-500 text-sm">{t('createAccountSubtitle')}</p>
       </div>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="name">Full Name</Label>
-          <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Alex Smith" />
+          <Label htmlFor="name">{t('fullName')}</Label>
+          <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required placeholder={t('fullNamePlaceholder')} />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="alex@example.com" />
+          <Label htmlFor="email">{t('email')}</Label>
+          <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder={t('emailPlaceholder')} />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">{t('password')}</Label>
           <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" />
         </div>
 
@@ -53,13 +55,13 @@ export const SignUp = () => {
 
         <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Create Account
+          {t('createAccount')}
         </Button>
       </form>
       <p className="text-center text-sm text-slate-500 mt-6">
-        Already have an account?{' '}
+        {t('alreadyHaveAccount')}{' '}
         <Link to="/login" className="font-medium text-indigo-600 hover:underline">
-          Sign in
+          {t('signIn')}
         </Link>
       </p>
     </Card>

@@ -44,11 +44,13 @@ import { type Client, type Session, type WorkoutPlan } from '../types'
 import { useStore } from '../store/store'
 import { Card, Button, Badge, Label, Select, Input } from '../components/ui'
 import { isTimeSlotTaken } from '../utils/scheduleUtils'
+import { useTranslation } from 'react-i18next'
 
 type ViewType = 'day' | 'week' | 'month'
 
 export const Schedule = () => {
-  const { sessions, clients, toggleSessionComplete, addSession, addRecurringSessions, updateSessionWithScope, updateSession, workouts } = useStore()
+  const { t } = useTranslation('schedule')
+  const { sessions, clients, toggleSessionComplete, addSession, addRecurringSessions, addRecurringEvent, fetchSessionsForRange, updateSessionWithScope, updateSession, workouts } = useStore()
   const [currentDate, setCurrentDate] = useState(new Date())
   const [view, setView] = useState<ViewType>('week')
   const [sessionEditorOpen, setSessionEditorOpen] = useState(false)
@@ -60,6 +62,22 @@ export const Schedule = () => {
   // --- Drag and Drop State ---
   const [draggedItemId, setDraggedItemId] = useState<string | null>(null)
   const [dragOverId, setDragOverId] = useState<string | null>(null)
+
+  // ── Windowed session fetching ──────────────────────────────
+  useEffect(() => {
+    let start: Date, end: Date
+    if (view === 'day') {
+      start = addDays(currentDate, -1)
+      end = addDays(currentDate, 1)
+    } else if (view === 'week') {
+      start = addDays(startOfWeek(currentDate, { weekStartsOn: 1 }), 0)
+      end = addDays(start, 7)
+    } else {
+      start = startOfMonth(currentDate)
+      end = addDays(endOfMonth(currentDate), 1)
+    }
+    fetchSessionsForRange(start, end).catch(console.error)
+  }, [view, currentDate]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleDragStart = (e: React.DragEvent, sessionId: string) => {
     e.dataTransfer.setData('sessionId', sessionId)
@@ -205,7 +223,7 @@ export const Schedule = () => {
     <div className="space-y-6">
       <div className="flex flex-col gap-6">
         <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-          <h1 className="text-2xl font-bold text-slate-900">Schedule</h1>
+          <h1 className="text-2xl font-bold text-slate-900">{t('title')}</h1>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full xl:w-auto">
             <div className="flex bg-slate-100 p-1 rounded-lg sm:mr-2 overflow-x-auto">
               {['day', 'week', 'month'].map((v) => (
@@ -217,7 +235,7 @@ export const Schedule = () => {
                   {v === 'day' && <List className="h-4 w-4 mr-1.5" />}
                   {v === 'week' && <LayoutGrid className="h-4 w-4 mr-1.5" />}
                   {v === 'month' && <CalendarDays className="h-4 w-4 mr-1.5" />}
-                  {v.charAt(0).toUpperCase() + v.slice(1)}
+                  {t(v).charAt(0).toUpperCase() + t(v).slice(1)}
                 </button>
               ))}
             </div>
@@ -230,7 +248,7 @@ export const Schedule = () => {
               className="whitespace-nowrap"
             >
               <Plus className="mr-2 h-4 w-4" />
-              New Session
+              {t('addSession')}
             </Button>
           </div>
         </div>
@@ -266,7 +284,7 @@ export const Schedule = () => {
               <ChevronLeft className="h-5 w-5 text-slate-600" />
             </button>
             <Button variant="outline" onClick={handleToday} className="hidden sm:flex text-xs h-8">
-              Today
+              {t('today')}
             </Button>
           </div>
           <div className="text-base sm:text-lg font-bold text-slate-900 truncate max-w-[200px] sm:max-w-none">{getHeaderText()}</div>
@@ -282,6 +300,7 @@ export const Schedule = () => {
           onClose={() => setSessionEditorOpen(false)}
           onSaveNew={addSession}
           onSaveRecurring={addRecurringSessions}
+          onSaveRecurringEvent={addRecurringEvent}
           onUpdate={updateSessionWithScope}
           sessionToEdit={editingSession}
           clients={clients}
@@ -343,16 +362,16 @@ const DayView = ({ date, sessions, clients, onSessionClick, onToggleComplete, on
                     isDragged={draggedItemId === session.id}
                   />
                 ))[0] || (
-                <div
-                  onClick={() => onAreaClick(targetDate)}
-                  className="h-full w-full rounded-lg border-2 border-dashed border-transparent hover:border-slate-200 hover:bg-slate-50 transition-all cursor-pointer flex items-center justify-center opacity-0 group-hover:opacity-100"
-                >
-                  <span className="text-slate-400 text-sm font-medium flex items-center">
-                    <Plus className="h-4 w-4 mr-1" /> <span className="hidden sm:inline">Schedule Session</span>
-                    <span className="sm:hidden">Add</span>
-                  </span>
-                </div>
-              )}
+                  <div
+                    onClick={() => onAreaClick(targetDate)}
+                    className="h-full w-full rounded-lg border-2 border-dashed border-transparent hover:border-slate-200 hover:bg-slate-50 transition-all cursor-pointer flex items-center justify-center opacity-0 group-hover:opacity-100"
+                  >
+                    <span className="text-slate-400 text-sm font-medium flex items-center">
+                      <Plus className="h-4 w-4 mr-1" /> <span className="hidden sm:inline">Schedule Session</span>
+                      <span className="sm:hidden">Add</span>
+                    </span>
+                  </div>
+                )}
             </div>
           </div>
         )
@@ -480,6 +499,9 @@ const MonthView = ({ date, sessions, clients, onDayClick }: any) => {
 
 // --- Subcomponents ---
 const SessionCard = ({ session, client, onClick, onToggle, onDragStart, onDragEnd, isDragged }: any) => {
+  const { t } = useTranslation('schedule')
+  const { t: tc } = useTranslation('clients')
+  const { t: tco } = useTranslation('common')
   return (
     <Card
       draggable="true"
@@ -497,7 +519,7 @@ const SessionCard = ({ session, client, onClick, onToggle, onDragStart, onDragEn
           </div>
           <div>
             <h4 className="font-semibold text-sm sm:text-base text-slate-900 flex items-center gap-2 group-hover:text-indigo-700">
-              {client?.name || 'Unknown Client'}
+              {client?.name || tco('unknownClient')}
               {session.recurrenceId && (
                 <span title="Recurring session">
                   <Repeat className="h-3 w-3 text-slate-400" />
@@ -510,7 +532,7 @@ const SessionCard = ({ session, client, onClick, onToggle, onDragStart, onDragEn
               </span>
               <span className="flex items-center">
                 {session.type === 'Online' ? <Video className="h-3 w-3 mr-1" /> : <MapPin className="h-3 w-3 mr-1" />}
-                {session.type}
+                {session.type === 'Online' ? tc('online') : tc('inPerson')}
               </span>
             </div>
           </div>
@@ -523,14 +545,45 @@ const SessionCard = ({ session, client, onClick, onToggle, onDragStart, onDragEn
             }}
             className={`text-xs px-3 py-1.5 rounded-full border ${session.completed ? 'bg-green-100 text-green-700 border-green-200' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}
           >
-            {session.completed ? 'Completed' : 'Mark Complete'}
+            {session.completed ? t('completed') : t('markComplete')}
           </button>
         </div>
       </div>
     </Card>
   )
 }
-const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurring, onUpdate, sessionToEdit, clients, sessions, initialDate }: any) => {
+// ─── RRULE Builder helpers ───────────────────────────────────────────────────
+const WEEKDAYS = [
+  { label: 'Mon', rruleDay: 'MO' },
+  { label: 'Tue', rruleDay: 'TU' },
+  { label: 'Wed', rruleDay: 'WE' },
+  { label: 'Thu', rruleDay: 'TH' },
+  { label: 'Fri', rruleDay: 'FR' },
+  { label: 'Sat', rruleDay: 'SA' },
+  { label: 'Sun', rruleDay: 'SU' },
+]
+
+function buildRrule(freq: string, interval: number, days: string[], endType: 'until' | 'count', until: string, count: number) {
+  let rule = `FREQ=${freq};INTERVAL=${interval}`
+  if (freq === 'WEEKLY' && days.length > 0) rule += `;BYDAY=${days.join(',')}`
+  if (endType === 'count') rule += `;COUNT=${count}`
+  else {
+    const d = new Date(`${until}T23:59:59Z`)
+    rule += `;UNTIL=${d.toISOString().replace(/[-:]/g, '').split('.')[0]}Z`
+  }
+  return rule
+}
+
+function rruleHumanText(freq: string, interval: number, days: string[], endType: 'until' | 'count', until: string, count: number) {
+  const freqLabel = freq === 'DAILY' ? 'day' : freq === 'WEEKLY' ? 'week' : 'month'
+  const intervalText = interval === 1 ? `Every ${freqLabel}` : `Every ${interval} ${freqLabel}s`
+  const daysText = freq === 'WEEKLY' && days.length > 0 ? ` on ${days.join(', ')}` : ''
+  const endText = endType === 'count' ? `, ${count} times` : ` until ${until}`
+  return `${intervalText}${daysText}${endText}`
+}
+
+const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurring: _onSaveRecurring, onSaveRecurringEvent, onUpdate, sessionToEdit, clients, sessions, initialDate }: any) => {
+  const { t } = useTranslation('schedule')
   const [formData, setFormData] = useState({
     clientId: clients[0]?.id || '',
     date: format(initialDate, 'yyyy-MM-dd'),
@@ -540,7 +593,19 @@ const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurring, onUpd
     linkedWorkoutId: '',
   })
   const [isRecurring, setIsRecurring] = useState(false)
-  const [recurrence, setRecurrence] = useState({ frequency: 'weekly', until: format(add(initialDate, { months: 3 }), 'yyyy-MM-dd') })
+
+  // RRULE builder state
+  const [rruleFreq, setRruleFreq] = useState('WEEKLY')
+  const [rruleInterval, setRruleInterval] = useState(1)
+  const [rruleDays, setRruleDays] = useState<string[]>(() => {
+    // Pre-select day matching initialDate
+    const dayMap = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA']
+    return [dayMap[initialDate.getDay()]]
+  })
+  const [rruleEndType, setRruleEndType] = useState<'until' | 'count'>('count')
+  const [rruleUntil, setRruleUntil] = useState(format(add(initialDate, { months: 3 }), 'yyyy-MM-dd'))
+  const [rruleCount, setRruleCount] = useState(12)
+
   const [isRecurrencePromptOpen, setIsRecurrencePromptOpen] = useState(false)
   const [pendingUpdate, setPendingUpdate] = useState<Partial<Session> | null>(null)
   const [error, setError] = useState('')
@@ -560,6 +625,9 @@ const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurring, onUpd
     }
   }, [sessionToEdit])
 
+  const toggleDay = (day: string) =>
+    setRruleDays((prev) => prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day])
+
   const client = clients.find((c: Client) => c.id === formData.clientId)
   const sessionType: 'Online' | 'In-Person' = client?.type === 'Online' ? 'Online' : 'In-Person'
   const sessionCategory: 'Check-in' | 'Workout' = client?.type === 'Online' ? 'Check-in' : 'Workout'
@@ -572,7 +640,6 @@ const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurring, onUpd
     const combinedDate = new Date(`${formData.date}T${formData.time}`)
 
     const conflictingSession = isTimeSlotTaken(sessions, combinedDate, Number(formData.durationMinutes), sessionToEdit?.id)
-
     if (conflictingSession) {
       const conflictClientName = clients.find((c: any) => c.id === conflictingSession.clientId)?.name || 'a client'
       setError(`This time slot conflicts with a session for ${conflictClientName} at ${format(parseISO(conflictingSession.date), 'h:mm a')}.`)
@@ -590,9 +657,8 @@ const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurring, onUpd
     }
 
     if (sessionToEdit) {
-      // Editing
       const dateChanged = combinedDate.toISOString() !== sessionToEdit.date
-      if (sessionToEdit.recurrenceId && dateChanged) {
+      if ((sessionToEdit.recurrenceId || sessionToEdit.recurringEventId) && dateChanged) {
         setPendingUpdate(baseSession)
         setIsRecurrencePromptOpen(true)
       } else {
@@ -600,9 +666,20 @@ const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurring, onUpd
         onClose()
       }
     } else {
-      // Creating
       if (isRecurring) {
-        onSaveRecurring({ ...baseSession }, combinedDate.toISOString(), recurrence.frequency, new Date(`${recurrence.until}T23:59:59`).toISOString())
+        // Use RRULE-based recurring event
+        const rrule = buildRrule(rruleFreq, rruleInterval, rruleDays, rruleEndType, rruleUntil, rruleCount)
+        onSaveRecurringEvent({
+          rrule,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          dtstart: combinedDate.toISOString(),
+          durationMinutes: Number(formData.durationMinutes),
+          type: sessionType,
+          category: sessionCategory,
+          clientId: formData.clientId,
+          linkedWorkoutId: formData.linkedWorkoutId || undefined,
+          notes: formData.notes || undefined,
+        })
       } else {
         onSaveNew(baseSession)
       }
@@ -610,16 +687,21 @@ const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurring, onUpd
     }
   }
   if (!isOpen) return null
+
+  const rrulePreview = isRecurring
+    ? rruleHumanText(rruleFreq, rruleInterval, rruleDays, rruleEndType, rruleUntil, rruleCount)
+    : ''
+
   return (
     <>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
         <Card className="w-full max-w-md bg-white shadow-xl animate-in fade-in zoom-in duration-200 overflow-y-auto max-h-[90vh]">
           <div className="p-6 border-b border-slate-100 sticky top-0 bg-white z-10">
-            <h2 className="text-lg font-bold text-slate-900">{sessionToEdit ? 'Edit Session' : 'New Session'}</h2>
+            <h2 className="text-lg font-bold text-slate-900">{sessionToEdit ? t('editSession') : t('newSession')}</h2>
           </div>
           <form onSubmit={handleSubmit} className="p-6 space-y-4">
             <div className="space-y-2">
-              <Label>Client</Label>
+              <Label>{t('client')}</Label>
               <Select name="clientId" value={formData.clientId} onChange={handleChange}>
                 {clients
                   .filter((c: Client) => c.status === 'Active')
@@ -632,47 +714,127 @@ const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurring, onUpd
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Date</Label>
+                <Label>{t('date')}</Label>
                 <Input name="date" type="date" required value={formData.date} onChange={handleChange} />
               </div>
               <div className="space-y-2">
-                <Label>Time</Label>
+                <Label>{t('time')}</Label>
                 <Input name="time" type="time" required value={formData.time} onChange={handleChange} />
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Duration (minutes)</Label>
+              <Label>{t('duration')}</Label>
               <Select name="durationMinutes" value={formData.durationMinutes} onChange={handleChange}>
                 <option value="30">30 min</option>
                 <option value="45">45 min</option>
                 <option value="60">60 min</option>
+                <option value="90">90 min</option>
               </Select>
             </div>
+
+            {/* ── Recurrence toggle (only for new sessions) ── */}
             {!sessionToEdit && (
               <div className="space-y-2 pt-2">
-                <label className="flex items-center gap-2 text-sm font-medium">
-                  <input type="checkbox" checked={isRecurring} onChange={(e) => setIsRecurring(e.target.checked)} className="rounded" /> Make this a recurring session
+                <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
+                  <input type="checkbox" checked={isRecurring} onChange={(e) => setIsRecurring(e.target.checked)} className="rounded" />
+                  <Repeat className="h-4 w-4 text-indigo-500" /> Make this a recurring session
                 </label>
               </div>
             )}
+
+            {/* ── RRULE Builder ── */}
             {isRecurring && !sessionToEdit && (
-              <div className="p-4 bg-indigo-50 border border-indigo-100 rounded-lg space-y-3 animate-in fade-in">
-                <div className="space-y-2">
-                  <Label>Frequency</Label>
-                  <Select value={recurrence.frequency} onChange={(e) => setRecurrence((r) => ({ ...r, frequency: e.target.value }))}>
-                    <option value="weekly">Weekly</option>
-                    <option value="bi-weekly">Bi-weekly</option>
-                  </Select>
+              <div className="p-4 bg-indigo-50 border border-indigo-100 rounded-lg space-y-4 animate-in fade-in">
+                {/* Frequency + Interval */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label>Frequency</Label>
+                    <Select value={rruleFreq} onChange={(e) => setRruleFreq(e.target.value)}>
+                      <option value="DAILY">Daily</option>
+                      <option value="WEEKLY">Weekly</option>
+                      <option value="MONTHLY">Monthly</option>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>Every</Label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="number"
+                        min="1"
+                        max="52"
+                        value={rruleInterval}
+                        onChange={(e) => setRruleInterval(Number(e.target.value))}
+                        className="w-16 text-center"
+                      />
+                      <span className="text-sm text-slate-500">{rruleFreq === 'DAILY' ? 'day(s)' : rruleFreq === 'WEEKLY' ? 'week(s)' : 'month(s)'}</span>
+                    </div>
+                  </div>
                 </div>
+
+                {/* Day-of-week selector (only for WEEKLY) */}
+                {rruleFreq === 'WEEKLY' && (
+                  <div className="space-y-1.5">
+                    <Label>On days</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {WEEKDAYS.map(({ label, rruleDay }) => (
+                        <button
+                          key={rruleDay}
+                          type="button"
+                          onClick={() => toggleDay(rruleDay)}
+                          className={`w-10 h-10 rounded-full text-xs font-semibold border transition-all ${rruleDays.includes(rruleDay)
+                              ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                              : 'bg-white text-slate-600 border-slate-300 hover:border-indigo-400'
+                            }`}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* End condition */}
                 <div className="space-y-2">
-                  <Label>Ends on</Label>
-                  <Input type="date" value={recurrence.until} onChange={(e) => setRecurrence((r) => ({ ...r, until: e.target.value }))} />
+                  <Label>Ends</Label>
+                  <div className="flex gap-3">
+                    <label className="flex items-center gap-1.5 text-sm cursor-pointer">
+                      <input type="radio" name="endType" value="count" checked={rruleEndType === 'count'} onChange={() => setRruleEndType('count')} />
+                      After
+                    </label>
+                    <label className="flex items-center gap-1.5 text-sm cursor-pointer">
+                      <input type="radio" name="endType" value="until" checked={rruleEndType === 'until'} onChange={() => setRruleEndType('until')} />
+                      On date
+                    </label>
+                  </div>
+                  {rruleEndType === 'count' ? (
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="number"
+                        min="1"
+                        max="365"
+                        value={rruleCount}
+                        onChange={(e) => setRruleCount(Number(e.target.value))}
+                        className="w-20 text-center"
+                      />
+                      <span className="text-sm text-slate-500">occurrences</span>
+                    </div>
+                  ) : (
+                    <Input type="date" value={rruleUntil} onChange={(e) => setRruleUntil(e.target.value)} />
+                  )}
                 </div>
+
+                {/* Human-readable preview */}
+                {rrulePreview && (
+                  <p className="text-xs text-indigo-700 bg-indigo-100 px-3 py-2 rounded-md font-medium">
+                    📅 {rrulePreview}
+                  </p>
+                )}
               </div>
             )}
+
             <div className="space-y-2">
-              <Label>Notes</Label>
-              <Input name="notes" placeholder="Focus for this session..." value={formData.notes} onChange={handleChange} />
+              <Label>{t('notes')}</Label>
+              <Input name="notes" placeholder={t('sessionNotesPlaceholder')} value={formData.notes} onChange={handleChange} />
             </div>
             {error && (
               <div className="p-3 bg-red-50 border border-red-200 text-red-800 text-sm rounded-md flex items-start gap-2">
@@ -682,9 +844,9 @@ const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurring, onUpd
             )}
             <div className="flex justify-end space-x-3 pt-4 border-t border-slate-100">
               <Button type="button" variant="outline" onClick={onClose}>
-                Cancel
+                {t('cancel', { ns: 'common' })}
               </Button>
-              <Button type="submit">Save Session</Button>
+              <Button type="submit">{t('save', { ns: 'common' })}</Button>
             </div>
           </form>
         </Card>
@@ -702,13 +864,14 @@ const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurring, onUpd
   )
 }
 const RecurrenceUpdateModal = ({ onConfirm, onCancel }: any) => {
+  const { t } = useTranslation('schedule')
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
       <Card className="w-full max-w-sm p-6 text-center shadow-2xl animate-in zoom-in-90">
         <div className="mx-auto bg-amber-100 h-12 w-12 rounded-full flex items-center justify-center">
           <AlertTriangle className="h-6 w-6 text-amber-600" />
         </div>
-        <h3 className="text-lg font-bold mt-4 text-slate-900">Edit Recurring Session</h3>
+        <h3 className="text-lg font-bold mt-4 text-slate-900">{t('editRecurring')}</h3>
         <p className="text-sm text-slate-500 mt-2">Do you want to apply this change to only this session, or to this and all future sessions in the series?</p>
         <div className="mt-6 flex flex-col gap-3">
           <Button onClick={() => onConfirm('future')}>This and future sessions</Button>
@@ -724,6 +887,8 @@ const RecurrenceUpdateModal = ({ onConfirm, onCancel }: any) => {
   )
 }
 const SessionDetailsModal = ({ session, clients, workouts, onClose, onUpdate, onEdit }: any) => {
+  const { t } = useTranslation('schedule')
+  const { t: tc } = useTranslation('common')
   const client = clients.find((c: Client) => c.id === session.clientId)
   const [notes, setNotes] = useState(session.notes || '')
   const [linkedWorkoutId, setLinkedWorkoutId] = useState(session.linkedWorkoutId || '')
@@ -761,8 +926,8 @@ const SessionDetailsModal = ({ session, clients, workouts, onClose, onUpdate, on
         <div className="p-6 overflow-y-auto space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-slate-50 rounded-lg border border-slate-100">
             <div>
-              <span className="text-sm font-medium text-slate-500">Status</span>
-              <span className={`font-bold block ${session.completed ? 'text-green-600' : 'text-amber-600'}`}>{session.completed ? 'Completed' : 'Pending'}</span>
+              <span className="text-sm font-medium text-slate-500">{t('status')}</span>
+              <span className={`font-bold block ${session.completed ? 'text-green-600' : 'text-amber-600'}`}>{session.completed ? t('completed') : t('pending')}</span>
             </div>
             <div className="flex gap-2">
               <Button
@@ -772,15 +937,15 @@ const SessionDetailsModal = ({ session, clients, workouts, onClose, onUpdate, on
                   onClose()
                 }}
               >
-                <Edit2 className="h-4 w-4 mr-2" /> Edit / Reschedule
+                <Edit2 className="h-4 w-4 mr-2" /> {t('editSession')}
               </Button>
               <Button variant={session.completed ? 'secondary' : 'primary'} onClick={() => onUpdate(session.id, { completed: !session.completed })}>
-                {session.completed ? 'Mark Incomplete' : 'Complete Session'}
+                {session.completed ? t('pending') : t('markComplete')}
               </Button>
             </div>
           </div>
           <div className="space-y-2">
-            <Label>Session Notes</Label>
+            <Label>{t('sessionDetails')}</Label>
             <textarea
               className="w-full min-h-[100px] p-3 text-sm border-slate-300 rounded-md focus:ring-2 focus:ring-indigo-500"
               placeholder="Record performance..."
@@ -790,7 +955,7 @@ const SessionDetailsModal = ({ session, clients, workouts, onClose, onUpdate, on
           </div>
           {session.category === 'Workout' && (
             <div className="space-y-3 border-t pt-4">
-              <Label>Training Plan</Label>
+              <Label>{t('trainingPlan')}</Label>
               <Select value={linkedWorkoutId} onChange={(e) => setLinkedWorkoutId(e.target.value)}>
                 <option value="">-- No specific plan --</option>
                 {workouts
@@ -806,10 +971,10 @@ const SessionDetailsModal = ({ session, clients, workouts, onClose, onUpdate, on
         </div>
         <div className="p-4 border-t bg-slate-50 flex justify-end space-x-3">
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            {tc('cancel')}
           </Button>
           <Button onClick={handleSave}>
-            <Save className="h-4 w-4 mr-2" /> Save Details
+            <Save className="h-4 w-4 mr-2" /> {t('saveSession')}
           </Button>
         </div>
       </Card>
@@ -819,6 +984,9 @@ const SessionDetailsModal = ({ session, clients, workouts, onClose, onUpdate, on
 
 // New Overview Modal Component
 const OverviewModal = ({ isOpen, onClose, sessions, clients, headerText, workouts }: any) => {
+  const { t } = useTranslation('schedule')
+  const { t: tc } = useTranslation('clients')
+  const { t: tco } = useTranslation('common')
   const [activeTab, setActiveTab] = useState<'total' | 'completed' | 'pending'>('total')
   const [viewingSession, setViewingSession] = useState<Session | null>(null)
 
@@ -855,13 +1023,13 @@ const OverviewModal = ({ isOpen, onClose, sessions, clients, headerText, workout
                 </Badge>
               </button>
               <button onClick={() => setActiveTab('completed')} className={`px-3 py-1 text-sm font-medium rounded-md ${activeTab === 'completed' ? 'bg-green-600 text-white' : 'hover:bg-slate-100'}`}>
-                Completed{' '}
+                {t('completed')}{' '}
                 <Badge variant="default" className="ml-1.5 bg-white text-green-700">
                   {sessions.filter((s: any) => s.completed).length}
                 </Badge>
               </button>
               <button onClick={() => setActiveTab('pending')} className={`px-3 py-1 text-sm font-medium rounded-md ${activeTab === 'pending' ? 'bg-amber-600 text-white' : 'hover:bg-slate-100'}`}>
-                Pending{' '}
+                {t('pending')}{' '}
                 <Badge variant="default" className="ml-1.5 bg-white text-amber-700">
                   {sessions.filter((s: any) => !s.completed).length}
                 </Badge>
@@ -880,9 +1048,9 @@ const OverviewModal = ({ isOpen, onClose, sessions, clients, headerText, workout
                       <div className="flex items-center gap-3">
                         <span className={`w-2 h-10 rounded-full ${session.completed ? 'bg-green-500' : 'bg-amber-500'}`}></span>
                         <div>
-                          <p className="font-semibold text-slate-800">{client?.name || 'Unknown'}</p>
+                          <p className="font-semibold text-slate-800">{client?.name || tco('unknown')}</p>
                           <p className="text-xs text-slate-500">
-                            {format(parseISO(session.date), 'MMM d, h:mm a')} • {session.category}
+                            {format(parseISO(session.date), 'MMM d, h:mm a')} • {session.category === 'Check-in' ? tc('checkIn') : tc('workout')}
                           </p>
                         </div>
                       </div>
@@ -891,7 +1059,7 @@ const OverviewModal = ({ isOpen, onClose, sessions, clients, headerText, workout
                   )
                 })
               ) : (
-                <p className="text-center py-8 text-slate-500">No sessions in this category.</p>
+                <p className="text-center py-8 text-slate-500">{t('noSessionsInCategory')}</p>
               )}
             </div>
           </>
@@ -916,6 +1084,7 @@ const OverviewModal = ({ isOpen, onClose, sessions, clients, headerText, workout
 }
 
 const SessionDetailView = ({ session, clients, workouts }: any) => {
+  const { t } = useTranslation('schedule')
   const client = clients.find((c: Client) => c.id === session.clientId)
   const workout = workouts.find((w: WorkoutPlan) => w.id === session.linkedWorkoutId)
   return (
@@ -934,10 +1103,10 @@ const SessionDetailView = ({ session, clients, workouts }: any) => {
           </div>
         </div>
       </div>
-      <Badge variant={session.completed ? 'success' : 'warning'}>{session.completed ? 'Completed' : 'Pending'}</Badge>
+      <Badge variant={session.completed ? 'success' : 'warning'}>{session.completed ? t('completed') : t('pending')}</Badge>
       {session.notes && (
         <div>
-          <Label>Session Notes</Label>
+          <Label>{t('sessionDetails')}</Label>
           <p className="text-sm p-3 bg-slate-50 rounded-md border border-slate-200 whitespace-pre-wrap">{session.notes}</p>
         </div>
       )}

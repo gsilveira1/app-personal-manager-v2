@@ -1,0 +1,39 @@
+{
+  "save": "Save",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "edit": "Edit",
+  "add": "Add",
+  "back": "Back",
+  "loading": "Loading...",
+  "error": "Something went wrong",
+  "empty": "No data found",
+  "confirm": "Confirm",
+  "close": "Close",
+  "search": "Search",
+  "filter": "Filter",
+  "actions": "Actions",
+  "logout": "Logout",
+  "noPlan": "No Plan",
+  "view": "View",
+  "none": "None",
+  "saving": "Saving...",
+  "yearsOld": "{{age}} years old",
+  "noData": "No data",
+  "appError": {
+    "title": "Something went wrong",
+    "message": "We couldn't load the application data. Please check your connection and try again.",
+    "retry": "Try Again"
+  },
+  "appLoading": "Loading your dashboard...",
+  "checkingSession": "Checking session...",
+  "unknownClient": "Unknown Client",
+  "unknown": "Unknown",
+  "profile": "Profile",
+  "email": "Email",
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "lead": "Lead"
+  }
+}

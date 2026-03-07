@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Sparkles, Dumbbell, ChevronDown, ChevronUp, Loader2, Plus, Edit2, Trash2, Flame } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import { useStore } from '../store/store'
 import { type WorkoutPlan } from '../types'
@@ -8,6 +9,7 @@ import { generateWorkoutPlan } from '../services/geminiService'
 import { WorkoutEditorModal } from '../components/WorkoutEditorModal'
 
 export const Workouts = () => {
+  const { t } = useTranslation('workouts')
   const { workouts, addWorkout, updateWorkout, deleteWorkout } = useStore()
   const [activeTab, setActiveTab] = useState<'library' | 'ai'>('library')
   const [isEditorOpen, setIsEditorOpen] = useState(false)
@@ -27,7 +29,7 @@ export const Workouts = () => {
   }
 
   const handleDelete = (id: string) => {
-    if (window.confirm('Are you sure you want to delete this workout template?')) {
+    if (window.confirm(t('deleteWorkoutConfirm'))) {
       deleteWorkout(id)
     }
   }
@@ -46,20 +48,20 @@ export const Workouts = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-900">Workouts Library</h1>
+        <h1 className="text-2xl font-bold text-slate-900">{t('title')}</h1>
         <div className="flex bg-slate-100 p-1 rounded-lg">
           <button
             onClick={() => setActiveTab('library')}
             className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${activeTab === 'library' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
           >
-            Templates
+            {t('templates')}
           </button>
           <button
             onClick={() => setActiveTab('ai')}
             className={`px-4 py-2 text-sm font-medium rounded-md transition-all flex items-center ${activeTab === 'ai' ? 'bg-indigo-500 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
           >
             <Sparkles className="h-4 w-4 mr-2" />
-            AI Generator
+            {t('aiGenerator')}
           </button>
         </div>
       </div>
@@ -88,6 +90,7 @@ interface WorkoutLibraryProps {
 }
 
 const WorkoutLibrary = ({ workouts, onCreate, onEdit, onDelete }: WorkoutLibraryProps) => {
+  const { t } = useTranslation('workouts')
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
   return (
@@ -100,12 +103,12 @@ const WorkoutLibrary = ({ workouts, onCreate, onEdit, onDelete }: WorkoutLibrary
                 <Dumbbell className="h-6 w-6 text-indigo-600" />
               </div>
               <div className="flex items-center space-x-2">
-                <Badge>{workout.exercises.length} Items</Badge>
+                <Badge>{t('items', { count: workout.exercises.length })}</Badge>
                 <div className="flex space-x-1">
-                  <button onClick={() => onEdit(workout)} className="p-1 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded" title="Edit Template">
+                  <button onClick={() => onEdit(workout)} className="p-1 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded" title={t('editTemplate')}>
                     <Edit2 className="h-4 w-4" />
                   </button>
-                  <button onClick={() => onDelete(workout.id)} className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded" title="Delete Template">
+                  <button onClick={() => onDelete(workout.id)} className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded" title={t('deleteTemplate')}>
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
@@ -128,11 +131,11 @@ const WorkoutLibrary = ({ workouts, onCreate, onEdit, onDelete }: WorkoutLibrary
           >
             {expandedId === workout.id ? (
               <>
-                Hide Details <ChevronUp className="ml-1 h-3 w-3" />
+                {t('hideDetails')} <ChevronUp className="ml-1 h-3 w-3" />
               </>
             ) : (
               <>
-                View {workout.exercises.length} Items <ChevronDown className="ml-1 h-3 w-3" />
+                {t('viewItems', { count: workout.exercises.length })} <ChevronDown className="ml-1 h-3 w-3" />
               </>
             )}
           </button>
@@ -168,14 +171,15 @@ const WorkoutLibrary = ({ workouts, onCreate, onEdit, onDelete }: WorkoutLibrary
         <div className="bg-slate-100 p-4 rounded-full mb-3 group-hover:bg-white shadow-sm transition-all">
           <Plus className="h-6 w-6" />
         </div>
-        <span className="font-medium text-lg">Create Template</span>
-        <span className="text-sm opacity-70 mt-1">Design a new workout from scratch</span>
+        <span className="font-medium text-lg">{t('createTemplate')}</span>
+        <span className="text-sm opacity-70 mt-1">{t('designFromScratch')}</span>
       </button>
     </div>
   )
 }
 
 const AIWorkoutGenerator = ({ onSave }: { onSave: (w: Omit<WorkoutPlan, 'id' | 'createdAt'>) => void }) => {
+  const { t } = useTranslation('workouts')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -207,7 +211,7 @@ const AIWorkoutGenerator = ({ onSave }: { onSave: (w: Omit<WorkoutPlan, 'id' | '
 
       onSave(newWorkout)
     } catch (err) {
-      setError('Failed to generate workout. Check API key or try again.')
+      setError(t('generationError'))
     } finally {
       setLoading(false)
     }
@@ -220,39 +224,39 @@ const AIWorkoutGenerator = ({ onSave }: { onSave: (w: Omit<WorkoutPlan, 'id' | '
           <div className="inline-flex items-center justify-center p-3 bg-indigo-100 rounded-full mb-4">
             <Sparkles className="h-8 w-8 text-indigo-600" />
           </div>
-          <h2 className="text-2xl font-bold text-slate-900">AI Workout Generator</h2>
-          <p className="text-slate-500 mt-2">Describe your client's needs, and let Gemini craft the perfect session.</p>
+          <h2 className="text-2xl font-bold text-slate-900">{t('aiWorkoutGenerator')}</h2>
+          <p className="text-slate-500 mt-2">{t('aiSubtitle')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="clientName">Client Name</Label>
-              <Input id="clientName" name="clientName" placeholder="e.g. Sarah" required />
+              <Label htmlFor="clientName">{t('clientName')}</Label>
+              <Input id="clientName" name="clientName" placeholder={t('clientNamePlaceholder')} required />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="level">Experience Level</Label>
+              <Label htmlFor="level">{t('experienceLevel')}</Label>
               <Select id="level" name="level">
-                <option value="Beginner">Beginner</option>
-                <option value="Intermediate">Intermediate</option>
-                <option value="Advanced">Advanced</option>
+                <option value="Beginner">{t('beginner')}</option>
+                <option value="Intermediate">{t('intermediate')}</option>
+                <option value="Advanced">{t('advanced')}</option>
               </Select>
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="goal">Primary Goal</Label>
-            <Input id="goal" name="goal" placeholder="e.g. Improve 5k time, Build Glutes" required />
+            <Label htmlFor="goal">{t('primaryGoal')}</Label>
+            <Input id="goal" name="goal" placeholder={t('goalPlaceholder')} required />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="days">Frequency (Days/Week)</Label>
+              <Label htmlFor="days">{t('frequencyDaysPerWeek')}</Label>
               <Input id="days" name="days" type="number" min="1" max="7" defaultValue="3" required />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="limitations">Limitations / Injuries</Label>
-              <Input id="limitations" name="limitations" placeholder="Optional (e.g. Knee pain)" />
+              <Label htmlFor="limitations">{t('limitationsInjuries')}</Label>
+              <Input id="limitations" name="limitations" placeholder={t('limitationsPlaceholder')} />
             </div>
           </div>
 
@@ -265,10 +269,10 @@ const AIWorkoutGenerator = ({ onSave }: { onSave: (w: Omit<WorkoutPlan, 'id' | '
           <Button type="submit" disabled={loading} className="w-full h-12 text-lg">
             {loading ? (
               <>
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Generating Plan...
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" /> {t('generatingPlan')}
               </>
             ) : (
-              'Generate Workout'
+              t('generateWorkout')
             )}
           </Button>
         </form>

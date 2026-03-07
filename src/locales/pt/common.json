@@ -1,0 +1,39 @@
+{
+  "save": "Salvar",
+  "cancel": "Cancelar",
+  "delete": "Excluir",
+  "edit": "Editar",
+  "add": "Adicionar",
+  "back": "Voltar",
+  "loading": "Carregando...",
+  "error": "Algo deu errado",
+  "empty": "Nenhum dado encontrado",
+  "confirm": "Confirmar",
+  "close": "Fechar",
+  "search": "Buscar",
+  "filter": "Filtrar",
+  "actions": "Ações",
+  "logout": "Sair",
+  "noPlan": "Sem plano",
+  "view": "Ver",
+  "none": "Nenhum",
+  "saving": "Salvando...",
+  "yearsOld": "{{age}} anos",
+  "noData": "Sem dados",
+  "appError": {
+    "title": "Algo deu errado",
+    "message": "Não foi possível carregar os dados da aplicação. Verifique sua conexão e tente novamente.",
+    "retry": "Tentar novamente"
+  },
+  "appLoading": "Carregando seu painel...",
+  "checkingSession": "Verificando sessão...",
+  "unknownClient": "Cliente desconhecido",
+  "unknown": "Desconhecido",
+  "profile": "Perfil",
+  "email": "E-mail",
+  "status": {
+    "active": "Ativo",
+    "inactive": "Inativo",
+    "lead": "Lead"
+  }
+}

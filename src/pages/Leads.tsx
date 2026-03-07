@@ -15,6 +15,7 @@ import {
     Globe,
     MapPin,
 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import { useStore } from '../store/store'
 import { ClientStatus } from '../types'
@@ -28,10 +29,10 @@ import { Card, Button, Select, Label } from '../components/ui'
 
 type LeadStage = 'New' | 'Contacted' | 'Interested' | 'Won' | 'Lost'
 
-const STAGES: { id: LeadStage; label: string; color: string; dot: string }[] = [
-    { id: 'New', label: 'New Lead', color: 'bg-slate-100 text-slate-600', dot: 'bg-slate-400' },
-    { id: 'Contacted', label: 'Contacted', color: 'bg-blue-100 text-blue-700', dot: 'bg-blue-500' },
-    { id: 'Interested', label: 'Interested', color: 'bg-amber-100 text-amber-700', dot: 'bg-amber-500' },
+const STAGES: { id: LeadStage; labelKey: string; color: string; dot: string }[] = [
+    { id: 'New', labelKey: 'newLead', color: 'bg-slate-100 text-slate-600', dot: 'bg-slate-400' },
+    { id: 'Contacted', labelKey: 'contacted', color: 'bg-blue-100 text-blue-700', dot: 'bg-blue-500' },
+    { id: 'Interested', labelKey: 'interested', color: 'bg-amber-100 text-amber-700', dot: 'bg-amber-500' },
 ]
 
 function parseStage(notes: string | null | undefined): LeadStage {
@@ -58,16 +59,16 @@ function encodeNotes(stage: LeadStage, userNotes: string): string {
     return JSON.stringify({ __stage: stage, __userNotes: userNotes })
 }
 
-function daysAgo(dateStr: string | undefined): string {
+function daysAgo(dateStr: string | undefined, t: (key: string, opts?: Record<string, unknown>) => string): string {
     if (!dateStr) return ''
     const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 86_400_000)
-    if (diff === 0) return 'Today'
-    if (diff === 1) return '1 day ago'
-    return `${diff} days ago`
+    if (diff === 0) return t('today')
+    if (diff === 1) return t('oneDayAgo')
+    return t('daysAgo', { count: diff })
 }
 
-function interestLabel(type: Client['type']): string {
-    return type === 'Online' ? 'Online' : 'In-Person'
+function interestLabel(type: Client['type'], t: (key: string) => string): string {
+    return type === 'Online' ? t('online') : t('inPerson')
 }
 
 // -------------------------------------------------------------------
@@ -89,6 +90,8 @@ interface LeadCardProps {
 }
 
 const LeadCard = ({ client, stage, onClick }: LeadCardProps) => {
+    const { t } = useTranslation('leads')
+    const { t: tc } = useTranslation('clients')
     const stageInfo = STAGES.find((s) => s.id === stage)!
     const created = (client as any).createdAt as string | undefined
 
@@ -104,7 +107,7 @@ const LeadCard = ({ client, stage, onClick }: LeadCardProps) => {
                 </div>
                 <div className="flex-1 min-w-0">
                     <p className="font-semibold text-slate-900 text-sm truncate">{client.name}</p>
-                    {created && <p className="text-xs text-slate-400">{daysAgo(created)}</p>}
+                    {created && <p className="text-xs text-slate-400">{daysAgo(created, t)}</p>}
                 </div>
                 <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-indigo-500 transition-colors flex-shrink-0" />
             </div>
@@ -113,11 +116,11 @@ const LeadCard = ({ client, stage, onClick }: LeadCardProps) => {
             <div className="flex flex-wrap gap-1.5 mb-3">
                 <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${stageInfo.color}`}>
                     <span className={`h-1.5 w-1.5 rounded-full ${stageInfo.dot}`} />
-                    {stageInfo.label}
+                    {t(stageInfo.labelKey)}
                 </span>
                 <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">
                     {client.type === 'Online' ? <Globe className="h-3 w-3" /> : <MapPin className="h-3 w-3" />}
-                    {interestLabel(client.type)}
+                    {interestLabel(client.type, tc)}
                 </span>
             </div>
 
@@ -137,7 +140,7 @@ const LeadCard = ({ client, stage, onClick }: LeadCardProps) => {
                     onClick={(e) => e.stopPropagation()}
                     className="flex items-center gap-1 text-xs text-slate-600 bg-slate-50 hover:bg-slate-100 px-2 py-1 rounded-md transition-colors font-medium"
                 >
-                    <Mail className="h-3 w-3" /> Email
+                    <Mail className="h-3 w-3" /> {t('email', { ns: 'common' })}
                 </a>
             </div>
         </button>
@@ -158,6 +161,8 @@ interface LeadDrawerProps {
 }
 
 const LeadDrawer = ({ lead, plans, onClose, onStageChange, onConvert, onMarkLost }: LeadDrawerProps) => {
+    const { t } = useTranslation('leads')
+    const { t: tc } = useTranslation('clients')
     const stage = parseStage(lead.notes)
     const userNotes = parseUserNotes(lead.notes)
     const [localStage, setLocalStage] = useState<LeadStage>(stage)
@@ -199,7 +204,7 @@ const LeadDrawer = ({ lead, plans, onClose, onStageChange, onConvert, onMarkLost
                         </div>
                         <div>
                             <h2 className="font-bold text-slate-900">{lead.name}</h2>
-                            {created && <p className="text-xs text-slate-400">{daysAgo(created)}</p>}
+                            {created && <p className="text-xs text-slate-400">{daysAgo(created, t)}</p>}
                         </div>
                     </div>
                     <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg">
@@ -210,7 +215,7 @@ const LeadDrawer = ({ lead, plans, onClose, onStageChange, onConvert, onMarkLost
                 <div className="flex-1 overflow-y-auto p-5 space-y-5">
                     {/* Contact info */}
                     <section className="space-y-2">
-                        <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Contact</h3>
+                        <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{t('contact')}</h3>
                         <a
                             href={whatsappUrl(lead.phone)}
                             target="_blank"
@@ -219,7 +224,7 @@ const LeadDrawer = ({ lead, plans, onClose, onStageChange, onConvert, onMarkLost
                         >
                             <Phone className="h-4 w-4 text-green-600" />
                             <span className="text-sm font-medium text-green-800">{lead.phone}</span>
-                            <span className="ml-auto text-xs text-green-600 font-medium opacity-0 group-hover:opacity-100">Open WhatsApp →</span>
+                            <span className="ml-auto text-xs text-green-600 font-medium opacity-0 group-hover:opacity-100">{t('openWhatsApp')}</span>
                         </a>
                         <a
                             href={`mailto:${lead.email}`}
@@ -232,11 +237,11 @@ const LeadDrawer = ({ lead, plans, onClose, onStageChange, onConvert, onMarkLost
 
                     {/* Interest */}
                     <section className="space-y-2">
-                        <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Interest</h3>
+                        <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{t('interest')}</h3>
                         <div className="flex gap-2">
                             <span className="flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-full bg-purple-100 text-purple-700 font-medium">
                                 {lead.type === 'Online' ? <Globe className="h-3.5 w-3.5" /> : <MapPin className="h-3.5 w-3.5" />}
-                                {interestLabel(lead.type)}
+                                {interestLabel(lead.type, tc)}
                             </span>
                             {lead.goal && (
                                 <span className="flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 font-medium">
@@ -249,7 +254,7 @@ const LeadDrawer = ({ lead, plans, onClose, onStageChange, onConvert, onMarkLost
 
                     {/* Stage */}
                     <section className="space-y-2">
-                        <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Stage</h3>
+                        <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{t('stage')}</h3>
                         <div className="flex gap-2">
                             {STAGES.map((s) => (
                                 <button
@@ -260,7 +265,7 @@ const LeadDrawer = ({ lead, plans, onClose, onStageChange, onConvert, onMarkLost
                                         : 'border-slate-200 text-slate-500 hover:border-slate-300'
                                         }`}
                                 >
-                                    {s.label}
+                                    {t(s.labelKey)}
                                 </button>
                             ))}
                         </div>
@@ -269,13 +274,13 @@ const LeadDrawer = ({ lead, plans, onClose, onStageChange, onConvert, onMarkLost
                     {/* Notes */}
                     <section className="space-y-2">
                         <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                            <MessageSquare className="h-3.5 w-3.5" /> Notes
+                            <MessageSquare className="h-3.5 w-3.5" /> {t('notes', { ns: 'schedule' })}
                         </h3>
                         <textarea
                             value={localNotes}
                             onChange={(e) => setLocalNotes(e.target.value)}
                             onBlur={handleNotesBlur}
-                            placeholder="Add notes about this lead..."
+                            placeholder={t('addNotes')}
                             rows={4}
                             className="w-full rounded-lg border border-slate-200 p-3 text-sm text-slate-700 resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                         />
@@ -289,7 +294,7 @@ const LeadDrawer = ({ lead, plans, onClose, onStageChange, onConvert, onMarkLost
                         onClick={() => setShowConvertModal(true)}
                     >
                         <CheckCircle2 className="h-4 w-4" />
-                        Convert to Client
+                        {t('convertToClient')}
                     </Button>
                     <Button
                         variant="outline"
@@ -297,7 +302,7 @@ const LeadDrawer = ({ lead, plans, onClose, onStageChange, onConvert, onMarkLost
                         onClick={() => onMarkLost(lead.id)}
                     >
                         <XCircle className="h-4 w-4" />
-                        Mark as Lost
+                        {t('markAsLost')}
                     </Button>
                 </div>
             </div>
@@ -306,18 +311,18 @@ const LeadDrawer = ({ lead, plans, onClose, onStageChange, onConvert, onMarkLost
             {showConvertModal && (
                 <div className="absolute inset-0 flex items-center justify-center z-10 bg-black/30">
                     <Card className="w-full max-w-sm p-6 m-4">
-                        <h3 className="text-lg font-bold text-slate-900 mb-1">Convert Lead to Client</h3>
+                        <h3 className="text-lg font-bold text-slate-900 mb-1">{t('convertLeadTitle')}</h3>
                         <p className="text-sm text-slate-500 mb-5">
-                            Optionally assign a plan to <strong>{lead.name}</strong> right away.
+                            {t('convertLeadSubtitle', { name: lead.name })}
                         </p>
                         <div className="space-y-2 mb-5">
-                            <Label htmlFor="plan-select">Subscription Plan (optional)</Label>
+                            <Label htmlFor="plan-select">{t('subscriptionPlanOptional')}</Label>
                             <Select
                                 id="plan-select"
                                 value={selectedPlanId}
                                 onChange={(e) => setSelectedPlanId(e.target.value)}
                             >
-                                <option value="">— No plan yet —</option>
+                                <option value="">{t('noPlanYet')}</option>
                                 {plans.map((p) => (
                                     <option key={p.id} value={p.id}>{p.name}</option>
                                 ))}
@@ -325,14 +330,14 @@ const LeadDrawer = ({ lead, plans, onClose, onStageChange, onConvert, onMarkLost
                         </div>
                         <div className="flex gap-3">
                             <Button variant="outline" className="flex-1" onClick={() => setShowConvertModal(false)}>
-                                Cancel
+                                {t('cancel', { ns: 'common' })}
                             </Button>
                             <Button
                                 className="flex-1 bg-emerald-600 hover:bg-emerald-700"
                                 disabled={converting}
                                 onClick={handleConvert}
                             >
-                                {converting ? 'Converting...' : 'Confirm'}
+                                {converting ? t('loading', { ns: 'common' }) : t('confirm', { ns: 'common' })}
                             </Button>
                         </div>
                     </Card>
@@ -347,6 +352,7 @@ const LeadDrawer = ({ lead, plans, onClose, onStageChange, onConvert, onMarkLost
 // -------------------------------------------------------------------
 
 export const Leads = () => {
+    const { t } = useTranslation('leads')
     const navigate = useNavigate()
     const { clients, plans, updateClient, convertLead } = useStore()
     const [selectedLead, setSelectedLead] = useState<Client | null>(null)
@@ -398,7 +404,7 @@ export const Leads = () => {
     }
 
     const handleMarkLost = async (id: string) => {
-        if (window.confirm('Mark this lead as Lost? They will be removed from the pipeline.')) {
+        if (window.confirm(t('markAsLostConfirm'))) {
             await updateClient(id, { status: ClientStatus.Inactive })
             setSelectedLead(null)
         }
@@ -409,8 +415,8 @@ export const Leads = () => {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900">Lead Pipeline</h1>
-                    <p className="text-sm text-slate-500 mt-1">Manage incoming leads from your website.</p>
+                    <h1 className="text-2xl font-bold text-slate-900">{t('title')}</h1>
+                    <p className="text-sm text-slate-500 mt-1">{t('subtitle')}</p>
                 </div>
             </div>
 
@@ -422,7 +428,7 @@ export const Leads = () => {
                     </div>
                     <div>
                         <p className="text-2xl font-bold text-slate-900">{totalThisWeek}</p>
-                        <p className="text-xs text-slate-500">New this week</p>
+                        <p className="text-xs text-slate-500">{t('newThisWeek')}</p>
                     </div>
                 </Card>
                 <Card className="p-4 flex items-center gap-3">
@@ -431,7 +437,7 @@ export const Leads = () => {
                     </div>
                     <div>
                         <p className="text-2xl font-bold text-slate-900">{conversionRate}%</p>
-                        <p className="text-xs text-slate-500">Conversion rate</p>
+                        <p className="text-xs text-slate-500">{t('conversionRate')}</p>
                     </div>
                 </Card>
                 <Card className="p-4 flex items-center gap-3">
@@ -440,7 +446,7 @@ export const Leads = () => {
                     </div>
                     <div>
                         <p className="text-2xl font-bold text-slate-900">{avgAgeDays}d</p>
-                        <p className="text-xs text-slate-500">Avg. lead age</p>
+                        <p className="text-xs text-slate-500">{t('avgLeadAge')}</p>
                     </div>
                 </Card>
             </div>
@@ -451,9 +457,9 @@ export const Leads = () => {
                     <div className="bg-slate-100 p-5 rounded-full mb-4">
                         <UserPlus className="h-10 w-10 text-slate-300" />
                     </div>
-                    <p className="text-lg font-semibold text-slate-600">No active leads</p>
+                    <p className="text-lg font-semibold text-slate-600">{t('noLeads')}</p>
                     <p className="text-sm mt-1">
-                        Leads submitted via your website will appear here automatically.
+                        {t('noLeadsMessage')}
                     </p>
                 </div>
             )}
@@ -466,7 +472,7 @@ export const Leads = () => {
                             {/* Column header */}
                             <div className="flex items-center gap-2">
                                 <span className={`h-2.5 w-2.5 rounded-full ${stage.dot}`} />
-                                <h3 className="font-semibold text-slate-700 text-sm">{stage.label}</h3>
+                                <h3 className="font-semibold text-slate-700 text-sm">{t(stage.labelKey)}</h3>
                                 <span className="ml-auto text-xs font-semibold bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">
                                     {byStage[stage.id].length}
                                 </span>
@@ -484,7 +490,7 @@ export const Leads = () => {
                                 ))}
                                 {byStage[stage.id].length === 0 && (
                                     <div className="flex items-center justify-center h-16 border-2 border-dashed border-slate-200 rounded-xl text-slate-300 text-sm">
-                                        No leads
+                                        {t('noLeadsInColumn')}
                                     </div>
                                 )}
                             </div>

@@ -2,25 +2,26 @@ import { useState } from 'react'
 // FIX: Split react-router-dom imports to fix module resolution errors
 import { Outlet, useNavigate } from 'react-router'
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Users, Calendar, Dumbbell, DollarSign, Menu, X, Settings, LogOut, Package, UserPlus } from 'lucide-react'
+import { LayoutDashboard, Users, Calendar, Dumbbell, Menu, X, Settings, LogOut, UserPlus } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../store/authStore'
 import { useStore } from '../store/store'
+import { LanguageSwitcher } from './LanguageSwitcher'
 
 const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
   const { clients } = useStore()
+  const { t } = useTranslation('navigation')
   const leadCount = clients.filter((c) => c.status === 'Lead').length
 
   type NavItem = { to: string; icon: React.ElementType; label: string; badge?: number }
 
   const navItems: NavItem[] = [
-    { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
-    { to: '/clients', icon: Users, label: 'Clients' },
-    { to: '/schedule', icon: Calendar, label: 'Schedule' },
-    { to: '/workouts', icon: Dumbbell, label: 'Workouts' },
-    { to: '/finances', icon: DollarSign, label: 'Finances' },
-    { to: '/leads', icon: UserPlus, label: 'Leads', badge: leadCount > 0 ? leadCount : undefined },
-    { to: '/products', icon: Package, label: 'Products' },
-    { to: '/settings', icon: Settings, label: 'Settings' },
+    { to: '/', icon: LayoutDashboard, label: t('dashboard') },
+    { to: '/clients', icon: Users, label: t('clients') },
+    { to: '/schedule', icon: Calendar, label: t('schedule') },
+    { to: '/workouts', icon: Dumbbell, label: t('workouts') },
+    { to: '/leads', icon: UserPlus, label: t('leads'), badge: leadCount > 0 ? leadCount : undefined },
+    { to: '/settings', icon: Settings, label: t('settings') },
   ]
 
   return (
@@ -51,9 +52,7 @@ const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
             <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
             {item.label}
             {item.badge !== undefined && (
-              <span className="ml-auto bg-red-500 text-white text-xs font-bold h-5 min-w-[20px] px-1 rounded-full flex items-center justify-center">
-                {item.badge > 9 ? '9+' : item.badge}
-              </span>
+              <span className="ml-auto bg-red-500 text-white text-xs font-bold h-5 min-w-[20px] px-1 rounded-full flex items-center justify-center">{item.badge > 9 ? '9+' : item.badge}</span>
             )}
           </NavLink>
         ))}
@@ -67,6 +66,7 @@ const UserMenu = () => {
   const { clearDataOnLogout } = useStore()
   const navigate = useNavigate()
   const [isOpen, setIsOpen] = useState(false)
+  const { t } = useTranslation('common')
 
   const handleLogout = async () => {
     await logout()
@@ -77,7 +77,7 @@ const UserMenu = () => {
   return (
     <div className="relative">
       <button onClick={() => setIsOpen(!isOpen)} className="flex items-center space-x-2 p-1 rounded-full hover:bg-slate-100">
-        <img src={`https://i.pravatar.cc/150?u=${user?.email}`} alt="Profile" className="h-8 w-8 rounded-full border border-slate-200" />
+        <img src={`https://i.pravatar.cc/150?u=${user?.email}`} alt={t('profile')} className="h-8 w-8 rounded-full border border-slate-200" />
         <span className="hidden md:block text-sm font-medium text-slate-700">{user?.name}</span>
       </button>
       {isOpen && (
@@ -88,7 +88,7 @@ const UserMenu = () => {
           </div>
           <button onClick={handleLogout} className="w-full text-left flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">
             <LogOut className="mr-2 h-4 w-4" />
-            Logout
+            {t('logout')}
           </button>
         </div>
       )}
@@ -109,6 +109,7 @@ export const Layout = () => {
             <Menu className="h-6 w-6" />
           </button>
           <div className="flex items-center ml-auto space-x-4">
+            <LanguageSwitcher />
             <UserMenu />
           </div>
         </header>

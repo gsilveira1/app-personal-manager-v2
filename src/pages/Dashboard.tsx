@@ -4,14 +4,19 @@ import { format, isSameDay, parseISO, startOfWeek, endOfWeek, eachDayOfInterval,
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { useNavigate } from 'react-router'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 import { useStore } from '../store/store'
 import { Card, Button } from '../components/ui'
-import { ClientStatus, PaymentStatus, type Session } from '../types'
+import { ClientStatus, type Session } from '../types'
 import { findSchedulingConflicts } from '../utils/scheduleUtils'
 
 export const Dashboard = () => {
-  const { clients, sessions, finances, toggleSessionComplete } = useStore()
+  const { t } = useTranslation('navigation')
+  const { t: ts } = useTranslation('schedule')
+  const { t: tc } = useTranslation('clients')
+  const { t: tco } = useTranslation('common')
+  const { clients, sessions, toggleSessionComplete } = useStore()
 
   const conflicts = useMemo(() => findSchedulingConflicts(sessions), [sessions])
 
@@ -26,7 +31,7 @@ export const Dashboard = () => {
     return d >= weekStart && d <= weekEnd
   })
   const newLeads = clients.filter((c) => c.status === ClientStatus.Lead).length
-  const overduePayments = finances.filter((f) => f.status === PaymentStatus.Overdue).length
+  const activeClients = clients.filter((c) => c.status === ClientStatus.Active).length
 
   // --- New Chart Data: Weekly Schedule ---
   const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd })
@@ -52,36 +57,36 @@ export const Dashboard = () => {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
-          <p className="text-slate-500">Welcome back, Coach Alex. Here's your daily overview.</p>
+          <h1 className="text-2xl font-bold text-slate-900">{t('dashboard')}</h1>
+          <p className="text-slate-500">{t('welcomeSubtitle')}</p>
         </div>
         <Link to="/schedule">
-          <Button>+ New Session</Button>
+          <Button>+ {ts('newSession')}</Button>
         </Link>
       </div>
 
       {conflicts.length > 0 && <ConflictsCard conflicts={conflicts} />}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatsCard title="Sessions Today" value={todaySessions.length.toString()} icon={Calendar} description={`${todaySessions.filter((s) => s.completed).length} completed`} />
-        <StatsCard title="This Week's Sessions" value={weeklySessions.length.toString()} icon={Activity} description={`${weeklySessions.filter((s) => !s.completed).length} pending`} />
-        <StatsCard title="New Leads" value={newLeads.toString()} icon={UserPlus} description="Ready to be contacted" />
-        <StatsCard title="Overdue Payments" value={overduePayments.toString()} icon={AlertCircle} description="Action required" isAlert={overduePayments > 0} />
+        <StatsCard title={ts('sessionsToday')} value={todaySessions.length.toString()} icon={Calendar} description={`${todaySessions.filter((s) => s.completed).length} ${ts('completed').toLowerCase()}`} />
+        <StatsCard title={ts('thisWeeksSessions')} value={weeklySessions.length.toString()} icon={Activity} description={`${weeklySessions.filter((s) => !s.completed).length} ${ts('pending').toLowerCase()}`} />
+        <StatsCard title={tc('newLeads')} value={newLeads.toString()} icon={UserPlus} description={tc('readyToContact')} />
+        <StatsCard title={tc('activeClients')} value={activeClients.toString()} icon={AlertCircle} description={tc('currentlyActive')} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           <Card className="p-0">
             <div className="p-6 border-b border-slate-100">
-              <h3 className="text-lg font-semibold text-slate-900">Today's Agenda</h3>
+              <h3 className="text-lg font-semibold text-slate-900">{ts('todaysAgenda')}</h3>
               <p className="text-sm text-slate-500">{format(today, 'EEEE, MMMM d')}</p>
             </div>
             <div className="p-6 space-y-4">
               {todaySessions.length === 0 ? (
                 <div className="text-center py-10">
                   <Calendar className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-                  <h4 className="text-lg font-medium text-slate-900">All clear!</h4>
-                  <p className="text-slate-500 text-sm">No sessions scheduled for today.</p>
+                  <h4 className="text-lg font-medium text-slate-900">{ts('allClear')}</h4>
+                  <p className="text-slate-500 text-sm">{ts('noSessionsForToday')}</p>
                 </div>
               ) : (
                 todaySessions
@@ -98,22 +103,22 @@ export const Dashboard = () => {
                           <img src={client?.avatar} alt={client?.name} className="h-10 w-10 rounded-full object-cover" />
                           <div>
                             <Link to={`/clients/${client?.id}`} className="font-semibold text-slate-800 hover:text-indigo-600">
-                              {client?.name || 'Unknown Client'}
+                              {client?.name || tco('unknownClient')}
                             </Link>
                             <p className="text-xs text-slate-500 flex items-center gap-2 mt-0.5">
                               {session.type === 'Online' ? <Video className="h-3 w-3" /> : <MapPin className="h-3 w-3" />}
-                              {session.type} {session.category} • {session.durationMinutes} min
+                              {session.type === 'Online' ? tc('online') : tc('inPerson')} {session.category === 'Check-in' ? tc('checkIn') : tc('workout')} • {session.durationMinutes} min
                             </p>
                           </div>
                         </div>
                         <div className="flex items-center justify-end gap-2 shrink-0 w-full sm:w-auto">
                           {session.completed ? (
                             <span className="flex items-center text-sm font-medium text-green-600">
-                              <CheckCircle2 className="h-4 w-4 mr-2" /> Completed
+                              <CheckCircle2 className="h-4 w-4 mr-2" /> {ts('completed')}
                             </span>
                           ) : (
                             <Button variant="outline" onClick={() => toggleSessionComplete(session.id)}>
-                              <CheckCircle2 className="h-4 w-4 mr-2" /> Mark Complete
+                              <CheckCircle2 className="h-4 w-4 mr-2" /> {ts('markComplete')}
                             </Button>
                           )}
                         </div>
@@ -127,7 +132,7 @@ export const Dashboard = () => {
 
         <div className="lg:col-span-1 space-y-6">
           <Card className="p-6">
-            <h3 className="text-lg font-semibold text-slate-900 mb-4">Client Watchlist</h3>
+            <h3 className="text-lg font-semibold text-slate-900 mb-4">{tc('clientWatchlist')}</h3>
             <div className="space-y-3">
               {clientsToWatch.length > 0 ? (
                 clientsToWatch.map((client) => (
@@ -138,23 +143,23 @@ export const Dashboard = () => {
                         <Link to={`/clients/${client.id}`} className="text-sm font-semibold text-slate-800 hover:text-indigo-600">
                           {client.name}
                         </Link>
-                        <p className="text-xs text-slate-400">Needs follow-up</p>
+                        <p className="text-xs text-slate-400">{tc('needsFollowUp')}</p>
                       </div>
                     </div>
                     <Link to={`/clients/${client.id}`}>
                       <Button variant="secondary" className="h-8 px-3 text-xs">
-                        View
+                        {tco('view')}
                       </Button>
                     </Link>
                   </div>
                 ))
               ) : (
-                <p className="text-center text-sm text-slate-500 py-4">No clients need immediate attention. Great job!</p>
+                <p className="text-center text-sm text-slate-500 py-4">{tc('noClientsToWatch')}</p>
               )}
             </div>
           </Card>
           <Card className="p-6">
-            <h3 className="text-lg font-semibold text-slate-900 mb-6">Weekly Schedule Overview</h3>
+            <h3 className="text-lg font-semibold text-slate-900 mb-6">{ts('weeklyOverview')}</h3>
             <div className="h-[200px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={weeklyScheduleData} margin={{ top: 5, right: 0, left: -20, bottom: -10 }}>
@@ -190,6 +195,7 @@ const StatsCard = ({ title, value, icon: Icon, description, isAlert }: { title: 
 
 const ConflictsCard = ({ conflicts }: { conflicts: Session[][] }) => {
   const { clients } = useStore()
+  const { t } = useTranslation('schedule')
   const navigate = useNavigate()
 
   return (
@@ -201,15 +207,15 @@ const ConflictsCard = ({ conflicts }: { conflicts: Session[][] }) => {
           </div>
           <div>
             <h3 className="text-lg font-bold text-red-900">
-              {conflicts.length} Scheduling Conflict{conflicts.length > 1 ? 's' : ''} Detected
+              {t('conflictsDetected', { count: conflicts.length })}
             </h3>
-            <p className="text-sm text-red-700">Some sessions are overlapping. Please resolve them.</p>
+            <p className="text-sm text-red-700">{t('conflictsMessage')}</p>
           </div>
         </div>
         <div className="mt-4 space-y-3 max-h-48 overflow-y-auto pr-2">
           {conflicts.map((group, index) => (
             <div key={index} className="p-3 bg-white rounded-md border border-red-200">
-              <p className="text-xs font-semibold text-red-800 mb-2">Conflict Group {index + 1}</p>
+              <p className="text-xs font-semibold text-red-800 mb-2">{t('conflictGroup', { index: index + 1 })}</p>
               <div className="space-y-1">
                 {group.map((session) => {
                   const client = clients.find((c) => c.id === session.clientId)
@@ -225,7 +231,7 @@ const ConflictsCard = ({ conflicts }: { conflicts: Session[][] }) => {
           ))}
         </div>
         <Button variant="danger" className="mt-4 w-full" onClick={() => navigate('/schedule')}>
-          Resolve Conflicts in Schedule
+          {t('resolveConflicts')}
         </Button>
       </div>
     </Card>
