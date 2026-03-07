@@ -1,7 +1,6 @@
 import { create } from 'zustand'
 
-import { PaymentMethod } from '../types'
-import type { Client, Session, WorkoutPlan, FinanceRecord, Evaluation, Plan, Product } from '../types'
+import type { Client, Session, WorkoutPlan, Evaluation, Plan } from '../types'
 import * as api from '../services/apiService'
 import { ApiError } from '../utils/apiClient'
 import { type ClientSlice, createClientSlice } from './clientSlice'
@@ -28,25 +27,24 @@ export type AppState = ClientSlice &
     convertLead: (id: string, planId?: string) => Promise<void>
     addSession: (session: Omit<Session, 'id' | 'completed' | 'recurrenceId'>) => Promise<void>
     addRecurringSessions: (baseSession: Omit<Session, 'id' | 'date' | 'completed'>, startDateStr: string, frequency: 'weekly' | 'bi-weekly', untilDateStr: string) => Promise<void>
+    addRecurringEvent: (dto: { rrule: string; timezone: string; dtstart: string; durationMinutes: number; type: string; category: string; clientId: string; linkedWorkoutId?: string; notes?: string }) => Promise<void>
+    deleteRecurringSeries: (id: string) => Promise<void>
+    upsertSessionException: (dto: { recurringEventId: string; originalStartTime: string; cancelled?: boolean; newStartTime?: string; durationMinutes?: number; notes?: string; completed?: boolean }) => Promise<void>
     updateSession: (id: string, session: Partial<Session>) => Promise<void>
     updateSessionWithScope: (sessionId: string, updates: Partial<Session>, scope: 'single' | 'future') => Promise<void>
     toggleSessionComplete: (id: string) => Promise<void>
+    fetchSessionsForRange: (start: Date, end: Date) => Promise<void>
     addWorkout: (workout: Omit<WorkoutPlan, 'id' | 'createdAt'>) => Promise<void>
     updateWorkout: (id: string, workout: Partial<WorkoutPlan>) => Promise<void>
     deleteWorkout: (id: string) => Promise<void>
-    addFinanceRecord: (record: Omit<FinanceRecord, 'id'>) => Promise<void>
-    generateMonthlyInvoices: () => Promise<void>
-    markFinanceRecordPaid: (id: string, method: PaymentMethod) => Promise<void>
     addEvaluation: (evaluation: Omit<Evaluation, 'id'>) => Promise<void>
     updateEvaluation: (id: string, evaluation: Partial<Evaluation>) => Promise<void>
     deleteEvaluation: (id: string) => Promise<void>
     addPlan: (plan: Omit<Plan, 'id'>) => Promise<void>
     updatePlan: (id: string, plan: Partial<Plan>) => Promise<void>
     deletePlan: (id: string) => Promise<void>
-    addProduct: (product: Omit<Product, 'id'>) => Promise<void>
-    updateProduct: (id: string, product: Partial<Product>) => Promise<void>
-    deleteProduct: (id: string) => Promise<void>
     updateAiPromptInstructions: (instructions: string) => Promise<void>
+    updateLocale: (language: string) => Promise<void>
   }
 
 export const useStore = create<AppState>()((set, get) => ({
@@ -63,37 +61,20 @@ export const useStore = create<AppState>()((set, get) => ({
   fetchInitialData: async () => {
     set({ appState: 'loading', errorMessage: null })
     try {
-      /*const [clients, sessions, workouts, finances, evaluations, , products, settings] = await Promise.all([
-        api.getClients(),
-        api.getSessions(),
-        api.getWorkouts(),
-        api.getFinances(),
-        api.getEvaluations(),
-        api.getPlans(),
-        api.getProducts(),
-        api.getSettings(),
-      ]);*/
-
-      const [clients, evaluations, plans, sessions, workouts, products] = await Promise.all([
+      const [clients, evaluations, plans, sessions, workouts] = await Promise.all([
         api.getClients(),
         api.getEvaluations(),
         api.getPlans(),
         api.getSessions(),
         api.getWorkouts(),
-        api.getProducts().catch(() => []),
       ])
-
-      const finances: any = [],
-        settings: any = []
 
       get()._setClients(clients || [])
       get()._setSessions(sessions || [])
       get()._setWorkouts(workouts || [])
-      get()._setFinances(finances || [])
       get()._setEvaluations(evaluations || [])
       get()._setPlans(plans || [])
-      get()._setProducts(products || [])
-      get()._setAiPromptInstructions(settings.aiPromptInstructions || '')
+      await get().hydrateLocale()
       set({ appState: 'ready' })
     } catch (error) {
       console.error('Failed to fetch initial data:', error)
@@ -111,11 +92,10 @@ export const useStore = create<AppState>()((set, get) => ({
       clients: [],
       sessions: [],
       workouts: [],
-      finances: [],
       evaluations: [],
       plans: [],
-      products: [],
       aiPromptInstructions: '',
+      locale: '',
       appState: 'idle',
       errorMessage: null,
     })
@@ -152,20 +132,43 @@ export const useStore = create<AppState>()((set, get) => ({
     const newSessions = await api.createRecurringSessions({ baseSession, startDateStr, frequency, untilDateStr })
     get()._addSessions(newSessions)
   },
+  addRecurringEvent: async (dto) => {
+    await api.createRecurringEvent(dto)
+  },
+  deleteRecurringSeries: async (id) => {
+    await api.deleteRecurringSeries(id)
+    set((state) => ({
+      sessions: state.sessions.filter((s: any) => s.recurringEventId !== id && s.recurrenceId !== id),
+    }))
+  },
+  upsertSessionException: async (dto) => {
+    await api.upsertSessionException(dto)
+    if (dto.cancelled) {
+      set((state) => ({
+        sessions: state.sessions.filter(
+          (s: any) => !(s.recurringEventId === dto.recurringEventId && s.originalStartTime === dto.originalStartTime)
+        ),
+      }))
+    }
+  },
   updateSession: async (id, updates) => {
     const updatedSession = await api.updateSession(id, updates)
     get()._updateSession(updatedSession)
   },
   updateSessionWithScope: async (sessionId, updates, scope) => {
     if (scope === 'single') {
-      get().updateSession(sessionId, updates)
+      await get().updateSession(sessionId, updates)
     } else {
-      const updatedSeries = await api.updateRecurringSessions(sessionId, updates)
-      const seriesRecurrenceId = get().sessions.find((s) => s.id === sessionId)?.recurrenceId
-      if (seriesRecurrenceId) {
-        get()._updateSessionSeries(updatedSeries, seriesRecurrenceId)
-      }
+      await api.updateSessionWithScope(sessionId, updates, scope)
+      const now = new Date()
+      const start = new Date(now.getFullYear(), now.getMonth(), 1)
+      const end = new Date(now.getFullYear(), now.getMonth() + 2, 0)
+      await get().fetchSessionsForRange(start, end)
     }
+  },
+  fetchSessionsForRange: async (start, end) => {
+    const sessions = await api.getSessionsForRange(start, end)
+    get()._setSessions(sessions || [])
   },
   toggleSessionComplete: async (id) => {
     const updatedSession = await api.toggleSessionComplete(id)
@@ -183,21 +186,6 @@ export const useStore = create<AppState>()((set, get) => ({
   deleteWorkout: async (id) => {
     await api.deleteWorkout(id)
     get()._removeWorkout(id)
-  },
-
-  addFinanceRecord: async (recordData) => {
-    const newRecord = await api.createFinanceRecord(recordData)
-    get()._addFinanceRecord(newRecord)
-  },
-  generateMonthlyInvoices: async () => {
-    const newInvoices = await api.generateMonthlyInvoices()
-    if (newInvoices.length > 0) {
-      get()._addFinanceRecords(newInvoices)
-    }
-  },
-  markFinanceRecordPaid: async (id, method) => {
-    const updatedRecord = await api.markFinanceRecordPaid(id, method)
-    get()._updateFinanceRecord(updatedRecord)
   },
 
   addEvaluation: async (evaluationData) => {
@@ -229,25 +217,16 @@ export const useStore = create<AppState>()((set, get) => ({
     }))
   },
 
-  addProduct: async (productData) => {
-    const newProduct = await api.createProduct(productData)
-    get()._addProduct(newProduct)
-  },
-  updateProduct: async (id, updates) => {
-    const updatedProduct = await api.updateProduct(id, updates)
-    get()._updateProduct(updatedProduct)
-  },
-  deleteProduct: async (id) => {
-    await api.deleteProduct(id)
-    get()._removeProduct(id)
-  },
-
   updateAiPromptInstructions: async (instructions: string) => {
     const settings = await api.updateAiPromptInstructions(instructions)
     get()._setAiPromptInstructions(settings.aiPromptInstructions)
   },
+
+  updateLocale: async (language: string) => {
+    const result = await api.updateLanguage(language)
+    get()._setLocale(result.language)
+  },
 }))
 
 // Need to import authStore here to prevent circular dependency issues
-// if other stores were to import authStore.
 import { useAuthStore } from './authStore'

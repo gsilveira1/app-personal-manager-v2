@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useStore } from '../store/store'
 import { Card, Button, Input, Label, Select } from './ui'
 import { X, Plus, Trash2, Save, Dumbbell, ArrowUp, ArrowDown, Flame, Sparkles, Loader2, Lightbulb } from 'lucide-react'
@@ -14,6 +15,8 @@ interface WorkoutEditorModalProps {
 }
 
 export const WorkoutEditorModal = ({ isOpen, onClose, onSave, initialData, client }: WorkoutEditorModalProps) => {
+  const { t } = useTranslation('workouts')
+  const { t: tc } = useTranslation('common')
   const { evaluations, workouts: allWorkouts, aiPromptInstructions } = useStore()
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
@@ -133,7 +136,7 @@ export const WorkoutEditorModal = ({ isOpen, onClose, onSave, initialData, clien
       <Card className="w-full max-w-3xl bg-white shadow-xl flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-200">
         <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 rounded-t-lg">
           <h2 className="text-xl font-bold text-slate-900">
-            {initialData ? 'Edit Workout' : 'Create New Workout'}
+            {initialData ? t('editWorkout') : t('createNewWorkout')}
             {client && <span className="text-base font-normal text-slate-500 ml-2">for {client.name}</span>}
           </h2>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
@@ -147,7 +150,7 @@ export const WorkoutEditorModal = ({ isOpen, onClose, onSave, initialData, clien
               {!initialData && (
                 <div className="mb-4 p-3 bg-slate-50 border border-slate-200 rounded-lg">
                   <Label htmlFor="import-workout" className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 block">
-                    Load from Previous Workout
+                    {t('loadFromPrevious')}
                   </Label>
                   <Select
                     id="import-workout"
@@ -163,7 +166,7 @@ export const WorkoutEditorModal = ({ isOpen, onClose, onSave, initialData, clien
                     value=""
                   >
                     <option value="" disabled>
-                      Select a workout to copy...
+                      {t('selectWorkout')}
                     </option>
                     {allWorkouts.map((w) => (
                       <option key={w.id} value={w.id}>
@@ -177,24 +180,24 @@ export const WorkoutEditorModal = ({ isOpen, onClose, onSave, initialData, clien
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="title">Plan Title</Label>
-              <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required placeholder="e.g. Upper Body Power" />
+              <Label htmlFor="title">{t('planTitle')}</Label>
+              <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required placeholder={t('planTitlePlaceholder')} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="tags">Tags (comma separated)</Label>
-              <Input id="tags" value={tags} onChange={(e) => setTags(e.target.value)} placeholder="Strength, Hypertrophy, 45min" />
+              <Label htmlFor="tags">{t('tags')}</Label>
+              <Input id="tags" value={tags} onChange={(e) => setTags(e.target.value)} placeholder={t('tagsPlaceholder')} />
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Input id="description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Brief overview of the workout goals..." />
+            <Label htmlFor="description">{t('description')}</Label>
+            <Input id="description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t('descriptionPlaceholder')} />
           </div>
 
           {(insights || insightError) && (
             <div className="p-4 bg-indigo-50 border border-indigo-200 rounded-lg animate-in fade-in">
               <div className="flex justify-between items-center mb-2">
                 <h4 className="text-sm font-bold text-indigo-900 flex items-center">
-                  <Lightbulb className="h-4 w-4 mr-2 text-indigo-500" /> AI Suggestions
+                  <Lightbulb className="h-4 w-4 mr-2 text-indigo-500" /> {t('aiSuggestions')}
                 </h4>
                 <button
                   type="button"
@@ -238,17 +241,17 @@ export const WorkoutEditorModal = ({ isOpen, onClose, onSave, initialData, clien
           <div className="space-y-4">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2">
               <Label className="text-base flex items-center gap-2">
-                <Dumbbell className="h-4 w-4 text-indigo-600" /> Exercises & Warm-ups
+                <Dumbbell className="h-4 w-4 text-indigo-600" /> {t('exercisesAndWarmups')}
               </Label>
               <div className="flex items-center gap-2">
                 {client && (
                   <Button type="button" variant="secondary" onClick={handleGetInsights} disabled={isLoadingInsights} className="py-1 px-3 text-xs h-8">
                     {isLoadingInsights ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Sparkles className="h-3 w-3 mr-1" />}
-                    Get AI Suggestions
+                    {t('getAiSuggestions')}
                   </Button>
                 )}
                 <Button type="button" variant="outline" onClick={handleAddExercise} className="py-1 px-3 text-xs h-8">
-                  <Plus className="h-3 w-3 mr-1" /> Add Item
+                  <Plus className="h-3 w-3 mr-1" /> {t('addItem')}
                 </Button>
               </div>
             </div>
@@ -289,7 +292,7 @@ export const WorkoutEditorModal = ({ isOpen, onClose, onSave, initialData, clien
                           className="rounded border-slate-300 text-orange-600 focus:ring-orange-500 h-3 w-3"
                         />
                         <span className="flex items-center">
-                          <Flame className={`h-3 w-3 mr-1 ${exercise.isWarmup ? 'fill-orange-500' : ''}`} /> Warm-up
+                          <Flame className={`h-3 w-3 mr-1 ${exercise.isWarmup ? 'fill-orange-500' : ''}`} /> {t('warmup')}
                         </span>
                       </label>
                       <button type="button" onClick={() => handleRemoveExercise(index)} className="text-slate-400 hover:text-red-500 p-1" title="Remove Item">
@@ -298,32 +301,32 @@ export const WorkoutEditorModal = ({ isOpen, onClose, onSave, initialData, clien
                     </div>
                     <div className="flex flex-col sm:flex-row gap-3">
                       <div className="flex-1 space-y-1">
-                        <Label className="text-xs text-slate-500">{exercise.isWarmup ? 'Warm-up Activity' : 'Exercise Name'}</Label>
+                        <Label className="text-xs text-slate-500">{exercise.isWarmup ? t('warmupActivity') : t('exerciseName')}</Label>
                         <Input
                           value={exercise.name}
                           onChange={(e) => handleExerciseChange(index, 'name', e.target.value)}
-                          placeholder={exercise.isWarmup ? 'e.g. Treadmill' : 'e.g. Bench Press'}
+                          placeholder={exercise.isWarmup ? t('warmupPlaceholder') : t('exercisePlaceholder')}
                           required
                           className="bg-white"
                         />
                       </div>
                       <div className="flex gap-2 w-full sm:w-auto">
                         <div className="w-20 space-y-1">
-                          <Label className="text-xs text-slate-500">Sets</Label>
+                          <Label className="text-xs text-slate-500">{t('sets')}</Label>
                           <Input type="number" value={exercise.sets} onChange={(e) => handleExerciseChange(index, 'sets', Number(e.target.value))} min={1} className="bg-white" />
                         </div>
                         <div className="w-24 space-y-1">
-                          <Label className="text-xs text-slate-500">Reps/Dur.</Label>
+                          <Label className="text-xs text-slate-500">{t('repsOrDuration')}</Label>
                           <Input value={exercise.reps} onChange={(e) => handleExerciseChange(index, 'reps', e.target.value)} placeholder={exercise.isWarmup ? '5 min' : '10-12'} className="bg-white" />
                         </div>
                       </div>
                     </div>
                     <div className="w-full space-y-1">
-                      <Label className="text-xs text-slate-500">{exercise.isWarmup ? 'Instructions / How-to' : 'Notes / Weight'}</Label>
+                      <Label className="text-xs text-slate-500">{exercise.isWarmup ? t('instructionsNotes') : t('warmupNotes')}</Label>
                       <Input
                         value={exercise.notes || ''}
                         onChange={(e) => handleExerciseChange(index, 'notes', e.target.value)}
-                        placeholder={exercise.isWarmup ? 'Light jog at 6km/h' : 'Rest 60s, 50kg...'}
+                        placeholder={exercise.isWarmup ? t('instructionsPlaceholder') : t('notesPlaceholder')}
                         className="bg-white"
                       />
                     </div>
@@ -334,9 +337,9 @@ export const WorkoutEditorModal = ({ isOpen, onClose, onSave, initialData, clien
               {exercises.length === 0 && (
                 <div className="text-center py-8 text-slate-400 border-2 border-dashed border-slate-200 rounded-lg bg-slate-50">
                   <Dumbbell className="h-8 w-8 mx-auto mb-2 opacity-20" />
-                  <p>No exercises added yet.</p>
+                  <p>{t('noExercises')}</p>
                   <Button type="button" variant="ghost" onClick={handleAddExercise} className="mt-2 text-indigo-600 hover:text-indigo-700">
-                    Add First Item
+                    {t('addFirstItem')}
                   </Button>
                 </div>
               )}
@@ -346,10 +349,10 @@ export const WorkoutEditorModal = ({ isOpen, onClose, onSave, initialData, clien
 
         <div className="p-4 border-t border-slate-100 bg-slate-50 flex justify-end space-x-3 rounded-b-lg">
           <Button type="button" variant="outline" onClick={onClose}>
-            Cancel
+            {tc('cancel')}
           </Button>
           <Button type="submit" onClick={handleSubmit} className="bg-indigo-600 hover:bg-indigo-700">
-            <Save className="h-4 w-4 mr-2" /> Save Workout
+            <Save className="h-4 w-4 mr-2" /> {t('saveWorkout')}
           </Button>
         </div>
       </Card>

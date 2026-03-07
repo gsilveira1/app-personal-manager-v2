@@ -1,4 +1,4 @@
-import { type Client, ClientStatus, type Session, type WorkoutPlan, type FinanceRecord, PaymentStatus, PaymentMethod, type Evaluation, type Plan, type Product, type User } from '../types'
+import { type Client, ClientStatus, type Session, type WorkoutPlan, type Evaluation, type Plan, type User } from '../types'
 import { subDays, addDays, formatISO } from 'date-fns'
 
 // --- Users ---
@@ -7,16 +7,11 @@ export const users: (User & { password?: string })[] = [{ id: 'user1', name: 'Co
 // --- Helper Functions ---
 const today = new Date()
 
-// --- Plans & Products ---
+// --- Plans ---
 export const plans: Plan[] = [
-  { id: 'plan1', name: 'Starter Hybrid', sessionsPerWeek: 2, sessionDurationMinutes: 60, pricePerSession: 50 },
-  { id: 'plan2', name: 'Pro Online', sessionsPerWeek: 1, sessionDurationMinutes: 30, pricePerSession: 35 },
-  { id: 'plan3', name: 'Elite In-Person', sessionsPerWeek: 4, sessionDurationMinutes: 60, pricePerSession: 65 },
-]
-
-export const products: Product[] = [
-  { id: 'prod1', name: 'Initial Fitness Assessment', price: 75, category: 'Evaluation' },
-  { id: 'prod2', name: '8-Week Hypertrophy Template', price: 49.99, category: 'Workout Template' },
+  { id: 'plan1', type: 'PRESENCIAL', name: 'Starter 2x/sem (60min)', sessionsPerWeek: 2, durationMinutes: 60, price: 400, active: true },
+  { id: 'plan2', type: 'CONSULTORIA', name: 'Acompanhamento Online Semanal', sessionsPerWeek: 1, price: 150, active: true },
+  { id: 'plan3', type: 'PRESENCIAL', name: 'Elite 4x/sem (60min)', sessionsPerWeek: 4, durationMinutes: 60, price: 750, active: true },
 ]
 
 // --- Clients ---
@@ -78,12 +73,10 @@ export const sessions: Session[] = [
   { id: 'sess2', clientId: 'client1', date: formatISO(subDays(today, 8)), durationMinutes: 60, type: 'In-Person', category: 'Workout', completed: true, recurrenceId: 'rec1' },
   { id: 'sess3', clientId: 'client1', date: formatISO(subDays(today, 1)), durationMinutes: 60, type: 'In-Person', category: 'Workout', completed: true, recurrenceId: 'rec1' },
   { id: 'sess4', clientId: 'client1', date: formatISO(addDays(today, 6)), durationMinutes: 60, type: 'In-Person', category: 'Workout', completed: false, recurrenceId: 'rec1' },
-  // Today's session for Eleanor
   { id: 'sess5', clientId: 'client1', date: new Date(today.setHours(10, 0, 0, 0)).toISOString(), durationMinutes: 60, type: 'In-Person', category: 'Workout', completed: false },
 
   // Marcus (client2)
   { id: 'sess6', clientId: 'client2', date: formatISO(subDays(today, 10)), durationMinutes: 30, type: 'Online', category: 'Check-in', completed: true },
-  // Today's session for Marcus
   { id: 'sess7', clientId: 'client2', date: new Date(today.setHours(14, 30, 0, 0)).toISOString(), durationMinutes: 30, type: 'Online', category: 'Check-in', completed: false },
   { id: 'sess8', clientId: 'client2', date: formatISO(addDays(today, 4)), durationMinutes: 30, type: 'Online', category: 'Check-in', completed: false },
 
@@ -117,7 +110,6 @@ export const workouts: WorkoutPlan[] = [
     tags: ['Cardio', 'HIIT', '30min'],
     createdAt: formatISO(subDays(today, 60)),
   },
-  // Prescription for Eleanor
   {
     id: 'workout3',
     clientId: 'client1',
@@ -130,68 +122,6 @@ export const workouts: WorkoutPlan[] = [
     tags: ['Strength', 'Foundation'],
     createdAt: formatISO(subDays(today, 25)),
     status: 'Active',
-  },
-]
-
-// --- Finances ---
-const lastMonth = subDays(today, 30)
-const twoMonthsAgo = subDays(today, 60)
-
-export const finances: FinanceRecord[] = [
-  // Paid
-  {
-    id: 'fin1',
-    clientId: 'client1',
-    amount: 260,
-    date: formatISO(twoMonthsAgo),
-    status: PaymentStatus.Paid,
-    method: PaymentMethod.CreditCard,
-    description: `Subscription - ${formatISO(twoMonthsAgo, { representation: 'date' })}`,
-    type: 'Subscription',
-  },
-  {
-    id: 'fin2',
-    clientId: 'client2',
-    amount: 35,
-    date: formatISO(twoMonthsAgo),
-    status: PaymentStatus.Paid,
-    method: PaymentMethod.Pix,
-    description: `Subscription - ${formatISO(twoMonthsAgo, { representation: 'date' })}`,
-    type: 'Subscription',
-  },
-  // Pending
-  {
-    id: 'fin3',
-    clientId: 'client1',
-    amount: 260,
-    date: formatISO(lastMonth),
-    status: PaymentStatus.Pending,
-    method: PaymentMethod.CreditCard,
-    description: `Subscription - ${formatISO(lastMonth, { representation: 'date' })}`,
-    type: 'Subscription',
-  },
-  // Overdue
-  {
-    id: 'fin4',
-    clientId: 'client3',
-    amount: 200,
-    date: formatISO(twoMonthsAgo),
-    status: PaymentStatus.Overdue,
-    method: PaymentMethod.Transfer,
-    description: `Subscription - ${formatISO(twoMonthsAgo, { representation: 'date' })}`,
-    type: 'Subscription',
-  },
-  // One-time sale
-  {
-    id: 'fin5',
-    clientId: 'client2',
-    amount: 75,
-    date: formatISO(subDays(today, 50)),
-    status: PaymentStatus.Paid,
-    method: PaymentMethod.Cash,
-    description: 'Product: Initial Fitness Assessment',
-    type: 'OneTime',
-    relatedId: 'prod1',
   },
 ]
 

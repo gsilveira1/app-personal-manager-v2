@@ -1,10 +1,12 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import * as api from '../services/apiService'
 import { Card, Button, Input, Label } from '../components/ui'
 import { Loader2, CheckCircle2 } from 'lucide-react'
 
 export const ForgotPassword = () => {
+  const { t } = useTranslation('auth')
   const [email, setEmail] = useState('')
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -28,33 +30,33 @@ export const ForgotPassword = () => {
       {!isSubmitted ? (
         <>
           <div className="text-center mb-6">
-            <h1 className="text-2xl font-bold text-slate-900">Forgot Password?</h1>
-            <p className="text-slate-500 text-sm">Enter your email and we'll send you a recovery link.</p>
+            <h1 className="text-2xl font-bold text-slate-900">{t('forgotPasswordTitle')}</h1>
+            <p className="text-slate-500 text-sm">{t('forgotPasswordSubtitle')}</p>
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="john@example.com" />
+              <Label htmlFor="email">{t('email')}</Label>
+              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder={t('emailPlaceholder')} />
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Send Recovery Link
+              {t('sendRecoveryLink')}
             </Button>
           </form>
         </>
       ) : (
         <div className="text-center">
           <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-slate-900">Check Your Email</h1>
+          <h1 className="text-2xl font-bold text-slate-900">{t('checkYourEmail')}</h1>
           <p className="text-slate-500 text-sm mt-2">
-            A password recovery link has been sent to <strong>{email}</strong> if an account exists.
+            {t('recoveryLinkSent', { email })}
           </p>
         </div>
       )}
       <p className="text-center text-sm text-slate-500 mt-6">
-        Remembered your password?{' '}
+        {t('rememberedPassword')}{' '}
         <Link to="/login" className="font-medium text-indigo-600 hover:underline">
-          Sign in
+          {t('signIn')}
         </Link>
       </p>
     </Card>

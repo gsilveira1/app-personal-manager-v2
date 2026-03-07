@@ -1,4 +1,4 @@
-import { type Client, type Session, type WorkoutPlan, type FinanceRecord, type Evaluation, type Plan, type Product, type PaymentMethod, type User } from '../types'
+import { type Client, type Session, type WorkoutPlan, type Evaluation, type Plan, type User } from '../types'
 import apiClient from '../utils/apiClient'
 
 // --- Auth API ---
@@ -23,7 +23,6 @@ export const signup = async (name: string, email: string, pass: string) => {
 }
 
 export const logout = async () => {
-  // In a real app, you might want to invalidate the token on the server
   await apiClient('/auth/logout', { method: 'POST' })
   localStorage.removeItem('token')
   localStorage.removeItem('user')
@@ -31,15 +30,11 @@ export const logout = async () => {
 
 export const getCurrentUser = async () => {
   const token = localStorage.getItem('token')
-  // TODO: search for user in local storage first
-  //let user = localStorage.getItem('user');
   if (!token) return null
   try {
     return await apiClient<User>('/auth/me')
   } catch (error) {
-    // If token is invalid, the API will throw an error (e.g. 401)
     console.error('Failed to get current user:', error)
-    //localStorage.removeItem('token'); // Clean up invalid token
     return null
   }
 }
@@ -76,25 +71,62 @@ export const convertLead = async (id: string, planId?: string) =>
 
 // --- Sessions API ---
 export const getSessions = async () => apiClient<Session[]>('/sessions')
+
+export const getSessionsForRange = async (start: Date, end: Date) => apiClient<Session[]>(`/sessions?start=${start.toISOString()}&end=${end.toISOString()}`)
+
 export const createSession = async (session: Omit<Session, 'id' | 'completed'>) =>
   apiClient<Session>('/sessions', {
     method: 'POST',
     body: JSON.stringify(session),
   })
+
 export const createRecurringSessions = async (data: { baseSession: Omit<Session, 'id' | 'date' | 'completed'>; startDateStr: string; frequency: 'weekly' | 'bi-weekly'; untilDateStr: string }) =>
   apiClient<Session[]>('/sessions/recurring', {
     method: 'POST',
     body: JSON.stringify(data),
   })
+
+export const createRecurringEvent = async (dto: {
+  rrule: string
+  timezone: string
+  dtstart: string
+  durationMinutes: number
+  type: string
+  category: string
+  clientId: string
+  linkedWorkoutId?: string
+  notes?: string
+}) =>
+  apiClient<{ id: string }>('/sessions/recurring-event', {
+    method: 'POST',
+    body: JSON.stringify(dto),
+  })
+
+export const deleteRecurringSeries = async (id: string) => apiClient<void>(`/sessions/recurring-event/${id}`, { method: 'DELETE' })
+
+export const upsertSessionException = async (dto: {
+  recurringEventId: string
+  originalStartTime: string
+  cancelled?: boolean
+  newStartTime?: string
+  durationMinutes?: number
+  notes?: string
+  completed?: boolean
+}) =>
+  apiClient<{ id: string }>('/sessions/exception', {
+    method: 'PATCH',
+    body: JSON.stringify(dto),
+  })
+
 export const updateSession = async (id: string, updates: Partial<Session>) =>
   apiClient<Session>(`/sessions/${id}`, {
     method: 'PATCH',
     body: JSON.stringify(updates),
   })
-export const updateRecurringSessions = async (id: string, updates: Partial<Session>) =>
-  apiClient<Session[]>(`/sessions/recurring/${id}`, {
+export const updateSessionWithScope = async (id: string, updates: Partial<Session>, scope: 'single' | 'future') =>
+  apiClient<Session>(`/sessions/${id}/scope`, {
     method: 'PATCH',
-    body: JSON.stringify(updates),
+    body: JSON.stringify({ ...updates, scope }),
   })
 export const toggleSessionComplete = async (id: string) =>
   apiClient<Session>(`/sessions/${id}/toggle-complete`, {
@@ -118,23 +150,6 @@ export const deleteWorkout = async (id: string) =>
     method: 'DELETE',
   })
 
-// --- Finances API ---
-export const getFinances = async () => apiClient<FinanceRecord[]>('/finances')
-export const createFinanceRecord = async (record: Omit<FinanceRecord, 'id'>) =>
-  apiClient<FinanceRecord>('/finances', {
-    method: 'POST',
-    body: JSON.stringify(record),
-  })
-export const generateMonthlyInvoices = async () =>
-  apiClient<FinanceRecord[]>('/finances/generate-invoices', {
-    method: 'POST',
-  })
-export const markFinanceRecordPaid = async (id: string, method: PaymentMethod) =>
-  apiClient<FinanceRecord>(`/finances/${id}/mark-paid`, {
-    method: 'POST',
-    body: JSON.stringify({ method }),
-  })
-
 // --- Evaluations API ---
 export const getEvaluations = async () => apiClient<Evaluation[]>('/evaluations')
 export const createEvaluation = async (evaluation: Omit<Evaluation, 'id'>) =>
@@ -152,7 +167,7 @@ export const deleteEvaluation = async (id: string) =>
     method: 'DELETE',
   })
 
-// --- Plans & Products API ---
+// --- Plans API ---
 export const getPlans = async () => apiClient<Plan[]>('/plans')
 export const createPlan = async (plan: Omit<Plan, 'id'>) =>
   apiClient<Plan>('/plans', {
@@ -168,31 +183,6 @@ export const deletePlan = async (id: string) =>
   apiClient<void>(`/plans/${id}`, {
     method: 'DELETE',
   })
-export const getProducts = async () => apiClient<Product[]>('/products')
-export const createProduct = async (product: Omit<Product, 'id'>) =>
-  apiClient<Product>('/products', {
-    method: 'POST',
-    body: JSON.stringify(product),
-  })
-export const updateProduct = async (id: string, updates: Partial<Product>) =>
-  apiClient<Product>(`/products/${id}`, {
-    method: 'PATCH',
-    body: JSON.stringify(updates),
-  })
-export const deleteProduct = async (id: string) =>
-  apiClient<void>(`/products/${id}`, { method: 'DELETE' })
-
-// --- Payments API ---
-export const generatePix = async (financeRecordId: string) =>
-  apiClient<{ pixCopiaECola: string; qrCodeBase64: string; externalId: string; status: string; ticketUrl?: string }>(
-    `/payments/pix/${financeRecordId}`,
-    { method: 'POST' }
-  )
-export const generateBatchPix = async (ids: string[]) =>
-  apiClient<Array<{ id: string; success?: boolean; pixCopiaECola?: string; status?: string; message?: string }>>(
-    '/payments/pix/batch',
-    { method: 'POST', body: JSON.stringify({ ids }) }
-  )
 
 // --- Settings API ---
 export const getSettings = async () => apiClient<{ aiPromptInstructions: string }>('/settings')
@@ -200,4 +190,12 @@ export const updateAiPromptInstructions = async (instructions: string) =>
   apiClient<{ aiPromptInstructions: string }>('/settings', {
     method: 'POST',
     body: JSON.stringify({ aiPromptInstructions: instructions }),
+  })
+
+export const getLanguage = () => apiClient<{ language: string }>('/settings/language')
+
+export const updateLanguage = (language: string) =>
+  apiClient<{ language: string }>('/settings/language', {
+    method: 'PATCH',
+    body: JSON.stringify({ language }),
   })

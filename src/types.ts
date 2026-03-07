@@ -11,37 +11,18 @@ export const ClientStatus = {
 } as const
 export type ClientStatus = (typeof ClientStatus)[keyof typeof ClientStatus]
 
-export const PaymentMethod = {
-  CreditCard: 'Credit Card',
-  Pix: 'Pix',
-  Cash: 'Cash',
-  Transfer: 'Transfer',
-} as const
-export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod]
-
-export const PaymentStatus = {
-  Paid: 'Paid',
-  Pending: 'Pending',
-  Overdue: 'Overdue',
-} as const
-export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus]
-
 export type ClientType = 'In-Person' | 'Online'
 export type CheckInFrequency = 'Weekly' | 'Bi-weekly' | 'Monthly'
 
 export interface Plan {
   id: string
+  type: 'PRESENCIAL' | 'CONSULTORIA'
   name: string
   sessionsPerWeek: number
-  sessionDurationMinutes: number
-  pricePerSession: number
-}
-
-export interface Product {
-  id: string
-  name: string
+  durationMinutes?: number // 30, 45, 60, 90 — null for CONSULTORIA
   price: number
-  category: 'Evaluation' | 'Workout Template' | 'Digital Product' | 'Other'
+  active?: boolean
+  createdAt?: string
 }
 
 // New detailed types for Evaluation
@@ -91,7 +72,7 @@ export interface Client {
   type: ClientType
   dateOfBirth?: string
   checkInFrequency?: CheckInFrequency
-  goal?: string // Keep for simple goals
+  goal?: string
   medicalHistory?: MedicalHistory
   notes?: string
   avatar?: string
@@ -107,8 +88,8 @@ export interface Session {
   category: 'Workout' | 'Check-in'
   completed: boolean
   notes?: string
-  linkedWorkoutId?: string // ID of the specific workout plan performed
-  recurrenceId?: string // ID for the series of recurring events
+  linkedWorkoutId?: string
+  recurrenceId?: string
 }
 
 export interface WorkoutExercise {
@@ -122,7 +103,7 @@ export interface WorkoutExercise {
 
 export interface WorkoutPlan {
   id: string
-  clientId?: string // If present, belongs to a specific client (Prescription)
+  clientId?: string
   status?: 'Active' | 'Archived'
   title: string
   description?: string
@@ -131,30 +112,16 @@ export interface WorkoutPlan {
   createdAt: string
 }
 
-export type TransactionType = 'Subscription' | 'OneTime'
-
-export interface FinanceRecord {
-  id: string
-  clientId: string
-  amount: number
-  date: string
-  status: PaymentStatus
-  method: PaymentMethod
-  description: string
-  type: TransactionType
-  relatedId?: string // planId or productId
-}
-
 export interface Evaluation {
   id: string
   clientId: string
   date: string
-  weight: number // Massa Total
-  height?: number // Estatura
+  weight: number
+  height?: number
   bodyFatPercentage?: number
-  leanMass?: number // Corresponds to Massa Magra
-  idealWeight?: number // Peso Ideal
-  absoluteBodyFat?: number // Gordura Absoluta
+  leanMass?: number
+  idealWeight?: number
+  absoluteBodyFat?: number
   notes?: string
   skinfolds?: Skinfolds
   perimeters?: Perimeters

@@ -1,37 +1,18 @@
 import { type StateCreator } from 'zustand'
 
-import { type FinanceRecord, type Plan, type Product } from '../types'
+import { type Plan } from '../types'
 import { type AppState } from './store'
 
 export interface FinanceSlice {
-  finances: FinanceRecord[]
   plans: Plan[]
-  products: Product[]
-  _setFinances: (records: FinanceRecord[]) => void
-  _addFinanceRecord: (record: FinanceRecord) => void
-  _addFinanceRecords: (records: FinanceRecord[]) => void
-  _updateFinanceRecord: (record: FinanceRecord) => void
   _setPlans: (plans: Plan[]) => void
   _addPlan: (plan: Plan) => void
   _updatePlan: (plan: Plan) => void
   _removePlan: (planId: string) => void
-  _setProducts: (products: Product[]) => void
-  _addProduct: (product: Product) => void
-  _updateProduct: (product: Product) => void
-  _removeProduct: (productId: string) => void
 }
 
 export const createFinanceSlice: StateCreator<AppState, [], [], FinanceSlice> = (set) => ({
-  finances: [],
   plans: [],
-  products: [],
-  _setFinances: (records) => set({ finances: records }),
-  _addFinanceRecord: (record) => set((state) => ({ finances: [record, ...state.finances] })),
-  _addFinanceRecords: (records) => set((state) => ({ finances: [...records, ...state.finances] })),
-  _updateFinanceRecord: (record) =>
-    set((state) => ({
-      finances: state.finances.map((f) => (f.id === record.id ? record : f)),
-    })),
   _setPlans: (plans) => set({ plans }),
   _addPlan: (plan) => set((state) => ({ plans: [...state.plans, plan] })),
   _updatePlan: (plan) =>
@@ -41,15 +22,5 @@ export const createFinanceSlice: StateCreator<AppState, [], [], FinanceSlice> = 
   _removePlan: (planId) =>
     set((state) => ({
       plans: state.plans.filter((p) => p.id !== planId),
-    })),
-  _setProducts: (products) => set({ products }),
-  _addProduct: (product) => set((state) => ({ products: [...state.products, product] })),
-  _updateProduct: (product) =>
-    set((state) => ({
-      products: state.products.map((p) => (p.id === product.id ? product : p)),
-    })),
-  _removeProduct: (productId) =>
-    set((state) => ({
-      products: state.products.filter((p) => p.id !== productId),
     })),
 })

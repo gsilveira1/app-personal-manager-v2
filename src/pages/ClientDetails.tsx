@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router'
-import { Link } from 'react-router-dom'
 import {
   ArrowLeft,
   Calendar,
@@ -11,7 +10,6 @@ import {
   Save,
   FileText,
   Activity,
-  AlertCircle,
   Plus,
   CheckCircle2,
   XCircle,
@@ -22,9 +20,6 @@ import {
   History,
   Archive,
   Flame,
-  DollarSign,
-  Clock,
-  CreditCard,
   Ruler,
   Droplets,
   X,
@@ -32,20 +27,14 @@ import {
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { format, parseISO, isPast } from 'date-fns'
 
+import { useTranslation } from 'react-i18next'
 import { useStore } from '../store/store'
 import { Card, Button, Badge, Label, Input, Select } from '../components/ui'
-import { type Evaluation, type WorkoutPlan, type Session, PaymentStatus, type Plan, type Skinfolds, type Perimeters, type MedicalHistory } from '../types'
+import { type Evaluation, type WorkoutPlan, type Session, type Skinfolds, type Perimeters, type MedicalHistory } from '../types'
 import { WorkoutEditorModal } from '../components/WorkoutEditorModal'
-
-const WEEKS_IN_MONTH = 4.33
 
 interface EvaluationCardProps {
   evaluation: Evaluation
-}
-
-// FIX: Changed signature to be more flexible, only requiring properties it uses.
-const calculateMonthlyPrice = (plan: Pick<Plan, 'pricePerSession' | 'sessionsPerWeek'>) => {
-  return plan.pricePerSession * plan.sessionsPerWeek * WEEKS_IN_MONTH
 }
 
 // --- Chart Configuration ---
@@ -63,9 +52,11 @@ const chartableMetrics: Record<string, { label: string; unit: string }> = {
 const initialEvalState: Omit<Evaluation, 'id' | 'clientId' | 'date'> = { weight: 0, height: 0, bodyFatPercentage: 0, leanMass: 0, notes: '', perimeters: {}, skinfolds: {} }
 
 export const ClientDetails = () => {
+  const { t } = useTranslation('clients')
+  const { t: tw } = useTranslation('workouts')
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { clients, sessions, evaluations, workouts, finances, plans, updateClient, addEvaluation, addSession, addWorkout, updateWorkout, deleteWorkout } = useStore()
+  const { clients, sessions, evaluations, workouts, plans, updateClient, addEvaluation, addSession, addWorkout, updateWorkout, deleteWorkout } = useStore()
 
   const [activeTab, setActiveTab] = useState<'history' | 'evaluations' | 'workouts'>('history')
   const [isEvalModalOpen, setIsEvalModalOpen] = useState(false)
@@ -83,43 +74,19 @@ export const ClientDetails = () => {
   const client = clients.find((c) => c.id === id)
   const clientPlan = plans.find((p) => p.id === client?.planId)
 
-  const financialStatus = useMemo(() => {
-    if (!client) return null
-    if (!client.planId) return { status: 'No Plan', color: 'text-slate-500', icon: AlertCircle, bg: 'bg-slate-100' }
-
-    const currentMonthStr = new Date().toISOString().slice(0, 7)
-
-    const monthlyInvoice = finances.find((f) => f.clientId === client.id && f.date.startsWith(currentMonthStr) && f.type === 'Subscription')
-
-    if (!monthlyInvoice) return { status: 'No Invoice', color: 'text-amber-600', icon: AlertCircle, bg: 'bg-amber-100' }
-    if (monthlyInvoice.status === PaymentStatus.Paid) return { status: 'Paid', color: 'text-green-600', icon: CheckCircle2, bg: 'bg-green-100' }
-    if (monthlyInvoice.status === PaymentStatus.Overdue) return { status: 'Overdue', color: 'text-red-600', icon: AlertCircle, bg: 'bg-red-100' }
-    return { status: 'Pending', color: 'text-amber-600', icon: Clock, bg: 'bg-amber-100' }
-  }, [client, finances])
-
-  if (!client) {
-    return (
-      <div className="flex flex-col items-center justify-center h-96">
-        <h2 className="text-xl font-semibold text-slate-900">Client not found</h2>
-        <Button variant="outline" className="mt-4" onClick={() => navigate('/clients')}>
-          Back to Clients
-        </Button>
-      </div>
-    )
-  }
-
-  // --- Derived Data ---
-  const clientSessions = sessions.filter((s) => s.clientId === client.id && isPast(parseISO(s.date))).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-
-  const clientEvaluations = evaluations.filter((e) => e.clientId === client.id).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+  // Evaluations needed for chart — computed before early return to satisfy Rules of Hooks
+  const clientEvaluations = useMemo(
+    () => evaluations.filter((e) => e.clientId === id).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
+    [evaluations, id]
+  )
 
   const chartData = useMemo(() => {
     const getMetricValue = (evaluation: Evaluation, metricKey: string): number | undefined => {
       const keys = metricKey.split('.')
-      let value: any = evaluation
+      let value: unknown = evaluation as unknown
       for (const key of keys) {
         if (value === undefined || value === null) return undefined
-        value = value[key]
+        value = (value as Record<string, unknown>)[key]
       }
       return typeof value === 'number' ? value : undefined
     }
@@ -132,6 +99,20 @@ export const ClientDetails = () => {
       .filter((d) => d.value !== undefined)
       .reverse()
   }, [clientEvaluations, selectedMetric])
+
+  if (!client) {
+    return (
+      <div className="flex flex-col items-center justify-center h-96">
+        <h2 className="text-xl font-semibold text-slate-900">{t('notFound')}</h2>
+        <Button variant="outline" className="mt-4" onClick={() => navigate('/clients')}>
+          {t('backToClients')}
+        </Button>
+      </div>
+    )
+  }
+
+  // --- Derived Data ---
+  const clientSessions = sessions.filter((s) => s.clientId === client.id && isPast(parseISO(s.date))).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
   const clientWorkouts = workouts.filter((w) => w.clientId === client.id).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
   const activePlans = clientWorkouts.filter((w) => w.status === 'Active' || !w.status)
@@ -154,7 +135,7 @@ export const ClientDetails = () => {
     setIsEditingMedicalHistory(true)
   }
   const handleDeleteWorkout = (workoutId: string) => {
-    if (window.confirm('Delete this workout prescription?')) deleteWorkout(workoutId)
+    if (window.confirm(tw('deleteWorkoutConfirm'))) deleteWorkout(workoutId)
   }
   const handleArchiveWorkout = (workoutId: string) => updateWorkout(workoutId, { status: 'Archived' })
   const handleActivateWorkout = (workoutId: string) => updateWorkout(workoutId, { status: 'Active' })
@@ -173,7 +154,7 @@ export const ClientDetails = () => {
   return (
     <div className="space-y-6">
       <Button variant="ghost" onClick={() => navigate('/clients')} className="pl-0 text-slate-500 hover:text-slate-900">
-        <ArrowLeft className="mr-2 h-4 w-4" /> Back to Clients
+        <ArrowLeft className="mr-2 h-4 w-4" /> {t('backToClients')}
       </Button>
       <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm flex flex-col md:flex-row gap-6 items-start">
         <img src={client.avatar} alt={client.name} className="h-24 w-24 rounded-full object-cover border-4 border-slate-50" />
@@ -197,29 +178,19 @@ export const ClientDetails = () => {
                 </span>
                 <span className="flex items-center">
                   <Calendar className="h-4 w-4 mr-2" />
-                  {age} years old
+                  {t('yearsOld', { age })}
                 </span>
               </div>
             </div>
-            <div className="flex flex-col items-start md:items-end gap-2 shrink-0">
-              {financialStatus && (
-                <button
-                  onClick={() => navigate(`/finances?clientId=${client.id}`)}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-transform hover:scale-105 ${financialStatus.bg} ${financialStatus.color}`}
-                  title="Click to view payment history"
-                >
-                  <financialStatus.icon className="h-4 w-4" />
-                  <span>{financialStatus.status} Month</span>
-                  <CreditCard className="h-3 w-3 ml-1 opacity-50" />
-                </button>
-              )}
-              {clientPlan && (
-                <Link to={`/finances?clientId=${client.id}`} className="flex items-center font-medium text-indigo-600 hover:text-indigo-800 text-sm" title="View financial history for this plan">
-                  <DollarSign className="h-4 w-4 mr-1" />
-                  {clientPlan.name} (${calculateMonthlyPrice(clientPlan).toFixed(2)})
-                </Link>
-              )}
-            </div>
+            {clientPlan && (
+              <div className="flex flex-col items-start md:items-end gap-1 shrink-0">
+                <span className="text-sm font-medium text-indigo-600">{clientPlan.name}</span>
+                <span className="text-xs text-slate-500">
+                  {clientPlan.sessionsPerWeek}x/sem
+                  {clientPlan.durationMinutes ? ` · ${clientPlan.durationMinutes}min` : ''} · R$ {clientPlan.price.toFixed(2)}/mês
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -230,7 +201,7 @@ export const ClientDetails = () => {
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-slate-900 mb-4 flex items-center">
                 <HeartPulse className="h-5 w-5 mr-2 text-indigo-600" />
-                Medical History
+                {t('medicalHistory')}
               </h3>
               {!isEditingMedicalHistory ? (
                 <button onClick={handleStartEditMedicalHistory} className="text-slate-400 hover:text-indigo-600">
@@ -244,11 +215,11 @@ export const ClientDetails = () => {
             </div>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-slate-500">Main Goal:</span>
+                <span className="text-slate-500">{t('mainGoal')}:</span>
                 <span className="font-medium text-slate-800">{client.medicalHistory?.objective?.join(', ') || client.goal}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500">Injuries:</span>
+                <span className="text-slate-500">{t('injuries')}:</span>
                 {isEditingMedicalHistory ? (
                   <input
                     type="text"
@@ -257,11 +228,11 @@ export const ClientDetails = () => {
                     onChange={(e) => setMedicalHistoryBuffer({ ...medicalHistoryBuffer, injuries: e.target.value })}
                   />
                 ) : (
-                  <span className="font-medium text-slate-800">{client.medicalHistory?.injuries || 'None'}</span>
+                  <span className="font-medium text-slate-800">{client.medicalHistory?.injuries || t('none')}</span>
                 )}
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500">Surgeries:</span>
+                <span className="text-slate-500">{t('surgeries')}:</span>
                 {isEditingMedicalHistory ? (
                   <input
                     type="text"
@@ -270,11 +241,11 @@ export const ClientDetails = () => {
                     onChange={(e) => setMedicalHistoryBuffer({ ...medicalHistoryBuffer, surgeries: e.target.value })}
                   />
                 ) : (
-                  <span className="font-medium text-slate-800">{client.medicalHistory?.surgeries || 'None'}</span>
+                  <span className="font-medium text-slate-800">{client.medicalHistory?.surgeries || t('none')}</span>
                 )}
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500">Medications:</span>
+                <span className="text-slate-500">{t('medications')}:</span>
                 {isEditingMedicalHistory ? (
                   <input
                     type="text"
@@ -283,7 +254,7 @@ export const ClientDetails = () => {
                     onChange={(e) => setMedicalHistoryBuffer({ ...medicalHistoryBuffer, medications: e.target.value })}
                   />
                 ) : (
-                  <span className="font-medium text-slate-800">{client.medicalHistory?.medications || 'None'}</span>
+                  <span className="font-medium text-slate-800">{client.medicalHistory?.medications || t('none')}</span>
                 )}
               </div>
             </div>
@@ -292,7 +263,7 @@ export const ClientDetails = () => {
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-slate-900 flex items-center">
                 <FileText className="h-5 w-5 mr-2 text-indigo-600" />
-                Notes & Limitations
+                {t('notesAndLimitations')}
               </h3>
               {!isEditingNotes ? (
                 <button onClick={handleStartEditNotes} className="text-slate-400 hover:text-indigo-600">
@@ -311,7 +282,7 @@ export const ClientDetails = () => {
                 onChange={(e) => setNotesBuffer(e.target.value)}
               />
             ) : (
-              <div className="bg-yellow-50 text-yellow-900 p-4 rounded-lg text-sm leading-relaxed whitespace-pre-wrap">{client.notes || 'No notes available.'}</div>
+              <div className="bg-yellow-50 text-yellow-900 p-4 rounded-lg text-sm leading-relaxed whitespace-pre-wrap">{client.notes || t('noNotes')}</div>
             )}
           </Card>
         </div>
@@ -322,27 +293,27 @@ export const ClientDetails = () => {
               onClick={() => setActiveTab('history')}
               className={`pb-3 text-sm font-medium transition-colors border-b-2 ${activeTab === 'history' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
             >
-              Session History
+              {t('sessionHistory')}
             </button>
             <button
               onClick={() => setActiveTab('evaluations')}
               className={`pb-3 text-sm font-medium transition-colors border-b-2 ${activeTab === 'evaluations' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
             >
-              Evaluations
+              {t('evaluations')}
             </button>
             <button
               onClick={() => setActiveTab('workouts')}
               className={`pb-3 text-sm font-medium transition-colors border-b-2 ${activeTab === 'workouts' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
             >
-              Prescriptions
+              {t('prescriptions')}
             </button>
           </div>
           {activeTab === 'history' && (
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-slate-900">Session History</h3>
+                <h3 className="text-lg font-semibold text-slate-900">{t('sessionHistory')}</h3>
                 <Button onClick={() => setIsSessionModalOpen(true)}>
-                  <Plus className="mr-2 h-4 w-4" /> New Session
+                  <Plus className="mr-2 h-4 w-4" /> {t('newSession')}
                 </Button>
               </div>
               {clientSessions.length > 0 ? (
@@ -365,8 +336,8 @@ export const ClientDetails = () => {
               ) : (
                 <div className="text-center py-12 bg-slate-50 rounded-lg border border-dashed border-slate-200">
                   <History className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-                  <h3 className="text-lg font-medium text-slate-900">No sessions yet</h3>
-                  <Button className="mt-3" onClick={() => setIsSessionModalOpen(true)}>Log First Session</Button>
+                  <h3 className="text-lg font-medium text-slate-900">{t('noSessions')}</h3>
+                  <Button className="mt-3" onClick={() => setIsSessionModalOpen(true)}>{t('logFirstSession')}</Button>
                 </div>
               )}
             </div>
@@ -374,9 +345,9 @@ export const ClientDetails = () => {
           {activeTab === 'evaluations' && (
             <div className="space-y-6">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-slate-900">Progress Tracking</h3>
+                <h3 className="text-lg font-semibold text-slate-900">{t('progressTracking')}</h3>
                 <Button onClick={() => setIsEvalModalOpen(true)}>
-                  <Plus className="mr-2 h-4 w-4" /> Add Evaluation
+                  <Plus className="mr-2 h-4 w-4" /> {t('addEvaluation')}
                 </Button>
               </div>
               {clientEvaluations.length > 0 ? (
@@ -390,7 +361,7 @@ export const ClientDetails = () => {
                         </h4>
                         <div className="w-full sm:w-56">
                           <Label htmlFor="metric-select" className="sr-only">
-                            Select Metric
+                            {t('selectMetric')}
                           </Label>
                           <Select id="metric-select" value={selectedMetric} onChange={(e) => setSelectedMetric(e.target.value)}>
                             {Object.entries(chartableMetrics).map(([key, { label, unit }]) => (
@@ -412,7 +383,7 @@ export const ClientDetails = () => {
                               <Line type="monotone" dataKey="value" stroke="#4f46e5" strokeWidth={3} dot={{ r: 4, fill: '#4f46e5', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} />
                             </LineChart>
                           ) : (
-                            <div className="flex items-center justify-center h-full text-slate-500">Not enough data to display a trend for this metric.</div>
+                            <div className="flex items-center justify-center h-full text-slate-500">{t('notEnoughData')}</div>
                           )}
                         </ResponsiveContainer>
                       </div>
@@ -427,8 +398,8 @@ export const ClientDetails = () => {
               ) : (
                 <div className="text-center py-12 bg-slate-50 rounded-lg border border-dashed border-slate-200">
                   <Activity className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-                  <h3 className="text-lg font-medium text-slate-900">No evaluations yet</h3>
-                  <Button onClick={() => setIsEvalModalOpen(true)}>Add First Evaluation</Button>
+                  <h3 className="text-lg font-medium text-slate-900">{t('noEvaluations')}</h3>
+                  <Button onClick={() => setIsEvalModalOpen(true)}>{t('addFirstEvaluation')}</Button>
                 </div>
               )}
             </div>
@@ -436,38 +407,38 @@ export const ClientDetails = () => {
           {activeTab === 'workouts' && (
             <div className="space-y-8">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-slate-900">Workout Plans</h3>
+                <h3 className="text-lg font-semibold text-slate-900">{t('workoutPlans')}</h3>
                 <Button
                   onClick={() => {
                     setEditingWorkout(null)
                     setIsWorkoutModalOpen(true)
                   }}
                 >
-                  <Plus className="mr-2 h-4 w-4" /> Create Workout
+                  <Plus className="mr-2 h-4 w-4" /> {t('createWorkout')}
                 </Button>
               </div>
               <div className="space-y-4">
                 <h4 className="text-sm font-medium text-slate-500 uppercase tracking-wider flex items-center">
-                  <Dumbbell className="h-4 w-4 mr-2" /> Active Prescriptions
+                  <Dumbbell className="h-4 w-4 mr-2" /> {t('activePrescriptions')}
                 </h4>
                 {activePlans.length > 0 ? (
                   activePlans.map((workout) => (
                     <WorkoutCard key={workout.id} workout={workout} onDelete={handleDeleteWorkout} onArchive={handleArchiveWorkout} onEdit={handleEditWorkout} isActive={true} />
                   ))
                 ) : (
-                  <div className="p-8 bg-slate-50 rounded-lg border border-dashed border-slate-200 text-center text-slate-500">No active workout plans assigned.</div>
+                  <div className="p-8 bg-slate-50 rounded-lg border border-dashed border-slate-200 text-center text-slate-500">{t('noActivePrescriptions')}</div>
                 )}
               </div>
               <div className="space-y-4 pt-4 border-t border-slate-200">
                 <h4 className="text-sm font-medium text-slate-500 uppercase tracking-wider flex items-center">
-                  <History className="h-4 w-4 mr-2" /> Plan History
+                  <History className="h-4 w-4 mr-2" /> {t('planHistory')}
                 </h4>
                 {archivedPlans.length > 0 ? (
                   archivedPlans.map((workout) => (
                     <WorkoutCard key={workout.id} workout={workout} onDelete={handleDeleteWorkout} onActivate={handleActivateWorkout} onEdit={handleEditWorkout} isActive={false} />
                   ))
                 ) : (
-                  <div className="p-4 text-center text-sm text-slate-400 italic">No archived plans.</div>
+                  <div className="p-4 text-center text-sm text-slate-400 italic">{t('noArchivedPlans')}</div>
                 )}
               </div>
             </div>
@@ -482,6 +453,7 @@ export const ClientDetails = () => {
 }
 
 const EvaluationCard: React.FC<EvaluationCardProps> = ({ evaluation }) => {
+  const { t } = useTranslation('clients')
   const [expanded, setExpanded] = useState(false)
   const [isEditEvalModalOpen, setIsEditEvalModalOpen] = useState(false)
   const [isRemoveEvalModalOpen, setIsRemoveEvalModalOpen] = useState(false)
@@ -507,7 +479,7 @@ const EvaluationCard: React.FC<EvaluationCardProps> = ({ evaluation }) => {
             </div>
             <div>
               <div className="font-bold text-slate-900">
-                Evaluation - {format(parseISO(evaluation.date), 'MMMM d, yyyy')}
+                {t('evaluation')} - {format(parseISO(evaluation.date), 'MMMM d, yyyy')}
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
@@ -582,8 +554,8 @@ const EvaluationCard: React.FC<EvaluationCardProps> = ({ evaluation }) => {
       )}
       {isRemoveEvalModalOpen && (
         <ConfirmationModal
-          title="Delete Evaluation"
-          message="Are you sure you want to delete this evaluation? This action cannot be undone."
+          title={t('deleteEvaluation')}
+          message={t('deleteEvaluationConfirm')}
           onConfirm={() => removeEvaluation(evaluation.id)}
           onCancel={() => setIsRemoveEvalModalOpen(false)}
         />
@@ -600,6 +572,7 @@ const WorkoutCard: React.FC<{
   onEdit: (w: WorkoutPlan) => void
   isActive: boolean
 }> = ({ workout, onDelete, onArchive, onActivate, onEdit, isActive }) => {
+  const { t } = useTranslation('workouts')
   const [expanded, setExpanded] = useState(false)
   return (
     <Card className={`overflow-hidden transition-all ${!isActive ? 'bg-slate-50 opacity-75 hover:opacity-100' : 'bg-white'}`}>
@@ -610,7 +583,7 @@ const WorkoutCard: React.FC<{
               <h4 className="font-bold text-slate-900 text-lg">{workout.title}</h4>
               {!isActive && (
                 <Badge variant="default" className="text-xs">
-                  Archived
+                  {t('archived')}
                 </Badge>
               )}
             </div>
@@ -627,20 +600,20 @@ const WorkoutCard: React.FC<{
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" className="h-8 w-8 p-0 text-slate-400 hover:text-indigo-600" title="Edit Plan" onClick={() => onEdit(workout)}>
+            <Button variant="ghost" className="h-8 w-8 p-0 text-slate-400 hover:text-indigo-600" title={t('editPlan')} onClick={() => onEdit(workout)}>
               <Edit2 className="h-4 w-4" />
             </Button>
             {isActive && onArchive && (
-              <Button variant="ghost" className="h-8 w-8 p-0 text-slate-400 hover:text-amber-600" title="Archive Plan" onClick={() => onArchive(workout.id)}>
+              <Button variant="ghost" className="h-8 w-8 p-0 text-slate-400 hover:text-amber-600" title={t('archivePlan')} onClick={() => onArchive(workout.id)}>
                 <Archive className="h-4 w-4" />
               </Button>
             )}
             {!isActive && onActivate && (
-              <Button variant="ghost" className="h-8 w-8 p-0 text-slate-400 hover:text-green-600" title="Reactivate Plan" onClick={() => onActivate(workout.id)}>
+              <Button variant="ghost" className="h-8 w-8 p-0 text-slate-400 hover:text-green-600" title={t('reactivatePlan')} onClick={() => onActivate(workout.id)}>
                 <CheckCircle2 className="h-4 w-4" />
               </Button>
             )}
-            <Button variant="ghost" className="h-8 w-8 p-0 text-slate-400 hover:text-red-600" title="Delete Plan" onClick={() => onDelete(workout.id)}>
+            <Button variant="ghost" className="h-8 w-8 p-0 text-slate-400 hover:text-red-600" title={t('deletePlan')} onClick={() => onDelete(workout.id)}>
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>
@@ -648,11 +621,11 @@ const WorkoutCard: React.FC<{
         <button onClick={() => setExpanded(!expanded)} className="w-full mt-4 flex items-center justify-center py-1.5 text-xs font-medium text-indigo-600 hover:bg-indigo-50 rounded transition-colors">
           {expanded ? (
             <>
-              Hide Items <ChevronUp className="ml-1 h-3 w-3" />
+              {t('hideItems')} <ChevronUp className="ml-1 h-3 w-3" />
             </>
           ) : (
             <>
-              View {workout.exercises.length} Items <ChevronDown className="ml-1 h-3 w-3" />
+              {t('viewItems', { count: workout.exercises.length })} <ChevronDown className="ml-1 h-3 w-3" />
             </>
           )}
         </button>
@@ -699,6 +672,9 @@ const SessionModal = ({
   onClose: () => void
   onSave: (s: Omit<Session, 'id' | 'completed' | 'recurrenceId'>) => Promise<void>
 }) => {
+  const { t } = useTranslation('clients')
+  const { t: ts } = useTranslation('schedule')
+  const { t: tc } = useTranslation('common')
   const now = new Date()
   const localDateStr = now.toISOString().slice(0, 10)
   const localTimeStr = now.toTimeString().slice(0, 5)
@@ -724,7 +700,7 @@ const SessionModal = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <Card className="w-full max-w-md bg-white shadow-xl">
         <div className="p-4 border-b border-slate-100 flex justify-between items-center">
-          <h3 className="font-bold text-slate-900">Log New Session</h3>
+          <h3 className="font-bold text-slate-900">{t('logNewSession')}</h3>
           <button onClick={onClose}>
             <X className="h-5 w-5" />
           </button>
@@ -733,16 +709,16 @@ const SessionModal = ({
           <div className="p-6 space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="session-date">Date</Label>
+                <Label htmlFor="session-date">{ts('date')}</Label>
                 <Input id="session-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="session-time">Time</Label>
+                <Label htmlFor="session-time">{ts('time')}</Label>
                 <Input id="session-time" type="time" value={time} onChange={(e) => setTime(e.target.value)} required />
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="session-duration">Duration (minutes)</Label>
+              <Label htmlFor="session-duration">{t('durationMinutes')}</Label>
               <Input
                 id="session-duration"
                 type="number"
@@ -754,31 +730,31 @@ const SessionModal = ({
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="session-type">Type</Label>
+                <Label htmlFor="session-type">{t('type')}</Label>
                 <Select id="session-type" value={type} onChange={(e) => setType(e.target.value as 'In-Person' | 'Online')}>
-                  <option value="In-Person">In-Person</option>
-                  <option value="Online">Online</option>
+                  <option value="In-Person">{t('inPerson')}</option>
+                  <option value="Online">{t('online')}</option>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="session-category">Category</Label>
+                <Label htmlFor="session-category">{t('category')}</Label>
                 <Select id="session-category" value={category} onChange={(e) => setCategory(e.target.value as 'Workout' | 'Check-in')}>
-                  <option value="Workout">Workout</option>
-                  <option value="Check-in">Check-in</option>
+                  <option value="Workout">{t('workout')}</option>
+                  <option value="Check-in">{t('checkIn')}</option>
                 </Select>
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="session-notes">Notes (optional)</Label>
-              <Input id="session-notes" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Session notes..." />
+              <Label htmlFor="session-notes">{t('sessionNotes')}</Label>
+              <Input id="session-notes" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={t('sessionNotesPlaceholder')} />
             </div>
           </div>
           <div className="flex justify-end space-x-3 p-4 border-t border-slate-100 bg-slate-50">
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+              {tc('cancel')}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Saving...' : 'Save Session'}
+              {isSubmitting ? tc('saving') : ts('saveSession')}
             </Button>
           </div>
         </form>
@@ -788,6 +764,8 @@ const SessionModal = ({
 }
 
 const EvaluationModal = ({ clientId, onClose, onSave, initialData }: { clientId: string; onClose: () => void; onSave: (e: Omit<Evaluation, 'id'>) => void; initialData?: Evaluation | null }) => {
+  const { t } = useTranslation('clients')
+  const { t: tc } = useTranslation('common')
   const [data, setData] = useState(initialData || initialEvalState)
   const [tab, setTab] = useState('vitals')
   const handleSubmit = (e: React.FormEvent) => {
@@ -807,7 +785,7 @@ const EvaluationModal = ({ clientId, onClose, onSave, initialData }: { clientId:
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <Card className="w-full max-w-2xl bg-white shadow-xl max-h-[90vh] flex flex-col">
         <div className="p-4 border-b border-slate-100 flex justify-between items-center">
-          <h3 className="font-bold text-slate-900">Add Evaluation</h3>
+          <h3 className="font-bold text-slate-900">{t('addEvaluation')}</h3>
           <button onClick={onClose}>
             <X className="h-5 w-5" />
           </button>
@@ -875,9 +853,9 @@ const EvaluationModal = ({ clientId, onClose, onSave, initialData }: { clientId:
           </div>
           <div className="flex justify-end space-x-3 p-4 border-t border-slate-100 bg-slate-50">
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+              {tc('cancel')}
             </Button>
-            <Button type="submit">Save Evaluation</Button>
+            <Button type="submit">{tc('save')}</Button>
           </div>
         </form>
       </Card>
@@ -886,6 +864,7 @@ const EvaluationModal = ({ clientId, onClose, onSave, initialData }: { clientId:
 }
 
 export const ConfirmationModal = ({ title, message, onConfirm, onCancel }: { title: string; message: string; onConfirm: () => void; onCancel: () => void }) => {
+  const { t: tc } = useTranslation('common')
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <Card className="w-full max-w-md bg-white shadow-xl">
@@ -894,10 +873,10 @@ export const ConfirmationModal = ({ title, message, onConfirm, onCancel }: { tit
           <p className="text-sm text-slate-600 mb-6">{message}</p>
           <div className="flex justify-end space-x-3">
             <Button variant="outline" onClick={onCancel}>
-              Cancel
+              {tc('cancel')}
             </Button>
             <Button variant="danger" onClick={onConfirm}>
-              Confirm
+              {tc('confirm')}
             </Button>
           </div>
         </div>
