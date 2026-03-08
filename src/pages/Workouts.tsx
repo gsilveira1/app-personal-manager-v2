@@ -180,6 +180,7 @@ const WorkoutLibrary = ({ workouts, onCreate, onEdit, onDelete }: WorkoutLibrary
 
 const AIWorkoutGenerator = ({ onSave }: { onSave: (w: Omit<WorkoutPlan, 'id' | 'createdAt'>) => void }) => {
   const { t } = useTranslation('workouts')
+  const { aiPromptInstructions } = useStore()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -195,6 +196,7 @@ const AIWorkoutGenerator = ({ onSave }: { onSave: (w: Omit<WorkoutPlan, 'id' | '
       experienceLevel: formData.get('level') as string,
       daysPerWeek: Number(formData.get('days')),
       limitations: formData.get('limitations') as string,
+      customInstructions: aiPromptInstructions || undefined,
     }
 
     try {

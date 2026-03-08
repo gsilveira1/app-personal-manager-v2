@@ -185,11 +185,13 @@ export const deletePlan = async (id: string) =>
   })
 
 // --- Settings API ---
-export const getSettings = async () => apiClient<{ aiPromptInstructions: string }>('/settings')
-export const updateAiPromptInstructions = async (instructions: string) =>
-  apiClient<{ aiPromptInstructions: string }>('/settings', {
-    method: 'POST',
-    body: JSON.stringify({ aiPromptInstructions: instructions }),
+export const getAiInstructions = async () =>
+  apiClient<{ instructions: string }>('/settings/ai-instructions')
+
+export const updateAiInstructions = async (instructions: string) =>
+  apiClient<{ key: string; value: string }>('/settings/ai-instructions', {
+    method: 'PUT',
+    body: JSON.stringify({ instructions }),
   })
 
 export const getLanguage = () => apiClient<{ language: string }>('/settings/language')

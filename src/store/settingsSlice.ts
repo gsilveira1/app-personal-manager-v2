@@ -2,7 +2,7 @@ import { type StateCreator } from 'zustand'
 
 import { type AppState } from './store'
 import { SUPPORTED_LOCALES, type SupportedLocale, i18n } from '../i18n/index'
-import { getLanguage } from '../services/apiService'
+import { getAiInstructions, getLanguage } from '../services/apiService'
 
 export interface SettingsSlice {
   aiPromptInstructions: string
@@ -10,6 +10,7 @@ export interface SettingsSlice {
   locale: SupportedLocale | ''
   _setLocale: (locale: string) => void
   hydrateLocale: () => Promise<void>
+  hydrateAiInstructions: () => Promise<void>
 }
 
 export const createSettingsSlice: StateCreator<AppState, [], [], SettingsSlice> = (set, get) => ({
@@ -33,6 +34,15 @@ export const createSettingsSlice: StateCreator<AppState, [], [], SettingsSlice> 
     } catch {
       get()._setLocale('pt-BR')
       await i18n.changeLanguage('pt-BR')
+    }
+  },
+
+  hydrateAiInstructions: async () => {
+    try {
+      const { instructions } = await getAiInstructions()
+      get()._setAiPromptInstructions(instructions)
+    } catch (error) {
+      console.error('Failed to hydrate AI instructions:', error)
     }
   },
 })

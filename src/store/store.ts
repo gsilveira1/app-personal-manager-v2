@@ -74,7 +74,7 @@ export const useStore = create<AppState>()((set, get) => ({
       get()._setWorkouts(workouts || [])
       get()._setEvaluations(evaluations || [])
       get()._setPlans(plans || [])
-      await get().hydrateLocale()
+      await Promise.all([get().hydrateLocale(), get().hydrateAiInstructions()])
       set({ appState: 'ready' })
     } catch (error) {
       console.error('Failed to fetch initial data:', error)
@@ -218,8 +218,8 @@ export const useStore = create<AppState>()((set, get) => ({
   },
 
   updateAiPromptInstructions: async (instructions: string) => {
-    const settings = await api.updateAiPromptInstructions(instructions)
-    get()._setAiPromptInstructions(settings.aiPromptInstructions)
+    await api.updateAiInstructions(instructions)
+    get()._setAiPromptInstructions(instructions)
   },
 
   updateLocale: async (language: string) => {
