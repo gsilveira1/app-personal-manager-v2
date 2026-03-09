@@ -68,6 +68,11 @@ export const convertLead = async (id: string, planId?: string) =>
     method: 'PATCH',
     body: JSON.stringify(planId ? { planId } : {}),
   })
+export const getAvatarUploadUrl = async (clientId: string, contentType: string) =>
+  apiClient<{ uploadUrl: string; publicUrl: string }>(`/clients/${clientId}/avatar-upload-url`, {
+    method: 'POST',
+    body: JSON.stringify({ contentType }),
+  })
 
 // --- Sessions API ---
 export const getSessions = async () => apiClient<Session[]>('/sessions')

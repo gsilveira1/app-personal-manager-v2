@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router'
 import {
   ArrowLeft,
@@ -23,6 +23,9 @@ import {
   Ruler,
   Droplets,
   X,
+  Camera,
+  Loader2,
+  User,
 } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { format, parseISO, isPast } from 'date-fns'
@@ -56,7 +59,7 @@ export const ClientDetails = () => {
   const { t: tw } = useTranslation('workouts')
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { clients, sessions, evaluations, workouts, plans, updateClient, addEvaluation, addSession, addWorkout, updateWorkout, deleteWorkout } = useStore()
+  const { clients, sessions, evaluations, workouts, plans, updateClient, uploadClientAvatar, addEvaluation, addSession, addWorkout, updateWorkout, deleteWorkout } = useStore()
 
   const [activeTab, setActiveTab] = useState<'history' | 'evaluations' | 'workouts'>('history')
   const [isEvalModalOpen, setIsEvalModalOpen] = useState(false)
@@ -70,6 +73,8 @@ export const ClientDetails = () => {
   const [medicalHistoryBuffer, setMedicalHistoryBuffer] = useState<MedicalHistory>({ objective: [''], injuries: '', surgeries: '', medications: '' })
 
   const [selectedMetric, setSelectedMetric] = useState<string>('weight')
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
+  const avatarInputRef = useRef<HTMLInputElement>(null)
 
   const client = clients.find((c) => c.id === id)
   const clientPlan = plans.find((p) => p.id === client?.planId)
@@ -149,6 +154,32 @@ export const ClientDetails = () => {
     setIsWorkoutModalOpen(false)
   }
 
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert('A imagem deve ter no máximo 5MB.')
+      return
+    }
+
+    if (!file.type.match(/^image\/(jpeg|png|webp|gif)$/)) {
+      alert('Formato inválido. Use JPEG, PNG, WebP ou GIF.')
+      return
+    }
+
+    setIsUploadingAvatar(true)
+    try {
+      await uploadClientAvatar(client.id, file)
+    } catch (error) {
+      console.error('Avatar upload failed:', error)
+      alert('Erro ao enviar a foto. Tente novamente.')
+    } finally {
+      setIsUploadingAvatar(false)
+      if (avatarInputRef.current) avatarInputRef.current.value = ''
+    }
+  }
+
   const age = client.dateOfBirth ? new Date().getFullYear() - new Date(client.dateOfBirth).getFullYear() : 'N/A'
 
   return (
@@ -157,7 +188,36 @@ export const ClientDetails = () => {
         <ArrowLeft className="mr-2 h-4 w-4" /> {t('backToClients')}
       </Button>
       <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm flex flex-col md:flex-row gap-6 items-start">
-        <img src={client.avatar} alt={client.name} className="h-24 w-24 rounded-full object-cover border-4 border-slate-50" />
+        <button
+          type="button"
+          className="relative h-24 w-24 rounded-full border-4 border-slate-50 overflow-hidden group shrink-0 cursor-pointer"
+          onClick={() => !isUploadingAvatar && avatarInputRef.current?.click()}
+          disabled={isUploadingAvatar}
+        >
+          {client.avatar ? (
+            <img src={client.avatar} alt={client.name} className="h-full w-full object-cover" />
+          ) : (
+            <div className="h-full w-full bg-slate-200 flex items-center justify-center">
+              <User className="h-10 w-10 text-slate-400" />
+            </div>
+          )}
+          {isUploadingAvatar ? (
+            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+              <Loader2 className="h-6 w-6 text-white animate-spin" />
+            </div>
+          ) : (
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 flex items-center justify-center transition-colors">
+              <Camera className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+            </div>
+          )}
+          <input
+            ref={avatarInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            className="hidden"
+            onChange={handleAvatarChange}
+          />
+        </button>
         <div className="flex-1">
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
             <div className="space-y-2">

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router'
-import { Search, Plus, Phone, Mail, Globe, MapPin, Eye, Wallet, ChevronDown, HeartPulse } from 'lucide-react'
+import { Search, Plus, Phone, Mail, Globe, MapPin, Eye, Wallet, ChevronDown, HeartPulse, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { useStore } from '../store/store'
@@ -61,7 +61,12 @@ export const Clients = () => {
                   <tr key={client.id} className="hover:bg-slate-50 transition-colors cursor-pointer" onClick={() => navigate(`/clients/${client.id}`)}>
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-3">
-                        <img src={client.avatar} alt={client.name} className="h-10 w-10 rounded-full bg-slate-200 object-cover" />
+                        {client.avatar ? (
+                          <img src={client.avatar} alt={client.name} className="h-10 w-10 rounded-full bg-slate-200 object-cover" />
+                        ) : (
+                          <div className="h-10 w-10 rounded-full bg-slate-200 object-cover">
+                            <User className="h-10 w-10 text-slate-400" />
+                        </div>)}
                         <div>
                           <div className="font-medium text-slate-900">{client.name}</div>
                           <div className="text-slate-500 text-xs">ID: #{client.id}</div>

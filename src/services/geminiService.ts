@@ -1,7 +1,7 @@
 import { GoogleGenAI, Type } from '@google/genai'
 import { type Client, type Evaluation, type MedicalHistory, type WorkoutPlan } from '../types'
 
-const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY })
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_GMKEY })
 
 const DEFAULT_PERSONA_PROMPT = `Você é um personal trainer experiente e consultor de fitness.
 Priorize a segurança do aluno acima de tudo. Respeite limitações físicas e condições médicas.

@@ -2,6 +2,7 @@ import { create } from 'zustand'
 
 import type { Client, Session, WorkoutPlan, Evaluation, Plan } from '../types'
 import * as api from '../services/apiService'
+import { uploadFileToGcs } from '../utils/uploadToGcs'
 import { ApiError } from '../utils/apiClient'
 import { type ClientSlice, createClientSlice } from './clientSlice'
 import { type ScheduleSlice, createScheduleSlice } from './scheduleSlice'
@@ -23,6 +24,7 @@ export type AppState = ClientSlice &
     clearDataOnLogout: () => void
     addClient: (clientData: Omit<Client, 'id' | 'avatar'>, customPlanData?: Omit<Plan, 'id'>) => Promise<void>
     updateClient: (id: string, client: Partial<Client>) => Promise<void>
+    uploadClientAvatar: (clientId: string, file: File) => Promise<void>
     deleteClient: (id: string) => Promise<void>
     convertLead: (id: string, planId?: string) => Promise<void>
     addSession: (session: Omit<Session, 'id' | 'completed' | 'recurrenceId'>) => Promise<void>
@@ -113,6 +115,12 @@ export const useStore = create<AppState>()((set, get) => ({
   },
   updateClient: async (id, updates) => {
     const updatedClient = await api.updateClient(id, updates)
+    get()._updateClient(updatedClient)
+  },
+  uploadClientAvatar: async (clientId, file) => {
+    const { uploadUrl, publicUrl } = await api.getAvatarUploadUrl(clientId, file.type)
+    await uploadFileToGcs(uploadUrl, file)
+    const updatedClient = await api.updateClient(clientId, { avatar: publicUrl })
     get()._updateClient(updatedClient)
   },
   deleteClient: async (id) => {
