@@ -68,5 +68,6 @@
   "deletePlan": "Eliminar plan",
   "hideItems": "Ocultar ítems",
   "deleteWorkoutConfirm": "¿Eliminar esta prescripción de entrenamiento?",
-  "generationError": "Error al generar el entrenamiento. Verifica la clave de API o intenta de nuevo."
+  "generationError": "Error al generar el entrenamiento. Verifica la clave de API o intenta de nuevo.",
+  "removeItem": "Eliminar ítem"
 }

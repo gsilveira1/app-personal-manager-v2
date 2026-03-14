@@ -35,5 +35,11 @@
   "noSessionsInCategory": "No sessions in this category.",
   "day": "Day",
   "week": "Week",
-  "month": "Month"
+  "month": "Month",
+  "overviewDay": "Daily Overview",
+  "overviewWeek": "Weekly Overview",
+  "overviewMonth": "Monthly Overview",
+  "recurringSession": "Recurring session",
+  "recordPerformancePlaceholder": "Record performance...",
+  "noSpecificPlan": "-- No specific plan --"
 }

@@ -8,10 +8,10 @@ import { ClientStatus } from '../types'
 import type { Client, ClientType, CheckInFrequency, Plan, MedicalHistory } from '../types'
 import { Card, Button, Input, Badge, Select, Label } from '../components/ui'
 
-const formatPlanLabel = (plan: Plan) => {
+const formatPlanLabel = (plan: Plan, perMonth: string) => {
   const sessionsPerMonth = plan.sessionsPerWeek * 4
   const duration = plan.durationMinutes ? ` ${plan.durationMinutes}min` : ''
-  return `${plan.name} — ${sessionsPerMonth}x/mês${duration} · R$ ${plan.price.toFixed(2)}`
+  return `${plan.name} — ${sessionsPerMonth}x${perMonth}${duration} · R$ ${plan.price.toFixed(2)}`
 }
 
 export const Clients = () => {
@@ -143,6 +143,7 @@ export const Clients = () => {
 
 const AddClientModal = ({ onClose, onSave }: { onClose: () => void; onSave: (clientData: Omit<Client, 'id' | 'avatar'>, customPlanData?: Omit<Plan, 'id'>) => void }) => {
   const { t } = useTranslation('clients')
+  const { t: tco } = useTranslation('common')
   const { plans } = useStore()
   const [clientType, setClientType] = useState<ClientType>('In-Person')
   const [isCustomPlan, setIsCustomPlan] = useState(false)
@@ -195,7 +196,7 @@ const AddClientModal = ({ onClose, onSave }: { onClose: () => void; onSave: (cli
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="name">{t('fullName')}</Label>
-              <Input id="name" name="name" required placeholder="John Doe" />
+              <Input id="name" name="name" required placeholder={t('namePlaceholder')} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="dateOfBirth">{t('dateOfBirth')}</Label>
@@ -205,11 +206,11 @@ const AddClientModal = ({ onClose, onSave }: { onClose: () => void; onSave: (cli
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="email">{t('email')}</Label>
-              <Input id="email" name="email" type="email" required placeholder="john@example.com" />
+              <Input id="email" name="email" type="email" required placeholder={t('emailPlaceholder')} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="phone">{t('phone')}</Label>
-              <Input id="phone" name="phone" required placeholder="+1 555 0000" />
+              <Input id="phone" name="phone" required placeholder={t('phonePlaceholder')} />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -266,7 +267,7 @@ const AddClientModal = ({ onClose, onSave }: { onClose: () => void; onSave: (cli
                 <option value="">{t('selectPlan')}</option>
                 {plans.map((plan) => (
                   <option key={plan.id} value={plan.id}>
-                    {formatPlanLabel(plan)}
+                    {formatPlanLabel(plan, tco('perMonth'))}
                   </option>
                 ))}
               </Select>

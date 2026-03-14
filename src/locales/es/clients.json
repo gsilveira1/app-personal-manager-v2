@@ -77,5 +77,8 @@
   "checkInsLabel": "Check-ins {{frequency}}",
   "frequencyWeekly": "Semanal",
   "frequencyBiweekly": "Quincenal",
-  "frequencyMonthly": "Mensual"
+  "frequencyMonthly": "Mensual",
+  "namePlaceholder": "Juan Pérez",
+  "emailPlaceholder": "juan@ejemplo.com",
+  "phonePlaceholder": "+34 600 000 000"
 }

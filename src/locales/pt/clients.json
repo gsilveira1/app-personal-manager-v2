@@ -77,5 +77,8 @@
   "checkInsLabel": "Check-ins {{frequency}}",
   "frequencyWeekly": "Semanal",
   "frequencyBiweekly": "Quinzenal",
-  "frequencyMonthly": "Mensal"
+  "frequencyMonthly": "Mensal",
+  "namePlaceholder": "João Silva",
+  "emailPlaceholder": "joao@exemplo.com",
+  "phonePlaceholder": "+55 53 9999-0000"
 }

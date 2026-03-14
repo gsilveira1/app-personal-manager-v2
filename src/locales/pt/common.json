@@ -35,5 +35,8 @@
     "active": "Ativo",
     "inactive": "Inativo",
     "lead": "Lead"
-  }
+  },
+  "perMonth": "/mês",
+  "durationMin": "{{minutes}} min",
+  "selectLanguage": "Selecionar idioma"
 }

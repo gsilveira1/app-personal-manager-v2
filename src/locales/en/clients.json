@@ -77,5 +77,8 @@
   "checkInsLabel": "{{frequency}} Check-ins",
   "frequencyWeekly": "Weekly",
   "frequencyBiweekly": "Bi-weekly",
-  "frequencyMonthly": "Monthly"
+  "frequencyMonthly": "Monthly",
+  "namePlaceholder": "John Doe",
+  "emailPlaceholder": "john@example.com",
+  "phonePlaceholder": "+1 555 0000"
 }

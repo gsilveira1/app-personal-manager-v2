@@ -295,7 +295,7 @@ export const WorkoutEditorModal = ({ isOpen, onClose, onSave, initialData, clien
                           <Flame className={`h-3 w-3 mr-1 ${exercise.isWarmup ? 'fill-orange-500' : ''}`} /> {t('warmup')}
                         </span>
                       </label>
-                      <button type="button" onClick={() => handleRemoveExercise(index)} className="text-slate-400 hover:text-red-500 p-1" title="Remove Item">
+                      <button type="button" onClick={() => handleRemoveExercise(index)} className="text-slate-400 hover:text-red-500 p-1" title={t('removeItem')}>
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>

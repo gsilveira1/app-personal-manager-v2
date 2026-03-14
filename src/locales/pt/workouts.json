@@ -68,5 +68,6 @@
   "deletePlan": "Excluir plano",
   "hideItems": "Ocultar itens",
   "deleteWorkoutConfirm": "Excluir esta prescrição de treino?",
-  "generationError": "Falha ao gerar o treino. Verifique a chave de API ou tente novamente."
+  "generationError": "Falha ao gerar o treino. Verifique a chave de API ou tente novamente.",
+  "removeItem": "Remover item"
 }

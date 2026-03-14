@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 import { Calendar, UserPlus, AlertCircle, CheckCircle2, Video, MapPin, Activity, AlertTriangle } from 'lucide-react'
-import { format, isSameDay, parseISO, startOfWeek, endOfWeek, eachDayOfInterval, isAfter, subDays } from 'date-fns'
+import { isSameDay, parseISO, startOfWeek, endOfWeek, eachDayOfInterval, isAfter, subDays } from 'date-fns'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { useNavigate } from 'react-router'
 import { Link } from 'react-router-dom'
@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next'
 
 import { useStore } from '../store/store'
 import { Card, Button } from '../components/ui'
+import { formatLocalized } from '../utils/dateLocale'
 import { ClientStatus, type Session } from '../types'
 import { findSchedulingConflicts } from '../utils/scheduleUtils'
 
@@ -36,7 +37,7 @@ export const Dashboard = () => {
   // --- New Chart Data: Weekly Schedule ---
   const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd })
   const weeklyScheduleData = weekDays.map((day) => ({
-    name: format(day, 'EEE'),
+    name: formatLocalized(day, 'EEE'),
     sessions: sessions.filter((s) => isSameDay(parseISO(s.date), day)).length,
   }))
 
@@ -79,7 +80,7 @@ export const Dashboard = () => {
           <Card className="p-0">
             <div className="p-6 border-b border-slate-100">
               <h3 className="text-lg font-semibold text-slate-900">{ts('todaysAgenda')}</h3>
-              <p className="text-sm text-slate-500">{format(today, 'EEEE, MMMM d')}</p>
+              <p className="text-sm text-slate-500">{formatLocalized(today, 'EEEE, MMMM d')}</p>
             </div>
             <div className="p-6 space-y-4">
               {todaySessions.length === 0 ? (
@@ -99,7 +100,7 @@ export const Dashboard = () => {
                         className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 rounded-lg border transition-all ${session.completed ? 'bg-slate-50 opacity-75' : 'bg-white'}`}
                       >
                         <div className="flex items-center space-x-4">
-                          <span className="font-bold text-indigo-600 text-sm w-16 text-center">{format(parseISO(session.date), 'h:mm a')}</span>
+                          <span className="font-bold text-indigo-600 text-sm w-16 text-center">{formatLocalized(parseISO(session.date), 'h:mm a')}</span>
                           <img src={client?.avatar} alt={client?.name} className="h-10 w-10 rounded-full object-cover" />
                           <div>
                             <Link to={`/clients/${client?.id}`} className="font-semibold text-slate-800 hover:text-indigo-600">
@@ -222,7 +223,7 @@ const ConflictsCard = ({ conflicts }: { conflicts: Session[][] }) => {
                   return (
                     <div key={session.id} className="flex justify-between items-center text-sm">
                       <span className="font-medium text-slate-700">{client?.name || '...'}</span>
-                      <span className="text-slate-500">{format(parseISO(session.date), 'MMM d, h:mm a')}</span>
+                      <span className="text-slate-500">{formatLocalized(parseISO(session.date), 'MMM d, h:mm a')}</span>
                     </div>
                   )
                 })}

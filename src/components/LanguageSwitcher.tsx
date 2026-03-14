@@ -10,7 +10,7 @@ const LANGUAGE_OPTIONS = [
 ] as const
 
 export const LanguageSwitcher = () => {
-  const { i18n } = useTranslation()
+  const { i18n, t } = useTranslation('common')
   const updateLocale = useStore((s) => s.updateLocale)
   const [isSwitching, setIsSwitching] = useState(false)
 
@@ -35,7 +35,7 @@ export const LanguageSwitcher = () => {
         value={i18n.language}
         disabled={isSwitching}
         onChange={handleChange}
-        aria-label="Select language"
+        aria-label={t('selectLanguage')}
         className="text-sm border border-slate-200 rounded-md px-2 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {LANGUAGE_OPTIONS.map(({ code, label }) => (

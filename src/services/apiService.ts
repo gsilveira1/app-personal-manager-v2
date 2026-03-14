@@ -1,4 +1,4 @@
-import { type Client, type Session, type WorkoutPlan, type Evaluation, type Plan, type User } from '../types'
+import { type Client, type Session, type WorkoutPlan, type Evaluation, type Plan, type User, type SystemFeature } from '../types'
 import apiClient from '../utils/apiClient'
 
 // --- Auth API ---
@@ -189,9 +189,26 @@ export const deletePlan = async (id: string) =>
     method: 'DELETE',
   })
 
+// --- System Features API (Admin) ---
+export const getSystemFeatures = async () => apiClient<SystemFeature[]>('/system-features')
+export const getActiveSystemFeatures = async () => apiClient<SystemFeature[]>('/system-features/active')
+export const createSystemFeature = async (data: { key: string; name: string; description?: string }) =>
+  apiClient<SystemFeature>('/system-features', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
+export const updateSystemFeature = async (id: string, updates: Partial<SystemFeature>) =>
+  apiClient<SystemFeature>(`/system-features/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(updates),
+  })
+export const deleteSystemFeature = async (id: string) =>
+  apiClient<void>(`/system-features/${id}`, {
+    method: 'DELETE',
+  })
+
 // --- Settings API ---
-export const getAiInstructions = async () =>
-  apiClient<{ instructions: string }>('/settings/ai-instructions')
+export const getAiInstructions = async () => apiClient<{ instructions: string }>('/settings/ai-instructions')
 
 export const updateAiInstructions = async (instructions: string) =>
   apiClient<{ key: string; value: string }>('/settings/ai-instructions', {

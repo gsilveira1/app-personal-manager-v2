@@ -35,5 +35,8 @@
     "active": "Activo",
     "inactive": "Inactivo",
     "lead": "Prospecto"
-  }
+  },
+  "perMonth": "/mes",
+  "durationMin": "{{minutes}} min",
+  "selectLanguage": "Seleccionar idioma"
 }

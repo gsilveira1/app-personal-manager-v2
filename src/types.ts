@@ -2,6 +2,7 @@ export interface User {
   id: string
   name: string
   email: string
+  role: string
 }
 
 export const ClientStatus = {
@@ -14,6 +15,22 @@ export type ClientStatus = (typeof ClientStatus)[keyof typeof ClientStatus]
 export type ClientType = 'In-Person' | 'Online'
 export type CheckInFrequency = 'Weekly' | 'Bi-weekly' | 'Monthly'
 
+export interface SystemFeature {
+  id: string
+  key: string
+  name: string
+  description?: string
+  isActive: boolean
+  createdAt?: string
+  _count?: { plans: number }
+}
+
+export interface PlanFeature {
+  planId: string
+  featureId: string
+  feature: SystemFeature
+}
+
 export interface Plan {
   id: string
   type: 'PRESENCIAL' | 'CONSULTORIA'
@@ -23,6 +40,8 @@ export interface Plan {
   price: number
   active?: boolean
   createdAt?: string
+  features?: PlanFeature[]
+  featureIds?: string[]
 }
 
 // New detailed types for Evaluation

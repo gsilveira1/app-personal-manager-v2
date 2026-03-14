@@ -35,5 +35,11 @@
   "noSessionsInCategory": "Nenhuma sessão nesta categoria.",
   "day": "Dia",
   "week": "Semana",
-  "month": "Mês"
+  "month": "Mês",
+  "overviewDay": "Visão diária geral",
+  "overviewWeek": "Visão semanal geral",
+  "overviewMonth": "Visão mensal geral",
+  "recurringSession": "Sessão recorrente",
+  "recordPerformancePlaceholder": "Registrar desempenho...",
+  "noSpecificPlan": "-- Sem plano específico --"
 }

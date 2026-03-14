@@ -68,5 +68,6 @@
   "deletePlan": "Delete Plan",
   "hideItems": "Hide Items",
   "deleteWorkoutConfirm": "Delete this workout prescription?",
-  "generationError": "Failed to generate workout. Check API key or try again."
+  "generationError": "Failed to generate workout. Check API key or try again.",
+  "removeItem": "Remove Item"
 }

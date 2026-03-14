@@ -44,6 +44,7 @@ import { type Client, type Session, type WorkoutPlan } from '../types'
 import { useStore } from '../store/store'
 import { Card, Button, Badge, Label, Select, Input } from '../components/ui'
 import { isTimeSlotTaken } from '../utils/scheduleUtils'
+import { formatLocalized } from '../utils/dateLocale'
 import { useTranslation } from 'react-i18next'
 
 type ViewType = 'day' | 'week' | 'month'
@@ -131,15 +132,15 @@ export const Schedule = () => {
   const handleToday = () => setCurrentDate(new Date())
 
   const getHeaderText = () => {
-    if (view === 'day') return format(currentDate, 'EEEE, MMMM d, yyyy')
-    if (view === 'month') return format(currentDate, 'MMMM yyyy')
+    if (view === 'day') return formatLocalized(currentDate, 'EEEE, MMMM d, yyyy')
+    if (view === 'month') return formatLocalized(currentDate, 'MMMM yyyy')
 
     const start = startOfWeek(currentDate, { weekStartsOn: 1 })
     const end = addDays(start, 6)
     if (isSameMonth(start, end)) {
-      return `${format(start, 'MMMM d')} - ${format(end, 'd, yyyy')}`
+      return `${formatLocalized(start, 'MMMM d')} - ${format(end, 'd, yyyy')}`
     }
-    return `${format(start, 'MMM d')} - ${format(end, 'MMM d, yyyy')}`
+    return `${formatLocalized(start, 'MMM d')} - ${formatLocalized(end, 'MMM d, yyyy')}`
   }
 
   // --- Stats Calculation ---
@@ -262,7 +263,7 @@ export const Schedule = () => {
             </div>
             <div>
               <h3 className="font-semibold text-sm opacity-90 capitalize flex items-center gap-1.5">
-                {view}ly Overview <Info className="h-3 w-3 opacity-70" />
+                {t(`overview${view.charAt(0).toUpperCase() + view.slice(1)}`)} <Info className="h-3 w-3 opacity-70" />
               </h3>
               <p className="text-xs text-indigo-100">{getHeaderText()}</p>
             </div>
@@ -317,7 +318,7 @@ export const Schedule = () => {
           onClose={() => setIsOverviewModalOpen(false)}
           sessions={rangeSessions}
           clients={clients}
-          headerText={`${view.charAt(0).toUpperCase() + view.slice(1)}ly Overview`}
+          headerText={t(`overview${view.charAt(0).toUpperCase() + view.slice(1)}`)}
           workouts={workouts}
         />
       )}
@@ -339,7 +340,7 @@ const DayView = ({ date, sessions, clients, onSessionClick, onToggleComplete, on
 
         return (
           <div key={hour} className="flex gap-4 group">
-            <div className="w-16 sm:w-20 text-right text-sm text-slate-400 pt-3 font-medium shrink-0">{format(setHours(new Date(), hour), 'h:00 a')}</div>
+            <div className="w-16 sm:w-20 text-right text-sm text-slate-400 pt-3 font-medium shrink-0">{formatLocalized(setHours(new Date(), hour), 'h:00 a')}</div>
             <div
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, targetDate, true)}
@@ -400,7 +401,7 @@ const WeekView = ({ date, sessions, clients, onSessionClick, onToggleComplete, o
           >
             <div className="flex items-start gap-4">
               <div className="w-14 shrink-0 flex flex-col items-center">
-                <span className="text-sm font-medium text-slate-500 uppercase">{format(day, 'EEE')}</span>
+                <span className="text-sm font-medium text-slate-500 uppercase">{formatLocalized(day, 'EEE')}</span>
                 <span className={`text-xl font-bold mt-1 h-10 w-10 flex items-center justify-center rounded-full ${isToday(day) ? 'bg-indigo-600 text-white' : 'text-slate-900'}`}>
                   {format(day, 'd')}
                 </span>
@@ -515,13 +516,13 @@ const SessionCard = ({ session, client, onClick, onToggle, onDragStart, onDragEn
           <div
             className={`px-2 sm:px-3 py-1 rounded text-xs sm:text-sm whitespace-nowrap font-semibold ${session.category === 'Check-in' ? 'bg-purple-100 text-purple-700' : 'bg-indigo-50 text-indigo-700'}`}
           >
-            {format(parseISO(session.date), 'h:mm a')}
+            {formatLocalized(parseISO(session.date), 'h:mm a')}
           </div>
           <div>
             <h4 className="font-semibold text-sm sm:text-base text-slate-900 flex items-center gap-2 group-hover:text-indigo-700">
               {client?.name || tco('unknownClient')}
               {session.recurrenceId && (
-                <span title="Recurring session">
+                <span title={t('recurringSession')}>
                   <Repeat className="h-3 w-3 text-slate-400" />
                 </span>
               )}
@@ -584,6 +585,7 @@ function rruleHumanText(freq: string, interval: number, days: string[], endType:
 
 const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurring: _onSaveRecurring, onSaveRecurringEvent, onUpdate, sessionToEdit, clients, sessions, initialDate }: any) => {
   const { t } = useTranslation('schedule')
+  const { t: tco } = useTranslation('common')
   const [formData, setFormData] = useState({
     clientId: clients[0]?.id || '',
     date: format(initialDate, 'yyyy-MM-dd'),
@@ -642,7 +644,7 @@ const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurring: _onSa
     const conflictingSession = isTimeSlotTaken(sessions, combinedDate, Number(formData.durationMinutes), sessionToEdit?.id)
     if (conflictingSession) {
       const conflictClientName = clients.find((c: any) => c.id === conflictingSession.clientId)?.name || 'a client'
-      setError(`This time slot conflicts with a session for ${conflictClientName} at ${format(parseISO(conflictingSession.date), 'h:mm a')}.`)
+      setError(`This time slot conflicts with a session for ${conflictClientName} at ${formatLocalized(parseISO(conflictingSession.date), 'h:mm a')}.`)
       return
     }
 
@@ -725,10 +727,10 @@ const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurring: _onSa
             <div className="space-y-2">
               <Label>{t('duration')}</Label>
               <Select name="durationMinutes" value={formData.durationMinutes} onChange={handleChange}>
-                <option value="30">30 min</option>
-                <option value="45">45 min</option>
-                <option value="60">60 min</option>
-                <option value="90">90 min</option>
+                <option value="30">{tco('durationMin', { minutes: 30 })}</option>
+                <option value="45">{tco('durationMin', { minutes: 45 })}</option>
+                <option value="60">{tco('durationMin', { minutes: 60 })}</option>
+                <option value="90">{tco('durationMin', { minutes: 90 })}</option>
               </Select>
             </div>
 
@@ -863,6 +865,7 @@ const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurring: _onSa
     </>
   )
 }
+
 const RecurrenceUpdateModal = ({ onConfirm, onCancel }: any) => {
   const { t } = useTranslation('schedule')
   return (
@@ -886,6 +889,7 @@ const RecurrenceUpdateModal = ({ onConfirm, onCancel }: any) => {
     </div>
   )
 }
+
 const SessionDetailsModal = ({ session, clients, workouts, onClose, onUpdate, onEdit }: any) => {
   const { t } = useTranslation('schedule')
   const { t: tc } = useTranslation('common')
@@ -911,10 +915,10 @@ const SessionDetailsModal = ({ session, clients, workouts, onClose, onUpdate, on
               </Link>
               <div className="flex flex-wrap items-center text-slate-500 text-sm gap-x-3">
                 <span className="flex items-center">
-                  <CalendarIcon className="h-3 w-3 mr-1" /> {format(parseISO(session.date), 'MMM d, yyyy')}
+                  <CalendarIcon className="h-3 w-3 mr-1" /> {formatLocalized(parseISO(session.date), 'MMM d, yyyy')}
                 </span>
                 <span className="flex items-center">
-                  <Clock className="h-3 w-3 mr-1" /> {format(parseISO(session.date), 'h:mm a')}
+                  <Clock className="h-3 w-3 mr-1" /> {formatLocalized(parseISO(session.date), 'h:mm a')}
                 </span>
               </div>
             </div>
@@ -948,7 +952,7 @@ const SessionDetailsModal = ({ session, clients, workouts, onClose, onUpdate, on
             <Label>{t('sessionDetails')}</Label>
             <textarea
               className="w-full min-h-[100px] p-3 text-sm border-slate-300 rounded-md focus:ring-2 focus:ring-indigo-500"
-              placeholder="Record performance..."
+              placeholder={t('recordPerformancePlaceholder')}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
             />
@@ -957,7 +961,7 @@ const SessionDetailsModal = ({ session, clients, workouts, onClose, onUpdate, on
             <div className="space-y-3 border-t pt-4">
               <Label>{t('trainingPlan')}</Label>
               <Select value={linkedWorkoutId} onChange={(e) => setLinkedWorkoutId(e.target.value)}>
-                <option value="">-- No specific plan --</option>
+                <option value="">{t('noSpecificPlan')}</option>
                 {workouts
                   .filter((w: WorkoutPlan) => !w.clientId || w.clientId === client?.id)
                   .map((w: WorkoutPlan) => (
@@ -1050,7 +1054,7 @@ const OverviewModal = ({ isOpen, onClose, sessions, clients, headerText, workout
                         <div>
                           <p className="font-semibold text-slate-800">{client?.name || tco('unknown')}</p>
                           <p className="text-xs text-slate-500">
-                            {format(parseISO(session.date), 'MMM d, h:mm a')} • {session.category === 'Check-in' ? tc('checkIn') : tc('workout')}
+                            {formatLocalized(parseISO(session.date), 'MMM d, h:mm a')} • {session.category === 'Check-in' ? tc('checkIn') : tc('workout')}
                           </p>
                         </div>
                       </div>
@@ -1095,10 +1099,10 @@ const SessionDetailView = ({ session, clients, workouts }: any) => {
           <h3 className="text-xl font-bold text-slate-900">{client?.name}</h3>
           <div className="flex items-center text-sm text-slate-500 gap-x-3">
             <span className="flex items-center">
-              <CalendarIcon className="h-3 w-3 mr-1" /> {format(parseISO(session.date), 'EEEE, MMM d, yyyy')}
+              <CalendarIcon className="h-3 w-3 mr-1" /> {formatLocalized(parseISO(session.date), 'EEEE, MMM d, yyyy')}
             </span>
             <span className="flex items-center">
-              <Clock className="h-3 w-3 mr-1" /> {format(parseISO(session.date), 'h:mm a')}
+              <Clock className="h-3 w-3 mr-1" /> {formatLocalized(parseISO(session.date), 'h:mm a')}
             </span>
           </div>
         </div>

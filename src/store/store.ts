@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-import type { Client, Session, WorkoutPlan, Evaluation, Plan } from '../types'
+import type { Client, Session, WorkoutPlan, Evaluation, Plan, SystemFeature } from '../types'
 import * as api from '../services/apiService'
 import { uploadFileToGcs } from '../utils/uploadToGcs'
 import { ApiError } from '../utils/apiClient'
@@ -10,6 +10,7 @@ import { type WorkoutSlice, createWorkoutSlice } from './workoutSlice'
 import { type FinanceSlice, createFinanceSlice } from './financeSlice'
 import { type EvaluationSlice, createEvaluationSlice } from './evaluationSlice'
 import { type SettingsSlice, createSettingsSlice } from './settingsSlice'
+import { type SystemFeatureSlice, createSystemFeatureSlice } from './systemFeatureSlice'
 
 // Combine all slice interfaces and add async actions
 export type AppState = ClientSlice &
@@ -17,7 +18,8 @@ export type AppState = ClientSlice &
   WorkoutSlice &
   FinanceSlice &
   EvaluationSlice &
-  SettingsSlice & {
+  SettingsSlice &
+  SystemFeatureSlice & {
     appState: 'idle' | 'loading' | 'ready' | 'error'
     errorMessage: string | null
     fetchInitialData: () => Promise<void>
@@ -29,9 +31,27 @@ export type AppState = ClientSlice &
     convertLead: (id: string, planId?: string) => Promise<void>
     addSession: (session: Omit<Session, 'id' | 'completed' | 'recurrenceId'>) => Promise<void>
     addRecurringSessions: (baseSession: Omit<Session, 'id' | 'date' | 'completed'>, startDateStr: string, frequency: 'weekly' | 'bi-weekly', untilDateStr: string) => Promise<void>
-    addRecurringEvent: (dto: { rrule: string; timezone: string; dtstart: string; durationMinutes: number; type: string; category: string; clientId: string; linkedWorkoutId?: string; notes?: string }) => Promise<void>
+    addRecurringEvent: (dto: {
+      rrule: string
+      timezone: string
+      dtstart: string
+      durationMinutes: number
+      type: string
+      category: string
+      clientId: string
+      linkedWorkoutId?: string
+      notes?: string
+    }) => Promise<void>
     deleteRecurringSeries: (id: string) => Promise<void>
-    upsertSessionException: (dto: { recurringEventId: string; originalStartTime: string; cancelled?: boolean; newStartTime?: string; durationMinutes?: number; notes?: string; completed?: boolean }) => Promise<void>
+    upsertSessionException: (dto: {
+      recurringEventId: string
+      originalStartTime: string
+      cancelled?: boolean
+      newStartTime?: string
+      durationMinutes?: number
+      notes?: string
+      completed?: boolean
+    }) => Promise<void>
     updateSession: (id: string, session: Partial<Session>) => Promise<void>
     updateSessionWithScope: (sessionId: string, updates: Partial<Session>, scope: 'single' | 'future') => Promise<void>
     toggleSessionComplete: (id: string) => Promise<void>
@@ -47,6 +67,10 @@ export type AppState = ClientSlice &
     deletePlan: (id: string) => Promise<void>
     updateAiPromptInstructions: (instructions: string) => Promise<void>
     updateLocale: (language: string) => Promise<void>
+    fetchSystemFeatures: () => Promise<void>
+    addSystemFeature: (data: { key: string; name: string; description?: string }) => Promise<void>
+    updateSystemFeature: (id: string, updates: Partial<SystemFeature>) => Promise<void>
+    deleteSystemFeature: (id: string) => Promise<void>
   }
 
 export const useStore = create<AppState>()((set, get) => ({
@@ -56,6 +80,7 @@ export const useStore = create<AppState>()((set, get) => ({
   ...createFinanceSlice(set, get, {} as any),
   ...createEvaluationSlice(set, get, {} as any),
   ...createSettingsSlice(set, get, {} as any),
+  ...createSystemFeatureSlice(set, get, {} as any),
   appState: 'idle',
 
   errorMessage: null,
@@ -63,13 +88,7 @@ export const useStore = create<AppState>()((set, get) => ({
   fetchInitialData: async () => {
     set({ appState: 'loading', errorMessage: null })
     try {
-      const [clients, evaluations, plans, sessions, workouts] = await Promise.all([
-        api.getClients(),
-        api.getEvaluations(),
-        api.getPlans(),
-        api.getSessions(),
-        api.getWorkouts(),
-      ])
+      const [clients, evaluations, plans, sessions, workouts] = await Promise.all([api.getClients(), api.getEvaluations(), api.getPlans(), api.getSessions(), api.getWorkouts()])
 
       get()._setClients(clients || [])
       get()._setSessions(sessions || [])
@@ -96,6 +115,7 @@ export const useStore = create<AppState>()((set, get) => ({
       workouts: [],
       evaluations: [],
       plans: [],
+      systemFeatures: [],
       aiPromptInstructions: '',
       locale: '',
       appState: 'idle',
@@ -153,9 +173,7 @@ export const useStore = create<AppState>()((set, get) => ({
     await api.upsertSessionException(dto)
     if (dto.cancelled) {
       set((state) => ({
-        sessions: state.sessions.filter(
-          (s: any) => !(s.recurringEventId === dto.recurringEventId && s.originalStartTime === dto.originalStartTime)
-        ),
+        sessions: state.sessions.filter((s: any) => !(s.recurringEventId === dto.recurringEventId && s.originalStartTime === dto.originalStartTime)),
       }))
     }
   },
@@ -233,6 +251,23 @@ export const useStore = create<AppState>()((set, get) => ({
   updateLocale: async (language: string) => {
     const result = await api.updateLanguage(language)
     get()._setLocale(result.language)
+  },
+
+  fetchSystemFeatures: async () => {
+    const features = await api.getActiveSystemFeatures()
+    get()._setSystemFeatures(features || [])
+  },
+  addSystemFeature: async (data) => {
+    const feature = await api.createSystemFeature(data)
+    get()._addSystemFeature(feature)
+  },
+  updateSystemFeature: async (id, updates) => {
+    const feature = await api.updateSystemFeature(id, updates)
+    get()._updateSystemFeature(feature)
+  },
+  deleteSystemFeature: async (id) => {
+    await api.deleteSystemFeature(id)
+    get()._removeSystemFeature(id)
   },
 }))
 

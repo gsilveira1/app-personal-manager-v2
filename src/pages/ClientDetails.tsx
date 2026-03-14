@@ -28,9 +28,10 @@ import {
   User,
 } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-import { format, parseISO, isPast } from 'date-fns'
+import { parseISO, isPast } from 'date-fns'
 
 import { useTranslation } from 'react-i18next'
+import { formatLocalized } from '../utils/dateLocale'
 import { useStore } from '../store/store'
 import { Card, Button, Badge, Label, Input, Select } from '../components/ui'
 import { type Evaluation, type WorkoutPlan, type Session, type Skinfolds, type Perimeters, type MedicalHistory } from '../types'
@@ -57,6 +58,7 @@ const initialEvalState: Omit<Evaluation, 'id' | 'clientId' | 'date'> = { weight:
 export const ClientDetails = () => {
   const { t } = useTranslation('clients')
   const { t: tw } = useTranslation('workouts')
+  const { t: tco } = useTranslation('common')
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { clients, sessions, evaluations, workouts, plans, updateClient, uploadClientAvatar, addEvaluation, addSession, addWorkout, updateWorkout, deleteWorkout } = useStore()
@@ -98,7 +100,7 @@ export const ClientDetails = () => {
 
     return clientEvaluations
       .map((e) => ({
-        date: format(parseISO(e.date), 'MMM d'),
+        date: formatLocalized(parseISO(e.date), 'MMM d'),
         value: getMetricValue(e, selectedMetric),
       }))
       .filter((d) => d.value !== undefined)
@@ -247,7 +249,7 @@ export const ClientDetails = () => {
                 <span className="text-sm font-medium text-indigo-600">{clientPlan.name}</span>
                 <span className="text-xs text-slate-500">
                   {clientPlan.sessionsPerWeek}x/sem
-                  {clientPlan.durationMinutes ? ` · ${clientPlan.durationMinutes}min` : ''} · R$ {clientPlan.price.toFixed(2)}/mês
+                  {clientPlan.durationMinutes ? ` · ${clientPlan.durationMinutes}min` : ''} · R$ {clientPlan.price.toFixed(2)}{tco('perMonth')}
                 </span>
               </div>
             )}
@@ -384,9 +386,9 @@ export const ClientDetails = () => {
                         {session.completed ? <CheckCircle2 className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
                       </div>
                       <div>
-                        <div className="font-semibold text-slate-900">{format(parseISO(session.date), 'EEEE, MMMM d, yyyy')}</div>
+                        <div className="font-semibold text-slate-900">{formatLocalized(parseISO(session.date), 'EEEE, MMMM d, yyyy')}</div>
                         <div className="text-sm text-slate-500 mt-0.5">
-                          {format(parseISO(session.date), 'h:mm a')} • {session.durationMinutes} min • {session.type}
+                          {formatLocalized(parseISO(session.date), 'h:mm a')} • {session.durationMinutes} min • {session.type}
                         </div>
                         {session.notes && <div className="mt-2 text-sm bg-slate-50 p-2 rounded text-slate-600">"{session.notes}"</div>}
                       </div>
@@ -539,7 +541,7 @@ const EvaluationCard: React.FC<EvaluationCardProps> = ({ evaluation }) => {
             </div>
             <div>
               <div className="font-bold text-slate-900">
-                {t('evaluation')} - {format(parseISO(evaluation.date), 'MMMM d, yyyy')}
+                {t('evaluation')} - {formatLocalized(parseISO(evaluation.date), 'MMMM d, yyyy')}
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
@@ -655,7 +657,7 @@ const WorkoutCard: React.FC<{
                 </span>
               ))}
               <span className="text-xs text-slate-400 flex items-center ml-2">
-                <Calendar className="h-3 w-3 mr-1" /> {format(parseISO(workout.createdAt), 'MMM d, yyyy')}
+                <Calendar className="h-3 w-3 mr-1" /> {formatLocalized(parseISO(workout.createdAt), 'MMM d, yyyy')}
               </span>
             </div>
           </div>
