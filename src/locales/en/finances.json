@@ -1,0 +1,14 @@
+{
+  "title": "Finances",
+  "revenue": "Revenue",
+  "expenses": "Expenses",
+  "balance": "Balance",
+  "addTransaction": "Add Transaction",
+  "noTransactions": "No transactions found",
+  "income": "Income",
+  "expense": "Expense",
+  "date": "Date",
+  "description": "Description",
+  "amount": "Amount",
+  "category": "Category"
+}

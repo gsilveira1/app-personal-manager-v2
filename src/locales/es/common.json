@@ -1,0 +1,43 @@
+{
+  "save": "Guardar",
+  "cancel": "Cancelar",
+  "delete": "Eliminar",
+  "edit": "Editar",
+  "add": "Agregar",
+  "back": "Volver",
+  "loading": "Cargando...",
+  "error": "Algo salió mal",
+  "empty": "Sin datos",
+  "confirm": "Confirmar",
+  "close": "Cerrar",
+  "search": "Buscar",
+  "filter": "Filtrar",
+  "actions": "Acciones",
+  "logout": "Cerrar sesión",
+  "noPlan": "Sin plan",
+  "view": "Ver",
+  "none": "Ninguno",
+  "saving": "Guardando...",
+  "yearsOld": "{{age}} años",
+  "noData": "Sin datos",
+  "appError": {
+    "title": "Algo salió mal",
+    "message": "No pudimos cargar los datos de la aplicación. Verifica tu conexión e intenta de nuevo.",
+    "retry": "Reintentar"
+  },
+  "appLoading": "Cargando tu panel...",
+  "checkingSession": "Verificando sesión...",
+  "unknownClient": "Cliente desconocido",
+  "unknown": "Desconocido",
+  "profile": "Perfil",
+  "email": "Correo electrónico",
+  "status": {
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "lead": "Prospecto"
+  },
+  "perMonth": "/mes",
+  "durationMin": "{{minutes}} min",
+  "selectLanguage": "Seleccionar idioma",
+  "weekAcronym": "sem"
+}

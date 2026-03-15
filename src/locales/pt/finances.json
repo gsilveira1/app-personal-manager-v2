@@ -1,0 +1,14 @@
+{
+  "title": "Financeiro",
+  "revenue": "Receita",
+  "expenses": "Despesas",
+  "balance": "Saldo",
+  "addTransaction": "Adicionar Transação",
+  "noTransactions": "Nenhuma transação encontrada",
+  "income": "Receita",
+  "expense": "Despesa",
+  "date": "Data",
+  "description": "Descrição",
+  "amount": "Valor",
+  "category": "Categoria"
+}

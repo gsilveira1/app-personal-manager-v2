@@ -1,0 +1,14 @@
+{
+  "title": "Finanzas",
+  "revenue": "Ingresos",
+  "expenses": "Gastos",
+  "balance": "Balance",
+  "addTransaction": "Agregar Transacción",
+  "noTransactions": "No se encontraron transacciones",
+  "income": "Ingreso",
+  "expense": "Gasto",
+  "date": "Fecha",
+  "description": "Descripción",
+  "amount": "Monto",
+  "category": "Categoría"
+}
