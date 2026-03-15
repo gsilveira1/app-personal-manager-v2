@@ -11,7 +11,15 @@ vi.mock('../services/apiService', () => ({
   updateClient: vi.fn(),
   deleteClient: vi.fn(),
   convertLead: vi.fn(),
+  getAvatarUploadUrl: vi.fn(),
   createSession: vi.fn(),
+  createRecurringSessions: vi.fn(),
+  createRecurringEvent: vi.fn(),
+  deleteRecurringSeries: vi.fn(),
+  upsertSessionException: vi.fn(),
+  updateSession: vi.fn(),
+  updateSessionWithScope: vi.fn(),
+  getSessionsForRange: vi.fn(),
   toggleSessionComplete: vi.fn(),
   createWorkout: vi.fn(),
   updateWorkout: vi.fn(),
@@ -22,14 +30,23 @@ vi.mock('../services/apiService', () => ({
   createPlan: vi.fn(),
   updatePlan: vi.fn(),
   deletePlan: vi.fn(),
-  updateAiPromptInstructions: vi.fn(),
+  updateAiInstructions: vi.fn(),
   updateLanguage: vi.fn(),
+  getAiInstructions: vi.fn(),
+  getLanguage: vi.fn(),
+  getActiveSystemFeatures: vi.fn(),
+  createSystemFeature: vi.fn(),
+  updateSystemFeature: vi.fn(),
+  deleteSystemFeature: vi.fn(),
   login: vi.fn(),
   signup: vi.fn(),
   logout: vi.fn(),
   getCurrentUser: vi.fn(),
   getSettings: vi.fn(),
-  getLanguage: vi.fn(),
+}))
+
+vi.mock('../utils/uploadToGcs', () => ({
+  uploadFileToGcs: vi.fn().mockResolvedValue(undefined),
 }))
 
 vi.mock('./authStore', () => ({
@@ -264,6 +281,260 @@ describe('store async actions', () => {
       await useStore.getState().updateLocale('en')
 
       expect(mockApi.updateLanguage).toHaveBeenCalledWith('en')
+    })
+  })
+
+  describe('addClient with custom plan', () => {
+    it('should create plan first then client with planId', async () => {
+      const plan = { id: 'p-new', name: 'Custom', type: 'PRESENCIAL', sessionsPerWeek: 3, price: 300 }
+      mockApi.createPlan.mockResolvedValue(plan)
+      mockApi.createClient.mockResolvedValue({ id: 'c-new', name: 'Test', planId: 'p-new' })
+
+      await useStore.getState().addClient(
+        { name: 'Test', email: 't@t.com', phone: '1', status: 'Active', type: 'In-Person' } as any,
+        { name: 'Custom', type: 'PRESENCIAL', sessionsPerWeek: 3, price: 300 } as any
+      )
+
+      expect(mockApi.createPlan).toHaveBeenCalled()
+      expect(mockApi.createClient).toHaveBeenCalled()
+      expect(useStore.getState().clients[0].planId).toBe('p-new')
+    })
+  })
+
+  describe('uploadClientAvatar', () => {
+    it('should get upload URL, upload file, and update client', async () => {
+      useStore.setState({ clients: [{ id: 'c1', name: 'Test' }] as any })
+      mockApi.getAvatarUploadUrl.mockResolvedValue({ uploadUrl: 'https://upload.url', publicUrl: 'https://public.url' })
+      mockApi.updateClient.mockResolvedValue({ id: 'c1', name: 'Test', avatar: 'https://public.url' })
+
+      const file = new File(['img'], 'avatar.jpg', { type: 'image/jpeg' })
+      await useStore.getState().uploadClientAvatar('c1', file)
+
+      expect(mockApi.getAvatarUploadUrl).toHaveBeenCalledWith('c1', 'image/jpeg')
+      expect(useStore.getState().clients[0].avatar).toBe('https://public.url')
+    })
+  })
+
+  describe('addRecurringSessions', () => {
+    it('should create recurring sessions and add all to store', async () => {
+      const sessions = [{ id: 's1' }, { id: 's2' }]
+      mockApi.createRecurringSessions.mockResolvedValue(sessions)
+
+      await useStore.getState().addRecurringSessions(
+        { clientId: 'c1', durationMinutes: 60, type: 'In-Person', category: 'Workout' } as any,
+        '2025-01-01', 'weekly', '2025-02-01'
+      )
+
+      expect(useStore.getState().sessions).toHaveLength(2)
+    })
+  })
+
+  describe('addRecurringEvent', () => {
+    it('should call createRecurringEvent API', async () => {
+      mockApi.createRecurringEvent.mockResolvedValue({ id: 're1' })
+
+      await useStore.getState().addRecurringEvent({
+        rrule: 'FREQ=WEEKLY', timezone: 'America/Sao_Paulo', dtstart: '2025-01-01',
+        durationMinutes: 60, type: 'In-Person', category: 'Workout', clientId: 'c1',
+      })
+
+      expect(mockApi.createRecurringEvent).toHaveBeenCalled()
+    })
+  })
+
+  describe('deleteRecurringSeries', () => {
+    it('should remove sessions by recurringEventId or recurrenceId', async () => {
+      useStore.setState({ sessions: [
+        { id: 's1', recurringEventId: 're1' },
+        { id: 's2', recurrenceId: 're1' },
+        { id: 's3', recurringEventId: 'other' },
+      ] as any })
+      mockApi.deleteRecurringSeries.mockResolvedValue(undefined)
+
+      await useStore.getState().deleteRecurringSeries('re1')
+
+      expect(useStore.getState().sessions).toHaveLength(1)
+      expect(useStore.getState().sessions[0].id).toBe('s3')
+    })
+  })
+
+  describe('upsertSessionException', () => {
+    it('should remove cancelled session from store', async () => {
+      useStore.setState({ sessions: [
+        { id: 's1', recurringEventId: 're1', originalStartTime: '2025-01-01' },
+        { id: 's2', recurringEventId: 're1', originalStartTime: '2025-01-08' },
+      ] as any })
+      mockApi.upsertSessionException.mockResolvedValue({ id: 'se1' })
+
+      await useStore.getState().upsertSessionException({
+        recurringEventId: 're1', originalStartTime: '2025-01-01', cancelled: true,
+      })
+
+      expect(useStore.getState().sessions).toHaveLength(1)
+      expect(useStore.getState().sessions[0].id).toBe('s2')
+    })
+
+    it('should not filter sessions when not cancelled', async () => {
+      useStore.setState({ sessions: [
+        { id: 's1', recurringEventId: 're1', originalStartTime: '2025-01-01' },
+      ] as any })
+      mockApi.upsertSessionException.mockResolvedValue({ id: 'se1' })
+
+      await useStore.getState().upsertSessionException({
+        recurringEventId: 're1', originalStartTime: '2025-01-01',
+      })
+
+      expect(useStore.getState().sessions).toHaveLength(1)
+    })
+  })
+
+  describe('updateSession', () => {
+    it('should update session in store', async () => {
+      useStore.setState({ sessions: [{ id: 's1', notes: 'old' }] as any })
+      mockApi.updateSession.mockResolvedValue({ id: 's1', notes: 'new' })
+
+      await useStore.getState().updateSession('s1', { notes: 'new' })
+
+      expect(useStore.getState().sessions[0].notes).toBe('new')
+    })
+  })
+
+  describe('updateSessionWithScope', () => {
+    it('should delegate to updateSession for single scope', async () => {
+      useStore.setState({ sessions: [{ id: 's1', notes: 'old' }] as any })
+      mockApi.updateSession.mockResolvedValue({ id: 's1', notes: 'new' })
+
+      await useStore.getState().updateSessionWithScope('s1', { notes: 'new' }, 'single')
+
+      expect(mockApi.updateSession).toHaveBeenCalled()
+    })
+
+    it('should call updateSessionWithScope API for future scope and refetch', async () => {
+      mockApi.updateSessionWithScope.mockResolvedValue(undefined)
+      mockApi.getSessionsForRange.mockResolvedValue([])
+
+      await useStore.getState().updateSessionWithScope('s1', { notes: 'new' }, 'future')
+
+      expect(mockApi.updateSessionWithScope).toHaveBeenCalledWith('s1', { notes: 'new' }, 'future')
+      expect(mockApi.getSessionsForRange).toHaveBeenCalled()
+    })
+  })
+
+  describe('fetchSessionsForRange', () => {
+    it('should replace sessions in store', async () => {
+      useStore.setState({ sessions: [{ id: 'old' }] as any })
+      mockApi.getSessionsForRange.mockResolvedValue([{ id: 'new' }])
+
+      await useStore.getState().fetchSessionsForRange(new Date(), new Date())
+
+      expect(useStore.getState().sessions).toEqual([{ id: 'new' }])
+    })
+  })
+
+  describe('updateWorkout', () => {
+    it('should update workout in store', async () => {
+      useStore.setState({ workouts: [{ id: 'w1', name: 'Old' }] as any })
+      mockApi.updateWorkout.mockResolvedValue({ id: 'w1', name: 'New' })
+
+      await useStore.getState().updateWorkout('w1', { name: 'New' })
+
+      expect(useStore.getState().workouts[0].name).toBe('New')
+    })
+  })
+
+  describe('updateEvaluation', () => {
+    it('should update evaluation in store', async () => {
+      useStore.setState({ evaluations: [{ id: 'e1', weight: 80 }] as any })
+      mockApi.updateEvaluation.mockResolvedValue({ id: 'e1', weight: 75 })
+
+      await useStore.getState().updateEvaluation('e1', { weight: 75 })
+
+      expect(useStore.getState().evaluations[0].weight).toBe(75)
+    })
+  })
+
+  describe('deleteEvaluation', () => {
+    it('should remove evaluation from store', async () => {
+      useStore.setState({ evaluations: [{ id: 'e1' }] as any })
+      mockApi.deleteEvaluation.mockResolvedValue(undefined)
+
+      await useStore.getState().deleteEvaluation('e1')
+
+      expect(useStore.getState().evaluations).toHaveLength(0)
+    })
+  })
+
+  describe('updatePlan', () => {
+    it('should update plan in store', async () => {
+      useStore.setState({ plans: [{ id: 'p1', name: 'Old' }] as any })
+      mockApi.updatePlan.mockResolvedValue({ id: 'p1', name: 'New' })
+
+      await useStore.getState().updatePlan('p1', { name: 'New' })
+
+      expect(useStore.getState().plans[0].name).toBe('New')
+    })
+  })
+
+  describe('updateAiPromptInstructions', () => {
+    it('should call API and update store', async () => {
+      mockApi.updateAiInstructions.mockResolvedValue(undefined)
+
+      await useStore.getState().updateAiPromptInstructions('new instructions')
+
+      expect(mockApi.updateAiInstructions).toHaveBeenCalledWith('new instructions')
+      expect(useStore.getState().aiPromptInstructions).toBe('new instructions')
+    })
+  })
+
+  describe('system feature actions', () => {
+    it('fetchSystemFeatures loads features', async () => {
+      mockApi.getActiveSystemFeatures.mockResolvedValue([{ id: 'sf1', key: 'feat' }])
+
+      await useStore.getState().fetchSystemFeatures()
+
+      expect(useStore.getState().systemFeatures).toHaveLength(1)
+    })
+
+    it('addSystemFeature creates and adds', async () => {
+      useStore.setState({ systemFeatures: [] })
+      mockApi.createSystemFeature.mockResolvedValue({ id: 'sf1', key: 'feat', name: 'Feature' })
+
+      await useStore.getState().addSystemFeature({ key: 'feat', name: 'Feature' })
+
+      expect(useStore.getState().systemFeatures).toHaveLength(1)
+    })
+
+    it('updateSystemFeature updates existing', async () => {
+      useStore.setState({ systemFeatures: [{ id: 'sf1', key: 'old', name: 'Old' }] as any })
+      mockApi.updateSystemFeature.mockResolvedValue({ id: 'sf1', key: 'old', name: 'New' })
+
+      await useStore.getState().updateSystemFeature('sf1', { name: 'New' })
+
+      expect(useStore.getState().systemFeatures[0].name).toBe('New')
+    })
+
+    it('deleteSystemFeature removes feature', async () => {
+      useStore.setState({ systemFeatures: [{ id: 'sf1' }] as any })
+      mockApi.deleteSystemFeature.mockResolvedValue(undefined)
+
+      await useStore.getState().deleteSystemFeature('sf1')
+
+      expect(useStore.getState().systemFeatures).toHaveLength(0)
+    })
+  })
+
+  describe('fetchInitialData with 401', () => {
+    it('should logout on 401 error', async () => {
+      const { ApiError } = await import('../utils/apiClient')
+      mockApi.getClients.mockRejectedValue(new ApiError('Unauthorized', 401))
+      mockApi.getEvaluations.mockResolvedValue([])
+      mockApi.getPlans.mockResolvedValue([])
+      mockApi.getSessions.mockResolvedValue([])
+      mockApi.getWorkouts.mockResolvedValue([])
+
+      await useStore.getState().fetchInitialData()
+
+      expect(useStore.getState().appState).toBe('idle')
     })
   })
 })
