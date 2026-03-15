@@ -1,64 +1,26 @@
-import React, { useState, useMemo, useRef } from 'react'
+import { useState, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router'
-import {
-  ArrowLeft,
-  Calendar,
-  Mail,
-  Phone,
-  HeartPulse,
-  Edit2,
-  Save,
-  FileText,
-  Activity,
-  Plus,
-  CheckCircle2,
-  XCircle,
-  Trash2,
-  Dumbbell,
-  ChevronDown,
-  ChevronUp,
-  History,
-  Archive,
-  Flame,
-  Ruler,
-  Droplets,
-  X,
-  Camera,
-  Loader2,
-  User,
-} from 'lucide-react'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-import { parseISO, isPast } from 'date-fns'
-
+import { ArrowLeft, Plus, FileText, Activity, History, Dumbbell, Edit2, Save, CheckCircle2, XCircle } from 'lucide-react'
+import { parseISO } from 'date-fns'
 import { useTranslation } from 'react-i18next'
+
 import { formatLocalized } from '../utils/dateLocale'
 import { useStore } from '../store/store'
-import { Card, Button, Badge, Label, Input, Select } from '../components/ui'
-import { type Evaluation, type WorkoutPlan, type Session, type Skinfolds, type Perimeters, type MedicalHistory } from '../types'
+import { Card, Button } from '../components/atoms'
+import { useClientDetails } from '../hooks/useClientDetails'
+import { ClientProfileHeader } from '../components/organisms/client-details/ClientProfileHeader'
+import { MedicalHistoryCard } from '../components/organisms/client-details/MedicalHistoryCard'
+import { EvaluationCard } from '../components/organisms/client-details/EvaluationCard'
+import { WorkoutCard } from '../components/organisms/client-details/WorkoutCard'
+import { EvaluationModal } from '../components/organisms/client-details/EvaluationModal'
+import { SessionLogModal } from '../components/organisms/client-details/SessionLogModal'
+import { ProgressChart } from '../components/organisms/client-details/ProgressChart'
 import { WorkoutEditorModal } from '../components/WorkoutEditorModal'
-
-interface EvaluationCardProps {
-  evaluation: Evaluation
-}
-
-// --- Chart Configuration ---
-const chartableMetrics: Record<string, { label: string; unit: string }> = {
-  weight: { label: 'Weight', unit: 'kg' },
-  bodyFatPercentage: { label: 'Body Fat', unit: '%' },
-  leanMass: { label: 'Lean Mass', unit: 'kg' },
-  'perimeters.waist': { label: 'Waist', unit: 'cm' },
-  'perimeters.hip': { label: 'Hip', unit: 'cm' },
-  'perimeters.chest': { label: 'Chest', unit: 'cm' },
-  'skinfolds.triceps': { label: 'Triceps Skinfold', unit: 'mm' },
-  'skinfolds.abdominal': { label: 'Abdominal Skinfold', unit: 'mm' },
-}
-
-const initialEvalState: Omit<Evaluation, 'id' | 'clientId' | 'date'> = { weight: 0, height: 0, bodyFatPercentage: 0, leanMass: 0, notes: '', perimeters: {}, skinfolds: {} }
+import type { WorkoutPlan, MedicalHistory } from '../types'
 
 export const ClientDetails = () => {
   const { t } = useTranslation('clients')
   const { t: tw } = useTranslation('workouts')
-  const { t: tco } = useTranslation('common')
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { clients, sessions, evaluations, workouts, plans, updateClient, uploadClientAvatar, addEvaluation, addSession, addWorkout, updateWorkout, deleteWorkout } = useStore()
@@ -68,881 +30,114 @@ export const ClientDetails = () => {
   const [isWorkoutModalOpen, setIsWorkoutModalOpen] = useState(false)
   const [isSessionModalOpen, setIsSessionModalOpen] = useState(false)
   const [editingWorkout, setEditingWorkout] = useState<WorkoutPlan | null>(null)
-
   const [isEditingNotes, setIsEditingNotes] = useState(false)
   const [isEditingMedicalHistory, setIsEditingMedicalHistory] = useState(false)
   const [notesBuffer, setNotesBuffer] = useState('')
   const [medicalHistoryBuffer, setMedicalHistoryBuffer] = useState<MedicalHistory>({ objective: [''], injuries: '', surgeries: '', medications: '' })
-
   const [selectedMetric, setSelectedMetric] = useState<string>('weight')
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
   const avatarInputRef = useRef<HTMLInputElement>(null)
 
   const client = clients.find((c) => c.id === id)
   const clientPlan = plans.find((p) => p.id === client?.planId)
-
-  // Evaluations needed for chart — computed before early return to satisfy Rules of Hooks
-  const clientEvaluations = useMemo(
-    () => evaluations.filter((e) => e.clientId === id).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
-    [evaluations, id]
-  )
-
-  const chartData = useMemo(() => {
-    const getMetricValue = (evaluation: Evaluation, metricKey: string): number | undefined => {
-      const keys = metricKey.split('.')
-      let value: unknown = evaluation as unknown
-      for (const key of keys) {
-        if (value === undefined || value === null) return undefined
-        value = (value as Record<string, unknown>)[key]
-      }
-      return typeof value === 'number' ? value : undefined
-    }
-
-    return clientEvaluations
-      .map((e) => ({
-        date: formatLocalized(parseISO(e.date), 'MMM d'),
-        value: getMetricValue(e, selectedMetric),
-      }))
-      .filter((d) => d.value !== undefined)
-      .reverse()
-  }, [clientEvaluations, selectedMetric])
+  const { clientSessions, clientEvaluations, activePlans, archivedPlans, chartData, chartableMetrics } = useClientDetails(id, sessions, evaluations, workouts, selectedMetric)
 
   if (!client) {
     return (
       <div className="flex flex-col items-center justify-center h-96">
         <h2 className="text-xl font-semibold text-slate-900">{t('notFound')}</h2>
-        <Button variant="outline" className="mt-4" onClick={() => navigate('/clients')}>
-          {t('backToClients')}
-        </Button>
+        <Button variant="outline" className="mt-4" onClick={() => navigate('/clients')}>{t('backToClients')}</Button>
       </div>
     )
-  }
-
-  // --- Derived Data ---
-  const clientSessions = sessions.filter((s) => s.clientId === client.id && isPast(parseISO(s.date))).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-
-  const clientWorkouts = workouts.filter((w) => w.clientId === client.id).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-  const activePlans = clientWorkouts.filter((w) => w.status === 'Active' || !w.status)
-  const archivedPlans = clientWorkouts.filter((w) => w.status === 'Archived')
-
-  const handleSaveNotes = () => {
-    updateClient(client.id, { notes: notesBuffer })
-    setIsEditingNotes(false)
-  }
-  const handleStartEditNotes = () => {
-    setNotesBuffer(client.notes || '')
-    setIsEditingNotes(true)
-  }
-  const handleSaveMedicalHistory = () => {
-    updateClient(client.id, { medicalHistory: medicalHistoryBuffer })
-    setIsEditingMedicalHistory(false)
-  }
-  const handleStartEditMedicalHistory = () => {
-    setMedicalHistoryBuffer(client.medicalHistory || {})
-    setIsEditingMedicalHistory(true)
-  }
-  const handleDeleteWorkout = (workoutId: string) => {
-    if (window.confirm(tw('deleteWorkoutConfirm'))) deleteWorkout(workoutId)
-  }
-  const handleArchiveWorkout = (workoutId: string) => updateWorkout(workoutId, { status: 'Archived' })
-  const handleActivateWorkout = (workoutId: string) => updateWorkout(workoutId, { status: 'Active' })
-  const handleEditWorkout = (workout: WorkoutPlan) => {
-    setEditingWorkout(workout)
-    setIsWorkoutModalOpen(true)
-  }
-  const handleSaveWorkout = (workout: any) => {
-    if (editingWorkout) updateWorkout(editingWorkout.id, workout)
-    else addWorkout(workout)
-    setIsWorkoutModalOpen(false)
   }
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-
-    if (file.size > 5 * 1024 * 1024) {
-      alert('A imagem deve ter no máximo 5MB.')
-      return
-    }
-
-    if (!file.type.match(/^image\/(jpeg|png|webp|gif)$/)) {
-      alert('Formato inválido. Use JPEG, PNG, WebP ou GIF.')
-      return
-    }
-
+    if (file.size > 5 * 1024 * 1024) { alert('A imagem deve ter no máximo 5MB.'); return }
+    if (!file.type.match(/^image\/(jpeg|png|webp|gif)$/)) { alert('Formato inválido. Use JPEG, PNG, WebP ou GIF.'); return }
     setIsUploadingAvatar(true)
-    try {
-      await uploadClientAvatar(client.id, file)
-    } catch (error) {
-      console.error('Avatar upload failed:', error)
-      alert('Erro ao enviar a foto. Tente novamente.')
-    } finally {
-      setIsUploadingAvatar(false)
-      if (avatarInputRef.current) avatarInputRef.current.value = ''
-    }
+    try { await uploadClientAvatar(client.id, file) } catch (error) { console.error('Avatar upload failed:', error); alert('Erro ao enviar a foto. Tente novamente.') } finally { setIsUploadingAvatar(false); if (avatarInputRef.current) avatarInputRef.current.value = '' }
   }
 
-  const age = client.dateOfBirth ? new Date().getFullYear() - new Date(client.dateOfBirth).getFullYear() : 'N/A'
+  const handleSaveWorkout = (workout: any) => { if (editingWorkout) updateWorkout(editingWorkout.id, workout); else addWorkout(workout); setIsWorkoutModalOpen(false) }
+
+  const tabItems = [
+    { key: 'history', label: t('sessionHistory') },
+    { key: 'evaluations', label: t('evaluations') },
+    { key: 'workouts', label: t('prescriptions') },
+  ] as const
 
   return (
     <div className="space-y-6">
-      <Button variant="ghost" onClick={() => navigate('/clients')} className="pl-0 text-slate-500 hover:text-slate-900">
-        <ArrowLeft className="mr-2 h-4 w-4" /> {t('backToClients')}
-      </Button>
-      <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm flex flex-col md:flex-row gap-6 items-start">
-        <button
-          type="button"
-          className="relative h-24 w-24 rounded-full border-4 border-slate-50 overflow-hidden group shrink-0 cursor-pointer"
-          onClick={() => !isUploadingAvatar && avatarInputRef.current?.click()}
-          disabled={isUploadingAvatar}
-        >
-          {client.avatar ? (
-            <img src={client.avatar} alt={client.name} className="h-full w-full object-cover" />
-          ) : (
-            <div className="h-full w-full bg-slate-200 flex items-center justify-center">
-              <User className="h-10 w-10 text-slate-400" />
-            </div>
-          )}
-          {isUploadingAvatar ? (
-            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-              <Loader2 className="h-6 w-6 text-white animate-spin" />
-            </div>
-          ) : (
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 flex items-center justify-center transition-colors">
-              <Camera className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-            </div>
-          )}
-          <input
-            ref={avatarInputRef}
-            type="file"
-            accept="image/jpeg,image/png,image/webp,image/gif"
-            className="hidden"
-            onChange={handleAvatarChange}
-          />
-        </button>
-        <div className="flex-1">
-          <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-            <div className="space-y-2">
-              <div className="flex flex-col md:flex-row md:items-center gap-2">
-                <h1 className="text-3xl font-bold text-slate-900">{client.name}</h1>
-                <Badge variant={client.status === 'Active' ? 'success' : 'default'} className="w-fit">
-                  {client.status}
-                </Badge>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-x-4 gap-y-1 text-slate-500 text-sm">
-                <span className="flex items-center">
-                  <Mail className="h-4 w-4 mr-2" />
-                  {client.email}
-                </span>
-                <span className="flex items-center">
-                  <Phone className="h-4 w-4 mr-2" />
-                  {client.phone}
-                </span>
-                <span className="flex items-center">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  {t('yearsOld', { age })}
-                </span>
-              </div>
-            </div>
-            {clientPlan && (
-              <div className="flex flex-col items-start md:items-end gap-1 shrink-0">
-                <span className="text-sm font-medium text-indigo-600">{clientPlan.name}</span>
-                <span className="text-xs text-slate-500">
-                  {clientPlan.sessionsPerWeek}x/sem
-                  {clientPlan.durationMinutes ? ` · ${clientPlan.durationMinutes}min` : ''} · R$ {clientPlan.price.toFixed(2)}{tco('perMonth')}
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+      <Button variant="ghost" onClick={() => navigate('/clients')} className="pl-0 text-slate-500 hover:text-slate-900"><ArrowLeft className="mr-2 h-4 w-4" /> {t('backToClients')}</Button>
+
+      <ClientProfileHeader client={client} clientPlan={clientPlan} isUploadingAvatar={isUploadingAvatar} avatarInputRef={avatarInputRef} onAvatarChange={handleAvatarChange} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="space-y-6">
+          <MedicalHistoryCard client={client} isEditing={isEditingMedicalHistory} buffer={medicalHistoryBuffer} onStartEdit={() => { setMedicalHistoryBuffer(client.medicalHistory || {}); setIsEditingMedicalHistory(true) }} onSave={() => { updateClient(client.id, { medicalHistory: medicalHistoryBuffer }); setIsEditingMedicalHistory(false) }} onBufferChange={setMedicalHistoryBuffer} />
           <Card className="p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-slate-900 mb-4 flex items-center">
-                <HeartPulse className="h-5 w-5 mr-2 text-indigo-600" />
-                {t('medicalHistory')}
-              </h3>
-              {!isEditingMedicalHistory ? (
-                <button onClick={handleStartEditMedicalHistory} className="text-slate-400 hover:text-indigo-600">
-                  <Edit2 className="h-4 w-4" />
-                </button>
-              ) : (
-                <button onClick={handleSaveMedicalHistory} className="text-green-600 hover:text-green-700">
-                  <Save className="h-4 w-4" />
-                </button>
-              )}
+              <h3 className="font-semibold text-slate-900 flex items-center"><FileText className="h-5 w-5 mr-2 text-indigo-600" />{t('notesAndLimitations')}</h3>
+              {!isEditingNotes ? <button onClick={() => { setNotesBuffer(client.notes || ''); setIsEditingNotes(true) }} className="text-slate-400 hover:text-indigo-600"><Edit2 className="h-4 w-4" /></button> : <button onClick={() => { updateClient(client.id, { notes: notesBuffer }); setIsEditingNotes(false) }} className="text-green-600 hover:text-green-700"><Save className="h-4 w-4" /></button>}
             </div>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-slate-500">{t('mainGoal')}:</span>
-                <span className="font-medium text-slate-800">{client.medicalHistory?.objective?.join(', ') || client.goal}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">{t('injuries')}:</span>
-                {isEditingMedicalHistory ? (
-                  <input
-                    type="text"
-                    className="p-1 text-sm border border-slate-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                    value={medicalHistoryBuffer.injuries || ''}
-                    onChange={(e) => setMedicalHistoryBuffer({ ...medicalHistoryBuffer, injuries: e.target.value })}
-                  />
-                ) : (
-                  <span className="font-medium text-slate-800">{client.medicalHistory?.injuries || t('none')}</span>
-                )}
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">{t('surgeries')}:</span>
-                {isEditingMedicalHistory ? (
-                  <input
-                    type="text"
-                    className="p-1 text-sm border border-slate-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                    value={medicalHistoryBuffer.surgeries || ''}
-                    onChange={(e) => setMedicalHistoryBuffer({ ...medicalHistoryBuffer, surgeries: e.target.value })}
-                  />
-                ) : (
-                  <span className="font-medium text-slate-800">{client.medicalHistory?.surgeries || t('none')}</span>
-                )}
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">{t('medications')}:</span>
-                {isEditingMedicalHistory ? (
-                  <input
-                    type="text"
-                    className="p-1 text-sm border border-slate-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                    value={medicalHistoryBuffer.medications || ''}
-                    onChange={(e) => setMedicalHistoryBuffer({ ...medicalHistoryBuffer, medications: e.target.value })}
-                  />
-                ) : (
-                  <span className="font-medium text-slate-800">{client.medicalHistory?.medications || t('none')}</span>
-                )}
-              </div>
-            </div>
-          </Card>
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-slate-900 flex items-center">
-                <FileText className="h-5 w-5 mr-2 text-indigo-600" />
-                {t('notesAndLimitations')}
-              </h3>
-              {!isEditingNotes ? (
-                <button onClick={handleStartEditNotes} className="text-slate-400 hover:text-indigo-600">
-                  <Edit2 className="h-4 w-4" />
-                </button>
-              ) : (
-                <button onClick={handleSaveNotes} className="text-green-600 hover:text-green-700">
-                  <Save className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-            {isEditingNotes ? (
-              <textarea
-                className="w-full h-32 p-3 text-sm border border-slate-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                value={notesBuffer}
-                onChange={(e) => setNotesBuffer(e.target.value)}
-              />
-            ) : (
-              <div className="bg-yellow-50 text-yellow-900 p-4 rounded-lg text-sm leading-relaxed whitespace-pre-wrap">{client.notes || t('noNotes')}</div>
-            )}
+            {isEditingNotes ? <textarea className="w-full h-32 p-3 text-sm border border-slate-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none" value={notesBuffer} onChange={(e) => setNotesBuffer(e.target.value)} /> : <div className="bg-yellow-50 text-yellow-900 p-4 rounded-lg text-sm leading-relaxed whitespace-pre-wrap">{client.notes || t('noNotes')}</div>}
           </Card>
         </div>
 
         <div className="lg:col-span-2 space-y-6">
           <div className="flex border-b border-slate-200 space-x-6">
-            <button
-              onClick={() => setActiveTab('history')}
-              className={`pb-3 text-sm font-medium transition-colors border-b-2 ${activeTab === 'history' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
-            >
-              {t('sessionHistory')}
-            </button>
-            <button
-              onClick={() => setActiveTab('evaluations')}
-              className={`pb-3 text-sm font-medium transition-colors border-b-2 ${activeTab === 'evaluations' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
-            >
-              {t('evaluations')}
-            </button>
-            <button
-              onClick={() => setActiveTab('workouts')}
-              className={`pb-3 text-sm font-medium transition-colors border-b-2 ${activeTab === 'workouts' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
-            >
-              {t('prescriptions')}
-            </button>
+            {tabItems.map((tab) => (
+              <button key={tab.key} onClick={() => setActiveTab(tab.key)} className={`pb-3 text-sm font-medium transition-colors border-b-2 ${activeTab === tab.key ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>{tab.label}</button>
+            ))}
           </div>
+
           {activeTab === 'history' && (
             <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-slate-900">{t('sessionHistory')}</h3>
-                <Button onClick={() => setIsSessionModalOpen(true)}>
-                  <Plus className="mr-2 h-4 w-4" /> {t('newSession')}
-                </Button>
-              </div>
-              {clientSessions.length > 0 ? (
-                clientSessions.map((session) => (
-                  <Card key={session.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex items-start gap-3">
-                      <div className={`mt-1 p-2 rounded-full ${session.completed ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'}`}>
-                        {session.completed ? <CheckCircle2 className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
-                      </div>
-                      <div>
-                        <div className="font-semibold text-slate-900">{formatLocalized(parseISO(session.date), 'EEEE, MMMM d, yyyy')}</div>
-                        <div className="text-sm text-slate-500 mt-0.5">
-                          {formatLocalized(parseISO(session.date), 'h:mm a')} • {session.durationMinutes} min • {session.type}
-                        </div>
-                        {session.notes && <div className="mt-2 text-sm bg-slate-50 p-2 rounded text-slate-600">"{session.notes}"</div>}
-                      </div>
+              <div className="flex justify-between items-center"><h3 className="text-lg font-semibold text-slate-900">{t('sessionHistory')}</h3><Button onClick={() => setIsSessionModalOpen(true)}><Plus className="mr-2 h-4 w-4" /> {t('newSession')}</Button></div>
+              {clientSessions.length > 0 ? clientSessions.map((session) => (
+                <Card key={session.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-start gap-3">
+                    <div className={`mt-1 p-2 rounded-full ${session.completed ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'}`}>{session.completed ? <CheckCircle2 className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}</div>
+                    <div>
+                      <div className="font-semibold text-slate-900">{formatLocalized(parseISO(session.date), 'EEEE, MMMM d, yyyy')}</div>
+                      <div className="text-sm text-slate-500 mt-0.5">{formatLocalized(parseISO(session.date), 'h:mm a')} • {session.durationMinutes} min • {session.type}</div>
+                      {session.notes && <div className="mt-2 text-sm bg-slate-50 p-2 rounded text-slate-600">"{session.notes}"</div>}
                     </div>
-                  </Card>
-                ))
-              ) : (
-                <div className="text-center py-12 bg-slate-50 rounded-lg border border-dashed border-slate-200">
-                  <History className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-                  <h3 className="text-lg font-medium text-slate-900">{t('noSessions')}</h3>
-                  <Button className="mt-3" onClick={() => setIsSessionModalOpen(true)}>{t('logFirstSession')}</Button>
-                </div>
+                  </div>
+                </Card>
+              )) : (
+                <div className="text-center py-12 bg-slate-50 rounded-lg border border-dashed border-slate-200"><History className="h-12 w-12 text-slate-300 mx-auto mb-3" /><h3 className="text-lg font-medium text-slate-900">{t('noSessions')}</h3><Button className="mt-3" onClick={() => setIsSessionModalOpen(true)}>{t('logFirstSession')}</Button></div>
               )}
             </div>
           )}
+
           {activeTab === 'evaluations' && (
             <div className="space-y-6">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-slate-900">{t('progressTracking')}</h3>
-                <Button onClick={() => setIsEvalModalOpen(true)}>
-                  <Plus className="mr-2 h-4 w-4" /> {t('addEvaluation')}
-                </Button>
-              </div>
-              {clientEvaluations.length > 0 ? (
-                <>
-                  {' '}
-                  {clientEvaluations.length > 1 && (
-                    <Card className="p-6">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
-                        <h4 className="text-sm font-medium text-slate-500 whitespace-nowrap">
-                          {chartableMetrics[selectedMetric].label} Progression ({chartableMetrics[selectedMetric].unit})
-                        </h4>
-                        <div className="w-full sm:w-56">
-                          <Label htmlFor="metric-select" className="sr-only">
-                            {t('selectMetric')}
-                          </Label>
-                          <Select id="metric-select" value={selectedMetric} onChange={(e) => setSelectedMetric(e.target.value)}>
-                            {Object.entries(chartableMetrics).map(([key, { label, unit }]) => (
-                              <option key={key} value={key}>
-                                {label} ({unit})
-                              </option>
-                            ))}
-                          </Select>
-                        </div>
-                      </div>
-                      <div className="h-[250px] w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                          {chartData.length > 1 ? (
-                            <LineChart data={chartData}>
-                              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                              <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} dy={10} />
-                              <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} domain={['auto', 'auto']} />
-                              <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                              <Line type="monotone" dataKey="value" stroke="#4f46e5" strokeWidth={3} dot={{ r: 4, fill: '#4f46e5', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} />
-                            </LineChart>
-                          ) : (
-                            <div className="flex items-center justify-center h-full text-slate-500">{t('notEnoughData')}</div>
-                          )}
-                        </ResponsiveContainer>
-                      </div>
-                    </Card>
-                  )}
-                  <div className="space-y-4">
-                    {clientEvaluations.map((ev) => (
-                      <EvaluationCard key={ev.id} evaluation={ev} />
-                    ))}
-                  </div>
-                </>
-              ) : (
-                <div className="text-center py-12 bg-slate-50 rounded-lg border border-dashed border-slate-200">
-                  <Activity className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-                  <h3 className="text-lg font-medium text-slate-900">{t('noEvaluations')}</h3>
-                  <Button onClick={() => setIsEvalModalOpen(true)}>{t('addFirstEvaluation')}</Button>
-                </div>
+              <div className="flex justify-between items-center"><h3 className="text-lg font-semibold text-slate-900">{t('progressTracking')}</h3><Button onClick={() => setIsEvalModalOpen(true)}><Plus className="mr-2 h-4 w-4" /> {t('addEvaluation')}</Button></div>
+              {clientEvaluations.length > 0 ? (<>{clientEvaluations.length > 1 && <ProgressChart chartData={chartData} selectedMetric={selectedMetric} onMetricChange={setSelectedMetric} chartableMetrics={chartableMetrics} />}<div className="space-y-4">{clientEvaluations.map((ev) => <EvaluationCard key={ev.id} evaluation={ev} />)}</div></>) : (
+                <div className="text-center py-12 bg-slate-50 rounded-lg border border-dashed border-slate-200"><Activity className="h-12 w-12 text-slate-300 mx-auto mb-3" /><h3 className="text-lg font-medium text-slate-900">{t('noEvaluations')}</h3><Button onClick={() => setIsEvalModalOpen(true)}>{t('addFirstEvaluation')}</Button></div>
               )}
             </div>
           )}
+
           {activeTab === 'workouts' && (
             <div className="space-y-8">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-slate-900">{t('workoutPlans')}</h3>
-                <Button
-                  onClick={() => {
-                    setEditingWorkout(null)
-                    setIsWorkoutModalOpen(true)
-                  }}
-                >
-                  <Plus className="mr-2 h-4 w-4" /> {t('createWorkout')}
-                </Button>
-              </div>
-              <div className="space-y-4">
-                <h4 className="text-sm font-medium text-slate-500 uppercase tracking-wider flex items-center">
-                  <Dumbbell className="h-4 w-4 mr-2" /> {t('activePrescriptions')}
-                </h4>
-                {activePlans.length > 0 ? (
-                  activePlans.map((workout) => (
-                    <WorkoutCard key={workout.id} workout={workout} onDelete={handleDeleteWorkout} onArchive={handleArchiveWorkout} onEdit={handleEditWorkout} isActive={true} />
-                  ))
-                ) : (
-                  <div className="p-8 bg-slate-50 rounded-lg border border-dashed border-slate-200 text-center text-slate-500">{t('noActivePrescriptions')}</div>
-                )}
-              </div>
-              <div className="space-y-4 pt-4 border-t border-slate-200">
-                <h4 className="text-sm font-medium text-slate-500 uppercase tracking-wider flex items-center">
-                  <History className="h-4 w-4 mr-2" /> {t('planHistory')}
-                </h4>
-                {archivedPlans.length > 0 ? (
-                  archivedPlans.map((workout) => (
-                    <WorkoutCard key={workout.id} workout={workout} onDelete={handleDeleteWorkout} onActivate={handleActivateWorkout} onEdit={handleEditWorkout} isActive={false} />
-                  ))
-                ) : (
-                  <div className="p-4 text-center text-sm text-slate-400 italic">{t('noArchivedPlans')}</div>
-                )}
-              </div>
+              <div className="flex justify-between items-center"><h3 className="text-lg font-semibold text-slate-900">{t('workoutPlans')}</h3><Button onClick={() => { setEditingWorkout(null); setIsWorkoutModalOpen(true) }}><Plus className="mr-2 h-4 w-4" /> {t('createWorkout')}</Button></div>
+              <div className="space-y-4"><h4 className="text-sm font-medium text-slate-500 uppercase tracking-wider flex items-center"><Dumbbell className="h-4 w-4 mr-2" /> {t('activePrescriptions')}</h4>{activePlans.length > 0 ? activePlans.map((w) => <WorkoutCard key={w.id} workout={w} onDelete={(id) => { if (window.confirm(tw('deleteWorkoutConfirm'))) deleteWorkout(id) }} onArchive={(id) => updateWorkout(id, { status: 'Archived' })} onEdit={(w) => { setEditingWorkout(w); setIsWorkoutModalOpen(true) }} isActive />) : <div className="p-8 bg-slate-50 rounded-lg border border-dashed border-slate-200 text-center text-slate-500">{t('noActivePrescriptions')}</div>}</div>
+              <div className="space-y-4 pt-4 border-t border-slate-200"><h4 className="text-sm font-medium text-slate-500 uppercase tracking-wider flex items-center"><History className="h-4 w-4 mr-2" /> {t('planHistory')}</h4>{archivedPlans.length > 0 ? archivedPlans.map((w) => <WorkoutCard key={w.id} workout={w} onDelete={(id) => { if (window.confirm(tw('deleteWorkoutConfirm'))) deleteWorkout(id) }} onActivate={(id) => updateWorkout(id, { status: 'Active' })} onEdit={(w) => { setEditingWorkout(w); setIsWorkoutModalOpen(true) }} isActive={false} />) : <div className="p-4 text-center text-sm text-slate-400 italic">{t('noArchivedPlans')}</div>}</div>
             </div>
           )}
         </div>
       </div>
+
       {isEvalModalOpen && <EvaluationModal clientId={client.id} onClose={() => setIsEvalModalOpen(false)} onSave={addEvaluation} />}
-      {isSessionModalOpen && <SessionModal clientId={client.id} onClose={() => setIsSessionModalOpen(false)} onSave={addSession} />}
+      {isSessionModalOpen && <SessionLogModal clientId={client.id} onClose={() => setIsSessionModalOpen(false)} onSave={addSession} />}
       {isWorkoutModalOpen && <WorkoutEditorModal client={client} initialData={editingWorkout} isOpen={isWorkoutModalOpen} onClose={() => setIsWorkoutModalOpen(false)} onSave={handleSaveWorkout} />}
     </div>
   )
 }
 
-const EvaluationCard: React.FC<EvaluationCardProps> = ({ evaluation }) => {
-  const { t } = useTranslation('clients')
-  const [expanded, setExpanded] = useState(false)
-  const [isEditEvalModalOpen, setIsEditEvalModalOpen] = useState(false)
-  const [isRemoveEvalModalOpen, setIsRemoveEvalModalOpen] = useState(false)
-  const { updateEvaluation, deleteEvaluation } = useStore()
-
-  const editEvaluation = (evaluationId: string, data: Partial<Evaluation>) => {
-    updateEvaluation(evaluationId, data)
-    setIsEditEvalModalOpen(false)
-  }
-
-  const removeEvaluation = (evaluationId: string) => {
-    deleteEvaluation(evaluationId)
-    setIsRemoveEvalModalOpen(false)
-  }
-
-  return (
-    <>
-      <Card className="overflow-hidden">
-        <div className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer hover:bg-slate-50" onClick={() => setExpanded(!expanded)}>
-          <div className="flex items-center gap-4">
-            <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg">
-              <Activity className="h-5 w-5" />
-            </div>
-            <div>
-              <div className="font-bold text-slate-900">
-                {t('evaluation')} - {formatLocalized(parseISO(evaluation.date), 'MMMM d, yyyy')}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setIsEditEvalModalOpen(true)
-                  }}
-                  className="text-slate-400 hover:text-indigo-600"
-                >
-                  <Edit2 className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setIsRemoveEvalModalOpen(true)
-                  }}
-                  className="text-slate-400 hover:text-indigo-600"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </div>
-              <div className="text-xs text-slate-500">{evaluation.notes}</div>
-            </div>
-          </div>
-          <div className="flex items-center gap-4 text-sm shrink-0">
-            <div className="text-center">
-              <div className="font-bold text-slate-800">{evaluation.weight}kg</div>
-              <div className="text-xs text-slate-500">Weight</div>
-            </div>
-            <div className="text-center">
-              <div className="font-bold text-slate-800">{evaluation.bodyFatPercentage || '-'}%</div>
-              <div className="text-xs text-slate-500">Body Fat</div>
-            </div>
-            <button className="p-2 text-slate-400 hover:text-indigo-600">
-              <ChevronDown className={`h-5 w-5 transition-transform ${expanded ? 'rotate-180' : ''}`} />
-            </button>
-          </div>
-        </div>
-        {expanded && (
-          <div className="p-6 bg-slate-50/50 border-t border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 animate-in fade-in">
-            <div>
-              <h4 className="font-semibold text-slate-800 mb-3 flex items-center">
-                <Ruler className="h-4 w-4 mr-2 text-slate-500" />
-                Perimeters (cm)
-              </h4>
-              <dl className="text-sm space-y-2">
-                {Object.entries(evaluation.perimeters || {}).map(([key, value]) => (
-                  <div key={key} className="flex justify-between border-b border-slate-200 pb-1">
-                    <dt className="text-slate-500 capitalize">{key.replace(/([A-Z])/g, ' $1')}</dt>
-                    <dd className="font-medium text-slate-900">{value}</dd>
-                  </div>
-                ))}
-              </dl>
-            </div>
-            <div>
-              <h4 className="font-semibold text-slate-800 mb-3 flex items-center">
-                <Droplets className="h-4 w-4 mr-2 text-slate-500" />
-                Skinfolds (mm)
-              </h4>
-              <dl className="text-sm space-y-2">
-                {Object.entries(evaluation.skinfolds || {}).map(([key, value]) => (
-                  <div key={key} className="flex justify-between border-b border-slate-200 pb-1">
-                    <dt className="text-slate-500 capitalize">{key.replace(/([A-Z])/g, ' $1')}</dt>
-                    <dd className="font-medium text-slate-900">{value}</dd>
-                  </div>
-                ))}
-              </dl>
-            </div>
-          </div>
-        )}
-      </Card>
-      {isEditEvalModalOpen && (
-        <EvaluationModal clientId={evaluation.clientId} initialData={evaluation} onClose={() => setIsEditEvalModalOpen(false)} onSave={(data) => editEvaluation(evaluation.id, data)} />
-      )}
-      {isRemoveEvalModalOpen && (
-        <ConfirmationModal
-          title={t('deleteEvaluation')}
-          message={t('deleteEvaluationConfirm')}
-          onConfirm={() => removeEvaluation(evaluation.id)}
-          onCancel={() => setIsRemoveEvalModalOpen(false)}
-        />
-      )}
-    </>
-  )
-}
-
-const WorkoutCard: React.FC<{
-  workout: WorkoutPlan
-  onDelete: (id: string) => void
-  onArchive?: (id: string) => void
-  onActivate?: (id: string) => void
-  onEdit: (w: WorkoutPlan) => void
-  isActive: boolean
-}> = ({ workout, onDelete, onArchive, onActivate, onEdit, isActive }) => {
-  const { t } = useTranslation('workouts')
-  const [expanded, setExpanded] = useState(false)
-  return (
-    <Card className={`overflow-hidden transition-all ${!isActive ? 'bg-slate-50 opacity-75 hover:opacity-100' : 'bg-white'}`}>
-      <div className="p-5">
-        <div className="flex justify-between items-start">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <h4 className="font-bold text-slate-900 text-lg">{workout.title}</h4>
-              {!isActive && (
-                <Badge variant="default" className="text-xs">
-                  {t('archived')}
-                </Badge>
-              )}
-            </div>
-            <p className="text-slate-500 text-sm">{workout.description}</p>
-            <div className="flex gap-2 mt-2">
-              {workout.tags.map((tag) => (
-                <span key={tag} className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded border border-slate-200">
-                  #{tag}
-                </span>
-              ))}
-              <span className="text-xs text-slate-400 flex items-center ml-2">
-                <Calendar className="h-3 w-3 mr-1" /> {formatLocalized(parseISO(workout.createdAt), 'MMM d, yyyy')}
-              </span>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" className="h-8 w-8 p-0 text-slate-400 hover:text-indigo-600" title={t('editPlan')} onClick={() => onEdit(workout)}>
-              <Edit2 className="h-4 w-4" />
-            </Button>
-            {isActive && onArchive && (
-              <Button variant="ghost" className="h-8 w-8 p-0 text-slate-400 hover:text-amber-600" title={t('archivePlan')} onClick={() => onArchive(workout.id)}>
-                <Archive className="h-4 w-4" />
-              </Button>
-            )}
-            {!isActive && onActivate && (
-              <Button variant="ghost" className="h-8 w-8 p-0 text-slate-400 hover:text-green-600" title={t('reactivatePlan')} onClick={() => onActivate(workout.id)}>
-                <CheckCircle2 className="h-4 w-4" />
-              </Button>
-            )}
-            <Button variant="ghost" className="h-8 w-8 p-0 text-slate-400 hover:text-red-600" title={t('deletePlan')} onClick={() => onDelete(workout.id)}>
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-        <button onClick={() => setExpanded(!expanded)} className="w-full mt-4 flex items-center justify-center py-1.5 text-xs font-medium text-indigo-600 hover:bg-indigo-50 rounded transition-colors">
-          {expanded ? (
-            <>
-              {t('hideItems')} <ChevronUp className="ml-1 h-3 w-3" />
-            </>
-          ) : (
-            <>
-              {t('viewItems', { count: workout.exercises.length })} <ChevronDown className="ml-1 h-3 w-3" />
-            </>
-          )}
-        </button>
-      </div>
-      {expanded && (
-        <div className="bg-slate-50/50 border-t border-slate-100 px-5 py-3 text-sm">
-          <ul className="space-y-3">
-            {workout.exercises.map((ex, idx) => (
-              <li
-                key={idx}
-                className={`flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-100 last:border-0 last:pb-0 ${ex.isWarmup ? 'bg-orange-50/50 -mx-2 px-2 rounded' : ''}`}
-              >
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    {ex.isWarmup && <Flame className="h-3 w-3 text-orange-500 flex-shrink-0" />}
-                    <span className={`font-medium ${ex.isWarmup ? 'text-orange-800' : 'text-slate-700'}`}>{ex.name}</span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4 text-slate-500 text-xs sm:text-sm">
-                  <span className="bg-white px-2 py-0.5 rounded border border-slate-200 shadow-sm whitespace-nowrap">
-                    {ex.sets} x {ex.reps}
-                  </span>
-                  {ex.notes && (
-                    <span className="text-slate-400 italic max-w-[150px] truncate" title={ex.notes}>
-                      {ex.notes}
-                    </span>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </Card>
-  )
-}
-
-const SessionModal = ({
-  clientId,
-  onClose,
-  onSave,
-}: {
-  clientId: string
-  onClose: () => void
-  onSave: (s: Omit<Session, 'id' | 'completed' | 'recurrenceId'>) => Promise<void>
-}) => {
-  const { t } = useTranslation('clients')
-  const { t: ts } = useTranslation('schedule')
-  const { t: tc } = useTranslation('common')
-  const now = new Date()
-  const localDateStr = now.toISOString().slice(0, 10)
-  const localTimeStr = now.toTimeString().slice(0, 5)
-
-  const [date, setDate] = useState(localDateStr)
-  const [time, setTime] = useState(localTimeStr)
-  const [durationMinutes, setDurationMinutes] = useState(60)
-  const [type, setType] = useState<'In-Person' | 'Online'>('In-Person')
-  const [category, setCategory] = useState<'Workout' | 'Check-in'>('Workout')
-  const [notes, setNotes] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-    const dateISO = new Date(`${date}T${time}`).toISOString()
-    await onSave({ clientId, date: dateISO, durationMinutes, type, category, notes: notes || undefined })
-    setIsSubmitting(false)
-    onClose()
-  }
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <Card className="w-full max-w-md bg-white shadow-xl">
-        <div className="p-4 border-b border-slate-100 flex justify-between items-center">
-          <h3 className="font-bold text-slate-900">{t('logNewSession')}</h3>
-          <button onClick={onClose}>
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-        <form onSubmit={handleSubmit}>
-          <div className="p-6 space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="session-date">{ts('date')}</Label>
-                <Input id="session-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="session-time">{ts('time')}</Label>
-                <Input id="session-time" type="time" value={time} onChange={(e) => setTime(e.target.value)} required />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="session-duration">{t('durationMinutes')}</Label>
-              <Input
-                id="session-duration"
-                type="number"
-                min={1}
-                value={durationMinutes}
-                onChange={(e) => setDurationMinutes(parseInt(e.target.value, 10))}
-                required
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="session-type">{t('type')}</Label>
-                <Select id="session-type" value={type} onChange={(e) => setType(e.target.value as 'In-Person' | 'Online')}>
-                  <option value="In-Person">{t('inPerson')}</option>
-                  <option value="Online">{t('online')}</option>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="session-category">{t('category')}</Label>
-                <Select id="session-category" value={category} onChange={(e) => setCategory(e.target.value as 'Workout' | 'Check-in')}>
-                  <option value="Workout">{t('workout')}</option>
-                  <option value="Check-in">{t('checkIn')}</option>
-                </Select>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="session-notes">{t('sessionNotes')}</Label>
-              <Input id="session-notes" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={t('sessionNotesPlaceholder')} />
-            </div>
-          </div>
-          <div className="flex justify-end space-x-3 p-4 border-t border-slate-100 bg-slate-50">
-            <Button type="button" variant="outline" onClick={onClose}>
-              {tc('cancel')}
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? tc('saving') : ts('saveSession')}
-            </Button>
-          </div>
-        </form>
-      </Card>
-    </div>
-  )
-}
-
-const EvaluationModal = ({ clientId, onClose, onSave, initialData }: { clientId: string; onClose: () => void; onSave: (e: Omit<Evaluation, 'id'>) => void; initialData?: Evaluation | null }) => {
-  const { t } = useTranslation('clients')
-  const { t: tc } = useTranslation('common')
-  const [data, setData] = useState(initialData || initialEvalState)
-  const [tab, setTab] = useState('vitals')
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    const newEval: Omit<Evaluation, 'id'> = { ...data, clientId, date: initialData?.date || new Date().toISOString() }
-    onSave(newEval)
-    onClose()
-  }
-  const handleNumericChange = (key: keyof Evaluation, value: string) => setData((d) => ({ ...d, [key]: value === '' ? undefined : parseFloat(value) }))
-  const handleNestedChange = (category: 'perimeters' | 'skinfolds', key: string, value: string) =>
-    setData((d) => ({ ...d, [category]: { ...d[category], [key]: value === '' ? undefined : parseFloat(value) } }))
-
-  const perimeterFields: (keyof Perimeters)[] = ['relaxedArm', 'flexedArm', 'forearm', 'chest', 'waist', 'abdomen', 'hip', 'thigh', 'calf']
-  const skinfoldFields: (keyof Skinfolds)[] = ['triceps', 'biceps', 'subscapular', 'pectoral', 'suprailiac', 'axillary', 'abdominal', 'thigh', 'calf', 'supraSpinal']
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <Card className="w-full max-w-2xl bg-white shadow-xl max-h-[90vh] flex flex-col">
-        <div className="p-4 border-b border-slate-100 flex justify-between items-center">
-          <h3 className="font-bold text-slate-900">{t('addEvaluation')}</h3>
-          <button onClick={onClose}>
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-        <div className="border-b border-slate-200 px-4 flex items-center gap-4">
-          <button onClick={() => setTab('vitals')} className={`py-3 text-sm font-medium ${tab === 'vitals' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-500'}`}>
-            Vitals
-          </button>
-          <button onClick={() => setTab('perimeters')} className={`py-3 text-sm font-medium ${tab === 'perimeters' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-500'}`}>
-            Perimeters
-          </button>
-          <button onClick={() => setTab('skinfolds')} className={`py-3 text-sm font-medium ${tab === 'skinfolds' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-500'}`}>
-            Skinfolds
-          </button>
-        </div>
-        <form onSubmit={handleSubmit} className="overflow-y-auto">
-          <div className="p-6 space-y-4">
-            {tab === 'vitals' && (
-              <>
-                {' '}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Weight (kg)</Label>
-                    <Input type="number" step="0.1" value={data.weight || ''} onChange={(e) => handleNumericChange('weight', e.target.value)} required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Height (m)</Label>
-                    <Input type="number" step="0.01" value={data.height || ''} onChange={(e) => handleNumericChange('height', e.target.value)} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Body Fat (%)</Label>
-                    <Input type="number" step="0.1" value={data.bodyFatPercentage || ''} onChange={(e) => handleNumericChange('bodyFatPercentage', e.target.value)} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Lean Mass (kg)</Label>
-                    <Input type="number" step="0.1" value={data.leanMass || ''} onChange={(e) => handleNumericChange('leanMass', e.target.value)} />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label>Notes</Label>
-                  <Input value={data.notes || ''} onChange={(e) => setData((d) => ({ ...d, notes: e.target.value }))} />
-                </div>
-              </>
-            )}{' '}
-            {tab === 'perimeters' && (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {perimeterFields.map((key) => (
-                  <div key={key} className="space-y-2">
-                    <Label className="capitalize text-slate-600">{key.replace(/([A-Z])/g, ' $1')}</Label>
-                    <Input type="number" step="0.1" value={data.perimeters?.[key] || ''} onChange={(e) => handleNestedChange('perimeters', key, e.target.value)} />
-                  </div>
-                ))}
-              </div>
-            )}{' '}
-            {tab === 'skinfolds' && (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {skinfoldFields.map((key) => (
-                  <div key={key} className="space-y-2">
-                    <Label className="capitalize text-slate-600">{key.replace(/([A-Z])/g, ' $1')}</Label>
-                    <Input type="number" step="0.1" value={data.skinfolds?.[key] || ''} onChange={(e) => handleNestedChange('skinfolds', key, e.target.value)} />
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-          <div className="flex justify-end space-x-3 p-4 border-t border-slate-100 bg-slate-50">
-            <Button type="button" variant="outline" onClick={onClose}>
-              {tc('cancel')}
-            </Button>
-            <Button type="submit">{tc('save')}</Button>
-          </div>
-        </form>
-      </Card>
-    </div>
-  )
-}
-
-export const ConfirmationModal = ({ title, message, onConfirm, onCancel }: { title: string; message: string; onConfirm: () => void; onCancel: () => void }) => {
-  const { t: tc } = useTranslation('common')
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <Card className="w-full max-w-md bg-white shadow-xl">
-        <div className="p-6">
-          <h3 className="text-lg font-bold text-slate-900 mb-4">{title}</h3>
-          <p className="text-sm text-slate-600 mb-6">{message}</p>
-          <div className="flex justify-end space-x-3">
-            <Button variant="outline" onClick={onCancel}>
-              {tc('cancel')}
-            </Button>
-            <Button variant="danger" onClick={onConfirm}>
-              {tc('confirm')}
-            </Button>
-          </div>
-        </div>
-      </Card>
-    </div>
-  )
-}
+// Re-export for backward compatibility
+export { ConfirmationModal } from '../components/organisms/client-details/ConfirmationModal'

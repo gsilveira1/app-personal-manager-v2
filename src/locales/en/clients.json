@@ -80,5 +80,40 @@
   "frequencyMonthly": "Monthly",
   "namePlaceholder": "John Doe",
   "emailPlaceholder": "john@example.com",
-  "phonePlaceholder": "+1 555 0000"
+  "phonePlaceholder": "+1 555 0000",
+  "weight": "Weight",
+  "bodyFat": "Body Fat",
+  "perimetersCm": "Perimeters (cm)",
+  "skinfoldsMm": "Skinfolds (mm)",
+  "vitals": "Vitals",
+  "perimeters": "Perimeters",
+  "skinfolds": "Skinfolds",
+  "weightKg": "Weight (kg)",
+  "heightM": "Height (m)",
+  "bodyFatPercent": "Body Fat (%)",
+  "leanMassKg": "Lean Mass (kg)",
+  "evalNotes": "Notes",
+  "perimeterLabel": {
+    "relaxedArm": "Relaxed Arm",
+    "flexedArm": "Flexed Arm",
+    "forearm": "Forearm",
+    "chest": "Chest",
+    "waist": "Waist",
+    "abdomen": "Abdomen",
+    "hip": "Hip",
+    "thigh": "Thigh",
+    "calf": "Calf"
+  },
+  "skinfoldLabel": {
+    "triceps": "Triceps",
+    "biceps": "Biceps",
+    "subscapular": "Subscapular",
+    "pectoral": "Pectoral",
+    "suprailiac": "Suprailiac",
+    "axillary": "Mid-Axillary",
+    "abdominal": "Abdominal",
+    "thigh": "Thigh",
+    "calf": "Calf",
+    "supraSpinal": "Supraspinal"
+  }
 }

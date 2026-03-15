@@ -80,5 +80,40 @@
   "frequencyMonthly": "Mensal",
   "namePlaceholder": "João Silva",
   "emailPlaceholder": "joao@exemplo.com",
-  "phonePlaceholder": "+55 53 9999-0000"
+  "phonePlaceholder": "+55 53 9999-0000",
+  "weight": "Peso",
+  "bodyFat": "Gordura Corporal",
+  "perimetersCm": "Perímetros (cm)",
+  "skinfoldsMm": "Dobras Cutâneas (mm)",
+  "vitals": "Dados Vitais",
+  "perimeters": "Perímetros",
+  "skinfolds": "Dobras Cutâneas",
+  "weightKg": "Peso (kg)",
+  "heightM": "Altura (m)",
+  "bodyFatPercent": "Gordura Corporal (%)",
+  "leanMassKg": "Massa Magra (kg)",
+  "evalNotes": "Observações",
+  "perimeterLabel": {
+    "relaxedArm": "Braço Relaxado",
+    "flexedArm": "Braço Flexionado",
+    "forearm": "Antebraço",
+    "chest": "Tórax",
+    "waist": "Cintura",
+    "abdomen": "Abdômen",
+    "hip": "Quadril",
+    "thigh": "Coxa",
+    "calf": "Panturrilha"
+  },
+  "skinfoldLabel": {
+    "triceps": "Tríceps",
+    "biceps": "Bíceps",
+    "subscapular": "Subescapular",
+    "pectoral": "Peitoral",
+    "suprailiac": "Suprailíaca",
+    "axillary": "Axilar Média",
+    "abdominal": "Abdominal",
+    "thigh": "Coxa",
+    "calf": "Panturrilha",
+    "supraSpinal": "Supra-espinal"
+  }
 }

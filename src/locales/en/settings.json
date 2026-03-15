@@ -45,5 +45,6 @@
   "noFeaturesCreated": "No features created yet.",
   "plansUsingFeature": "plans using",
   "active": "Active",
-  "inactive": "Inactive"
+  "inactive": "Inactive",
+  "perWeek": "/wk"
 }

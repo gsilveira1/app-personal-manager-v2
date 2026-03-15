@@ -80,5 +80,40 @@
   "frequencyMonthly": "Mensual",
   "namePlaceholder": "Juan Pérez",
   "emailPlaceholder": "juan@ejemplo.com",
-  "phonePlaceholder": "+34 600 000 000"
+  "phonePlaceholder": "+34 600 000 000",
+  "weight": "Peso",
+  "bodyFat": "Grasa Corporal",
+  "perimetersCm": "Perímetros (cm)",
+  "skinfoldsMm": "Pliegues Cutáneos (mm)",
+  "vitals": "Datos Vitales",
+  "perimeters": "Perímetros",
+  "skinfolds": "Pliegues Cutáneos",
+  "weightKg": "Peso (kg)",
+  "heightM": "Altura (m)",
+  "bodyFatPercent": "Grasa Corporal (%)",
+  "leanMassKg": "Masa Magra (kg)",
+  "evalNotes": "Notas",
+  "perimeterLabel": {
+    "relaxedArm": "Brazo Relajado",
+    "flexedArm": "Brazo Flexionado",
+    "forearm": "Antebrazo",
+    "chest": "Tórax",
+    "waist": "Cintura",
+    "abdomen": "Abdomen",
+    "hip": "Cadera",
+    "thigh": "Muslo",
+    "calf": "Pantorrilla"
+  },
+  "skinfoldLabel": {
+    "triceps": "Tríceps",
+    "biceps": "Bíceps",
+    "subscapular": "Subescapular",
+    "pectoral": "Pectoral",
+    "suprailiac": "Suprailíaca",
+    "axillary": "Axilar Media",
+    "abdominal": "Abdominal",
+    "thigh": "Muslo",
+    "calf": "Pantorrilla",
+    "supraSpinal": "Supraespinal"
+  }
 }

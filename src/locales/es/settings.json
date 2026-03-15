@@ -45,5 +45,6 @@
   "noFeaturesCreated": "No hay funcionalidades creadas aún.",
   "plansUsingFeature": "planes usan",
   "active": "Activo",
-  "inactive": "Inactivo"
+  "inactive": "Inactivo",
+  "perWeek": "/sem"
 }

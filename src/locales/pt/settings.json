@@ -45,5 +45,6 @@
   "noFeaturesCreated": "Nenhuma funcionalidade cadastrada ainda.",
   "plansUsingFeature": "planos usam",
   "active": "Ativo",
-  "inactive": "Inativo"
+  "inactive": "Inativo",
+  "perWeek": "/sem"
 }

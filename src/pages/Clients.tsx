@@ -1,27 +1,21 @@
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router'
-import { Search, Plus, Phone, Mail, Globe, MapPin, Eye, Wallet, ChevronDown, HeartPulse, User } from 'lucide-react'
+import { useState } from 'react'
+import { Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { useStore } from '../store/store'
-import { ClientStatus } from '../types'
-import type { Client, ClientType, CheckInFrequency, Plan, MedicalHistory } from '../types'
-import { Card, Button, Input, Badge, Select, Label } from '../components/ui'
-
-const formatPlanLabel = (plan: Plan, perMonth: string) => {
-  const sessionsPerMonth = plan.sessionsPerWeek * 4
-  const duration = plan.durationMinutes ? ` ${plan.durationMinutes}min` : ''
-  return `${plan.name} — ${sessionsPerMonth}x${perMonth}${duration} · R$ ${plan.price.toFixed(2)}`
-}
+import { Button } from '../components/atoms'
+import { ClientsTable } from '../components/organisms/clients/ClientsTable'
+import { AddClientModal } from '../components/organisms/clients/AddClientModal'
 
 export const Clients = () => {
   const { t } = useTranslation('clients')
   const { clients, plans, addClient } = useStore()
   const [searchTerm, setSearchTerm] = useState('')
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const navigate = useNavigate()
 
-  const filteredClients = clients.filter((c) => c.name.toLowerCase().includes(searchTerm.toLowerCase()) || c.email.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredClients = clients.filter(
+    (c) => c.name.toLowerCase().includes(searchTerm.toLowerCase()) || c.email.toLowerCase().includes(searchTerm.toLowerCase())
+  )
 
   return (
     <div className="space-y-6">
@@ -33,277 +27,9 @@ export const Clients = () => {
         </Button>
       </div>
 
-      <Card className="overflow-hidden">
-        <div className="p-4 border-b border-slate-200 bg-slate-50/50 flex items-center space-x-4">
-          <div className="relative flex-1 max-w-sm">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-            <Input placeholder={t('searchPlaceholder')} className="pl-9" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-          </div>
-          <div className="flex-1" />
-        </div>
-
-        <div className="w-full overflow-x-auto">
-          <table className="w-full text-sm text-left whitespace-nowrap">
-            <thead className="bg-slate-50 text-slate-500 font-medium border-b border-slate-200">
-              <tr>
-                <th className="px-6 py-4">{t('name')}</th>
-                <th className="px-6 py-4">{t('status')}</th>
-                <th className="px-6 py-4">{t('plan')}</th>
-                <th className="px-6 py-4">{t('type')}</th>
-                <th className="px-6 py-4">{t('email')}</th>
-                <th className="px-6 py-4 text-right">{t('actions', { ns: 'common' })}</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200">
-              {filteredClients.map((client) => {
-                const clientPlan = plans.find((p) => p.id === client.planId)
-                return (
-                  <tr key={client.id} className="hover:bg-slate-50 transition-colors cursor-pointer" onClick={() => navigate(`/clients/${client.id}`)}>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center space-x-3">
-                        {client.avatar ? (
-                          <img src={client.avatar} alt={client.name} className="h-10 w-10 rounded-full bg-slate-200 object-cover" />
-                        ) : (
-                          <div className="h-10 w-10 rounded-full bg-slate-200 object-cover">
-                            <User className="h-10 w-10 text-slate-400" />
-                        </div>)}
-                        <div>
-                          <div className="font-medium text-slate-900">{client.name}</div>
-                          <div className="text-slate-500 text-xs">ID: #{client.id}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <Badge variant={client.status === ClientStatus.Active ? 'success' : 'default'}>{t(`status.${client.status.toLowerCase()}`, { ns: 'common' })}</Badge>
-                    </td>
-                    <td className="px-6 py-4">
-                      {clientPlan ? (
-                        <div className="flex items-center gap-1.5">
-                          <Wallet className="h-3 w-3 text-slate-400" />
-                          <span className="font-medium text-slate-700">{clientPlan.name}</span>
-                        </div>
-                      ) : (
-                        <span className="text-slate-400 italic">{t('noPlan')}</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center text-slate-600">
-                        {client.type === 'Online' ? <Globe className="h-3 w-3 mr-1.5 text-indigo-500" /> : <MapPin className="h-3 w-3 mr-1.5 text-emerald-500" />}
-                        {client.type === 'Online' ? t('online') : t('inPerson')}
-                      </div>
-                      {client.type === 'Online' && client.checkInFrequency && (
-                        <div className="text-xs text-slate-400 mt-1">
-                          {t('checkInsLabel', { frequency: t(client.checkInFrequency === 'Weekly' ? 'frequencyWeekly' : client.checkInFrequency === 'Bi-weekly' ? 'frequencyBiweekly' : 'frequencyMonthly') })}
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="space-y-1">
-                        <div className="flex items-center text-slate-600">
-                          <Mail className="h-3 w-3 mr-2" />
-                          {client.email}
-                        </div>
-                        <div className="flex items-center text-slate-600">
-                          <Phone className="h-3 w-3 mr-2" />
-                          {client.phone}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <Button
-                        variant="ghost"
-                        className="h-8 w-8 p-0"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          navigate(`/clients/${client.id}`)
-                        }}
-                      >
-                        <Eye className="h-4 w-4 text-slate-400 hover:text-indigo-600" />
-                      </Button>
-                    </td>
-                  </tr>
-                )
-              })}
-              {filteredClients.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
-                    {t('noClients')}
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </Card>
+      <ClientsTable clients={filteredClients} plans={plans} searchTerm={searchTerm} onSearchChange={setSearchTerm} />
 
       {isModalOpen && <AddClientModal onClose={() => setIsModalOpen(false)} onSave={addClient} />}
-    </div>
-  )
-}
-
-const AddClientModal = ({ onClose, onSave }: { onClose: () => void; onSave: (clientData: Omit<Client, 'id' | 'avatar'>, customPlanData?: Omit<Plan, 'id'>) => void }) => {
-  const { t } = useTranslation('clients')
-  const { t: tco } = useTranslation('common')
-  const { plans } = useStore()
-  const [clientType, setClientType] = useState<ClientType>('In-Person')
-  const [isCustomPlan, setIsCustomPlan] = useState(false)
-  const [showMedical, setShowMedical] = useState(false)
-
-  const [customPlan, setCustomPlan] = useState<Omit<Plan, 'id'>>({ type: 'PRESENCIAL', name: '', sessionsPerWeek: 2, durationMinutes: 60, price: 400 })
-
-  const handleCustomPlanChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setCustomPlan((prev) => ({ ...prev, [name]: name === 'name' ? value : Number(value) }))
-  }
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const formData = new FormData(e.currentTarget)
-
-    const medicalHistory: MedicalHistory = {
-      injuries: formData.get('injuries') as string,
-      medications: formData.get('medications') as string,
-      surgeries: formData.get('surgeries') as string,
-    }
-
-    const newClient: Omit<Client, 'id' | 'avatar'> = {
-      name: formData.get('name') as string,
-      email: formData.get('email') as string,
-      phone: formData.get('phone') as string,
-      dateOfBirth: formData.get('dateOfBirth') as string,
-      status: formData.get('status') as ClientStatus,
-      type: clientType,
-      checkInFrequency: clientType === 'Online' ? (formData.get('frequency') as CheckInFrequency) : undefined,
-      goal: formData.get('goal') as string,
-      planId: isCustomPlan ? undefined : (formData.get('planId') as string),
-      medicalHistory: showMedical ? medicalHistory : undefined,
-    }
-
-    const customPlanData = isCustomPlan ? { ...customPlan, name: customPlan.name || `${newClient.name}'s Plan` } : undefined
-
-    onSave(newClient, customPlanData)
-    onClose()
-  }
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <Card className="w-full max-w-lg bg-white shadow-xl animate-in fade-in zoom-in duration-200 max-h-[90vh] flex flex-col">
-        <div className="p-6 border-b border-slate-100 flex justify-between items-center sticky top-0 bg-white">
-          <h2 className="text-lg font-bold text-slate-900">{t('addClient')}</h2>
-        </div>
-        <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
-          {/* ... basic info fields */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">{t('fullName')}</Label>
-              <Input id="name" name="name" required placeholder={t('namePlaceholder')} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="dateOfBirth">{t('dateOfBirth')}</Label>
-              <Input id="dateOfBirth" name="dateOfBirth" type="date" required />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">{t('email')}</Label>
-              <Input id="email" name="email" type="email" required placeholder={t('emailPlaceholder')} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="phone">{t('phone')}</Label>
-              <Input id="phone" name="phone" required placeholder={t('phonePlaceholder')} />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="status">{t('status')}</Label>
-              <Select id="status" name="status">
-                <option value={ClientStatus.Active}>{t(`status.${ClientStatus.Active.toLowerCase()}`, { ns: 'common' })}</option>
-                <option value={ClientStatus.Inactive}>{t(`status.${ClientStatus.Inactive.toLowerCase()}`, { ns: 'common' })}</option>
-                <option value={ClientStatus.Lead}>{t(`status.${ClientStatus.Lead.toLowerCase()}`, { ns: 'common' })}</option>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="type">{t('type')}</Label>
-              <Select id="type" name="type" value={clientType} onChange={(e) => setClientType(e.target.value as ClientType)}>
-                <option value="In-Person">{t('inPerson')}</option>
-                <option value="Online">{t('online')}</option>
-              </Select>
-            </div>
-          </div>
-          {clientType === 'Online' && (
-            <div className="space-y-2 p-3 bg-indigo-50 rounded-lg border border-indigo-100">
-              <Label htmlFor="frequency" className="text-indigo-900">
-                {t('checkInFrequency')}
-              </Label>
-              <Select id="frequency" name="frequency" className="border-indigo-200 focus:ring-indigo-500">
-                <option value="Weekly">{t('frequencyWeekly')}</option>
-                <option value="Bi-weekly">{t('frequencyBiweekly')}</option>
-                <option value="Monthly">{t('frequencyMonthly')}</option>
-              </Select>
-            </div>
-          )}
-          <div className="space-y-2">
-            <Label htmlFor="goal">{t('primaryGoal')}</Label>
-            <Input id="goal" name="goal" placeholder={t('goalPlaceholder')} />
-          </div>
-
-          <div className="space-y-2 pt-2">
-            <div className="flex justify-between items-center">
-              <Label>{t('subscriptionPlan')}</Label>
-              <Button type="button" variant="ghost" className="h-auto p-1 text-xs text-indigo-600 hover:text-indigo-800" onClick={() => setIsCustomPlan(!isCustomPlan)}>
-                {isCustomPlan ? t('selectExistingPlan') : t('createCustomPlan')}
-              </Button>
-            </div>
-            {isCustomPlan ? (
-              <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg space-y-3">
-                <Input name="name" placeholder={t('planTitle', { ns: 'workouts' })} value={customPlan.name} onChange={handleCustomPlanChange} />
-                <div className="grid grid-cols-2 gap-2">
-                  <Input name="sessionsPerWeek" type="number" min="1" max="6" value={customPlan.sessionsPerWeek} onChange={handleCustomPlanChange} />
-                  <Input name="price" type="number" step="10" value={customPlan.price} onChange={handleCustomPlanChange} />
-                </div>
-              </div>
-            ) : (
-              <Select id="planId" name="planId">
-                <option value="">{t('selectPlan')}</option>
-                {plans.map((plan) => (
-                  <option key={plan.id} value={plan.id}>
-                    {formatPlanLabel(plan, tco('perMonth'))}
-                  </option>
-                ))}
-              </Select>
-            )}
-          </div>
-
-          <div className="space-y-2 pt-2">
-            <Button type="button" variant="outline" className="w-full" onClick={() => setShowMedical(!showMedical)}>
-              <HeartPulse className="h-4 w-4 mr-2" /> {t('medicalHistoryOptional')} <ChevronDown className={`ml-auto h-4 w-4 transition-transform ${showMedical ? 'rotate-180' : ''}`} />
-            </Button>
-            {showMedical && (
-              <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg space-y-3 animate-in fade-in">
-                <div className="space-y-2">
-                  <Label>{t('injuries')}</Label>
-                  <Input name="injuries" placeholder={t('injuriesPlaceholder')} />
-                </div>
-                <div className="space-y-2">
-                  <Label>{t('medications')}</Label>
-                  <Input name="medications" placeholder={t('medicationsPlaceholder')} />
-                </div>
-                <div className="space-y-2">
-                  <Label>{t('surgeries')}</Label>
-                  <Input name="surgeries" placeholder={t('surgeriesPlaceholder')} />
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="flex justify-end space-x-3 pt-4 border-t border-slate-100">
-            <Button type="button" variant="outline" onClick={onClose}>
-              {t('cancel', { ns: 'common' })}
-            </Button>
-            <Button type="submit">{t('addClient')}</Button>
-          </div>
-        </form>
-      </Card>
     </div>
   )
 }

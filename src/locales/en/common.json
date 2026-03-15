@@ -38,5 +38,6 @@
   },
   "perMonth": "/mo",
   "durationMin": "{{minutes}} min",
-  "selectLanguage": "Select language"
+  "selectLanguage": "Select language",
+  "weekAcronym": "wk"
 }
