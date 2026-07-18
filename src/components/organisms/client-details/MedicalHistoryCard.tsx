@@ -25,7 +25,7 @@ export const MedicalHistoryCard: React.FC<MedicalHistoryCardProps> = ({
   const { t } = useTranslation('clients')
 
   return (
-    <Card className="p-6">
+    <Card data-testid="medical-history-card" className="p-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold text-slate-900 mb-4 flex items-center">
           <HeartPulse className="h-5 w-5 mr-2 text-indigo-600" />

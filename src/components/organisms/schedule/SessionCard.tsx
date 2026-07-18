@@ -10,6 +10,7 @@ const SessionCard = ({ session, client, onClick, onToggle, onDragStart, onDragEn
   const { t: tco } = useTranslation('common')
   return (
     <Card
+      data-testid={`session-card-${session.id}`}
       draggable="true"
       onDragStart={(e) => onDragStart(e, session.id)}
       onDragEnd={onDragEnd}

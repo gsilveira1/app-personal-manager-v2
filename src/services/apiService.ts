@@ -1,4 +1,4 @@
-import { type Client, type Session, type WorkoutPlan, type Evaluation, type Plan, type User, type SystemFeature } from '../types'
+import { type Client, type Session, type WorkoutPlan, type Evaluation, type Plan, type User, type SystemFeature, type WorkHoursConfig, type AvailabilityBlock, type MaterializedBlock } from '../types'
 import apiClient from '../utils/apiClient'
 
 // --- Auth API ---
@@ -222,4 +222,33 @@ export const updateLanguage = (language: string) =>
   apiClient<{ language: string }>('/settings/language', {
     method: 'PATCH',
     body: JSON.stringify({ language }),
+  })
+
+// --- Work Hours API ---
+export const getWorkHours = () => apiClient<WorkHoursConfig>('/settings/work-hours')
+
+export const updateWorkHours = (config: WorkHoursConfig) =>
+  apiClient<WorkHoursConfig>('/settings/work-hours', {
+    method: 'PUT',
+    body: JSON.stringify(config),
+  })
+
+// --- Availability Blocks API ---
+export const getAvailabilityBlocks = (start: Date, end: Date) => apiClient<MaterializedBlock[]>(`/availability-blocks?start=${start.toISOString()}&end=${end.toISOString()}`)
+
+export const createAvailabilityBlock = (data: Omit<AvailabilityBlock, 'id'>) =>
+  apiClient<AvailabilityBlock>('/availability-blocks', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
+
+export const updateAvailabilityBlock = (id: string, data: Partial<AvailabilityBlock>) =>
+  apiClient<AvailabilityBlock>(`/availability-blocks/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  })
+
+export const deleteAvailabilityBlock = (id: string) =>
+  apiClient<void>(`/availability-blocks/${id}`, {
+    method: 'DELETE',
   })

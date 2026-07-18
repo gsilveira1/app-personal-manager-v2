@@ -28,6 +28,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
   return (
     <aside
+      data-testid="sidebar"
       className={`fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 text-white transform transition-transform duration-200 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}
     >
       <div className="flex items-center justify-between p-4 h-16 border-b border-slate-700">
@@ -46,6 +47,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           <NavLink
             key={item.to}
             to={item.to}
+            data-testid={`nav-${item.to === '/' ? 'dashboard' : item.to.slice(1)}`}
             onClick={() => window.innerWidth < 768 && onClose()}
             className={({ isActive }) =>
               `flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors group ${isActive ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`

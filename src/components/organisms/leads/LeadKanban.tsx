@@ -15,9 +15,9 @@ export const LeadKanban: React.FC<LeadKanbanProps> = ({ stages, byStage, onLeadC
   const { t } = useTranslation('leads')
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+    <div data-testid="lead-kanban" className="grid grid-cols-1 md:grid-cols-3 gap-5">
       {stages.map((stage) => (
-        <div key={stage.id} className="flex flex-col gap-3">
+        <div key={stage.id} data-testid={`lead-column-${stage.id}`} className="flex flex-col gap-3">
           {/* Column header */}
           <div className="flex items-center gap-2">
             <span className={`h-2.5 w-2.5 rounded-full ${stage.dot}`} />

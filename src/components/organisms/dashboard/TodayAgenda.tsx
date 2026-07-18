@@ -21,7 +21,7 @@ export const TodayAgenda: React.FC<TodayAgendaProps> = ({ sessions, clients, onT
   const today = new Date()
 
   return (
-    <Card className="p-0">
+    <Card data-testid="today-agenda" className="p-0">
       <div className="p-6 border-b border-slate-100">
         <h3 className="text-lg font-semibold text-slate-900">{ts('todaysAgenda')}</h3>
         <p className="text-sm text-slate-500">{formatLocalized(today, 'EEEE, MMMM d')}</p>

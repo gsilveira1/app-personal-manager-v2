@@ -4,7 +4,7 @@ import LanguageDetector from 'i18next-browser-languagedetector'
 
 import { localeDetector } from './localeDetector'
 
-export const SUPPORTED_LOCALES = ['en', 'es', 'pt'] as const
+export const SUPPORTED_LOCALES = ['en', 'es', 'pt', 'pt-BR'] as const
 export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number]
 
 const namespaces = ['common', 'navigation', 'auth', 'clients', 'schedule', 'workouts', 'finances', 'leads', 'settings']

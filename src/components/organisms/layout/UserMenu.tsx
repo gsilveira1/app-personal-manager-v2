@@ -20,8 +20,8 @@ export const UserMenu: React.FC = () => {
   }
 
   return (
-    <div className="relative">
-      <button onClick={() => setIsOpen(!isOpen)} className="flex items-center space-x-2 p-1 rounded-full hover:bg-slate-100">
+    <div className="relative" data-testid="user-menu">
+      <button data-testid="user-menu-toggle" onClick={() => setIsOpen(!isOpen)} className="flex items-center space-x-2 p-1 rounded-full hover:bg-slate-100">
         <img src={`https://i.pravatar.cc/150?u=${user?.email}`} alt={t('profile')} className="h-8 w-8 rounded-full border border-slate-200" />
         <span className="hidden md:block text-sm font-medium text-slate-700">{user?.name}</span>
       </button>
@@ -31,7 +31,7 @@ export const UserMenu: React.FC = () => {
             <p className="font-semibold">{user?.name}</p>
             <p className="text-xs text-slate-500 truncate">{user?.email}</p>
           </div>
-          <button onClick={handleLogout} className="w-full text-left flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">
+          <button data-testid="user-menu-logout" onClick={handleLogout} className="w-full text-left flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">
             <LogOut className="mr-2 h-4 w-4" />
             {t('logout')}
           </button>

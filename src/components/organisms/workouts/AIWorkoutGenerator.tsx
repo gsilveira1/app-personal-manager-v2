@@ -62,7 +62,7 @@ export const AIWorkoutGenerator: React.FC<AIWorkoutGeneratorProps> = ({ onSave }
           <p className="text-slate-500 mt-2">{t('aiSubtitle')}</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form data-testid="ai-generator-form" onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label htmlFor="clientName">{t('clientName')}</Label>

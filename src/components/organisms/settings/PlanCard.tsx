@@ -15,7 +15,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({ plan, onEdit, onDelete }) =>
   const { t } = useTranslation('settings')
   const { t: tc } = useTranslation('common')
   return (
-    <Card className="flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
+    <Card data-testid={`plan-card-${plan.id}`} className="flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
       <div className="p-5">
         <div className="flex justify-between items-start mb-3">
           <h3 className="text-base font-bold text-slate-900 leading-tight">{plan.name}</h3>

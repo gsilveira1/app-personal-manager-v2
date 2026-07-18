@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-import type { Client, Session, WorkoutPlan, Evaluation, Plan, SystemFeature } from '../types'
+import type { Client, Session, WorkoutPlan, Evaluation, Plan, SystemFeature, WorkHoursConfig, AvailabilityBlock } from '../types'
 import * as api from '../services/apiService'
 import { uploadFileToGcs } from '../utils/uploadToGcs'
 import { ApiError } from '../utils/apiClient'
@@ -11,6 +11,7 @@ import { type FinanceSlice, createFinanceSlice } from './financeSlice'
 import { type EvaluationSlice, createEvaluationSlice } from './evaluationSlice'
 import { type SettingsSlice, createSettingsSlice } from './settingsSlice'
 import { type SystemFeatureSlice, createSystemFeatureSlice } from './systemFeatureSlice'
+import { type AvailabilitySlice, createAvailabilitySlice } from './availabilitySlice'
 
 // Combine all slice interfaces and add async actions
 export type AppState = ClientSlice &
@@ -19,7 +20,8 @@ export type AppState = ClientSlice &
   FinanceSlice &
   EvaluationSlice &
   SettingsSlice &
-  SystemFeatureSlice & {
+  SystemFeatureSlice &
+  AvailabilitySlice & {
     appState: 'idle' | 'loading' | 'ready' | 'error'
     errorMessage: string | null
     fetchInitialData: () => Promise<void>
@@ -71,6 +73,11 @@ export type AppState = ClientSlice &
     addSystemFeature: (data: { key: string; name: string; description?: string }) => Promise<void>
     updateSystemFeature: (id: string, updates: Partial<SystemFeature>) => Promise<void>
     deleteSystemFeature: (id: string) => Promise<void>
+    updateWorkHours: (config: WorkHoursConfig) => Promise<void>
+    fetchAvailabilityBlocks: (start: Date, end: Date) => Promise<void>
+    addAvailabilityBlock: (data: Omit<AvailabilityBlock, 'id'>) => Promise<void>
+    updateAvailabilityBlock: (id: string, data: Partial<AvailabilityBlock>) => Promise<void>
+    deleteAvailabilityBlock: (id: string) => Promise<void>
   }
 
 export const useStore = create<AppState>()((set, get) => ({
@@ -81,6 +88,7 @@ export const useStore = create<AppState>()((set, get) => ({
   ...createEvaluationSlice(set, get, {} as any),
   ...createSettingsSlice(set, get, {} as any),
   ...createSystemFeatureSlice(set, get, {} as any),
+  ...createAvailabilitySlice(set, get, {} as any),
   appState: 'idle',
 
   errorMessage: null,
@@ -95,7 +103,7 @@ export const useStore = create<AppState>()((set, get) => ({
       get()._setWorkouts(workouts || [])
       get()._setEvaluations(evaluations || [])
       get()._setPlans(plans || [])
-      await Promise.all([get().hydrateLocale(), get().hydrateAiInstructions()])
+      await Promise.all([get().hydrateLocale(), get().hydrateAiInstructions(), get().hydrateWorkHours()])
       set({ appState: 'ready' })
     } catch (error) {
       console.error('Failed to fetch initial data:', error)
@@ -116,6 +124,7 @@ export const useStore = create<AppState>()((set, get) => ({
       evaluations: [],
       plans: [],
       systemFeatures: [],
+      availabilityBlocks: [],
       aiPromptInstructions: '',
       locale: '',
       appState: 'idle',
@@ -268,6 +277,24 @@ export const useStore = create<AppState>()((set, get) => ({
   deleteSystemFeature: async (id) => {
     await api.deleteSystemFeature(id)
     get()._removeSystemFeature(id)
+  },
+
+  updateWorkHours: async (config) => {
+    const result = await api.updateWorkHours(config)
+    get()._setWorkHours(result)
+  },
+  fetchAvailabilityBlocks: async (start, end) => {
+    const blocks = await api.getAvailabilityBlocks(start, end)
+    get()._setAvailabilityBlocks(blocks || [])
+  },
+  addAvailabilityBlock: async (data) => {
+    await api.createAvailabilityBlock(data)
+  },
+  updateAvailabilityBlock: async (id, data) => {
+    await api.updateAvailabilityBlock(id, data)
+  },
+  deleteAvailabilityBlock: async (id) => {
+    await api.deleteAvailabilityBlock(id)
   },
 }))
 

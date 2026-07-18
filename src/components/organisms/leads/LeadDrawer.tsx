@@ -55,7 +55,7 @@ export const LeadDrawer: React.FC<LeadDrawerProps> = ({ lead, plans, onClose, on
   const created = (lead as any).createdAt as string | undefined
 
   return (
-    <div className="fixed inset-0 z-50 flex">
+    <div data-testid="lead-drawer" className="fixed inset-0 z-50 flex">
       {/* Backdrop */}
       <div className="flex-1 bg-black/30 backdrop-blur-sm" onClick={onClose} />
 

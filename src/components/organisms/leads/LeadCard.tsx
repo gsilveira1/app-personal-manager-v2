@@ -19,6 +19,7 @@ export const LeadCard: React.FC<LeadCardProps> = ({ client, stage, onClick }) =>
 
   return (
     <button
+      data-testid={`lead-card-${client.id}`}
       onClick={onClick}
       className="w-full text-left bg-white rounded-xl border border-slate-200 p-4 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all group"
     >

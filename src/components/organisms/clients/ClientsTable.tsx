@@ -23,7 +23,7 @@ export const ClientsTable: React.FC<ClientsTableProps> = ({ clients, plans, sear
   const filteredClients = clients.filter((c) => c.name.toLowerCase().includes(searchTerm.toLowerCase()) || c.email.toLowerCase().includes(searchTerm.toLowerCase()))
 
   return (
-    <Card className="overflow-hidden">
+    <Card data-testid="clients-table" className="overflow-hidden">
       <div className="p-4 border-b border-slate-200 bg-slate-50/50 flex items-center space-x-4">
         <SearchBar value={searchTerm} onChange={onSearchChange} placeholder={t('searchPlaceholder')} />
         <div className="flex-1" />
@@ -45,7 +45,7 @@ export const ClientsTable: React.FC<ClientsTableProps> = ({ clients, plans, sear
             {filteredClients.map((client) => {
               const clientPlan = plans.find((p) => p.id === client.planId)
               return (
-                <tr key={client.id} className="hover:bg-slate-50 transition-colors cursor-pointer" onClick={() => navigate(`/clients/${client.id}`)}>
+                <tr key={client.id} data-testid={`client-row-${client.id}`} className="hover:bg-slate-50 transition-colors cursor-pointer" onClick={() => navigate(`/clients/${client.id}`)}>
                   <td className="px-6 py-4">
                     <div className="flex items-center space-x-3">
                       {client.avatar ? (

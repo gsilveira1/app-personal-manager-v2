@@ -8,7 +8,11 @@ let mockResolvedLanguage = 'en'
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
+    t: (key: string) => key,
     i18n: {
+      get language() {
+        return mockResolvedLanguage
+      },
       get resolvedLanguage() {
         return mockResolvedLanguage
       },

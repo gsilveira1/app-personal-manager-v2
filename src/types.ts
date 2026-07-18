@@ -145,3 +145,42 @@ export interface Evaluation {
   skinfolds?: Skinfolds
   perimeters?: Perimeters
 }
+
+// --- Availability / Work Hours ---
+
+export interface DaySchedule {
+  enabled: boolean
+  start: string // "HH:mm"
+  end: string // "HH:mm"
+}
+
+export interface WorkHoursConfig {
+  monday: DaySchedule
+  tuesday: DaySchedule
+  wednesday: DaySchedule
+  thursday: DaySchedule
+  friday: DaySchedule
+  saturday: DaySchedule
+  sunday: DaySchedule
+  slotDurationMinutes: number
+}
+
+export interface AvailabilityBlock {
+  id: string
+  title: string
+  rrule?: string | null
+  timezone: string
+  dtstart: string
+  dtend: string
+  notes?: string | null
+}
+
+export interface MaterializedBlock {
+  id: string
+  blockId: string
+  title: string
+  start: string
+  end: string
+  isRecurring: boolean
+  notes: string | null
+}

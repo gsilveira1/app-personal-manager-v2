@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ChevronLeft, ChevronRight, X, Calendar as CalendarIcon, Clock } from 'lucide-react'
 import { parseISO } from 'date-fns'
-import { Card, Badge, Button, Label } from '../../atoms'
+import { Card, Badge, Label } from '../../atoms'
 import { formatLocalized } from '../../../utils/dateLocale'
 import { type Client, type Session, type WorkoutPlan } from '../../../types'
 

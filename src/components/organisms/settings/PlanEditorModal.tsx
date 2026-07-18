@@ -62,7 +62,7 @@ export const PlanEditorModal: React.FC<PlanEditorModalProps> = ({ isOpen, onClos
 
   return (
     <ModalShell title={initialData ? t('editPlan') : t('newPlan')} onClose={onClose}>
-      <form onSubmit={handleSubmit} className="p-6 space-y-4">
+      <form data-testid="plan-editor-modal" onSubmit={handleSubmit} className="p-6 space-y-4">
         {/* Plan type selector */}
         <div className="space-y-2">
           <Label>{t('planType')}</Label>
