@@ -1,0 +1,18 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "http://localhost:5173",
+      "localStorage": [
+        {
+          "name": "token",
+          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IkFkbWluIFVzZXIiLCJzdWIiOiI0ZDg0ZmQ5NC05YjNkLTQ4MzMtOTM4MC0zYjBmYWI3ZjMxYWEiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NzU0MTI5ODksImV4cCI6MTc3NTQ5OTM4OX0.n1xNaYRbhUfaeJlDTaLLjthwe6uRVmVsKD9vdu1JtP8"
+        },
+        {
+          "name": "user",
+          "value": "{\"id\":\"4d84fd94-9b3d-4833-9380-3b0fab7f31aa\",\"name\":\"Admin User\",\"email\":\"admin@gym.com\",\"role\":\"admin\"}"
+        }
+      ]
+    }
+  ]
+}
