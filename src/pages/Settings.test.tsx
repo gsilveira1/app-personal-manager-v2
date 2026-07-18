@@ -5,7 +5,7 @@ import { MemoryRouter } from 'react-router-dom'
 import { Settings } from './Settings'
 
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => ({ t: (key: string) => key, i18n: { language: 'pt-BR' } }),
 }))
 
 const mockAddPlan = vi.fn()
@@ -29,6 +29,17 @@ vi.mock('../store/store', () => ({
     updateAiPromptInstructions: mockUpdateAiPromptInstructions,
     systemFeatures: [],
     fetchSystemFeatures: mockFetchSystemFeatures,
+    workHours: {
+      monday: { enabled: true, start: '07:00', end: '19:00' },
+      tuesday: { enabled: true, start: '07:00', end: '19:00' },
+      wednesday: { enabled: true, start: '07:00', end: '19:00' },
+      thursday: { enabled: true, start: '07:00', end: '19:00' },
+      friday: { enabled: true, start: '07:00', end: '19:00' },
+      saturday: { enabled: true, start: '07:00', end: '19:00' },
+      sunday: { enabled: false, start: '08:00', end: '12:00' },
+      slotDurationMinutes: 60,
+    },
+    updateWorkHours: vi.fn(),
   }),
 }))
 
@@ -49,17 +60,34 @@ vi.mock('../components/organisms/settings/PlanCard', () => ({
 }))
 
 vi.mock('../components/organisms/settings/PlanEditorModal', () => ({
-  PlanEditorModal: ({ isOpen, onClose, onSave }: any) => isOpen ? <div data-testid="plan-modal"><button onClick={onClose}>close</button><button onClick={() => onSave({ name: 'New Plan', type: 'PRESENCIAL', sessionsPerWeek: 2, price: 150 })}>save</button></div> : null,
+  PlanEditorModal: ({ isOpen, onClose, onSave }: any) =>
+    isOpen ? (
+      <div data-testid="plan-modal">
+        <button onClick={onClose}>close</button>
+        <button onClick={() => onSave({ name: 'New Plan', type: 'PRESENCIAL', sessionsPerWeek: 2, price: 150 })}>save</button>
+      </div>
+    ) : null,
 }))
 
 vi.mock('../components/organisms/settings/SystemFeaturesSection', () => ({
   SystemFeaturesSection: () => <div data-testid="system-features" />,
 }))
 
-describe('Settings', () => {
-  beforeEach(() => { vi.clearAllMocks() })
+vi.mock('../components/organisms/settings/WorkHoursEditor', () => ({
+  WorkHoursEditor: () => <div data-testid="work-hours-editor" />,
+}))
 
-  const renderPage = () => render(<MemoryRouter><Settings /></MemoryRouter>)
+describe('Settings', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  const renderPage = () =>
+    render(
+      <MemoryRouter>
+        <Settings />
+      </MemoryRouter>
+    )
 
   it('renders page title', () => {
     renderPage()
@@ -151,7 +179,11 @@ describe('Settings (admin)', () => {
   })
 
   it('renders SystemFeaturesSection for admin user', () => {
-    render(<MemoryRouter><Settings /></MemoryRouter>)
+    render(
+      <MemoryRouter>
+        <Settings />
+      </MemoryRouter>
+    )
     expect(screen.getByTestId('system-features')).toBeInTheDocument()
   })
 })

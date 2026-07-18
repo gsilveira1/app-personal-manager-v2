@@ -17,9 +17,9 @@ export const WorkoutLibrary: React.FC<WorkoutLibraryProps> = ({ workouts, onCrea
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+    <div data-testid="workout-library" className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
       {workouts.map((workout) => (
-        <Card key={workout.id} className="overflow-hidden flex flex-col">
+        <Card key={workout.id} data-testid={`workout-card-${workout.id}`} className="overflow-hidden flex flex-col">
           <div className="p-6 flex-1">
             <div className="flex justify-between items-start mb-4">
               <div className="bg-indigo-100 p-2 rounded-lg">

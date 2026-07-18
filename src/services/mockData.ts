@@ -2,7 +2,7 @@ import { type Client, ClientStatus, type Session, type WorkoutPlan, type Evaluat
 import { subDays, addDays, formatISO } from 'date-fns'
 
 // --- Users ---
-export const users: (User & { password?: string })[] = [{ id: 'user1', name: 'Coach Alex', email: 'alex@example.com', password: 'password123' }]
+export const users: (User & { password?: string })[] = [{ id: 'user1', name: 'Coach Alex', email: 'alex@example.com', password: 'password123', role: 'trainer' }]
 
 // --- Helper Functions ---
 const today = new Date()

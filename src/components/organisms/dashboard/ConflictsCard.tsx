@@ -19,7 +19,7 @@ export const ConflictsCard: React.FC<ConflictsCardProps> = ({ conflicts }) => {
   const navigate = useNavigate()
 
   return (
-    <Card className="col-span-full bg-red-50 border-red-200 animate-in fade-in">
+    <Card data-testid="conflicts-card" className="col-span-full bg-red-50 border-red-200 animate-in fade-in">
       <div className="p-6">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-red-100 rounded-lg">

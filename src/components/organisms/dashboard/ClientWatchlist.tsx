@@ -14,7 +14,7 @@ export const ClientWatchlist: React.FC<ClientWatchlistProps> = ({ clients }) => 
   const { t: tco } = useTranslation('common')
 
   return (
-    <Card className="p-6">
+    <Card data-testid="client-watchlist" className="p-6">
       <h3 className="text-lg font-semibold text-slate-900 mb-4">{tc('clientWatchlist')}</h3>
       <div className="space-y-3">
         {clients.length > 0 ? (

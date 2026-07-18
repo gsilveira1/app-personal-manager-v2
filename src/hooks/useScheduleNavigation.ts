@@ -10,8 +10,8 @@ export function useScheduleNavigation(sessions: Session[], fetchSessionsForRange
   const [currentDate, setCurrentDate] = useState(new Date())
   const [view, setView] = useState<ViewType>('week')
 
-  // Windowed session fetching
-  useEffect(() => {
+  // Compute the date range for the current view
+  const { rangeStart, rangeEnd } = useMemo(() => {
     let start: Date, end: Date
     if (view === 'day') {
       start = addDays(currentDate, -1)
@@ -23,8 +23,13 @@ export function useScheduleNavigation(sessions: Session[], fetchSessionsForRange
       start = startOfMonth(currentDate)
       end = addDays(endOfMonth(currentDate), 1)
     }
-    fetchSessionsForRange(start, end).catch(console.error)
-  }, [view, currentDate]) // eslint-disable-line react-hooks/exhaustive-deps
+    return { rangeStart: start, rangeEnd: end }
+  }, [view, currentDate])
+
+  // Windowed session fetching
+  useEffect(() => {
+    fetchSessionsForRange(rangeStart, rangeEnd).catch(console.error)
+  }, [rangeStart, rangeEnd]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handlePrevious = () => {
     if (view === 'day') setCurrentDate(addDays(currentDate, -1))
@@ -88,5 +93,7 @@ export function useScheduleNavigation(sessions: Session[], fetchSessionsForRange
     getHeaderText,
     stats,
     rangeSessions,
+    rangeStart,
+    rangeEnd,
   }
 }

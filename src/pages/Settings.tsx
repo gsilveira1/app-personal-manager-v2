@@ -10,6 +10,7 @@ import { Textarea } from '../components/atoms'
 import { PlanCard } from '../components/organisms/settings/PlanCard'
 import { PlanEditorModal } from '../components/organisms/settings/PlanEditorModal'
 import { SystemFeaturesSection } from '../components/organisms/settings/SystemFeaturesSection'
+import { WorkHoursEditor } from '../components/organisms/settings/WorkHoursEditor'
 
 export const Settings = () => {
   const { t } = useTranslation('settings')
@@ -24,9 +25,17 @@ export const Settings = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingPlan, setEditingPlan] = useState<Plan | null>(null)
 
-  const handleCreate = () => { setEditingPlan(null); setIsModalOpen(true) }
-  const handleEdit = (plan: Plan) => { setEditingPlan(plan); setIsModalOpen(true) }
-  const handleDelete = (id: string) => { if (window.confirm(t('deletePlanConfirm'))) deletePlan(id) }
+  const handleCreate = () => {
+    setEditingPlan(null)
+    setIsModalOpen(true)
+  }
+  const handleEdit = (plan: Plan) => {
+    setEditingPlan(plan)
+    setIsModalOpen(true)
+  }
+  const handleDelete = (id: string) => {
+    if (window.confirm(t('deletePlanConfirm'))) deletePlan(id)
+  }
   const handleSave = (planData: Omit<Plan, 'id'>) => {
     if (editingPlan) updatePlan(editingPlan.id, planData)
     else addPlan(planData)
@@ -39,6 +48,8 @@ export const Settings = () => {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-slate-900">{t('title')}</h1>
+
+      <WorkHoursEditor />
 
       <Card>
         <div className="p-6 border-b border-slate-200">
@@ -68,14 +79,18 @@ export const Settings = () => {
             <h2 className="text-lg font-semibold text-slate-900">{t('servicePlans')}</h2>
             <p className="text-sm text-slate-500">{t('servicePlansSubtitle')}</p>
           </div>
-          <Button onClick={handleCreate}><Plus className="mr-2 h-4 w-4" /> {t('newPlan')}</Button>
+          <Button onClick={handleCreate}>
+            <Plus className="mr-2 h-4 w-4" /> {t('newPlan')}
+          </Button>
         </div>
         <div className="p-6 space-y-8">
           {presencialPlans.length > 0 && (
             <div>
               <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">{t('inPersonSection')}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {presencialPlans.map((plan) => <PlanCard key={plan.id} plan={plan} onEdit={() => handleEdit(plan)} onDelete={() => handleDelete(plan.id)} />)}
+                {presencialPlans.map((plan) => (
+                  <PlanCard key={plan.id} plan={plan} onEdit={() => handleEdit(plan)} onDelete={() => handleDelete(plan.id)} />
+                ))}
               </div>
             </div>
           )}
@@ -83,7 +98,9 @@ export const Settings = () => {
             <div>
               <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">{t('onlineConsultingSection')}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {consultoriaPlans.map((plan) => <PlanCard key={plan.id} plan={plan} onEdit={() => handleEdit(plan)} onDelete={() => handleDelete(plan.id)} />)}
+                {consultoriaPlans.map((plan) => (
+                  <PlanCard key={plan.id} plan={plan} onEdit={() => handleEdit(plan)} onDelete={() => handleDelete(plan.id)} />
+                ))}
               </div>
             </div>
           )}

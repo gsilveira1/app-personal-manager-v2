@@ -1,6 +1,6 @@
 import { parseISO, addMinutes } from 'date-fns'
 
-import { type Session } from '../types'
+import { type Session, type MaterializedBlock } from '../types'
 
 /**
  * Checks if a given time slot is already occupied by another session.
@@ -72,4 +72,22 @@ export const findSchedulingConflicts = (sessions: Session[]): Session[][] => {
     }
   }
   return conflictGroups
+}
+
+/**
+ * Checks if a time slot overlaps with any availability block.
+ * @param blocks - Materialized availability blocks for the current view range.
+ * @param slotStart - Start of the time slot.
+ * @param slotEnd - End of the time slot.
+ * @returns The overlapping block if found, otherwise null.
+ */
+export const isTimeSlotBlocked = (blocks: MaterializedBlock[], slotStart: Date, slotEnd: Date): MaterializedBlock | null => {
+  for (const block of blocks) {
+    const blockStart = new Date(block.start)
+    const blockEnd = new Date(block.end)
+    if (slotStart < blockEnd && slotEnd > blockStart) {
+      return block
+    }
+  }
+  return null
 }

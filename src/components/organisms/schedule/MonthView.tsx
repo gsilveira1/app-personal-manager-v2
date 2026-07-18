@@ -1,11 +1,11 @@
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, isSameMonth, isToday, parseISO } from 'date-fns'
-import { type Session, type Client } from '../../../types'
+import { type Session, type Client, type MaterializedBlock } from '../../../types'
 
-const MonthView = ({ date, sessions, clients, onDayClick }: any) => {
+const MonthView = ({ date, sessions, clients, onDayClick, blocks = [] }: any) => {
   const monthStart = startOfMonth(date)
   const calendarDays = eachDayOfInterval({ start: startOfWeek(monthStart, { weekStartsOn: 1 }), end: endOfWeek(endOfMonth(monthStart), { weekStartsOn: 1 }) })
   return (
-    <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
+    <div data-testid="month-view" className="bg-white rounded-lg border border-slate-200 overflow-hidden">
       <div className="grid grid-cols-7 border-b border-slate-200 bg-slate-50">
         {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
           <div key={day} className="py-2 text-center text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider">
@@ -33,6 +33,11 @@ const MonthView = ({ date, sessions, clients, onDayClick }: any) => {
               )}
             </div>
             <div className="flex sm:hidden flex-wrap gap-0.5 mt-1 content-start h-full">
+              {(blocks as MaterializedBlock[])
+                .filter((b) => isSameDay(parseISO(b.start), day))
+                .map((block: MaterializedBlock) => (
+                  <div key={block.id} className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+                ))}
               {sessions
                 .filter((s: Session) => isSameDay(parseISO(s.date), day))
                 .map((session: Session) => (
@@ -40,6 +45,15 @@ const MonthView = ({ date, sessions, clients, onDayClick }: any) => {
                 ))}
             </div>
             <div className="hidden sm:block space-y-1 mt-1 overflow-hidden">
+              {(blocks as MaterializedBlock[])
+                .filter((b) => isSameDay(parseISO(b.start), day))
+                .slice(0, 1)
+                .map((block: MaterializedBlock) => (
+                  <div key={block.id} className="flex items-center gap-1 text-[10px] truncate">
+                    <div className="w-1.5 h-1.5 rounded-full shrink-0 bg-slate-400"></div>
+                    <span className="text-slate-500">{block.title}</span>
+                  </div>
+                ))}
               {sessions
                 .filter((s: Session) => isSameDay(parseISO(s.date), day))
                 .slice(0, 3)

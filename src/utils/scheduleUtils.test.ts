@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest'
-import { isTimeSlotTaken, findSchedulingConflicts } from './scheduleUtils'
-import { type Session } from '../types'
+import { isTimeSlotTaken, findSchedulingConflicts, isTimeSlotBlocked } from './scheduleUtils'
+import { type Session, type MaterializedBlock } from '../types'
 
 const makeSession = (overrides: Partial<Session> & { id: string; date: string; durationMinutes: number }): Session => ({
   clientId: 'client-1',
@@ -55,10 +55,7 @@ describe('isTimeSlotTaken', () => {
   it('should still find conflicts with other sessions when excluding one', () => {
     const start = new Date('2025-01-10T10:00:00.000Z')
     // Exclude session 1, but add a session 3 that overlaps
-    const sessionsWithThird = [
-      ...sessions,
-      makeSession({ id: '3', date: '2025-01-10T10:30:00.000Z', durationMinutes: 30 }),
-    ]
+    const sessionsWithThird = [...sessions, makeSession({ id: '3', date: '2025-01-10T10:30:00.000Z', durationMinutes: 30 })]
     expect(isTimeSlotTaken(sessionsWithThird, start, 60, '1')?.id).toBe('3')
   })
 
@@ -95,7 +92,7 @@ describe('findSchedulingConflicts', () => {
     ]
     const conflicts = findSchedulingConflicts(sessions)
     expect(conflicts).toHaveLength(1)
-    expect(conflicts[0].map(s => s.id)).toEqual(['1', '2'])
+    expect(conflicts[0].map((s) => s.id)).toEqual(['1', '2'])
   })
 
   it('should group three-way overlaps into a single group', () => {
@@ -106,7 +103,7 @@ describe('findSchedulingConflicts', () => {
     ]
     const conflicts = findSchedulingConflicts(sessions)
     expect(conflicts).toHaveLength(1)
-    expect(conflicts[0].map(s => s.id)).toEqual(['1', '2', '3'])
+    expect(conflicts[0].map((s) => s.id)).toEqual(['1', '2', '3'])
   })
 
   it('should detect multiple independent conflict groups', () => {
@@ -118,8 +115,8 @@ describe('findSchedulingConflicts', () => {
     ]
     const conflicts = findSchedulingConflicts(sessions)
     expect(conflicts).toHaveLength(2)
-    expect(conflicts[0].map(s => s.id)).toEqual(['1', '2'])
-    expect(conflicts[1].map(s => s.id)).toEqual(['3', '4'])
+    expect(conflicts[0].map((s) => s.id)).toEqual(['1', '2'])
+    expect(conflicts[1].map((s) => s.id)).toEqual(['3', '4'])
   })
 
   it('should return empty array for empty sessions', () => {
@@ -140,12 +137,55 @@ describe('findSchedulingConflicts', () => {
   })
 
   it('should handle unsorted input correctly', () => {
-    const sessions = [
-      makeSession({ id: '2', date: '2025-01-10T10:30:00.000Z', durationMinutes: 60 }),
-      makeSession({ id: '1', date: '2025-01-10T10:00:00.000Z', durationMinutes: 60 }),
-    ]
+    const sessions = [makeSession({ id: '2', date: '2025-01-10T10:30:00.000Z', durationMinutes: 60 }), makeSession({ id: '1', date: '2025-01-10T10:00:00.000Z', durationMinutes: 60 })]
     const conflicts = findSchedulingConflicts(sessions)
     expect(conflicts).toHaveLength(1)
     expect(conflicts[0]).toHaveLength(2)
+  })
+})
+
+const makeBlock = (start: string, end: string, id = 'block-1'): MaterializedBlock => ({
+  id,
+  blockId: id,
+  title: 'Almoço',
+  start,
+  end,
+  isRecurring: false,
+  notes: null,
+})
+
+describe('isTimeSlotBlocked', () => {
+  const blocks: MaterializedBlock[] = [
+    makeBlock('2025-01-10T12:00:00.000Z', '2025-01-10T13:00:00.000Z'), // 12:00–13:00
+  ]
+
+  it('should return null when no block overlaps', () => {
+    const slotStart = new Date('2025-01-10T10:00:00.000Z')
+    const slotEnd = new Date('2025-01-10T11:00:00.000Z')
+    expect(isTimeSlotBlocked(blocks, slotStart, slotEnd)).toBeNull()
+  })
+
+  it('should detect exact overlap with a block', () => {
+    const slotStart = new Date('2025-01-10T12:00:00.000Z')
+    const slotEnd = new Date('2025-01-10T13:00:00.000Z')
+    expect(isTimeSlotBlocked(blocks, slotStart, slotEnd)).toEqual(blocks[0])
+  })
+
+  it('should detect partial overlap', () => {
+    const slotStart = new Date('2025-01-10T12:30:00.000Z')
+    const slotEnd = new Date('2025-01-10T13:30:00.000Z')
+    expect(isTimeSlotBlocked(blocks, slotStart, slotEnd)).toEqual(blocks[0])
+  })
+
+  it('should not flag adjacent slot as blocked (end == start)', () => {
+    const slotStart = new Date('2025-01-10T13:00:00.000Z')
+    const slotEnd = new Date('2025-01-10T14:00:00.000Z')
+    expect(isTimeSlotBlocked(blocks, slotStart, slotEnd)).toBeNull()
+  })
+
+  it('should return null for empty blocks array', () => {
+    const slotStart = new Date('2025-01-10T12:00:00.000Z')
+    const slotEnd = new Date('2025-01-10T13:00:00.000Z')
+    expect(isTimeSlotBlocked([], slotStart, slotEnd)).toBeNull()
   })
 })

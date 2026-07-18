@@ -28,7 +28,7 @@ export const ClientProfileHeader: React.FC<ClientProfileHeaderProps> = ({
     : 'N/A'
 
   return (
-    <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm flex flex-col md:flex-row gap-6 items-start">
+    <div data-testid="client-profile-header" className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm flex flex-col md:flex-row gap-6 items-start">
       <button
         type="button"
         className="relative h-24 w-24 rounded-full border-4 border-slate-50 overflow-hidden group shrink-0 cursor-pointer"

@@ -63,7 +63,7 @@ export const AddClientModal: React.FC<AddClientModalProps> = ({ onClose, onSave 
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div data-testid="add-client-modal" className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <Card className="w-full max-w-lg bg-white shadow-xl animate-in fade-in zoom-in duration-200 max-h-[90vh] flex flex-col">
         <div className="p-6 border-b border-slate-100 flex justify-between items-center sticky top-0 bg-white">
           <h2 className="text-lg font-bold text-slate-900">{t('addClient')}</h2>

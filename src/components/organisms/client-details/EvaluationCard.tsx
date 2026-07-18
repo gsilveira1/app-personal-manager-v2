@@ -33,7 +33,7 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ evaluation }) =>
 
   return (
     <>
-      <Card className="overflow-hidden">
+      <Card data-testid={`evaluation-card-${evaluation.id}`} className="overflow-hidden">
         <div className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer hover:bg-slate-50" onClick={() => setExpanded(!expanded)}>
           <div className="flex items-center gap-4">
             <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg">
