@@ -9,7 +9,7 @@ export class ApiError extends Error {
   }
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL // This would be an environment variable in a real production app.
+const API_BASE_URL = import.meta.env.VITE_API_URL // This would be an environment variable in a real production app.
 
 /**
  * A wrapper around the Fetch API to make authenticated requests to the backend.
