@@ -30,7 +30,6 @@ jobs:
 
       - name: Check TypeScript Compilation
         run: npm run build -- --noEmit # Se o seu script de build já não fizer isso
-q
   # ----------------------------------------------------
   # 2. Entrega Contínua (Deploy para o Fly.io)
   # ----------------------------------------------------
@@ -49,6 +48,9 @@ q
 
       - name: Deploy Application
         # --remote-only faz o Fly buildar o Docker nos servidores deles, economizando tempo no Github Actions
-        run: flyctl deploy --remote-only
+        run: |
+          flyctl deploy --remote-only \
+            --build-arg VITE_API_URL=${{ secrets.VITE_API_URL }} \
+            --build-arg VITE_GMKEY=${{ secrets.VITE_API_GMKEY }} \
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
