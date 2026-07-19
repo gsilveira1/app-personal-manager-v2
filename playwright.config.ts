@@ -1,4 +1,15 @@
 import { defineConfig, devices } from '@playwright/test'
+import { loadEnv } from 'vite';
+
+/**
+ * Carrega as variáveis do arquivo .env com base no modo atual.
+ * Por padrão, busca no diretório atual (process.cwd()).
+ * O primeiro parâmetro representa o modo (ex: 'development', 'staging', ou vazio '' para ler o padrão).
+ */
+const envs = loadEnv('', process.cwd(), 'VITE_');
+
+// Injeta as variáveis VITE_ lidas diretamente no process.env global do Node.js
+Object.assign(process.env, envs);
 
 export default defineConfig({
   testDir: './e2e',
@@ -9,7 +20,7 @@ export default defineConfig({
   reporter: 'html',
   timeout: 30_000,
   use: {
-    baseURL: 'http://localhost:5173',
+    baseURL: process.env.VITE_BASE_URL ?? 'http://localhost:5173',
     actionTimeout: 10_000,
     trace: 'on-first-retry',
   },
