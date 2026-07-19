@@ -12,7 +12,7 @@ const localStorageMock = {
   key: vi.fn((i: number) => Object.keys(storage)[i] ?? null),
 }
 vi.stubGlobal('localStorage', localStorageMock)
-import apiClient, { ApiError } from './apiClient'
+import apiClient, { API_BASE_URL, ApiError } from './apiClient'
 
 describe('apiClient', () => {
   const mockFetch = vi.fn()
@@ -36,7 +36,7 @@ describe('apiClient', () => {
     await apiClient('/clients')
 
     expect(mockFetch).toHaveBeenCalledWith(
-      'http://localhost:9090/api/clients',
+      `${API_BASE_URL}/clients`,
       expect.any(Object),
     )
   })

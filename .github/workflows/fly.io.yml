@@ -53,5 +53,8 @@ jobs:
           flyctl deploy --remote-only \
             --build-arg VITE_API_URL=${{ secrets.VITE_API_URL }} \
             --build-arg VITE_GMKEY=${{ secrets.VITE_API_GMKEY }} \
+            --build-arg VITE_BASE_URL=${{ vars.VITE_BASE_URL }} \
+            --build-arg VITE_TEST_EMAIL=${{ vars.VITE_TEST_EMAIL }} \
+            --build-arg VITE_TEST_PASSWORD=${{ vars.VITE_TEST_PASSWORD }} \
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
