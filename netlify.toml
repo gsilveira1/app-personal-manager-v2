@@ -1,0 +1,11 @@
+[build]
+  # Comando para gerar a build de produção do Vite
+  command = "npm run build"
+  # O Vite gera os arquivos estáticos na pasta 'dist' por padrão
+  publish = "dist"
+
+# Redirecionamento essencial para SPAs (React Router, etc.)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

@@ -32,3 +32,4 @@ dev-dist
 /playwright/.auth/
 /e2e/.auth/
 /coverage
+.env
