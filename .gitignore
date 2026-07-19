@@ -13,6 +13,10 @@ dist-ssr
 dev-dist
 *.local
 
+.env
+.env.test
+.env.production
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -32,4 +36,3 @@ dev-dist
 /playwright/.auth/
 /e2e/.auth/
 /coverage
-.env
