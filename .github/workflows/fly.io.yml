@@ -30,7 +30,7 @@ jobs:
         run: npm run test
 
       - name: Check TypeScript Compilation
-        run: npm run build -- --noEmit # Se o seu script de build já não fizer isso
+        run: npm run build
   # ----------------------------------------------------
   # 2. Entrega Contínua (Deploy para o Fly.io)
   # ----------------------------------------------------
