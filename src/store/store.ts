@@ -13,7 +13,14 @@ import { type SettingsSlice, createSettingsSlice } from './slices/settings/setti
 import { type SystemFeatureSlice, createSystemFeatureSlice } from './slices/systemFeature/systemFeatureSlice'
 import { type AvailabilitySlice, createAvailabilitySlice } from './slices/availability/availabilitySlice'
 
-// Combine all slice interfaces and add async actions
+// ─── Global App State ────────────────────────────────────────────────────────
+// The global store is the single source of truth for cross-domain state.
+// It composes all domain slices (state + sync mutators) and owns the
+// application-level async actions: fetchInitialData and clearDataOnLogout.
+// Domain-specific async actions (API calls) live in their respective domain
+// stores (clientStore, scheduleStore, workoutStore, etc.).
+// ─────────────────────────────────────────────────────────────────────────────
+
 export type AppState = ClientSlice &
   ScheduleSlice &
   WorkoutSlice &
@@ -22,15 +29,20 @@ export type AppState = ClientSlice &
   SettingsSlice &
   SystemFeatureSlice &
   AvailabilitySlice & {
+    // Global application lifecycle state
     appState: 'idle' | 'loading' | 'ready' | 'error'
     errorMessage: string | null
     fetchInitialData: () => Promise<void>
     clearDataOnLogout: () => void
+
+    // ── Client domain actions ─────────────────────────────────────────────
     addClient: (clientData: Omit<Client, 'id' | 'avatar'>, customPlanData?: Omit<Plan, 'id'>) => Promise<void>
     updateClient: (id: string, client: Partial<Client>) => Promise<void>
     uploadClientAvatar: (clientId: string, file: File) => Promise<void>
     deleteClient: (id: string) => Promise<void>
     convertLead: (id: string, planId?: string) => Promise<void>
+
+    // ── Schedule domain actions ───────────────────────────────────────────
     addSession: (session: Omit<Session, 'id' | 'completed' | 'recurrenceId'>) => Promise<void>
     addRecurringSessions: (baseSession: Omit<Session, 'id' | 'date' | 'completed'>, startDateStr: string, frequency: 'weekly' | 'bi-weekly', untilDateStr: string) => Promise<void>
     addRecurringEvent: (dto: {
@@ -58,21 +70,33 @@ export type AppState = ClientSlice &
     updateSessionWithScope: (sessionId: string, updates: Partial<Session>, scope: 'single' | 'future') => Promise<void>
     toggleSessionComplete: (id: string) => Promise<void>
     fetchSessionsForRange: (start: Date, end: Date) => Promise<void>
+
+    // ── Workout domain actions ────────────────────────────────────────────
     addWorkout: (workout: Omit<WorkoutPlan, 'id' | 'createdAt'>) => Promise<void>
     updateWorkout: (id: string, workout: Partial<WorkoutPlan>) => Promise<void>
     deleteWorkout: (id: string) => Promise<void>
+
+    // ── Evaluation domain actions ─────────────────────────────────────────
     addEvaluation: (evaluation: Omit<Evaluation, 'id'>) => Promise<void>
     updateEvaluation: (id: string, evaluation: Partial<Evaluation>) => Promise<void>
     deleteEvaluation: (id: string) => Promise<void>
+
+    // ── Finance domain actions ────────────────────────────────────────────
     addPlan: (plan: Omit<Plan, 'id'>) => Promise<void>
     updatePlan: (id: string, plan: Partial<Plan>) => Promise<void>
     deletePlan: (id: string) => Promise<void>
+
+    // ── Settings domain actions ───────────────────────────────────────────
     updateAiPromptInstructions: (instructions: string) => Promise<void>
     updateLocale: (language: string) => Promise<void>
+
+    // ── System Feature domain actions ─────────────────────────────────────
     fetchSystemFeatures: () => Promise<void>
     addSystemFeature: (data: { key: string; name: string; description?: string }) => Promise<void>
     updateSystemFeature: (id: string, updates: Partial<SystemFeature>) => Promise<void>
     deleteSystemFeature: (id: string) => Promise<void>
+
+    // ── Availability domain actions ───────────────────────────────────────
     updateWorkHours: (config: WorkHoursConfig) => Promise<void>
     fetchAvailabilityBlocks: (start: Date, end: Date) => Promise<void>
     addAvailabilityBlock: (data: Omit<AvailabilityBlock, 'id'>) => Promise<void>
@@ -81,6 +105,7 @@ export type AppState = ClientSlice &
   }
 
 export const useStore = create<AppState>()((set, get) => ({
+  // ── Compose all domain slices (state + sync mutators) ──────────────────
   ...createClientSlice(set, get, {} as any),
   ...createScheduleSlice(set, get, {} as any),
   ...createWorkoutSlice(set, get, {} as any),
@@ -89,14 +114,22 @@ export const useStore = create<AppState>()((set, get) => ({
   ...createSettingsSlice(set, get, {} as any),
   ...createSystemFeatureSlice(set, get, {} as any),
   ...createAvailabilitySlice(set, get, {} as any),
-  appState: 'idle',
 
+  // ── Global lifecycle state ─────────────────────────────────────────────
+  appState: 'idle',
   errorMessage: null,
 
+  // ── fetchInitialData: orchestrates all domain data hydration ──────────
   fetchInitialData: async () => {
     set({ appState: 'loading', errorMessage: null })
     try {
-      const [clients, evaluations, plans, sessions, workouts] = await Promise.all([api.getClients(), api.getEvaluations(), api.getPlans(), api.getSessions(), api.getWorkouts()])
+      const [clients, evaluations, plans, sessions, workouts] = await Promise.all([
+        api.getClients(),
+        api.getEvaluations(),
+        api.getPlans(),
+        api.getSessions(),
+        api.getWorkouts(),
+      ])
 
       get()._setClients(clients || [])
       get()._setSessions(sessions || [])
@@ -107,7 +140,6 @@ export const useStore = create<AppState>()((set, get) => ({
       await Promise.all([get().hydrateLocale(), get().hydrateAiInstructions(), get().hydrateWorkHours()])
 
       set({ appState: 'ready' })
-
     } catch (error) {
       console.error('Failed to fetch initial data:', error)
       if (error instanceof ApiError && error.status === 401) {
@@ -119,6 +151,7 @@ export const useStore = create<AppState>()((set, get) => ({
     }
   },
 
+  // ── clearDataOnLogout: resets all domain state ────────────────────────
   clearDataOnLogout: () => {
     set({
       clients: [],
@@ -135,6 +168,7 @@ export const useStore = create<AppState>()((set, get) => ({
     })
   },
 
+  // ── Client domain actions ─────────────────────────────────────────────
   addClient: async (clientData, customPlanData) => {
     const finalClientData = { ...clientData }
     if (customPlanData) {
@@ -145,54 +179,67 @@ export const useStore = create<AppState>()((set, get) => ({
     const newClient = await api.createClient(finalClientData)
     get()._addClient(newClient)
   },
+
   updateClient: async (id, updates) => {
     const updatedClient = await api.updateClient(id, updates)
     get()._updateClient(updatedClient)
   },
+
   uploadClientAvatar: async (clientId, file) => {
     const { uploadUrl, publicUrl } = await api.getAvatarUploadUrl(clientId, file.type)
     await uploadFileToGcs(uploadUrl, file)
     const updatedClient = await api.updateClient(clientId, { avatar: publicUrl })
     get()._updateClient(updatedClient)
   },
+
   deleteClient: async (id) => {
     await api.deleteClient(id)
     get()._removeClient(id)
   },
+
   convertLead: async (id, planId) => {
     const updatedClient = await api.convertLead(id, planId)
     get()._updateClient(updatedClient)
   },
 
+  // ── Schedule domain actions ───────────────────────────────────────────
   addSession: async (sessionData) => {
     const newSession = await api.createSession(sessionData)
     get()._addSession(newSession)
   },
+
   addRecurringSessions: async (baseSession, startDateStr, frequency, untilDateStr) => {
     const newSessions = await api.createRecurringSessions({ baseSession, startDateStr, frequency, untilDateStr })
     get()._addSessions(newSessions)
   },
+
   addRecurringEvent: async (dto) => {
     await api.createRecurringEvent(dto)
   },
+
   deleteRecurringSeries: async (id) => {
     await api.deleteRecurringSeries(id)
     set((state) => ({
       sessions: state.sessions.filter((s: any) => s.recurringEventId !== id && s.recurrenceId !== id),
     }))
   },
+
   upsertSessionException: async (dto) => {
     await api.upsertSessionException(dto)
     if (dto.cancelled) {
       set((state) => ({
-        sessions: state.sessions.filter((s: any) => !(s.recurringEventId === dto.recurringEventId && s.originalStartTime === dto.originalStartTime)),
+        sessions: state.sessions.filter(
+          (s: any) => !(s.recurringEventId === dto.recurringEventId && s.originalStartTime === dto.originalStartTime),
+        ),
       }))
     }
   },
+
   updateSession: async (id, updates) => {
     const updatedSession = await api.updateSession(id, updates)
     get()._updateSession(updatedSession)
   },
+
   updateSessionWithScope: async (sessionId, updates, scope) => {
     if (scope === 'single') {
       await get().updateSession(sessionId, updates)
@@ -204,49 +251,60 @@ export const useStore = create<AppState>()((set, get) => ({
       await get().fetchSessionsForRange(start, end)
     }
   },
+
   fetchSessionsForRange: async (start, end) => {
     const sessions = await api.getSessionsForRange(start, end)
     get()._setSessions(sessions || [])
   },
+
   toggleSessionComplete: async (id) => {
     const updatedSession = await api.toggleSessionComplete(id)
     get()._updateSession(updatedSession)
   },
 
+  // ── Workout domain actions ────────────────────────────────────────────
   addWorkout: async (workoutData) => {
     const newWorkout = await api.createWorkout(workoutData)
     get()._addWorkout(newWorkout)
   },
+
   updateWorkout: async (id, updates) => {
     const updatedWorkout = await api.updateWorkout(id, updates)
     get()._updateWorkout(updatedWorkout)
   },
+
   deleteWorkout: async (id) => {
     await api.deleteWorkout(id)
     get()._removeWorkout(id)
   },
 
+  // ── Evaluation domain actions ─────────────────────────────────────────
   addEvaluation: async (evaluationData) => {
     const newEvaluation = await api.createEvaluation(evaluationData)
     get()._addEvaluation(newEvaluation)
   },
+
   updateEvaluation: async (id, updates) => {
     const updatedEvaluation = await api.updateEvaluation(id, updates)
     get()._updateEvaluation(updatedEvaluation)
   },
+
   deleteEvaluation: async (id) => {
     await api.deleteEvaluation(id)
     get()._removeEvaluation(id)
   },
 
+  // ── Finance domain actions ────────────────────────────────────────────
   addPlan: async (planData) => {
     const newPlan = await api.createPlan(planData)
     get()._addPlan(newPlan)
   },
+
   updatePlan: async (id, updates) => {
     const updatedPlan = await api.updatePlan(id, updates)
     get()._updatePlan(updatedPlan)
   },
+
   deletePlan: async (id) => {
     await api.deletePlan(id)
     get()._removePlan(id)
@@ -255,47 +313,57 @@ export const useStore = create<AppState>()((set, get) => ({
     }))
   },
 
-  updateAiPromptInstructions: async (instructions: string) => {
+  // ── Settings domain actions ───────────────────────────────────────────
+  updateAiPromptInstructions: async (instructions) => {
     await api.updateAiInstructions(instructions)
     get()._setAiPromptInstructions(instructions)
   },
 
-  updateLocale: async (language: string) => {
+  updateLocale: async (language) => {
     const result = await api.updateLanguage(language)
     get()._setLocale(result.language)
   },
 
+  // ── System Feature domain actions ─────────────────────────────────────
   fetchSystemFeatures: async () => {
     const features = await api.getActiveSystemFeatures()
     get()._setSystemFeatures(features || [])
   },
+
   addSystemFeature: async (data) => {
     const feature = await api.createSystemFeature(data)
     get()._addSystemFeature(feature)
   },
+
   updateSystemFeature: async (id, updates) => {
     const feature = await api.updateSystemFeature(id, updates)
     get()._updateSystemFeature(feature)
   },
+
   deleteSystemFeature: async (id) => {
     await api.deleteSystemFeature(id)
     get()._removeSystemFeature(id)
   },
 
+  // ── Availability domain actions ───────────────────────────────────────
   updateWorkHours: async (config) => {
     const result = await api.updateWorkHours(config)
     get()._setWorkHours(result)
   },
+
   fetchAvailabilityBlocks: async (start, end) => {
     const blocks = await api.getAvailabilityBlocks(start, end)
     get()._setAvailabilityBlocks(blocks || [])
   },
+
   addAvailabilityBlock: async (data) => {
     await api.createAvailabilityBlock(data)
   },
+
   updateAvailabilityBlock: async (id, data) => {
     await api.updateAvailabilityBlock(id, data)
   },
+
   deleteAvailabilityBlock: async (id) => {
     await api.deleteAvailabilityBlock(id)
   },
