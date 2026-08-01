@@ -1,8 +1,7 @@
 import { type StateCreator } from 'zustand'
 
-import { type AppState } from './store'
-import { SUPPORTED_LOCALES, type SupportedLocale, i18n } from '../i18n/index'
-import { getAiInstructions, getLanguage } from '../services/apiService'
+import { SUPPORTED_LOCALES, type SupportedLocale } from '../../../i18n/constants'
+import { getAiInstructions, getLanguage } from '../../../services/api/apiService'
 
 export interface SettingsSlice {
   aiPromptInstructions: string
@@ -13,7 +12,7 @@ export interface SettingsSlice {
   hydrateAiInstructions: () => Promise<void>
 }
 
-export const createSettingsSlice: StateCreator<AppState, [], [], SettingsSlice> = (set, get) => ({
+export const createSettingsSlice: StateCreator<SettingsSlice, [], [], SettingsSlice> = (set, get) => ({
   aiPromptInstructions: '',
   _setAiPromptInstructions: (instructions) => set({ aiPromptInstructions: instructions }),
 
@@ -30,9 +29,11 @@ export const createSettingsSlice: StateCreator<AppState, [], [], SettingsSlice> 
       const { language } = await getLanguage()
       const resolved: SupportedLocale = (SUPPORTED_LOCALES as readonly string[]).includes(language) ? (language as SupportedLocale) : 'pt-BR'
       get()._setLocale(resolved)
+      const { i18n } = await import('../../../i18n/index')
       await i18n.changeLanguage(resolved)
     } catch {
       get()._setLocale('pt-BR')
+      const { i18n } = await import('../../../i18n/index')
       await i18n.changeLanguage('pt-BR')
     }
   },

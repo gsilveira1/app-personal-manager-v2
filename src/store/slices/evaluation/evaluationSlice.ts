@@ -1,7 +1,6 @@
 import { type StateCreator } from 'zustand'
 
-import { type Evaluation } from '../types'
-import { type AppState } from './store'
+import { type Evaluation } from '../../../types'
 
 export interface EvaluationSlice {
   evaluations: Evaluation[]
@@ -11,7 +10,7 @@ export interface EvaluationSlice {
   _removeEvaluation: (evaluationId: string) => void
 }
 
-export const createEvaluationSlice: StateCreator<AppState, [], [], EvaluationSlice> = (set) => ({
+export const createEvaluationSlice: StateCreator<EvaluationSlice, [], [], EvaluationSlice> = (set) => ({
   evaluations: [],
   _setEvaluations: (evaluations) => set({ evaluations }),
   _addEvaluation: (evaluation) => set((state) => ({ evaluations: [evaluation, ...state.evaluations] })),
@@ -19,7 +18,7 @@ export const createEvaluationSlice: StateCreator<AppState, [], [], EvaluationSli
     set((state) => ({
       evaluations: state.evaluations.map((e) => (e.id === evaluation.id ? evaluation : e)),
     })),
-  _removeEvaluation: (evaluationId) =>
+  _removeEvaluation: (evaluationId: string) =>
     set((state) => ({
       evaluations: state.evaluations.filter((e) => e.id !== evaluationId),
     })),

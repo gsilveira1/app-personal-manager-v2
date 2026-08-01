@@ -1,7 +1,6 @@
 import { type StateCreator } from 'zustand'
 
-import { type WorkoutPlan } from '../types'
-import { type AppState } from './store'
+import { type WorkoutPlan } from '../../../types'
 
 export interface WorkoutSlice {
   workouts: WorkoutPlan[]
@@ -11,7 +10,7 @@ export interface WorkoutSlice {
   _removeWorkout: (workoutId: string) => void
 }
 
-export const createWorkoutSlice: StateCreator<AppState, [], [], WorkoutSlice> = (set) => ({
+export const createWorkoutSlice: StateCreator<WorkoutSlice, [], [], WorkoutSlice> = (set) => ({
   workouts: [],
   _setWorkouts: (workouts) => set({ workouts }),
   _addWorkout: (workout) => set((state) => ({ workouts: [...state.workouts, workout] })),

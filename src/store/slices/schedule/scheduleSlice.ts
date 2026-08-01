@@ -1,7 +1,6 @@
 import { type StateCreator } from 'zustand'
 
-import { type Session } from '../types'
-import { type AppState } from './store'
+import { type Session } from '../../../types'
 
 export interface ScheduleSlice {
   sessions: Session[]
@@ -12,7 +11,7 @@ export interface ScheduleSlice {
   _updateSessionSeries: (sessions: Session[], recurrenceId: string) => void
 }
 
-export const createScheduleSlice: StateCreator<AppState, [], [], ScheduleSlice> = (set) => ({
+export const createScheduleSlice: StateCreator<ScheduleSlice, [], [], ScheduleSlice> = (set) => ({
   sessions: [],
   _setSessions: (sessions) => set({ sessions }),
   _addSession: (session) => set((state) => ({ sessions: [...state.sessions, session] })),

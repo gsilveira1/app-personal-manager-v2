@@ -2,14 +2,14 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { useAuthStore } from './authStore'
 
-vi.mock('../services/apiService', () => ({
+vi.mock('../services/api/apiService', () => ({
   login: vi.fn(),
   signup: vi.fn(),
   logout: vi.fn(),
   getCurrentUser: vi.fn(),
 }))
 
-import * as api from '../services/apiService'
+import * as api from '../services/api/apiService'
 
 const mockApi = api as {
   login: ReturnType<typeof vi.fn>

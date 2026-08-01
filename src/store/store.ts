@@ -1,17 +1,17 @@
 import { create } from 'zustand'
 
 import type { Client, Session, WorkoutPlan, Evaluation, Plan, SystemFeature, WorkHoursConfig, AvailabilityBlock } from '../types'
-import * as api from '../services/apiService'
+import * as api from '../services/api/apiService'
 import { uploadFileToGcs } from '../utils/uploadToGcs'
 import { ApiError } from '../utils/apiClient'
-import { type ClientSlice, createClientSlice } from './clientSlice'
-import { type ScheduleSlice, createScheduleSlice } from './scheduleSlice'
-import { type WorkoutSlice, createWorkoutSlice } from './workoutSlice'
-import { type FinanceSlice, createFinanceSlice } from './financeSlice'
-import { type EvaluationSlice, createEvaluationSlice } from './evaluationSlice'
-import { type SettingsSlice, createSettingsSlice } from './settingsSlice'
-import { type SystemFeatureSlice, createSystemFeatureSlice } from './systemFeatureSlice'
-import { type AvailabilitySlice, createAvailabilitySlice } from './availabilitySlice'
+import { type ClientSlice, createClientSlice } from './slices/clients/clientSlice'
+import { type ScheduleSlice, createScheduleSlice } from './slices/schedule/scheduleSlice'
+import { type WorkoutSlice, createWorkoutSlice } from './slices/workout/workoutSlice'
+import { type FinanceSlice, createFinanceSlice } from './slices/finance/financeSlice'
+import { type EvaluationSlice, createEvaluationSlice } from './slices/evaluation/evaluationSlice'
+import { type SettingsSlice, createSettingsSlice } from './slices/settings/settingsSlice'
+import { type SystemFeatureSlice, createSystemFeatureSlice } from './slices/systemFeature/systemFeatureSlice'
+import { type AvailabilitySlice, createAvailabilitySlice } from './slices/availability/availabilitySlice'
 
 // Combine all slice interfaces and add async actions
 export type AppState = ClientSlice &
@@ -103,8 +103,11 @@ export const useStore = create<AppState>()((set, get) => ({
       get()._setWorkouts(workouts || [])
       get()._setEvaluations(evaluations || [])
       get()._setPlans(plans || [])
+
       await Promise.all([get().hydrateLocale(), get().hydrateAiInstructions(), get().hydrateWorkHours()])
+
       set({ appState: 'ready' })
+
     } catch (error) {
       console.error('Failed to fetch initial data:', error)
       if (error instanceof ApiError && error.status === 401) {

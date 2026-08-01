@@ -1,6 +1,6 @@
 import type { CustomDetector } from 'i18next-browser-languagedetector'
 
-import { updateLanguage } from '../services/apiService'
+import { updateLanguage } from '../services/api/apiService'
 import { useStore } from '../store/store'
 
 export const localeDetector: CustomDetector = {

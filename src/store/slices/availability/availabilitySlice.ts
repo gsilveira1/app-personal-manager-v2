@@ -1,8 +1,7 @@
 import { type StateCreator } from 'zustand'
 
-import { type AppState } from './store'
-import { type WorkHoursConfig, type MaterializedBlock } from '../types'
-import { getWorkHours } from '../services/apiService'
+import { type WorkHoursConfig, type MaterializedBlock } from '../../../types'
+import { getWorkHours } from '../../../services/api/apiService'
 
 const DEFAULT_WORK_HOURS: WorkHoursConfig = {
   monday: { enabled: true, start: '07:00', end: '19:00' },
@@ -23,7 +22,7 @@ export interface AvailabilitySlice {
   hydrateWorkHours: () => Promise<void>
 }
 
-export const createAvailabilitySlice: StateCreator<AppState, [], [], AvailabilitySlice> = (set, get) => ({
+export const createAvailabilitySlice: StateCreator<AvailabilitySlice, [], [], AvailabilitySlice> = (set, get) => ({
   workHours: DEFAULT_WORK_HOURS,
   availabilityBlocks: [],
 

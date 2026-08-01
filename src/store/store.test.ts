@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
-vi.mock('../services/apiService', () => ({
+vi.mock('../services/api/apiService', () => ({
   getClients: vi.fn(),
   getEvaluations: vi.fn(),
   getPlans: vi.fn(),
@@ -64,7 +64,7 @@ vi.mock('../i18n/index', () => ({
   },
 }))
 
-import * as api from '../services/apiService'
+import * as api from '../services/api/apiService'
 import { useStore } from './store'
 
 const mockApi = api as Record<string, ReturnType<typeof vi.fn>>

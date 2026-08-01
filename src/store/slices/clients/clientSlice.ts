@@ -1,7 +1,6 @@
 import { type StateCreator } from 'zustand'
 
-import { type Client } from '../types'
-import { type AppState } from './store'
+import { type Client } from '../../../types'
 
 export interface ClientSlice {
   clients: Client[]
@@ -11,7 +10,7 @@ export interface ClientSlice {
   _removeClient: (clientId: string) => void
 }
 
-export const createClientSlice: StateCreator<AppState, [], [], ClientSlice> = (set) => ({
+export const createClientSlice: StateCreator<ClientSlice, [], [], ClientSlice> = (set) => ({
   clients: [],
   _setClients: (clients) => set({ clients }),
   _addClient: (client) => set((state) => ({ clients: [...state.clients, client] })),

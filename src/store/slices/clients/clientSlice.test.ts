@@ -1,25 +1,10 @@
 // @vitest-environment node
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-
-// Mock store.ts to break the circular dependency (clientSlice imports AppState from store)
-vi.mock('./store', () => ({}))
+import { describe, it, expect, beforeEach } from 'vitest'
+import { create } from 'zustand'
 
 import { createClientSlice, type ClientSlice } from './clientSlice'
 
-// Create a minimal store to test the slice in isolation
-const createTestStore = () => {
-  let state: ClientSlice = {} as ClientSlice
-  const set = (partial: Partial<ClientSlice> | ((s: ClientSlice) => Partial<ClientSlice>)) => {
-    if (typeof partial === 'function') {
-      state = { ...state, ...partial(state) }
-    } else {
-      state = { ...state, ...partial }
-    }
-  }
-  const get = () => state
-  state = createClientSlice(set as any, get as any, {} as any)
-  return { getState: () => state }
-}
+const createTestStore = () => create<ClientSlice>()((...a) => ({ ...createClientSlice(...a) }))
 
 describe('clientSlice', () => {
   let store: ReturnType<typeof createTestStore>

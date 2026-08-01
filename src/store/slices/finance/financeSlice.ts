@@ -1,7 +1,6 @@
 import { type StateCreator } from 'zustand'
 
-import { type Plan } from '../types'
-import { type AppState } from './store'
+import { type Plan } from '../../../types'
 
 export interface FinanceSlice {
   plans: Plan[]
@@ -11,7 +10,7 @@ export interface FinanceSlice {
   _removePlan: (planId: string) => void
 }
 
-export const createFinanceSlice: StateCreator<AppState, [], [], FinanceSlice> = (set) => ({
+export const createFinanceSlice: StateCreator<FinanceSlice, [], [], FinanceSlice> = (set) => ({
   plans: [],
   _setPlans: (plans) => set({ plans }),
   _addPlan: (plan) => set((state) => ({ plans: [...state.plans, plan] })),

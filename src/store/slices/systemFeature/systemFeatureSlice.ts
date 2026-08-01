@@ -1,7 +1,6 @@
 import { type StateCreator } from 'zustand'
 
-import { type AppState } from './store'
-import { type SystemFeature } from '../types'
+import { type SystemFeature } from '../../../types'
 
 export interface SystemFeatureSlice {
   systemFeatures: SystemFeature[]
@@ -11,7 +10,7 @@ export interface SystemFeatureSlice {
   _removeSystemFeature: (id: string) => void
 }
 
-export const createSystemFeatureSlice: StateCreator<AppState, [], [], SystemFeatureSlice> = (set) => ({
+export const createSystemFeatureSlice: StateCreator<SystemFeatureSlice, [], [], SystemFeatureSlice> = (set) => ({
   systemFeatures: [],
 
   _setSystemFeatures: (features) => set({ systemFeatures: features }),
