@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom'
 import { LayoutDashboard, Users, Calendar, Dumbbell, X, Settings, UserPlus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { useStore } from '../../../store/store'
+import { useStore } from '../../../states/stores/store'
 
 interface SidebarProps {
   isOpen: boolean

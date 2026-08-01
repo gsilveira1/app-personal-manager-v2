@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router'
 import { parseISO } from 'date-fns'
 import { useTranslation } from 'react-i18next'
 
-import { useStore } from '../../../store/store'
+import { useStore } from '../../../states/stores/store'
 import { type Session } from '../../../types'
 import { Card, Button } from '../../atoms'
 import { formatLocalized } from '../../../utils/dateLocale'

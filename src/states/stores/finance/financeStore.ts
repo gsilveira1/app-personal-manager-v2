@@ -1,9 +1,9 @@
 import { create } from 'zustand'
 import { type StateCreator } from 'zustand'
 
-import { type Plan } from '../types'
-import * as api from '../services/api/apiService'
-import { createFinanceSlice, type FinanceSlice } from './slices/finance/financeSlice'
+import { type Plan } from '../../../types'
+import * as api from '../../../services/api/apiService'
+import { createFinanceSlice, type FinanceSlice } from '../../slices/finance/financeSlice'
 
 export interface FinanceActions {
   addPlan: (plan: Omit<Plan, 'id'>) => Promise<void>

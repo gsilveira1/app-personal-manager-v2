@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { useAuthStore } from '../store/authStore'
+import { useAuthStore } from '../states/stores/auth/authStore'
 import { Card, Button, Input, Label } from '../components/ui'
 
 export const SignUp = () => {

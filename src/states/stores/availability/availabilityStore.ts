@@ -1,9 +1,9 @@
 import { create } from 'zustand'
 import { type StateCreator } from 'zustand'
 
-import { type AvailabilityBlock, type WorkHoursConfig } from '../types'
-import * as api from '../services/api/apiService'
-import { createAvailabilitySlice, type AvailabilitySlice } from './slices/availability/availabilitySlice'
+import { type AvailabilityBlock, type WorkHoursConfig } from '../../../types'
+import * as api from '../../../services/api/apiService'
+import { createAvailabilitySlice, type AvailabilitySlice } from '../../slices/availability/availabilitySlice'
 
 export interface AvailabilityActions {
   updateWorkHours: (config: WorkHoursConfig) => Promise<void>

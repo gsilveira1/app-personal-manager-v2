@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Globe } from 'lucide-react'
-import { useStore } from '../store/store'
+import { useStore } from '../states/stores/store'
 
 const LANGUAGE_OPTIONS = [
   { code: 'en', label: 'English' },

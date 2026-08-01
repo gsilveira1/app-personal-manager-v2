@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 
 import { type SystemFeature } from '../../../types'
 import { Card, Button } from '../../atoms'
-import * as api from '../../../services/apiService'
+import * as api from '../../../services/api/apiService'
 import { FeatureEditorModal } from './FeatureEditorModal'
 
 export const SystemFeaturesSection: React.FC = () => {

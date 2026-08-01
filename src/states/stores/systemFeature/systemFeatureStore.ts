@@ -1,9 +1,9 @@
 import { create } from 'zustand'
 import { type StateCreator } from 'zustand'
 
-import { type SystemFeature } from '../types'
-import * as api from '../services/api/apiService'
-import { createSystemFeatureSlice, type SystemFeatureSlice } from './slices/systemFeature/systemFeatureSlice'
+import { type SystemFeature } from '../../../types'
+import * as api from '../../../services/api/apiService'
+import { createSystemFeatureSlice, type SystemFeatureSlice } from '../../slices/systemFeature/systemFeatureSlice'
 
 export interface SystemFeatureActions {
   fetchSystemFeatures: () => Promise<void>

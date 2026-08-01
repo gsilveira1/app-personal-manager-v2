@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useStore } from '../store/store'
+import { useStore } from '../states/stores/store'
 import { Card, Button, Input, Label, Select } from './ui'
 import { X, Plus, Trash2, Save, Dumbbell, ArrowUp, ArrowDown, Flame, Sparkles, Loader2, Lightbulb } from 'lucide-react'
 import { type WorkoutPlan, type WorkoutExercise, type Client } from '../types'
-import { generateWorkoutInsights } from '../services/geminiService'
+import { generateWorkoutInsights } from '../services/gemini/geminiService'
 
 interface WorkoutEditorModalProps {
   isOpen: boolean

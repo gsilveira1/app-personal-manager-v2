@@ -1,14 +1,14 @@
 // @vitest-environment node
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-vi.mock('../services/api/apiService', () => ({
+vi.mock('../../../services/api/apiService', () => ({
   getActiveSystemFeatures: vi.fn(),
   createSystemFeature: vi.fn(),
   updateSystemFeature: vi.fn(),
   deleteSystemFeature: vi.fn(),
 }))
 
-import * as api from '../services/api/apiService'
+import * as api from '../../../services/api/apiService'
 import { useSystemFeatureStore } from './systemFeatureStore'
 
 const mockApi = api as Record<string, ReturnType<typeof vi.fn>>

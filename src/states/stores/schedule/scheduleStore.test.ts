@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-vi.mock('../services/api/apiService', () => ({
+vi.mock('../../../services/api/apiService', () => ({
   createSession: vi.fn(),
   createRecurringSessions: vi.fn(),
   createRecurringEvent: vi.fn(),
@@ -13,7 +13,7 @@ vi.mock('../services/api/apiService', () => ({
   toggleSessionComplete: vi.fn(),
 }))
 
-import * as api from '../services/api/apiService'
+import * as api from '../../../services/api/apiService'
 import { useScheduleStore } from './scheduleStore'
 
 const mockApi = api as Record<string, ReturnType<typeof vi.fn>>

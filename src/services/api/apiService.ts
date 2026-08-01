@@ -1,5 +1,5 @@
-import { type Client, type Session, type WorkoutPlan, type Evaluation, type Plan, type User, type SystemFeature, type WorkHoursConfig, type AvailabilityBlock, type MaterializedBlock } from '../types'
-import apiClient from '../utils/apiClient'
+import { type Client, type Session, type WorkoutPlan, type Evaluation, type Plan, type User, type SystemFeature, type WorkHoursConfig, type AvailabilityBlock, type MaterializedBlock } from '../../types'
+import apiClient from '../../utils/apiClient'
 
 // --- Auth API ---
 export const login = async (email: string, pass: string) => {

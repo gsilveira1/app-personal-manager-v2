@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-vi.mock('../services/api/apiService', () => ({
+vi.mock('../../../services/api/apiService', () => ({
   createClient: vi.fn(),
   updateClient: vi.fn(),
   deleteClient: vi.fn(),
@@ -10,11 +10,11 @@ vi.mock('../services/api/apiService', () => ({
   createPlan: vi.fn(),
 }))
 
-vi.mock('../utils/uploadToGcs', () => ({
+vi.mock('../../../utils/uploadToGcs', () => ({
   uploadFileToGcs: vi.fn().mockResolvedValue(undefined),
 }))
 
-import * as api from '../services/api/apiService'
+import * as api from '../../../services/api/apiService'
 import { useClientStore } from './clientStore'
 
 const mockApi = api as Record<string, ReturnType<typeof vi.fn>>

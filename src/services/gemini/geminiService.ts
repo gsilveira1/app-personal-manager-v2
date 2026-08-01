@@ -1,5 +1,5 @@
 import { GoogleGenAI, Type } from '@google/genai'
-import { type Client, type Evaluation, type MedicalHistory, type WorkoutPlan } from '../types'
+import { type Client, type Evaluation, type MedicalHistory, type WorkoutPlan } from '../../types'
 
 const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_GMKEY })
 

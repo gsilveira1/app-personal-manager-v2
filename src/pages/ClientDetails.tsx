@@ -5,7 +5,7 @@ import { parseISO } from 'date-fns'
 import { useTranslation } from 'react-i18next'
 
 import { formatLocalized } from '../utils/dateLocale'
-import { useStore } from '../store/store'
+import { useStore } from '../states/stores/store'
 import { Card, Button } from '../components/atoms'
 import { useClientDetails } from '../hooks/useClientDetails'
 import { ClientProfileHeader } from '../components/organisms/client-details/ClientProfileHeader'

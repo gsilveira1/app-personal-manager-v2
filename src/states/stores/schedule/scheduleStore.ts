@@ -1,9 +1,9 @@
 import { create } from 'zustand'
 import { type StateCreator } from 'zustand'
 
-import { type Session } from '../types'
-import * as api from '../services/api/apiService'
-import { createScheduleSlice, type ScheduleSlice } from './slices/schedule/scheduleSlice'
+import { type Session } from '../../../types'
+import * as api from '../../../services/api/apiService'
+import { createScheduleSlice, type ScheduleSlice } from '../../slices/schedule/scheduleSlice'
 
 export interface ScheduleActions {
   addSession: (session: Omit<Session, 'id' | 'completed' | 'recurrenceId'>) => Promise<void>

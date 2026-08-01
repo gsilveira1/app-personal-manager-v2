@@ -5,7 +5,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { useStore } from '../store/store'
+import { useStore } from '../states/stores/store'
 import { Card, Button } from '../components/atoms'
 import { StatCard } from '../components/molecules/StatCard'
 import { formatLocalized } from '../utils/dateLocale'

@@ -25,7 +25,7 @@ vi.mock('../utils/apiClient', () => ({
   },
 }))
 
-import apiClient from '../utils/apiClient'
+import apiClient from '../../utils/apiClient'
 import * as api from './apiService'
 
 const mockApiClient = apiClient as ReturnType<typeof vi.fn>

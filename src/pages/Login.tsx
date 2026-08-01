@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { useAuthStore } from '../store/authStore'
+import { useAuthStore } from '../states/stores/auth/authStore'
 import { Card, Button, Input, Label } from '../components/ui'
 import { Loader2 } from 'lucide-react'
 

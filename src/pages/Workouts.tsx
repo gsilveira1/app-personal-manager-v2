@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Sparkles } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { useStore } from '../store/store'
+import { useStore } from '../states/stores/store'
 import { type WorkoutPlan } from '../types'
 import { TabBar } from '../components/molecules/TabBar'
 import { WorkoutLibrary } from '../components/organisms/workouts/WorkoutLibrary'

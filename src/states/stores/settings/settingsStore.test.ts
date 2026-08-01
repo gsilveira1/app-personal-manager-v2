@@ -1,21 +1,21 @@
 // @vitest-environment node
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-vi.mock('../services/api/apiService', () => ({
+vi.mock('../../../services/api/apiService', () => ({
   updateAiInstructions: vi.fn(),
   updateLanguage: vi.fn(),
   getAiInstructions: vi.fn(),
   getLanguage: vi.fn(),
 }))
 
-vi.mock('../i18n/index', () => ({
+vi.mock('../../../i18n/index', () => ({
   SUPPORTED_LOCALES: ['pt-BR', 'en'],
   i18n: {
     changeLanguage: vi.fn().mockResolvedValue(undefined),
   },
 }))
 
-import * as api from '../services/api/apiService'
+import * as api from '../../../services/api/apiService'
 import { useSettingsStore } from './settingsStore'
 
 const mockApi = api as Record<string, ReturnType<typeof vi.fn>>

@@ -5,5 +5,5 @@
   "workouts": "Workouts",
   "leads": "Leads",
   "settings": "Settings",
-  "welcomeSubtitle": "Welcome back, Coach Alex. Here's your daily overview."
+  "welcomeSubtitle": "Welcome back, {{user}}. Here's your daily overview."
 }

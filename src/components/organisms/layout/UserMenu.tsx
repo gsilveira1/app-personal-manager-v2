@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router'
 import { LogOut } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { useAuthStore } from '../../../store/authStore'
-import { useStore } from '../../../store/store'
+import { useAuthStore } from '../../../states/stores/auth/authStore'
+import { useStore } from '../../../states/stores/store'
 
 export const UserMenu: React.FC = () => {
   const { user, logout } = useAuthStore()

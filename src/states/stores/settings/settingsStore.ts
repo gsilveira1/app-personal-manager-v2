@@ -1,8 +1,8 @@
 import { create } from 'zustand'
 import { type StateCreator } from 'zustand'
 
-import * as api from '../services/api/apiService'
-import { createSettingsSlice, type SettingsSlice } from './slices/settings/settingsSlice'
+import * as api from '../../../services/api/apiService'
+import { createSettingsSlice, type SettingsSlice } from '../../slices/settings/settingsSlice'
 
 export interface SettingsActions {
   updateAiPromptInstructions: (instructions: string) => Promise<void>

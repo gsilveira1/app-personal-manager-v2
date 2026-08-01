@@ -1,9 +1,9 @@
 import { create } from 'zustand'
 import { type StateCreator } from 'zustand'
 
-import { type Evaluation } from '../types'
-import * as api from '../services/api/apiService'
-import { createEvaluationSlice, type EvaluationSlice } from './slices/evaluation/evaluationSlice'
+import { type Evaluation } from '../../../types'
+import * as api from '../../../services/api/apiService'
+import { createEvaluationSlice, type EvaluationSlice } from '../../slices/evaluation/evaluationSlice'
 
 export interface EvaluationActions {
   addEvaluation: (evaluation: Omit<Evaluation, 'id'>) => Promise<void>

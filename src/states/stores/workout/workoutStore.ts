@@ -1,9 +1,9 @@
 import { create } from 'zustand'
 import { type StateCreator } from 'zustand'
 
-import { type WorkoutPlan } from '../types'
-import * as api from '../services/api/apiService'
-import { createWorkoutSlice, type WorkoutSlice } from './slices/workout/workoutSlice'
+import { type WorkoutPlan } from '../../../types'
+import * as api from '../../../services/api/apiService'
+import { createWorkoutSlice, type WorkoutSlice } from '../../slices/workout/workoutSlice'
 
 export interface WorkoutActions {
   addWorkout: (workout: Omit<WorkoutPlan, 'id' | 'createdAt'>) => Promise<void>

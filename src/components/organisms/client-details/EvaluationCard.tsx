@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 
 import { Card } from '../../atoms'
 import { formatLocalized } from '../../../utils/dateLocale'
-import { useStore } from '../../../store/store'
+import { useStore } from '../../../states/stores/store'
 import { EvaluationModal } from './EvaluationModal'
 import { ConfirmationModal } from './ConfirmationModal'
 import type { Evaluation } from '../../../types'

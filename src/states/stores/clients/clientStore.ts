@@ -1,11 +1,11 @@
 import { create } from 'zustand'
 import { type StateCreator } from 'zustand'
 
-import { type Client, type Plan } from '../types'
-import * as api from '../services/api/apiService'
-import { uploadFileToGcs } from '../utils/uploadToGcs'
-import { createClientSlice, type ClientSlice } from './slices/clients/clientSlice'
-import { createFinanceSlice, type FinanceSlice } from './slices/finance/financeSlice'
+import { type Client, type Plan } from '../../../types'
+import * as api from '../../../services/api/apiService'
+import { uploadFileToGcs } from '../../../utils/uploadToGcs'
+import { createClientSlice, type ClientSlice } from '../../slices/clients/clientSlice'
+import { createFinanceSlice, type FinanceSlice } from '../../slices/finance/financeSlice'
 
 export interface ClientActions {
   addClient: (clientData: Omit<Client, 'id' | 'avatar'>, customPlanData?: Omit<Plan, 'id'>) => Promise<void>

@@ -1,27 +1,27 @@
 import { create } from 'zustand'
 
-import { ApiError } from '../utils/apiClient'
-import * as api from '../services/api/apiService'
+import { ApiError } from '../../utils/apiClient'
+import * as api from '../../services/api/apiService'
 
 // ── Slices (state + sync mutators) ────────────────────────────────────────────
-import { type ClientSlice, createClientSlice } from './slices/clients/clientSlice'
-import { type ScheduleSlice, createScheduleSlice } from './slices/schedule/scheduleSlice'
-import { type WorkoutSlice, createWorkoutSlice } from './slices/workout/workoutSlice'
-import { type FinanceSlice, createFinanceSlice } from './slices/finance/financeSlice'
-import { type EvaluationSlice, createEvaluationSlice } from './slices/evaluation/evaluationSlice'
-import { type SettingsSlice, createSettingsSlice } from './slices/settings/settingsSlice'
-import { type SystemFeatureSlice, createSystemFeatureSlice } from './slices/systemFeature/systemFeatureSlice'
-import { type AvailabilitySlice, createAvailabilitySlice } from './slices/availability/availabilitySlice'
+import { type ClientSlice, createClientSlice } from '../slices/clients/clientSlice'
+import { type ScheduleSlice, createScheduleSlice } from '../slices/schedule/scheduleSlice'
+import { type WorkoutSlice, createWorkoutSlice } from '../slices/workout/workoutSlice'
+import { type FinanceSlice, createFinanceSlice } from '../slices/finance/financeSlice'
+import { type EvaluationSlice, createEvaluationSlice } from '../slices/evaluation/evaluationSlice'
+import { type SettingsSlice, createSettingsSlice } from '../slices/settings/settingsSlice'
+import { type SystemFeatureSlice, createSystemFeatureSlice } from '../slices/systemFeature/systemFeatureSlice'
+import { type AvailabilitySlice, createAvailabilitySlice } from '../slices/availability/availabilitySlice'
 
 // ── Domain actions (async API calls) — single source of truth ─────────────────
-import { type ClientActions, createClientActions } from './clientStore'
-import { type ScheduleActions, createScheduleActions } from './scheduleStore'
-import { type WorkoutActions, createWorkoutActions } from './workoutStore'
-import { type FinanceActions, createFinanceActions } from './financeStore'
-import { type EvaluationActions, createEvaluationActions } from './evaluationStore'
-import { type SettingsActions, createSettingsActions } from './settingsStore'
-import { type SystemFeatureActions, createSystemFeatureActions } from './systemFeatureStore'
-import { type AvailabilityActions, createAvailabilityActions } from './availabilityStore'
+import { type ClientActions, createClientActions } from './clients/clientStore'
+import { type ScheduleActions, createScheduleActions } from './schedule/scheduleStore'
+import { type WorkoutActions, createWorkoutActions } from './workout/workoutStore'
+import { type FinanceActions, createFinanceActions } from './finance/financeStore'
+import { type EvaluationActions, createEvaluationActions } from './evaluation/evaluationStore'
+import { type SettingsActions, createSettingsActions } from './settings/settingsStore'
+import { type SystemFeatureActions, createSystemFeatureActions } from './systemFeature/systemFeatureStore'
+import { type AvailabilityActions, createAvailabilityActions } from './availability/availabilityStore'
 
 // ─── Global App State ─────────────────────────────────────────────────────────
 // Composes all domain slices and their action interfaces.
@@ -130,4 +130,4 @@ export const useStore = create<AppState>()((set, get) => ({
 }))
 
 // Need to import authStore here to prevent circular dependency issues
-import { useAuthStore } from './authStore'
+import { useAuthStore } from './auth/authStore'

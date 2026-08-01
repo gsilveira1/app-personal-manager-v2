@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
-vi.mock('../services/api/apiService', () => ({
+vi.mock('../../services/api/apiService', () => ({
   getClients: vi.fn(),
   getEvaluations: vi.fn(),
   getPlans: vi.fn(),
@@ -45,11 +45,11 @@ vi.mock('../services/api/apiService', () => ({
   getSettings: vi.fn(),
 }))
 
-vi.mock('../utils/uploadToGcs', () => ({
+vi.mock('../../utils/uploadToGcs', () => ({
   uploadFileToGcs: vi.fn().mockResolvedValue(undefined),
 }))
 
-vi.mock('./authStore', () => ({
+vi.mock('./auth/authStore', () => ({
   useAuthStore: {
     getState: vi.fn(() => ({
       logout: vi.fn(),
@@ -57,14 +57,14 @@ vi.mock('./authStore', () => ({
   },
 }))
 
-vi.mock('../i18n/index', () => ({
+vi.mock('../../i18n/index', () => ({
   SUPPORTED_LOCALES: ['pt-BR', 'en'],
   i18n: {
     changeLanguage: vi.fn().mockResolvedValue(undefined),
   },
 }))
 
-import * as api from '../services/api/apiService'
+import * as api from '../../services/api/apiService'
 import { useStore } from './store'
 
 const mockApi = api as Record<string, ReturnType<typeof vi.fn>>
@@ -525,7 +525,7 @@ describe('store async actions', () => {
 
   describe('fetchInitialData with 401', () => {
     it('should logout on 401 error', async () => {
-      const { ApiError } = await import('../utils/apiClient')
+      const { ApiError } = await import('../../utils/apiClient')
       mockApi.getClients.mockRejectedValue(new ApiError('Unauthorized', 401))
       mockApi.getEvaluations.mockResolvedValue([])
       mockApi.getPlans.mockResolvedValue([])

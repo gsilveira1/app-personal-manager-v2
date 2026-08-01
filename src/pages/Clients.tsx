@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { useStore } from '../store/store'
+import { useStore } from '../states/stores/store'
 import { Button } from '../components/atoms'
 import { ClientsTable } from '../components/organisms/clients/ClientsTable'
 import { AddClientModal } from '../components/organisms/clients/AddClientModal'

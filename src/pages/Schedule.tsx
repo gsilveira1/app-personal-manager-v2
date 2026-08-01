@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon, LayoutGrid, 
 import { useTranslation } from 'react-i18next'
 
 import { type Session, type MaterializedBlock, type AvailabilityBlock } from '../types'
-import { useStore } from '../store/store'
+import { useStore } from '../states/stores/store'
 import { Card, Button } from '../components/atoms'
 import { useScheduleNavigation, type ViewType } from '../hooks/useScheduleNavigation'
 import { useScheduleDragDrop } from '../hooks/useScheduleDragDrop'

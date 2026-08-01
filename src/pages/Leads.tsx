@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router'
 import { UserPlus, Clock, TrendingUp } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { useStore } from '../store/store'
+import { useStore } from '../states/stores/store'
 import { ClientStatus } from '../types'
 import { StatCard } from '../components/molecules/StatCard'
 import { EmptyState } from '../components/molecules/EmptyState'
