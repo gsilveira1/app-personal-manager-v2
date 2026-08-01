@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { type StateCreator } from 'zustand'
 
 import { type Session } from '../types'
 import * as api from '../services/api/apiService'
@@ -41,17 +42,15 @@ export interface ScheduleActions {
 
 export type ScheduleStoreState = ScheduleSlice & ScheduleActions
 
-export const useScheduleStore = create<ScheduleStoreState>()((...a) => ({
-  ...createScheduleSlice(...a),
-
+// Single source of truth for all schedule/session async actions.
+// Consumed by both useScheduleStore (standalone) and useStore (global).
+export const createScheduleActions: StateCreator<ScheduleStoreState, [], [], ScheduleActions> = (set, get) => ({
   addSession: async (sessionData) => {
-    const [, get] = [a[0], a[1]]
     const newSession = await api.createSession(sessionData)
     get()._addSession(newSession)
   },
 
   addRecurringSessions: async (baseSession, startDateStr, frequency, untilDateStr) => {
-    const [, get] = [a[0], a[1]]
     const newSessions = await api.createRecurringSessions({ baseSession, startDateStr, frequency, untilDateStr })
     get()._addSessions(newSessions)
   },
@@ -61,7 +60,6 @@ export const useScheduleStore = create<ScheduleStoreState>()((...a) => ({
   },
 
   deleteRecurringSeries: async (id) => {
-    const [set] = a
     await api.deleteRecurringSeries(id)
     set((state) => ({
       sessions: state.sessions.filter((s: any) => s.recurringEventId !== id && s.recurrenceId !== id),
@@ -69,7 +67,6 @@ export const useScheduleStore = create<ScheduleStoreState>()((...a) => ({
   },
 
   upsertSessionException: async (dto) => {
-    const [set] = a
     await api.upsertSessionException(dto)
     if (dto.cancelled) {
       set((state) => ({
@@ -81,13 +78,11 @@ export const useScheduleStore = create<ScheduleStoreState>()((...a) => ({
   },
 
   updateSession: async (id, updates) => {
-    const [, get] = [a[0], a[1]]
     const updatedSession = await api.updateSession(id, updates)
     get()._updateSession(updatedSession)
   },
 
   updateSessionWithScope: async (sessionId, updates, scope) => {
-    const [, get] = [a[0], a[1]]
     if (scope === 'single') {
       await get().updateSession(sessionId, updates)
     } else {
@@ -100,16 +95,19 @@ export const useScheduleStore = create<ScheduleStoreState>()((...a) => ({
   },
 
   fetchSessionsForRange: async (start, end) => {
-    const [, get] = [a[0], a[1]]
     const sessions = await api.getSessionsForRange(start, end)
     get()._setSessions(sessions || [])
   },
 
   toggleSessionComplete: async (id) => {
-    const [, get] = [a[0], a[1]]
     const updatedSession = await api.toggleSessionComplete(id)
     get()._updateSession(updatedSession)
   },
+})
+
+export const useScheduleStore = create<ScheduleStoreState>()((...a) => ({
+  ...createScheduleSlice(...a),
+  ...createScheduleActions(...a),
 }))
 
 export type { ScheduleSlice }

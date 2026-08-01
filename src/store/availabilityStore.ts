@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { type StateCreator } from 'zustand'
 
 import { type AvailabilityBlock, type WorkHoursConfig } from '../types'
 import * as api from '../services/api/apiService'
@@ -14,17 +15,15 @@ export interface AvailabilityActions {
 
 export type AvailabilityStoreState = AvailabilitySlice & AvailabilityActions
 
-export const useAvailabilityStore = create<AvailabilityStoreState>()((...a) => ({
-  ...createAvailabilitySlice(...a),
-
+// Single source of truth for all availability async actions.
+// Consumed by both useAvailabilityStore (standalone) and useStore (global).
+export const createAvailabilityActions: StateCreator<AvailabilityStoreState, [], [], AvailabilityActions> = (set, get) => ({
   updateWorkHours: async (config) => {
-    const [, get] = [a[0], a[1]]
     const result = await api.updateWorkHours(config)
     get()._setWorkHours(result)
   },
 
   fetchAvailabilityBlocks: async (start, end) => {
-    const [, get] = [a[0], a[1]]
     const blocks = await api.getAvailabilityBlocks(start, end)
     get()._setAvailabilityBlocks(blocks || [])
   },
@@ -40,6 +39,11 @@ export const useAvailabilityStore = create<AvailabilityStoreState>()((...a) => (
   deleteAvailabilityBlock: async (id) => {
     await api.deleteAvailabilityBlock(id)
   },
+})
+
+export const useAvailabilityStore = create<AvailabilityStoreState>()((...a) => ({
+  ...createAvailabilitySlice(...a),
+  ...createAvailabilityActions(...a),
 }))
 
 export type { AvailabilitySlice }

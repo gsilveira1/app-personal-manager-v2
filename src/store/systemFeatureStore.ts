@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { type StateCreator } from 'zustand'
 
 import { type SystemFeature } from '../types'
 import * as api from '../services/api/apiService'
@@ -13,32 +14,33 @@ export interface SystemFeatureActions {
 
 export type SystemFeatureStoreState = SystemFeatureSlice & SystemFeatureActions
 
-export const useSystemFeatureStore = create<SystemFeatureStoreState>()((...a) => ({
-  ...createSystemFeatureSlice(...a),
-
+// Single source of truth for all system-feature async actions.
+// Consumed by both useSystemFeatureStore (standalone) and useStore (global).
+export const createSystemFeatureActions: StateCreator<SystemFeatureStoreState, [], [], SystemFeatureActions> = (set, get) => ({
   fetchSystemFeatures: async () => {
-    const [, get] = [a[0], a[1]]
     const features = await api.getActiveSystemFeatures()
     get()._setSystemFeatures(features || [])
   },
 
   addSystemFeature: async (data) => {
-    const [, get] = [a[0], a[1]]
     const feature = await api.createSystemFeature(data)
     get()._addSystemFeature(feature)
   },
 
   updateSystemFeature: async (id, updates) => {
-    const [, get] = [a[0], a[1]]
     const feature = await api.updateSystemFeature(id, updates)
     get()._updateSystemFeature(feature)
   },
 
   deleteSystemFeature: async (id) => {
-    const [, get] = [a[0], a[1]]
     await api.deleteSystemFeature(id)
     get()._removeSystemFeature(id)
   },
+})
+
+export const useSystemFeatureStore = create<SystemFeatureStoreState>()((...a) => ({
+  ...createSystemFeatureSlice(...a),
+  ...createSystemFeatureActions(...a),
 }))
 
 export type { SystemFeatureSlice }

@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { type StateCreator } from 'zustand'
 
 import { type Evaluation } from '../types'
 import * as api from '../services/api/apiService'
@@ -12,26 +13,28 @@ export interface EvaluationActions {
 
 export type EvaluationStoreState = EvaluationSlice & EvaluationActions
 
-export const useEvaluationStore = create<EvaluationStoreState>()((...a) => ({
-  ...createEvaluationSlice(...a),
-
+// Single source of truth for all evaluation async actions.
+// Consumed by both useEvaluationStore (standalone) and useStore (global).
+export const createEvaluationActions: StateCreator<EvaluationStoreState, [], [], EvaluationActions> = (set, get) => ({
   addEvaluation: async (evaluationData) => {
-    const [, get] = [a[0], a[1]]
     const newEvaluation = await api.createEvaluation(evaluationData)
     get()._addEvaluation(newEvaluation)
   },
 
   updateEvaluation: async (id, updates) => {
-    const [, get] = [a[0], a[1]]
     const updatedEvaluation = await api.updateEvaluation(id, updates)
     get()._updateEvaluation(updatedEvaluation)
   },
 
   deleteEvaluation: async (id) => {
-    const [, get] = [a[0], a[1]]
     await api.deleteEvaluation(id)
     get()._removeEvaluation(id)
   },
+})
+
+export const useEvaluationStore = create<EvaluationStoreState>()((...a) => ({
+  ...createEvaluationSlice(...a),
+  ...createEvaluationActions(...a),
 }))
 
 export type { EvaluationSlice }

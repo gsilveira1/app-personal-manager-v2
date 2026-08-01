@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { type StateCreator } from 'zustand'
 
 import * as api from '../services/api/apiService'
 import { createSettingsSlice, type SettingsSlice } from './slices/settings/settingsSlice'
@@ -10,20 +11,24 @@ export interface SettingsActions {
 
 export type SettingsStoreState = SettingsSlice & SettingsActions
 
-export const useSettingsStore = create<SettingsStoreState>()((...a) => ({
-  ...createSettingsSlice(...a),
-
+// Single source of truth for all settings async actions.
+// Consumed by both useSettingsStore (standalone) and useStore (global).
+// Hydration actions (hydrateLocale, hydrateAiInstructions) live in settingsSlice.
+export const createSettingsActions: StateCreator<SettingsStoreState, [], [], SettingsActions> = (set, get) => ({
   updateAiPromptInstructions: async (instructions) => {
-    const [, get] = [a[0], a[1]]
     await api.updateAiInstructions(instructions)
     get()._setAiPromptInstructions(instructions)
   },
 
   updateLocale: async (language) => {
-    const [, get] = [a[0], a[1]]
     const result = await api.updateLanguage(language)
     get()._setLocale(result.language)
   },
+})
+
+export const useSettingsStore = create<SettingsStoreState>()((...a) => ({
+  ...createSettingsSlice(...a),
+  ...createSettingsActions(...a),
 }))
 
 export type { SettingsSlice }

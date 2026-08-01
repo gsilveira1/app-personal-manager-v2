@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { type StateCreator } from 'zustand'
 
 import { type WorkoutPlan } from '../types'
 import * as api from '../services/api/apiService'
@@ -12,26 +13,28 @@ export interface WorkoutActions {
 
 export type WorkoutStoreState = WorkoutSlice & WorkoutActions
 
-export const useWorkoutStore = create<WorkoutStoreState>()((...a) => ({
-  ...createWorkoutSlice(...a),
-
+// Single source of truth for all workout async actions.
+// Consumed by both useWorkoutStore (standalone) and useStore (global).
+export const createWorkoutActions: StateCreator<WorkoutStoreState, [], [], WorkoutActions> = (set, get) => ({
   addWorkout: async (workoutData) => {
-    const [, get] = [a[0], a[1]]
     const newWorkout = await api.createWorkout(workoutData)
     get()._addWorkout(newWorkout)
   },
 
   updateWorkout: async (id, updates) => {
-    const [, get] = [a[0], a[1]]
     const updatedWorkout = await api.updateWorkout(id, updates)
     get()._updateWorkout(updatedWorkout)
   },
 
   deleteWorkout: async (id) => {
-    const [, get] = [a[0], a[1]]
     await api.deleteWorkout(id)
     get()._removeWorkout(id)
   },
+})
+
+export const useWorkoutStore = create<WorkoutStoreState>()((...a) => ({
+  ...createWorkoutSlice(...a),
+  ...createWorkoutActions(...a),
 }))
 
 export type { WorkoutSlice }
