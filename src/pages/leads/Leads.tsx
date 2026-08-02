@@ -3,14 +3,14 @@ import { useNavigate } from 'react-router'
 import { UserPlus, Clock, TrendingUp } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { useStore } from '../states/stores/store'
-import { ClientStatus } from '../types'
-import { StatCard } from '../components/molecules/StatCard'
-import { EmptyState } from '../components/molecules/EmptyState'
-import { LeadDrawer } from '../components/organisms/leads/LeadDrawer'
-import { LeadKanban } from '../components/organisms/leads/LeadKanban'
-import { type LeadStage, STAGES, parseStage, encodeNotes } from '../utils/leadHelpers'
-import type { Client } from '../types'
+import { useStore } from '../../states/stores/store'
+import { ClientStatus } from '../../types'
+import { StatCard } from '../../components/molecules/StatCard'
+import { EmptyState } from '../../components/molecules/EmptyState'
+import { LeadDrawer } from '../../components/organisms/leads/LeadDrawer'
+import { LeadKanban } from '../../components/organisms/leads/LeadKanban'
+import { type LeadStage, STAGES, parseStage, encodeNotes } from '../../utils/leadHelpers'
+import type { Client } from '../../types'
 
 /**
  * Leads page component managing and displaying a kanban board of potential clients.

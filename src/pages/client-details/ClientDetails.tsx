@@ -4,20 +4,20 @@ import { ArrowLeft, Edit2, Save, FileText } from 'lucide-react'
 import { parseISO } from 'date-fns'
 import { useTranslation } from 'react-i18next'
 
-import { formatLocalized } from '../utils/dateLocale'
-import { useStore } from '../states/stores/store'
-import { Card, Button } from '../components/atoms'
-import { useClientDetails } from '../hooks/useClientDetails'
-import { ClientProfileHeader } from '../components/organisms/client-details/ClientProfileHeader'
-import { MedicalHistoryCard } from '../components/organisms/client-details/MedicalHistoryCard'
-import { EvaluationCard } from '../components/organisms/client-details/EvaluationCard'
-import { EvaluationModal } from '../components/organisms/client-details/EvaluationModal'
-import { SessionLogModal } from '../components/organisms/client-details/SessionLogModal'
-import { WorkoutEditorModal } from '../components/WorkoutEditorModal'
-import { ClientSessionHistoryTab } from '../components/organisms/client-details/ClientSessionHistoryTab'
-import { ClientEvaluationsTab } from '../components/organisms/client-details/ClientEvaluationsTab'
-import { ClientWorkoutsTab } from '../components/organisms/client-details/ClientWorkoutsTab'
-import type { WorkoutPlan, MedicalHistory } from '../types'
+import { formatLocalized } from '../../utils/dateLocale'
+import { useStore } from '../../states/stores/store'
+import { Card, Button } from '../../components/atoms'
+import { useClientDetails } from '../../hooks/useClientDetails'
+import { ClientProfileHeader } from '../../components/organisms/client-details/ClientProfileHeader'
+import { MedicalHistoryCard } from '../../components/organisms/client-details/MedicalHistoryCard'
+import { EvaluationCard } from '../../components/organisms/client-details/EvaluationCard'
+import { EvaluationModal } from '../../components/organisms/client-details/EvaluationModal'
+import { SessionLogModal } from '../../components/organisms/client-details/SessionLogModal'
+import { WorkoutEditorModal } from '../../components/WorkoutEditorModal'
+import { ClientSessionHistoryTab } from '../../components/organisms/client-details/ClientSessionHistoryTab'
+import { ClientEvaluationsTab } from '../../components/organisms/client-details/ClientEvaluationsTab'
+import { ClientWorkoutsTab } from '../../components/organisms/client-details/ClientWorkoutsTab'
+import type { WorkoutPlan, MedicalHistory } from '../../types'
 
 export const ClientDetails = () => {
   const { t } = useTranslation('clients')
@@ -133,4 +133,4 @@ export const ClientDetails = () => {
 }
 
 // Re-export for backward compatibility
-export { ConfirmationModal } from '../components/organisms/client-details/ConfirmationModal'
+export { ConfirmationModal } from '../../components/organisms/client-details/ConfirmationModal'

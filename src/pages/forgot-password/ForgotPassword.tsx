@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import * as api from '../services/api/apiService'
-import { Card, Button, Input, Label } from '../components/ui'
+import * as api from '../../services/api/apiService'
+import { Card, Button, Input, Label } from '../../components/ui'
 import { Loader2, CheckCircle2 } from 'lucide-react'
 
 /**

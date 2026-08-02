@@ -1,34 +1,33 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { Link } from 'react-router-dom'
-import { Loader2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { useAuthStore } from '../states/stores/auth/authStore'
-import { Card, Button, Input, Label } from '../components/ui'
+import { useAuthStore } from '../../states/stores/auth/authStore'
+import { Card, Button, Input, Label } from '../../components/ui'
+import { Loader2 } from 'lucide-react'
 
 /**
- * SignUp page component allowing users to create a new account.
+ * Login page component allowing users to authenticate into the application.
  */
-export const SignUp = () => {
+export const Login = () => {
   const { t } = useTranslation('auth')
-  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
-  const { signup } = useAuthStore()
+  const { login } = useAuthStore()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setIsLoading(true)
     try {
-      await signup(name, email, password)
-      navigate('/login')
+      await login(email, password)
+      navigate('/')
     } catch (err: any) {
-      setError(err.message || t('failedSignup'))
+      setError(err.message || t('failedLogin'))
     } finally {
       setIsLoading(false)
     }
@@ -37,20 +36,21 @@ export const SignUp = () => {
   return (
     <Card className="p-8 shadow-lg">
       <div className="text-center mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">{t('createAccount')}</h1>
-        <p className="text-slate-500 text-sm">{t('createAccountSubtitle')}</p>
+        <h1 className="text-2xl font-bold text-slate-900">{t('welcomeBack')}</h1>
+        <p className="text-slate-500 text-sm">{t('signInSubtitle')}</p>
       </div>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="name">{t('fullName')}</Label>
-          <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required placeholder={t('fullNamePlaceholder')} />
-        </div>
         <div className="space-y-2">
           <Label htmlFor="email">{t('email')}</Label>
           <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder={t('emailPlaceholder')} />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="password">{t('password')}</Label>
+          <div className="flex justify-between items-center">
+            <Label htmlFor="password">{t('password')}</Label>
+            <Link to="/forgot-password" className="text-xs text-indigo-600 hover:underline">
+              {t('forgotPassword')}
+            </Link>
+          </div>
           <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" />
         </div>
 
@@ -58,13 +58,13 @@ export const SignUp = () => {
 
         <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {t('createAccount')}
+          {t('signIn')}
         </Button>
       </form>
       <p className="text-center text-sm text-slate-500 mt-6">
-        {t('alreadyHaveAccount')}{' '}
-        <Link to="/login" className="font-medium text-indigo-600 hover:underline">
-          {t('signIn')}
+        {t('noAccount')}{' '}
+        <Link to="/signup" className="font-medium text-indigo-600 hover:underline">
+          {t('signUp')}
         </Link>
       </p>
     </Card>

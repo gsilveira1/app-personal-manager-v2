@@ -2,10 +2,10 @@ import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { useStore } from '../states/stores/store'
-import { Button } from '../components/atoms'
-import { ClientsTable } from '../components/organisms/clients/ClientsTable'
-import { AddClientModal } from '../components/organisms/clients/AddClientModal'
+import { useStore } from '../../states/stores/store'
+import { Button } from '../../components/atoms'
+import { ClientsTable } from '../../components/organisms/clients/ClientsTable'
+import { AddClientModal } from '../../components/organisms/clients/AddClientModal'
 
 /**
  * Clients page component displaying a list of clients and a modal to add new ones.

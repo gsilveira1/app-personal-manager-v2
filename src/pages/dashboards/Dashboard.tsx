@@ -2,13 +2,13 @@ import { Calendar, UserPlus, AlertCircle, Activity } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Button } from '../components/atoms'
-import { StatCard } from '../components/molecules/StatCard'
-import { ConflictsCard } from '../components/organisms/dashboard/ConflictsCard'
-import { TodayAgenda } from '../components/organisms/dashboard/TodayAgenda'
-import { ClientWatchlist } from '../components/organisms/dashboard/ClientWatchlist'
-import { WeeklyOverviewCard } from '../components/organisms/dashboard/WeeklyOverviewCard'
-import { useDashboard } from '../hooks/useDashboard'
+import { Button } from '../../components/atoms'
+import { StatCard } from '../../components/molecules/StatCard'
+import { ConflictsCard } from '../../components/organisms/dashboard/ConflictsCard'
+import { TodayAgenda } from '../../components/organisms/dashboard/TodayAgenda'
+import { ClientWatchlist } from '../../components/organisms/dashboard/ClientWatchlist'
+import { WeeklyOverviewCard } from '../../components/organisms/dashboard/WeeklyOverviewCard'
+import { useDashboard } from '../../hooks/useDashboard'
 
 /**
  * Dashboard page displaying statistics, today's agenda, and weekly overview.
