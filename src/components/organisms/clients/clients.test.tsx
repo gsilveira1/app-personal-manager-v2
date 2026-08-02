@@ -14,7 +14,7 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }))
 
-vi.mock('../../../store/store', () => ({
+vi.mock('../../../states/stores/store', () => ({
   useStore: () => ({
     plans: [
       { id: 'p1', name: 'Plan A', type: 'PRESENCIAL', sessionsPerWeek: 3, durationMinutes: 60, price: 400 },

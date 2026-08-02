@@ -14,11 +14,11 @@ vi.mock('../../../utils/dateLocale', () => ({
 
 const mockGenerateWorkoutPlan = vi.fn()
 
-vi.mock('../../../services/geminiService', () => ({
+vi.mock('../../../services/gemini/geminiService', () => ({
   generateWorkoutPlan: (...args: any[]) => mockGenerateWorkoutPlan(...args),
 }))
 
-vi.mock('../../../store/store', () => ({
+vi.mock('../../../states/stores/store', () => ({
   useStore: () => ({
     aiPromptInstructions: 'custom instructions',
   }),

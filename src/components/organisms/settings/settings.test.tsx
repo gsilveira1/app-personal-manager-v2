@@ -6,7 +6,7 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }))
 
-vi.mock('../../../services/apiService', () => ({
+vi.mock('../../../services/api/apiService', () => ({
   getSystemFeatures: vi.fn(),
   createSystemFeature: vi.fn(),
   updateSystemFeature: vi.fn(),
@@ -17,7 +17,7 @@ import { PlanCard } from './PlanCard'
 import { PlanEditorModal } from './PlanEditorModal'
 import { FeatureEditorModal } from './FeatureEditorModal'
 import { SystemFeaturesSection } from './SystemFeaturesSection'
-import * as api from '../../../services/apiService'
+import * as api from '../../../services/api/apiService'
 import type { Plan, SystemFeature } from '../../../types'
 
 // ---------------------------------------------------------------------------

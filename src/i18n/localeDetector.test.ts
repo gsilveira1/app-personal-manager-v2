@@ -1,19 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 // Mock the store before importing the detector
-vi.mock('../store/store', () => ({
+vi.mock('../states/stores/store', () => ({
   useStore: {
     getState: vi.fn(),
   },
 }))
 
 // Mock the apiService before importing the detector
-vi.mock('../services/apiService', () => ({
+vi.mock('../services/api/apiService', () => ({
   updateLanguage: vi.fn(),
 }))
 
-import { useStore } from '../store/store'
-import { updateLanguage } from '../services/apiService'
+import { useStore } from '../states/stores/store'
+import { updateLanguage } from '../services/api/apiService'
 import { localeDetector } from './localeDetector'
 
 const mockGetState = useStore.getState as ReturnType<typeof vi.fn>

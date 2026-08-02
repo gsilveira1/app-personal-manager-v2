@@ -36,6 +36,23 @@ Instructions for building high-quality ReactJS applications with modern patterns
 - Use strict mode in `tsconfig.json` for type safety
 - Leverage React's built-in types (`React.FC`, `React.ComponentProps`, etc.)
 - Create union types for component variants and states
+- **TSDoc Standard**: Every exported function, helper, and complex interface in TypeScript must have TSDoc comments adhering to this format:
+  ```typescript
+  /**
+   * Calculates the total price with tax included.
+   * 
+   * @param price - The base cost of the item
+   * @param taxRate - The tax percentage as a decimal
+   * @returns The final computed total cost
+   * @throws {RangeError} If price is negative
+   * @example
+   * const total = calculateTotal(100, 0.08);
+   */
+  function calculateTotal(price: number, taxRate: number): number {
+    if (price < 0) throw new RangeError("Price cannot be negative");
+    return price * (1 + taxRate);
+  }
+  ```
 
 ### Component Design
 - Follow the single responsibility principle for components

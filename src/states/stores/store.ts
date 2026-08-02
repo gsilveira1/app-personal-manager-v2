@@ -3,7 +3,7 @@ import { create } from 'zustand'
 import { ApiError } from '../../utils/apiClient'
 import * as api from '../../services/api/apiService'
 
-// ── Slices (state + sync mutators) ────────────────────────────────────────────
+/** Slices (state + sync mutators) */
 import { type ClientSlice, createClientSlice } from '../slices/clients/clientSlice'
 import { type ScheduleSlice, createScheduleSlice } from '../slices/schedule/scheduleSlice'
 import { type WorkoutSlice, createWorkoutSlice } from '../slices/workout/workoutSlice'
@@ -13,7 +13,7 @@ import { type SettingsSlice, createSettingsSlice } from '../slices/settings/sett
 import { type SystemFeatureSlice, createSystemFeatureSlice } from '../slices/systemFeature/systemFeatureSlice'
 import { type AvailabilitySlice, createAvailabilitySlice } from '../slices/availability/availabilitySlice'
 
-// ── Domain actions (async API calls) — single source of truth ─────────────────
+/** Domain actions (async API calls) — single source of truth */
 import { type ClientActions, createClientActions } from './clients/clientStore'
 import { type ScheduleActions, createScheduleActions } from './schedule/scheduleStore'
 import { type WorkoutActions, createWorkoutActions } from './workout/workoutStore'
@@ -23,11 +23,12 @@ import { type SettingsActions, createSettingsActions } from './settings/settings
 import { type SystemFeatureActions, createSystemFeatureActions } from './systemFeature/systemFeatureStore'
 import { type AvailabilityActions, createAvailabilityActions } from './availability/availabilityStore'
 
-// ─── Global App State ─────────────────────────────────────────────────────────
-// Composes all domain slices and their action interfaces.
-// Only adds application-level concerns: fetchInitialData, clearDataOnLogout.
-// Domain-specific async logic lives exclusively in each domain store file.
-// ─────────────────────────────────────────────────────────────────────────────
+/**
+ * Unified application state type composing all domain slices and actions.
+ * Composes all domain slices and their action interfaces.
+ *  Only adds application-level concerns: fetchInitialData, clearDataOnLogout.
+ * Domain-specific async logic lives exclusively in each domain store file.
+ */
 export type AppState =
   ClientSlice & ClientActions &
   ScheduleSlice & ScheduleActions &
@@ -37,14 +38,35 @@ export type AppState =
   SettingsSlice & SettingsActions &
   SystemFeatureSlice & SystemFeatureActions &
   AvailabilitySlice & AvailabilityActions & {
+    /** General application lifecycle status flag ('idle' | 'loading' | 'ready' | 'error'). */
     appState: 'idle' | 'loading' | 'ready' | 'error'
+    /** Human-readable error message if application startup/data fetch failed. */
     errorMessage: string | null
+    /**
+     * Fetches all domain entities from backend APIs and hydrates initial state.
+     * 
+     * @returns A promise resolving when initial data loading completes
+     * @example
+     * await fetchInitialData();
+     */
     fetchInitialData: () => Promise<void>
+    /**
+     * Resets all domain slices and state back to empty/idle upon user logout.
+     * 
+     * @example
+     * clearDataOnLogout();
+     */
     clearDataOnLogout: () => void
   }
 
+/**
+ * Primary Zustand hook for accessing global application state and actions across all domains.
+ * 
+ * @example
+ * const { clients, fetchInitialData } = useStore();
+ */
 export const useStore = create<AppState>()((set, get) => ({
-  // ── Slices: state + sync mutators ──────────────────────────────────────────
+  /** Slices: state + sync mutators */
   ...createClientSlice(set, get, {} as any),
   ...createScheduleSlice(set, get, {} as any),
   ...createWorkoutSlice(set, get, {} as any),
@@ -54,7 +76,7 @@ export const useStore = create<AppState>()((set, get) => ({
   ...createSystemFeatureSlice(set, get, {} as any),
   ...createAvailabilitySlice(set, get, {} as any),
 
-  // ── Domain actions: imported from domain stores — zero duplication ─────────
+  /** Domain actions: imported from domain stores — zero duplication */
   ...createClientActions(set, get, {} as any),
   ...createScheduleActions(set, get, {} as any),
   ...createWorkoutActions(set, get, {} as any),
@@ -64,11 +86,11 @@ export const useStore = create<AppState>()((set, get) => ({
   ...createSystemFeatureActions(set, get, {} as any),
   ...createAvailabilityActions(set, get, {} as any),
 
-  // ── Global lifecycle state ─────────────────────────────────────────────────
+  /** Global lifecycle state */
   appState: 'idle',
   errorMessage: null,
 
-  // ── fetchInitialData: orchestrates all domain data hydration ───────────────
+  /** fetchInitialData: orchestrates all domain data hydration */
   fetchInitialData: async () => {
     set({ appState: 'loading', errorMessage: null })
     try {
@@ -100,7 +122,7 @@ export const useStore = create<AppState>()((set, get) => ({
     }
   },
 
-  // ── clearDataOnLogout: resets all domain state ─────────────────────────────
+  /** clearDataOnLogout: resets all domain state */
   clearDataOnLogout: () => {
     set({
       clients: [],
@@ -117,17 +139,19 @@ export const useStore = create<AppState>()((set, get) => ({
     })
   },
 
-  // ── Cross-domain override: deletePlan must also unlink affected clients ─────
-  // This is the only action that touches two domains (finance + clients),
-  // so it lives here in the global store rather than in financeStore.
+  /** 
+   * Cross-domain override: deletePlan must also unlink affected clients 
+   *  This is the only action that touches two domains (finance + clients),
+   * so it lives here in the global store rather than in financeStore.
+  */
   deletePlan: async (id) => {
     await api.deletePlan(id)
     get()._removePlan(id)
     set((state) => ({
       clients: state.clients.map((c) => (c.planId === id ? { ...c, planId: undefined } : c)),
     }))
-  },
+  }
 }))
 
-// Need to import authStore here to prevent circular dependency issues
+/** Need to import authStore here to prevent circular dependency issues */
 import { useAuthStore } from './auth/authStore'

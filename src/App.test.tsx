@@ -8,7 +8,7 @@ let mockIsAuthenticated = false
 let mockIsLoading = false
 let mockAppState: string = 'idle'
 
-vi.mock('./store/authStore', () => ({
+vi.mock('./states/stores/auth/authStore', () => ({
   useAuthStore: vi.fn(() => ({
     isAuthenticated: mockIsAuthenticated,
     isLoading: mockIsLoading,
@@ -17,7 +17,7 @@ vi.mock('./store/authStore', () => ({
   })),
 }))
 
-vi.mock('./store/store', () => ({
+vi.mock('./states/stores/store', () => ({
   useStore: vi.fn((selector?: any) => {
     const state = {
       appState: mockAppState,
@@ -51,8 +51,8 @@ vi.mock('react-i18next', () => ({
 // key internal components: FullScreenLoader and ProtectedRoute logic.
 // App.tsx is primarily a routing shell.
 
-import { useAuthStore } from './store/authStore'
-import { useStore } from './store/store'
+import { useAuthStore } from './states/stores/auth/authStore'
+import { useStore } from './states/stores/store'
 
 describe('App module', () => {
   beforeEach(() => {

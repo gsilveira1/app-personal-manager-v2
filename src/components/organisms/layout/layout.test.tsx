@@ -36,14 +36,14 @@ vi.mock('../../LanguageSwitcher', () => ({
   LanguageSwitcher: () => <div data-testid="lang-switcher" />,
 }))
 
-vi.mock('../../../store/authStore', () => ({
+vi.mock('../../../states/stores/auth/authStore', () => ({
   useAuthStore: () => ({
     user: mockUser,
     logout: mockLogout,
   }),
 }))
 
-vi.mock('../../../store/store', () => ({
+vi.mock('../../../states/stores/store', () => ({
   useStore: (selector?: (s: any) => any) => {
     const state = {
       clients: mockClients,

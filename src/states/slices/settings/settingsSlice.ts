@@ -3,15 +3,53 @@ import { type StateCreator } from 'zustand'
 import { SUPPORTED_LOCALES, type SupportedLocale } from '../../../i18n/constants'
 import { getAiInstructions, getLanguage } from '../../../services/api/apiService'
 
+/**
+ * Slice managing application user settings and locale preferences.
+ */
 export interface SettingsSlice {
+  /** Custom instructions string provided to AI generators. */
   aiPromptInstructions: string
+  /**
+   * Internal mutator for setting AI instructions.
+   * 
+   * @param instructions - The custom instruction prompt string
+   */
   _setAiPromptInstructions: (instructions: string) => void
+  /** Currently selected user locale string. */
   locale: SupportedLocale | ''
+  /**
+   * Internal mutator for updating locale.
+   * 
+   * @param locale - Supported locale identifier string
+   */
   _setLocale: (locale: string) => void
+  /**
+   * Hydrates user locale preference from backend or fallback.
+   * 
+   * @returns A promise resolving when locale is loaded and set
+   * @example
+   * await hydrateLocale();
+   */
   hydrateLocale: () => Promise<void>
+  /**
+   * Hydrates custom AI instructions from backend.
+   * 
+   * @returns A promise resolving when AI instructions are loaded
+   * @example
+   * await hydrateAiInstructions();
+   */
   hydrateAiInstructions: () => Promise<void>
 }
 
+/**
+ * Creates the settings slice state creator for Zustand store integration.
+ * 
+ * @param set - Zustand state setter function
+ * @param get - Zustand state getter function
+ * @returns Initialized SettingsSlice state object and methods
+ * @example
+ * const slice = createSettingsSlice(set, get, storeApi);
+ */
 export const createSettingsSlice: StateCreator<SettingsSlice, [], [], SettingsSlice> = (set, get) => ({
   aiPromptInstructions: '',
   _setAiPromptInstructions: (instructions) => set({ aiPromptInstructions: instructions }),

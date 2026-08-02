@@ -14,14 +14,45 @@ const DEFAULT_WORK_HOURS: WorkHoursConfig = {
   slotDurationMinutes: 60,
 }
 
+/**
+ * Slice managing working hours configuration and availability blocks state.
+ */
 export interface AvailabilitySlice {
+  /** Configured working hours per day of the week and slot duration. */
   workHours: WorkHoursConfig
+  /** Materialized unavailability/availability blocks. */
   availabilityBlocks: MaterializedBlock[]
+  /**
+   * Internal mutator to update working hours in state.
+   * 
+   * @param config - The updated WorkHoursConfig object
+   */
   _setWorkHours: (config: WorkHoursConfig) => void
+  /**
+   * Internal mutator to set materialized availability blocks in state.
+   * 
+   * @param blocks - List of materialized availability blocks
+   */
   _setAvailabilityBlocks: (blocks: MaterializedBlock[]) => void
+  /**
+   * Hydrates working hours configuration from the server.
+   * 
+   * @returns A promise resolving when hydration is complete
+   * @example
+   * await hydrateWorkHours();
+   */
   hydrateWorkHours: () => Promise<void>
 }
 
+/**
+ * Creates the availability slice state creator for Zustand.
+ * 
+ * @param set - Zustand state setter function
+ * @param get - Zustand state getter function
+ * @returns Initialized AvailabilitySlice state object and methods
+ * @example
+ * const slice = createAvailabilitySlice(set, get, storeApi);
+ */
 export const createAvailabilitySlice: StateCreator<AvailabilitySlice, [], [], AvailabilitySlice> = (set, get) => ({
   workHours: DEFAULT_WORK_HOURS,
   availabilityBlocks: [],

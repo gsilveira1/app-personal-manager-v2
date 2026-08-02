@@ -25,7 +25,7 @@ vi.mock('recharts', () => ({
 const mockUpdateEvaluation = vi.fn()
 const mockDeleteEvaluation = vi.fn()
 
-vi.mock('../../../store/store', () => ({
+vi.mock('../../../states/stores/store', () => ({
   useStore: () => ({
     updateEvaluation: mockUpdateEvaluation,
     deleteEvaluation: mockDeleteEvaluation,
