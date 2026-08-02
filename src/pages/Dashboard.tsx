@@ -1,50 +1,34 @@
-import { useMemo } from 'react'
 import { Calendar, UserPlus, AlertCircle, Activity } from 'lucide-react'
-import { isSameDay, parseISO, startOfWeek, endOfWeek, eachDayOfInterval, isAfter, subDays } from 'date-fns'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { useStore } from '../states/stores/store'
-import { Card, Button } from '../components/atoms'
+import { Button } from '../components/atoms'
 import { StatCard } from '../components/molecules/StatCard'
-import { formatLocalized } from '../utils/dateLocale'
-import { ClientStatus } from '../types'
-import { findSchedulingConflicts } from '../utils/scheduleUtils'
 import { ConflictsCard } from '../components/organisms/dashboard/ConflictsCard'
 import { TodayAgenda } from '../components/organisms/dashboard/TodayAgenda'
 import { ClientWatchlist } from '../components/organisms/dashboard/ClientWatchlist'
+import { WeeklyOverviewCard } from '../components/organisms/dashboard/WeeklyOverviewCard'
+import { useDashboard } from '../hooks/useDashboard'
 
+/**
+ * Dashboard page displaying statistics, today's agenda, and weekly overview.
+ */
 export const Dashboard = () => {
   const { t } = useTranslation('navigation')
   const { t: ts } = useTranslation('schedule')
   const { t: tc } = useTranslation('clients')
-  const { clients, sessions, toggleSessionComplete } = useStore()
-
-  const conflicts = useMemo(() => findSchedulingConflicts(sessions), [sessions])
-  const today = new Date()
-  const weekStart = startOfWeek(today, { weekStartsOn: 1 })
-  const weekEnd = endOfWeek(today, { weekStartsOn: 1 })
-
-  const todaySessions = sessions.filter((s) => isSameDay(parseISO(s.date), today))
-  const weeklySessions = sessions.filter((s) => { const d = parseISO(s.date); return d >= weekStart && d <= weekEnd })
-  const newLeads = clients.filter((c) => c.status === ClientStatus.Lead).length
-  const activeClients = clients.filter((c) => c.status === ClientStatus.Active).length
-
-  const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd })
-  const weeklyScheduleData = weekDays.map((day) => ({
-    name: formatLocalized(day, 'EEE'),
-    sessions: sessions.filter((s) => isSameDay(parseISO(s.date), day)).length,
-  }))
-
-  const clientsToWatch = clients
-    .filter((client) => {
-      if (client.status !== ClientStatus.Active) return false
-      const clientSessions = sessions.filter((s) => s.clientId === client.id).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      if (clientSessions.length === 0) return true
-      return isAfter(subDays(today, 14), parseISO(clientSessions[0].date))
-    })
-    .slice(0, 5)
+  
+  const {
+    clients,
+    conflicts,
+    todaySessions,
+    weeklySessions,
+    newLeads,
+    activeClients,
+    weeklyScheduleData,
+    clientsToWatch,
+    toggleSessionComplete
+  } = useDashboard()
 
   return (
     <div className="space-y-6">
@@ -71,20 +55,7 @@ export const Dashboard = () => {
         </div>
         <div className="lg:col-span-1 space-y-6">
           <ClientWatchlist clients={clientsToWatch} />
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold text-slate-900 mb-6">{ts('weeklyOverview')}</h3>
-            <div className="h-[200px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={weeklyScheduleData} margin={{ top: 5, right: 0, left: -20, bottom: -10 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} dy={10} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} allowDecimals={false} />
-                  <Tooltip cursor={{ fill: '#f1f5f9' }} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                  <Bar dataKey="sessions" fill="#818cf8" radius={[4, 4, 0, 0]} barSize={30} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </Card>
+          <WeeklyOverviewCard data={weeklyScheduleData} />
         </div>
       </div>
     </div>
