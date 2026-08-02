@@ -7,6 +7,9 @@ import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../states/stores/auth/authStore'
 import { Card, Button, Input, Label } from '../components/ui'
 
+/**
+ * SignUp page component allowing users to create a new account.
+ */
 export const SignUp = () => {
   const { t } = useTranslation('auth')
   const [name, setName] = useState('')

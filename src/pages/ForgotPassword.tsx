@@ -5,6 +5,9 @@ import * as api from '../services/api/apiService'
 import { Card, Button, Input, Label } from '../components/ui'
 import { Loader2, CheckCircle2 } from 'lucide-react'
 
+/**
+ * ForgotPassword page component allowing users to request a password reset link.
+ */
 export const ForgotPassword = () => {
   const { t } = useTranslation('auth')
   const [email, setEmail] = useState('')

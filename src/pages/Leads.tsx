@@ -12,6 +12,9 @@ import { LeadKanban } from '../components/organisms/leads/LeadKanban'
 import { type LeadStage, STAGES, parseStage, encodeNotes } from '../utils/leadHelpers'
 import type { Client } from '../types'
 
+/**
+ * Leads page component managing and displaying a kanban board of potential clients.
+ */
 export const Leads = () => {
   const { t } = useTranslation('leads')
   const navigate = useNavigate()

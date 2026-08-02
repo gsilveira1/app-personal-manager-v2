@@ -7,6 +7,9 @@ import { useAuthStore } from '../states/stores/auth/authStore'
 import { Card, Button, Input, Label } from '../components/ui'
 import { Loader2 } from 'lucide-react'
 
+/**
+ * Login page component allowing users to authenticate into the application.
+ */
 export const Login = () => {
   const { t } = useTranslation('auth')
   const [email, setEmail] = useState('')

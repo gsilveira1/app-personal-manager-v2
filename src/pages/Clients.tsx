@@ -7,6 +7,9 @@ import { Button } from '../components/atoms'
 import { ClientsTable } from '../components/organisms/clients/ClientsTable'
 import { AddClientModal } from '../components/organisms/clients/AddClientModal'
 
+/**
+ * Clients page component displaying a list of clients and a modal to add new ones.
+ */
 export const Clients = () => {
   const { t } = useTranslation('clients')
   const { clients, plans, addClient } = useStore()

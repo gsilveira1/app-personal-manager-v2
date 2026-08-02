@@ -9,6 +9,9 @@ import { WorkoutLibrary } from '../components/organisms/workouts/WorkoutLibrary'
 import { AIWorkoutGenerator } from '../components/organisms/workouts/AIWorkoutGenerator'
 import { WorkoutEditorModal } from '../components/WorkoutEditorModal'
 
+/**
+ * Workouts page component offering workout template library and AI generator.
+ */
 export const Workouts = () => {
   const { t } = useTranslation('workouts')
   const { workouts, addWorkout, updateWorkout, deleteWorkout } = useStore()
