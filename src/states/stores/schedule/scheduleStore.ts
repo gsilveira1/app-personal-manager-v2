@@ -17,21 +17,6 @@ export interface ScheduleActions {
    */
   addSession: (session: Omit<Session, 'id' | 'completed' | 'recurrenceId'>) => Promise<void>
   /**
-   * Creates a series of recurring sessions based on frequency parameters.
-   * 
-   * @param baseSession - Template session data
-   * @param startDateStr - Start date ISO string
-   * @param frequency - Recurrence interval ('weekly' | 'bi-weekly')
-   * @param untilDateStr - End date ISO string
-   * @returns A promise resolving when recurring sessions are created
-   */
-  addRecurringSessions: (
-    baseSession: Omit<Session, 'id' | 'date' | 'completed'>,
-    startDateStr: string,
-    frequency: 'weekly' | 'bi-weekly',
-    untilDateStr: string,
-  ) => Promise<void>
-  /**
    * Creates an RRULE-based recurring event on the server.
    * 
    * @param dto - Object containing RRULE string, timezone, category, client, etc.
@@ -119,11 +104,6 @@ export const createScheduleActions: StateCreator<ScheduleStoreState, [], [], Sch
   addSession: async (sessionData) => {
     const newSession = await api.createSession(sessionData)
     get()._addSession(newSession)
-  },
-
-  addRecurringSessions: async (baseSession, startDateStr, frequency, untilDateStr) => {
-    const newSessions = await api.createRecurringSessions({ baseSession, startDateStr, frequency, untilDateStr })
-    get()._addSessions(newSessions)
   },
 
   addRecurringEvent: async (dto) => {

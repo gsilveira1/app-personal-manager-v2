@@ -3,7 +3,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('../../../services/api/apiService', () => ({
   createSession: vi.fn(),
-  createRecurringSessions: vi.fn(),
   createRecurringEvent: vi.fn(),
   deleteRecurringSeries: vi.fn(),
   upsertSessionException: vi.fn(),
@@ -42,20 +41,6 @@ describe('scheduleStore', () => {
       await useScheduleStore.getState().addSession({ clientId: 'c1', date: '2025-02-01', durationMinutes: 60, type: 'In-Person', category: 'Workout' } as any)
 
       expect(useScheduleStore.getState().sessions).toHaveLength(1)
-    })
-  })
-
-  describe('addRecurringSessions', () => {
-    it('should create recurring sessions and add all to store', async () => {
-      const sessions = [{ id: 's1' }, { id: 's2' }]
-      mockApi.createRecurringSessions.mockResolvedValue(sessions)
-
-      await useScheduleStore.getState().addRecurringSessions(
-        { clientId: 'c1', durationMinutes: 60, type: 'In-Person', category: 'Workout' } as any,
-        '2025-01-01', 'weekly', '2025-02-01',
-      )
-
-      expect(useScheduleStore.getState().sessions).toHaveLength(2)
     })
   })
 

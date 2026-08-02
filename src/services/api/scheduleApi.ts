@@ -22,20 +22,6 @@ export const createSession = async (session: Omit<Session, 'id' | 'completed'>) 
   })
 
 /**
- * Creates a recurring series of sessions.
- */
-export const createRecurringSessions = async (data: {
-  baseSession: Omit<Session, 'id' | 'date' | 'completed'>
-  startDateStr: string
-  frequency: 'weekly' | 'bi-weekly'
-  untilDateStr: string
-}) =>
-  apiClient<Session[]>('/sessions/recurring', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  })
-
-/**
  * Creates a recurring event series in the schedule.
  */
 export const createRecurringEvent = async (dto: {

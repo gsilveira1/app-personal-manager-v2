@@ -66,5 +66,6 @@
   "occurrences": "occurrences",
   "recurrenceUpdateMessage": "Do you want to apply this change to only this session, or to this and all future sessions in the series?",
   "thisAndFuture": "This and future sessions",
-  "onlyThis": "Only this session"
+  "onlyThis": "Only this session",
+  "blockConflict": "This time slot is blocked by \"{{blockTitle}}\". Please choose a different time."
 }

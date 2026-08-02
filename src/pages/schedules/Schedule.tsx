@@ -25,7 +25,6 @@ export const Schedule = () => {
     clients,
     toggleSessionComplete,
     addSession,
-    addRecurringSessions,
     addRecurringEvent,
     fetchSessionsForRange,
     updateSessionWithScope,
@@ -156,12 +155,12 @@ export const Schedule = () => {
           isOpen={sessionEditorOpen}
           onClose={() => setSessionEditorOpen(false)}
           onSaveNew={addSession}
-          onSaveRecurring={addRecurringSessions}
           onSaveRecurringEvent={addRecurringEvent}
           onUpdate={updateSessionWithScope}
           sessionToEdit={editingSession}
           clients={clients}
           sessions={sessions}
+          blocks={availabilityBlocks}
           initialDate={preselectedDate || nav.currentDate}
         />
       )}

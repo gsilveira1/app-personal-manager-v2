@@ -13,22 +13,26 @@ const mockSessions = [
   { id: 's1', clientId: 'c1', date: new Date().toISOString(), durationMinutes: 60, type: 'In-Person' as const, category: 'Workout' as const, completed: false },
 ]
 
-vi.mock('../states/stores/store', () => ({
+vi.mock('../../states/stores/store', () => ({
   useStore: () => ({
     sessions: mockSessions,
     clients: [{ id: 'c1', name: 'Maria', email: 'm@t.com', phone: '123', status: 'Active', type: 'In-Person' }],
     toggleSessionComplete: vi.fn(),
     addSession: vi.fn(),
-    addRecurringSessions: vi.fn(),
     addRecurringEvent: vi.fn(),
     fetchSessionsForRange: vi.fn().mockResolvedValue(undefined),
     updateSessionWithScope: vi.fn(),
     updateSession: vi.fn(),
     workouts: [],
+    availabilityBlocks: [],
+    fetchAvailabilityBlocks: vi.fn().mockResolvedValue(undefined),
+    addAvailabilityBlock: vi.fn(),
+    updateAvailabilityBlock: vi.fn(),
+    deleteAvailabilityBlock: vi.fn(),
   }),
 }))
 
-vi.mock('../hooks/useScheduleNavigation', () => ({
+vi.mock('../../hooks/useScheduleNavigation', () => ({
   useScheduleNavigation: () => ({
     currentDate: new Date(),
     setCurrentDate: vi.fn(),
@@ -43,7 +47,7 @@ vi.mock('../hooks/useScheduleNavigation', () => ({
   }),
 }))
 
-vi.mock('../hooks/useScheduleDragDrop', () => ({
+vi.mock('../../hooks/useScheduleDragDrop', () => ({
   useScheduleDragDrop: () => ({
     handleDragStart: vi.fn(),
     handleDrop: vi.fn(),
@@ -55,28 +59,59 @@ vi.mock('../hooks/useScheduleDragDrop', () => ({
   }),
 }))
 
-vi.mock('../components/organisms/schedule/DayView', () => ({
+vi.mock('../../components/organisms/schedule/DayView', () => ({
   DayView: () => <div data-testid="day-view" />,
 }))
 
-vi.mock('../components/organisms/schedule/WeekView', () => ({
+vi.mock('../../components/organisms/schedule/WeekView', () => ({
   WeekView: () => <div data-testid="week-view" />,
 }))
 
-vi.mock('../components/organisms/schedule/MonthView', () => ({
+vi.mock('../../components/organisms/schedule/MonthView', () => ({
   MonthView: () => <div data-testid="month-view" />,
 }))
 
-vi.mock('../components/organisms/schedule/SessionEditorModal', () => ({
+vi.mock('../../components/organisms/schedule/SessionEditorModal', () => ({
   SessionEditorModal: ({ isOpen }: any) => isOpen ? <div data-testid="session-editor" /> : null,
 }))
 
-vi.mock('../components/organisms/schedule/SessionDetailsModal', () => ({
+vi.mock('../../components/organisms/schedule/SessionDetailsModal', () => ({
   SessionDetailsModal: () => <div data-testid="session-details" />,
 }))
 
-vi.mock('../components/organisms/schedule/OverviewModal', () => ({
+vi.mock('../../components/organisms/schedule/OverviewModal', () => ({
   OverviewModal: ({ isOpen }: any) => isOpen ? <div data-testid="overview-modal" /> : null,
+}))
+
+vi.mock('../../components/organisms/schedule/BlockEditorModal', () => ({
+  BlockEditorModal: ({ isOpen }: any) => isOpen ? <div data-testid="block-editor" /> : null,
+}))
+
+vi.mock('../../components/organisms/schedule/ScheduleHeader', () => ({
+  ScheduleHeader: ({ onOpenNewSession }: any) => (
+    <div data-testid="schedule-header">
+      <h1>title</h1>
+      <button onClick={onOpenNewSession}>addSession</button>
+    </div>
+  ),
+}))
+
+vi.mock('../../components/organisms/schedule/ScheduleOverviewBanner', () => ({
+  ScheduleOverviewBanner: ({ headerText, stats, onClick }: any) => (
+    <div data-testid="schedule-overview-banner" onClick={onClick}>
+      <span>{headerText}</span>
+      <span>{stats?.total}</span>
+    </div>
+  ),
+}))
+
+vi.mock('../../components/organisms/schedule/ScheduleNavigationPanel', () => ({
+  ScheduleNavigationPanel: ({ headerText, onToday }: any) => (
+    <div data-testid="schedule-nav-panel">
+      <span>{headerText}</span>
+      <button onClick={onToday}>today</button>
+    </div>
+  ),
 }))
 
 describe('Schedule', () => {

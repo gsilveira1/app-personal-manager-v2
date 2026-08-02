@@ -3,12 +3,12 @@ import { useTranslation } from 'react-i18next'
 import { Repeat, AlertTriangle } from 'lucide-react'
 import { format, parseISO, add } from 'date-fns'
 import { Card, Button, Label, Select, Input } from '../../atoms'
-import { isTimeSlotTaken } from '../../../utils/scheduleUtils'
+import { isTimeSlotTaken, isTimeSlotBlocked } from '../../../utils/scheduleUtils'
 import { formatLocalized } from '../../../utils/dateLocale'
-import { type Client, type Session } from '../../../types'
+import { type Client, type Session, type MaterializedBlock } from '../../../types'
 import { WEEKDAYS, buildRrule, rruleHumanText } from '../../../utils/rruleHelpers'
 
-const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurring: _onSaveRecurring, onSaveRecurringEvent, onUpdate, sessionToEdit, clients, sessions, initialDate }: any) => {
+const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurringEvent, onUpdate, sessionToEdit, clients, sessions, blocks, initialDate }: any) => {
   const { t } = useTranslation('schedule')
   const { t: tco } = useTranslation('common')
   const [formData, setFormData] = useState({
@@ -70,6 +70,13 @@ const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurring: _onSa
     if (conflictingSession) {
       const conflictClientName = clients.find((c: any) => c.id === conflictingSession.clientId)?.name || t('aClient')
       setError(t('timeConflict', { clientName: conflictClientName, time: formatLocalized(parseISO(conflictingSession.date), 'h:mm a') }))
+      return
+    }
+
+    const newSessionEnd = new Date(combinedDate.getTime() + Number(formData.durationMinutes) * 60_000)
+    const conflictingBlock = isTimeSlotBlocked(blocks || [], combinedDate, newSessionEnd)
+    if (conflictingBlock) {
+      setError(t('blockConflict', { blockTitle: conflictingBlock.title }))
       return
     }
 

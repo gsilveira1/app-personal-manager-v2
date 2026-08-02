@@ -40,6 +40,7 @@ vi.mock('../states/stores/store', () => ({
       slotDurationMinutes: 60,
     },
     updateWorkHours: vi.fn(),
+    fetchAvailabilityBlocks: vi.fn().mockResolvedValue(undefined),
   }),
 }))
 

@@ -66,5 +66,6 @@
   "occurrences": "ocurrencias",
   "recurrenceUpdateMessage": "¿Quieres aplicar este cambio solo a esta sesión, o a esta y todas las sesiones futuras de la serie?",
   "thisAndFuture": "Esta y sesiones futuras",
-  "onlyThis": "Solo esta sesión"
+  "onlyThis": "Solo esta sesión",
+  "blockConflict": "Este horario está bloqueado por \"{{blockTitle}}\". Por favor, elija otro horario."
 }
