@@ -18,7 +18,7 @@ vi.mock('react-i18next', () => ({
 }))
 
 const mockLogin = vi.fn()
-vi.mock('../store/authStore', () => ({
+vi.mock('../states/stores/auth/authStore', () => ({
   useAuthStore: () => ({
     login: mockLogin,
   }),

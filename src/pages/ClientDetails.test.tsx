@@ -30,7 +30,7 @@ const mockClient = { id: 'c1', name: 'Maria Silva', email: 'maria@test.com', pho
 
 let mockStoreClients = [mockClient]
 
-vi.mock('../store/store', () => ({
+vi.mock('../states/stores/store', () => ({
   useStore: () => ({
     clients: mockStoreClients,
     sessions: [],

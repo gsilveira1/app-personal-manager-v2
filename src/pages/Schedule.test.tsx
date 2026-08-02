@@ -13,7 +13,7 @@ const mockSessions = [
   { id: 's1', clientId: 'c1', date: new Date().toISOString(), durationMinutes: 60, type: 'In-Person' as const, category: 'Workout' as const, completed: false },
 ]
 
-vi.mock('../store/store', () => ({
+vi.mock('../states/stores/store', () => ({
   useStore: () => ({
     sessions: mockSessions,
     clients: [{ id: 'c1', name: 'Maria', email: 'm@t.com', phone: '123', status: 'Active', type: 'In-Person' }],

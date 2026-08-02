@@ -22,7 +22,7 @@ const mockWorkouts = [
   },
 ]
 
-vi.mock('../store/store', () => ({
+vi.mock('../states/stores/store', () => ({
   useStore: () => ({
     workouts: mockWorkouts,
     addWorkout: mockAddWorkout,

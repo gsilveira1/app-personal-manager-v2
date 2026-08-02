@@ -22,7 +22,7 @@ let mockClients = [
   { id: 'c1', name: 'Active Client', email: 'c@test.com', phone: '789', status: 'Active', type: 'In-Person' as const },
 ]
 
-vi.mock('../store/store', () => ({
+vi.mock('../states/stores/store', () => ({
   useStore: () => ({
     clients: mockClients,
     plans: [{ id: 'p1', name: 'Plan A', type: 'PRESENCIAL', sessionsPerWeek: 3, durationMinutes: 60, price: 400 }],

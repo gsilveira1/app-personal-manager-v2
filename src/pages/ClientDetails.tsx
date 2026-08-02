@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router'
-import { ArrowLeft, Plus, FileText, Activity, History, Dumbbell, Edit2, Save, CheckCircle2, XCircle } from 'lucide-react'
+import { ArrowLeft, Edit2, Save, FileText } from 'lucide-react'
 import { parseISO } from 'date-fns'
 import { useTranslation } from 'react-i18next'
 
@@ -11,11 +11,12 @@ import { useClientDetails } from '../hooks/useClientDetails'
 import { ClientProfileHeader } from '../components/organisms/client-details/ClientProfileHeader'
 import { MedicalHistoryCard } from '../components/organisms/client-details/MedicalHistoryCard'
 import { EvaluationCard } from '../components/organisms/client-details/EvaluationCard'
-import { WorkoutCard } from '../components/organisms/client-details/WorkoutCard'
 import { EvaluationModal } from '../components/organisms/client-details/EvaluationModal'
 import { SessionLogModal } from '../components/organisms/client-details/SessionLogModal'
-import { ProgressChart } from '../components/organisms/client-details/ProgressChart'
 import { WorkoutEditorModal } from '../components/WorkoutEditorModal'
+import { ClientSessionHistoryTab } from '../components/organisms/client-details/ClientSessionHistoryTab'
+import { ClientEvaluationsTab } from '../components/organisms/client-details/ClientEvaluationsTab'
+import { ClientWorkoutsTab } from '../components/organisms/client-details/ClientWorkoutsTab'
 import type { WorkoutPlan, MedicalHistory } from '../types'
 
 export const ClientDetails = () => {
@@ -94,40 +95,32 @@ export const ClientDetails = () => {
           </div>
 
           {activeTab === 'history' && (
-            <div className="space-y-4">
-              <div className="flex justify-between items-center"><h3 className="text-lg font-semibold text-slate-900">{t('sessionHistory')}</h3><Button onClick={() => setIsSessionModalOpen(true)}><Plus className="mr-2 h-4 w-4" /> {t('newSession')}</Button></div>
-              {clientSessions.length > 0 ? clientSessions.map((session) => (
-                <Card key={session.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="flex items-start gap-3">
-                    <div className={`mt-1 p-2 rounded-full ${session.completed ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'}`}>{session.completed ? <CheckCircle2 className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}</div>
-                    <div>
-                      <div className="font-semibold text-slate-900">{formatLocalized(parseISO(session.date), 'EEEE, MMMM d, yyyy')}</div>
-                      <div className="text-sm text-slate-500 mt-0.5">{formatLocalized(parseISO(session.date), 'h:mm a')} • {session.durationMinutes} min • {session.type}</div>
-                      {session.notes && <div className="mt-2 text-sm bg-slate-50 p-2 rounded text-slate-600">"{session.notes}"</div>}
-                    </div>
-                  </div>
-                </Card>
-              )) : (
-                <div className="text-center py-12 bg-slate-50 rounded-lg border border-dashed border-slate-200"><History className="h-12 w-12 text-slate-300 mx-auto mb-3" /><h3 className="text-lg font-medium text-slate-900">{t('noSessions')}</h3><Button className="mt-3" onClick={() => setIsSessionModalOpen(true)}>{t('logFirstSession')}</Button></div>
-              )}
-            </div>
+            <ClientSessionHistoryTab
+              clientSessions={clientSessions}
+              onOpenSessionModal={() => setIsSessionModalOpen(true)}
+            />
           )}
 
           {activeTab === 'evaluations' && (
-            <div className="space-y-6">
-              <div className="flex justify-between items-center"><h3 className="text-lg font-semibold text-slate-900">{t('progressTracking')}</h3><Button onClick={() => setIsEvalModalOpen(true)}><Plus className="mr-2 h-4 w-4" /> {t('addEvaluation')}</Button></div>
-              {clientEvaluations.length > 0 ? (<>{clientEvaluations.length > 1 && <ProgressChart chartData={chartData} selectedMetric={selectedMetric} onMetricChange={setSelectedMetric} chartableMetrics={chartableMetrics} />}<div className="space-y-4">{clientEvaluations.map((ev) => <EvaluationCard key={ev.id} evaluation={ev} />)}</div></>) : (
-                <div className="text-center py-12 bg-slate-50 rounded-lg border border-dashed border-slate-200"><Activity className="h-12 w-12 text-slate-300 mx-auto mb-3" /><h3 className="text-lg font-medium text-slate-900">{t('noEvaluations')}</h3><Button onClick={() => setIsEvalModalOpen(true)}>{t('addFirstEvaluation')}</Button></div>
-              )}
-            </div>
+            <ClientEvaluationsTab
+              clientEvaluations={clientEvaluations}
+              chartData={chartData}
+              selectedMetric={selectedMetric}
+              setSelectedMetric={setSelectedMetric}
+              chartableMetrics={chartableMetrics}
+              onOpenEvalModal={() => setIsEvalModalOpen(true)}
+            />
           )}
 
           {activeTab === 'workouts' && (
-            <div className="space-y-8">
-              <div className="flex justify-between items-center"><h3 className="text-lg font-semibold text-slate-900">{t('workoutPlans')}</h3><Button onClick={() => { setEditingWorkout(null); setIsWorkoutModalOpen(true) }}><Plus className="mr-2 h-4 w-4" /> {t('createWorkout')}</Button></div>
-              <div className="space-y-4"><h4 className="text-sm font-medium text-slate-500 uppercase tracking-wider flex items-center"><Dumbbell className="h-4 w-4 mr-2" /> {t('activePrescriptions')}</h4>{activePlans.length > 0 ? activePlans.map((w) => <WorkoutCard key={w.id} workout={w} onDelete={(id) => { if (window.confirm(tw('deleteWorkoutConfirm'))) deleteWorkout(id) }} onArchive={(id) => updateWorkout(id, { status: 'Archived' })} onEdit={(w) => { setEditingWorkout(w); setIsWorkoutModalOpen(true) }} isActive />) : <div className="p-8 bg-slate-50 rounded-lg border border-dashed border-slate-200 text-center text-slate-500">{t('noActivePrescriptions')}</div>}</div>
-              <div className="space-y-4 pt-4 border-t border-slate-200"><h4 className="text-sm font-medium text-slate-500 uppercase tracking-wider flex items-center"><History className="h-4 w-4 mr-2" /> {t('planHistory')}</h4>{archivedPlans.length > 0 ? archivedPlans.map((w) => <WorkoutCard key={w.id} workout={w} onDelete={(id) => { if (window.confirm(tw('deleteWorkoutConfirm'))) deleteWorkout(id) }} onActivate={(id) => updateWorkout(id, { status: 'Active' })} onEdit={(w) => { setEditingWorkout(w); setIsWorkoutModalOpen(true) }} isActive={false} />) : <div className="p-4 text-center text-sm text-slate-400 italic">{t('noArchivedPlans')}</div>}</div>
-            </div>
+            <ClientWorkoutsTab
+              activePlans={activePlans}
+              archivedPlans={archivedPlans}
+              onOpenWorkoutModal={() => { setEditingWorkout(null); setIsWorkoutModalOpen(true) }}
+              onEditWorkout={(w) => { setEditingWorkout(w); setIsWorkoutModalOpen(true) }}
+              onDeleteWorkout={deleteWorkout}
+              onUpdateWorkoutStatus={(id, status) => updateWorkout(id, { status })}
+            />
           )}
         </div>
       </div>

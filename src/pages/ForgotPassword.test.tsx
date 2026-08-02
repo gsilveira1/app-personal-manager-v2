@@ -10,7 +10,7 @@ vi.mock('react-i18next', () => ({
 }))
 
 const mockRequestPasswordReset = vi.fn()
-vi.mock('../services/apiService', () => ({
+vi.mock('../services/api/apiService', () => ({
   requestPasswordReset: (...args: unknown[]) => mockRequestPasswordReset(...args),
 }))
 

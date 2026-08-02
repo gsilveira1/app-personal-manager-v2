@@ -26,7 +26,7 @@ const mockPlans = [
   { id: 'plan-1', type: 'PRESENCIAL' as const, name: 'Plano Básico', sessionsPerWeek: 3, durationMinutes: 60, price: 300 },
 ]
 
-vi.mock('../store/store', () => ({
+vi.mock('../states/stores/store', () => ({
   useStore: () => ({
     clients: mockClients,
     plans: mockPlans,

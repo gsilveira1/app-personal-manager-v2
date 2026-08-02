@@ -19,7 +19,7 @@ const mockPlans = [
   { id: 'p2', type: 'CONSULTORIA' as const, name: 'Plano B', sessionsPerWeek: 2, price: 200 },
 ]
 
-vi.mock('../store/store', () => ({
+vi.mock('../states/stores/store', () => ({
   useStore: () => ({
     plans: mockPlans,
     addPlan: mockAddPlan,
@@ -45,7 +45,7 @@ vi.mock('../store/store', () => ({
 
 let mockUserRole = 'trainer'
 
-vi.mock('../store/authStore', () => ({
+vi.mock('../states/stores/auth/authStore', () => ({
   useAuthStore: () => ({ user: { id: '1', name: 'Test', email: 'test@test.com', role: mockUserRole } }),
 }))
 
