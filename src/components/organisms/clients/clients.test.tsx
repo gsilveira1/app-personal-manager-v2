@@ -11,7 +11,14 @@ vi.mock('react-router', () => ({
 }))
 
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => ({
+    t: (key: string, options?: Record<string, unknown>) => {
+      if (key === 'pagination.showing' && options) {
+        return `Showing ${options.start} to ${options.end} of ${options.total} results`
+      }
+      return key
+    },
+  }),
 }))
 
 vi.mock('../../../states/stores/store', () => ({
@@ -136,12 +143,46 @@ describe('ClientsTable', () => {
   it('navigates via eye button without triggering row click', () => {
     render(<ClientsTable clients={[makeClient()]} plans={plans} searchTerm="" onSearchChange={vi.fn()} />)
 
-    const buttons = screen.getAllByRole('button')
-    const viewButton = buttons[buttons.length - 1]
+    const row = screen.getByTestId('client-row-c1')
+    const buttonsInRow = row.querySelectorAll('button')
+    const viewButton = buttonsInRow[buttonsInRow.length - 1]
     mockNavigate.mockClear()
     fireEvent.click(viewButton)
     expect(mockNavigate).toHaveBeenCalledTimes(1)
     expect(mockNavigate).toHaveBeenCalledWith('/clients/c1')
+  })
+
+  it('paginates clients correctly when initialItemsPerPage is specified', () => {
+    const manyClients = Array.from({ length: 12 }, (_, i) =>
+      makeClient({ id: `c${i + 1}`, name: `Client ${i + 1}`, email: `client${i + 1}@test.com` })
+    )
+
+    render(<ClientsTable clients={manyClients} plans={plans} searchTerm="" onSearchChange={vi.fn()} initialItemsPerPage={5} />)
+
+    expect(screen.getByText('Client 1')).toBeInTheDocument()
+    expect(screen.getByText('Client 5')).toBeInTheDocument()
+    expect(screen.queryByText('Client 6')).not.toBeInTheDocument()
+
+    // Click next page
+    fireEvent.click(screen.getByTestId('pagination-next'))
+
+    expect(screen.queryByText('Client 1')).not.toBeInTheDocument()
+    expect(screen.getByText('Client 6')).toBeInTheDocument()
+    expect(screen.getByText('Client 10')).toBeInTheDocument()
+    expect(screen.queryByText('Client 11')).not.toBeInTheDocument()
+  })
+
+  it('changes items per page when selector changes', () => {
+    const manyClients = Array.from({ length: 12 }, (_, i) =>
+      makeClient({ id: `c${i + 1}`, name: `Client ${i + 1}`, email: `client${i + 1}@test.com` })
+    )
+
+    render(<ClientsTable clients={manyClients} plans={plans} searchTerm="" onSearchChange={vi.fn()} initialItemsPerPage={5} />)
+
+    fireEvent.change(screen.getByTestId('pagination-page-size'), { target: { value: '20' } })
+
+    expect(screen.getByText('Client 1')).toBeInTheDocument()
+    expect(screen.getByText('Client 12')).toBeInTheDocument()
   })
 })
 

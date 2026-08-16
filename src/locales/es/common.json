@@ -39,5 +39,13 @@
   "perMonth": "/mes",
   "durationMin": "{{minutes}} min",
   "selectLanguage": "Seleccionar idioma",
-  "weekAcronym": "sem"
+  "weekAcronym": "sem",
+  "pagination": {
+    "showing": "Mostrando {{start}} a {{end}} de {{total}} resultados",
+    "showingEmpty": "Sin resultados",
+    "itemsPerPage": "Por página",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "pageOf": "Página {{current}} de {{total}}"
+  }
 }

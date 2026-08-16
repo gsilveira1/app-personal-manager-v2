@@ -10,7 +10,11 @@ import { ClientProfileEditorModal } from '../../components/organisms/client-deta
 import type { Client } from '../../types'
 
 /**
- * Clients page component displaying a list of clients and a modal to add new ones.
+ * Clients page component displaying a paginated list of clients with search, edit, and addition capabilities.
+ *
+ * @returns React functional component for Clients page
+ * @example
+ * <Clients />
  */
 export const Clients = () => {
   const { t } = useTranslation('clients')
@@ -18,10 +22,6 @@ export const Clients = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingClient, setEditingClient] = useState<Client | null>(null)
-
-  const filteredClients = clients.filter(
-    (c) => c.name.toLowerCase().includes(searchTerm.toLowerCase()) || c.email.toLowerCase().includes(searchTerm.toLowerCase())
-  )
 
   return (
     <div className="space-y-6">
@@ -34,7 +34,7 @@ export const Clients = () => {
       </div>
 
       <ClientsTable
-        clients={filteredClients}
+        clients={clients}
         plans={plans}
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
