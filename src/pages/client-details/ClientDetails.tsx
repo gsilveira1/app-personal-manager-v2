@@ -11,8 +11,6 @@ import { useClientDetails } from '../../hooks/useClientDetails'
 import { ClientProfileHeader } from '../../components/organisms/client-details/ClientProfileHeader'
 import { MedicalHistoryCard } from '../../components/organisms/client-details/MedicalHistoryCard'
 import { EvaluationCard } from '../../components/organisms/client-details/EvaluationCard'
-import { EvaluationModal } from '../../components/organisms/client-details/EvaluationModal'
-import { SessionLogModal } from '../../components/organisms/client-details/SessionLogModal'
 import { WorkoutEditorModal } from '../../components/WorkoutEditorModal'
 import { ClientSessionHistoryTab } from '../../components/organisms/client-details/ClientSessionHistoryTab'
 import { ClientEvaluationsTab } from '../../components/organisms/client-details/ClientEvaluationsTab'
@@ -27,9 +25,7 @@ export const ClientDetails = () => {
   const { clients, sessions, evaluations, workouts, plans, updateClient, uploadClientAvatar, addEvaluation, addSession, addWorkout, updateWorkout, deleteWorkout } = useStore()
 
   const [activeTab, setActiveTab] = useState<'history' | 'evaluations' | 'workouts'>('history')
-  const [isEvalModalOpen, setIsEvalModalOpen] = useState(false)
   const [isWorkoutModalOpen, setIsWorkoutModalOpen] = useState(false)
-  const [isSessionModalOpen, setIsSessionModalOpen] = useState(false)
   const [editingWorkout, setEditingWorkout] = useState<WorkoutPlan | null>(null)
   const [isEditingNotes, setIsEditingNotes] = useState(false)
   const [isEditingMedicalHistory, setIsEditingMedicalHistory] = useState(false)
@@ -97,7 +93,6 @@ export const ClientDetails = () => {
           {activeTab === 'history' && (
             <ClientSessionHistoryTab
               clientSessions={clientSessions}
-              onOpenSessionModal={() => setIsSessionModalOpen(true)}
             />
           )}
 
@@ -108,7 +103,6 @@ export const ClientDetails = () => {
               selectedMetric={selectedMetric}
               setSelectedMetric={setSelectedMetric}
               chartableMetrics={chartableMetrics}
-              onOpenEvalModal={() => setIsEvalModalOpen(true)}
             />
           )}
 
@@ -116,7 +110,6 @@ export const ClientDetails = () => {
             <ClientWorkoutsTab
               activePlans={activePlans}
               archivedPlans={archivedPlans}
-              onOpenWorkoutModal={() => { setEditingWorkout(null); setIsWorkoutModalOpen(true) }}
               onEditWorkout={(w) => { setEditingWorkout(w); setIsWorkoutModalOpen(true) }}
               onDeleteWorkout={deleteWorkout}
               onUpdateWorkoutStatus={(id, status) => updateWorkout(id, { status })}
@@ -125,8 +118,6 @@ export const ClientDetails = () => {
         </div>
       </div>
 
-      {isEvalModalOpen && <EvaluationModal clientId={client.id} onClose={() => setIsEvalModalOpen(false)} onSave={addEvaluation} />}
-      {isSessionModalOpen && <SessionLogModal clientId={client.id} onClose={() => setIsSessionModalOpen(false)} onSave={addSession} />}
       {isWorkoutModalOpen && <WorkoutEditorModal client={client} initialData={editingWorkout} isOpen={isWorkoutModalOpen} onClose={() => setIsWorkoutModalOpen(false)} onSave={handleSaveWorkout} />}
     </div>
   )

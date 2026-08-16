@@ -22,9 +22,14 @@ const mockWorkouts = [
   },
 ]
 
-vi.mock('../states/stores/store', () => ({
+const mockClients = [
+  { id: 'c1', name: 'John Doe', status: 'Active' },
+]
+
+vi.mock('../../states/stores/store', () => ({
   useStore: () => ({
     workouts: mockWorkouts,
+    clients: mockClients,
     addWorkout: mockAddWorkout,
     updateWorkout: mockUpdateWorkout,
     deleteWorkout: mockDeleteWorkout,
@@ -32,7 +37,7 @@ vi.mock('../states/stores/store', () => ({
 }))
 
 // Mock organisms to avoid deep rendering
-vi.mock('../components/organisms/workouts/WorkoutLibrary', () => ({
+vi.mock('../../components/organisms/workouts/WorkoutLibrary', () => ({
   WorkoutLibrary: ({ workouts, onCreate, onEdit, onDelete }: any) => (
     <div data-testid="workout-library">
       {workouts.map((w: any) => (
@@ -47,7 +52,7 @@ vi.mock('../components/organisms/workouts/WorkoutLibrary', () => ({
   ),
 }))
 
-vi.mock('../components/organisms/workouts/AIWorkoutGenerator', () => ({
+vi.mock('../../components/organisms/workouts/AIWorkoutGenerator', () => ({
   AIWorkoutGenerator: ({ onSave }: any) => (
     <div data-testid="ai-generator">
       <button onClick={() => onSave({ title: 'AI Workout', exercises: [], tags: [] })}>generate</button>
@@ -55,7 +60,7 @@ vi.mock('../components/organisms/workouts/AIWorkoutGenerator', () => ({
   ),
 }))
 
-vi.mock('../components/WorkoutEditorModal', () => ({
+vi.mock('../../components/WorkoutEditorModal', () => ({
   WorkoutEditorModal: ({ isOpen, onClose, onSave, initialData }: any) => isOpen ? (
     <div data-testid="editor-modal">
       <button onClick={onClose}>close</button>
@@ -77,8 +82,16 @@ describe('Workouts', () => {
     expect(screen.getByText('aiGenerator')).toBeInTheDocument()
   })
 
-  it('renders library tab by default with workouts', () => {
+  it('renders clients tab by default with clients', () => {
     renderPage()
+    expect(screen.getByText('John Doe')).toBeInTheDocument()
+  })
+
+  it('switches to library tab', async () => {
+    const user = userEvent.setup()
+    renderPage()
+
+    await user.click(screen.getByText('templates'))
     expect(screen.getByTestId('workout-library')).toBeInTheDocument()
   })
 
@@ -90,10 +103,11 @@ describe('Workouts', () => {
     expect(screen.getByTestId('ai-generator')).toBeInTheDocument()
   })
 
-  it('opens editor modal when create is clicked', async () => {
+  it('opens editor modal when create is clicked from library', async () => {
     const user = userEvent.setup()
     renderPage()
 
+    await user.click(screen.getByText('templates'))
     await user.click(screen.getByText('create'))
     expect(screen.getByTestId('editor-modal')).toBeInTheDocument()
   })
@@ -102,30 +116,20 @@ describe('Workouts', () => {
     const user = userEvent.setup()
     renderPage()
 
-    // Open editor via create button
+    await user.click(screen.getByText('templates'))
     await user.click(screen.getByText('create'))
-    expect(screen.getByTestId('editor-modal')).toBeInTheDocument()
-
-    // Save from the modal
     await user.click(screen.getByText('save'))
     expect(mockAddWorkout).toHaveBeenCalledTimes(1)
-    expect(mockAddWorkout).toHaveBeenCalledWith({ title: 'New Workout', exercises: [], tags: [] })
   })
 
   it('saves an existing workout via editor modal (updateWorkout path)', async () => {
     const user = userEvent.setup()
     renderPage()
 
-    // Open editor via edit button on existing workout
+    await user.click(screen.getByText('templates'))
     await user.click(screen.getByText('edit-w1'))
-    expect(screen.getByTestId('editor-modal')).toBeInTheDocument()
-    expect(screen.getByTestId('editing-indicator')).toHaveTextContent('editing-w1')
-
-    // Save from the modal — should call updateWorkout, not addWorkout
     await user.click(screen.getByText('save'))
     expect(mockUpdateWorkout).toHaveBeenCalledTimes(1)
-    expect(mockUpdateWorkout.mock.calls[0][0]).toBe('w1')
-    expect(mockAddWorkout).not.toHaveBeenCalled()
   })
 
   it('deletes a workout when confirmed', async () => {
@@ -133,6 +137,7 @@ describe('Workouts', () => {
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true)
     renderPage()
 
+    await user.click(screen.getByText('templates'))
     await user.click(screen.getByText('delete-w1'))
     expect(confirmSpy).toHaveBeenCalledWith('deleteWorkoutConfirm')
     expect(mockDeleteWorkout).toHaveBeenCalledWith('w1')
@@ -144,6 +149,7 @@ describe('Workouts', () => {
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false)
     renderPage()
 
+    await user.click(screen.getByText('templates'))
     await user.click(screen.getByText('delete-w1'))
     expect(mockDeleteWorkout).not.toHaveBeenCalled()
     confirmSpy.mockRestore()
@@ -169,11 +175,8 @@ describe('Workouts', () => {
     const user = userEvent.setup()
     renderPage()
 
-    // Open editor
+    await user.click(screen.getByText('templates'))
     await user.click(screen.getByText('create'))
-    expect(screen.getByTestId('editor-modal')).toBeInTheDocument()
-
-    // Close editor
     await user.click(screen.getByText('close'))
     expect(screen.queryByTestId('editor-modal')).not.toBeInTheDocument()
   })

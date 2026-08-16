@@ -6,6 +6,8 @@ import { useStore } from '../../states/stores/store'
 import { Button } from '../../components/atoms'
 import { ClientsTable } from '../../components/organisms/clients/ClientsTable'
 import { AddClientModal } from '../../components/organisms/clients/AddClientModal'
+import { ClientProfileEditorModal } from '../../components/organisms/client-details/ClientProfileEditorModal'
+import type { Client } from '../../types'
 
 /**
  * Clients page component displaying a list of clients and a modal to add new ones.
@@ -15,6 +17,7 @@ export const Clients = () => {
   const { clients, plans, addClient } = useStore()
   const [searchTerm, setSearchTerm] = useState('')
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingClient, setEditingClient] = useState<Client | null>(null)
 
   const filteredClients = clients.filter(
     (c) => c.name.toLowerCase().includes(searchTerm.toLowerCase()) || c.email.toLowerCase().includes(searchTerm.toLowerCase())
@@ -30,9 +33,23 @@ export const Clients = () => {
         </Button>
       </div>
 
-      <ClientsTable clients={filteredClients} plans={plans} searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+      <ClientsTable
+        clients={filteredClients}
+        plans={plans}
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        onEditClient={setEditingClient}
+      />
 
       {isModalOpen && <AddClientModal onClose={() => setIsModalOpen(false)} onSave={addClient} />}
+
+      {editingClient && (
+        <ClientProfileEditorModal
+          isOpen={true}
+          onClose={() => setEditingClient(null)}
+          client={editingClient}
+        />
+      )}
     </div>
   )
 }

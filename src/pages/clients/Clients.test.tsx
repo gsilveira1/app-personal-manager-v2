@@ -26,7 +26,7 @@ const mockPlans = [
   { id: 'plan-1', type: 'PRESENCIAL' as const, name: 'Plano Básico', sessionsPerWeek: 3, durationMinutes: 60, price: 300 },
 ]
 
-vi.mock('../states/stores/store', () => ({
+vi.mock('../../states/stores/store', () => ({
   useStore: () => ({
     clients: mockClients,
     plans: mockPlans,
@@ -104,5 +104,15 @@ describe('Clients', () => {
 
     // AddClientModal renders a form with "fullName" label
     expect(screen.getByText('fullName')).toBeInTheDocument()
+  })
+
+  it('opens ClientProfileEditorModal when edit button is clicked in the row', async () => {
+    renderClients()
+
+    const editButtons = screen.getAllByTitle('editProfile')
+    expect(editButtons.length).toBeGreaterThan(0)
+    userEvent.click(editButtons[0])
+
+    expect(await screen.findByText('editProfile')).toBeInTheDocument()
   })
 })

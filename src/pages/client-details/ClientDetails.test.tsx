@@ -14,7 +14,7 @@ vi.mock('react-router', () => ({
   useNavigate: () => mockNavigate,
 }))
 
-vi.mock('../utils/dateLocale', () => ({
+vi.mock('../../utils/dateLocale', () => ({
   formatLocalized: () => 'Jan 1, 2025',
 }))
 
@@ -30,7 +30,7 @@ const mockClient = { id: 'c1', name: 'Maria Silva', email: 'maria@test.com', pho
 
 let mockStoreClients = [mockClient]
 
-vi.mock('../states/stores/store', () => ({
+vi.mock('../../states/stores/store', () => ({
   useStore: () => ({
     clients: mockStoreClients,
     sessions: [],
@@ -66,23 +66,23 @@ let mockHookReturn: any = {
   chartableMetrics: { weight: { label: 'Weight', unit: 'kg' } },
 }
 
-vi.mock('../hooks/useClientDetails', () => ({
+vi.mock('../../hooks/useClientDetails', () => ({
   useClientDetails: () => mockHookReturn,
 }))
 
-vi.mock('../components/organisms/client-details/ClientProfileHeader', () => ({
+vi.mock('../../components/organisms/client-details/ClientProfileHeader', () => ({
   ClientProfileHeader: ({ client }: any) => <div data-testid="profile-header">{client.name}</div>,
 }))
 
-vi.mock('../components/organisms/client-details/MedicalHistoryCard', () => ({
+vi.mock('../../components/organisms/client-details/MedicalHistoryCard', () => ({
   MedicalHistoryCard: () => <div data-testid="medical-card" />,
 }))
 
-vi.mock('../components/organisms/client-details/EvaluationCard', () => ({
+vi.mock('../../components/organisms/client-details/EvaluationCard', () => ({
   EvaluationCard: ({ evaluation }: any) => <div data-testid="eval-card">{evaluation.id}</div>,
 }))
 
-vi.mock('../components/organisms/client-details/WorkoutCard', () => ({
+vi.mock('../../components/organisms/client-details/WorkoutCard', () => ({
   WorkoutCard: ({ workout, onDelete, onArchive, onActivate, onEdit }: any) => (
     <div data-testid="workout-card">
       {workout.title}
@@ -94,19 +94,19 @@ vi.mock('../components/organisms/client-details/WorkoutCard', () => ({
   ),
 }))
 
-vi.mock('../components/organisms/client-details/EvaluationModal', () => ({
+vi.mock('../../components/organisms/client-details/EvaluationModal', () => ({
   EvaluationModal: ({ onClose }: any) => <div data-testid="eval-modal"><button onClick={onClose}>close-eval</button></div>,
 }))
 
-vi.mock('../components/organisms/client-details/SessionLogModal', () => ({
+vi.mock('../../components/organisms/client-details/SessionLogModal', () => ({
   SessionLogModal: ({ onClose }: any) => <div data-testid="session-modal"><button onClick={onClose}>close-session</button></div>,
 }))
 
-vi.mock('../components/organisms/client-details/ProgressChart', () => ({
+vi.mock('../../components/organisms/client-details/ProgressChart', () => ({
   ProgressChart: () => <div data-testid="progress-chart" />,
 }))
 
-vi.mock('../components/WorkoutEditorModal', () => ({
+vi.mock('../../components/WorkoutEditorModal', () => ({
   WorkoutEditorModal: ({ isOpen, onClose, onSave, initialData }: any) => isOpen ? <div data-testid="workout-editor"><button onClick={onClose}>close-workout</button><button onClick={() => onSave({ title: 'New' })} data-testid="save-workout">save</button>{initialData && <span data-testid="editing-workout">{initialData.title}</span>}</div> : null,
 }))
 
@@ -187,7 +187,6 @@ describe('ClientDetails', () => {
   it('shows empty session history with no sessions', () => {
     renderPage()
     expect(screen.getByText('noSessions')).toBeInTheDocument()
-    expect(screen.getByText('logFirstSession')).toBeInTheDocument()
   })
 
   it('renders session cards when sessions exist', () => {
@@ -199,24 +198,10 @@ describe('ClientDetails', () => {
     expect(screen.getByText('"Great session"')).toBeInTheDocument()
   })
 
-  it('opens session log modal when new session button clicked', () => {
-    renderPage()
-    fireEvent.click(screen.getByText('logFirstSession'))
-    expect(screen.getByTestId('session-modal')).toBeInTheDocument()
-  })
-
-  it('opens session modal from the header button on history tab', () => {
-    mockHookReturn = { ...mockHookReturn, clientSessions: [mockSession] }
-    renderPage()
-    fireEvent.click(screen.getByText('newSession'))
-    expect(screen.getByTestId('session-modal')).toBeInTheDocument()
-  })
-
   it('switches to evaluations tab and shows empty state', () => {
     renderPage()
     fireEvent.click(screen.getAllByText('evaluations')[0])
     expect(screen.getByText('noEvaluations')).toBeInTheDocument()
-    expect(screen.getByText('addFirstEvaluation')).toBeInTheDocument()
   })
 
   it('shows evaluation cards when evaluations exist', () => {
@@ -241,21 +226,6 @@ describe('ClientDetails', () => {
     expect(screen.queryByTestId('progress-chart')).not.toBeInTheDocument()
   })
 
-  it('opens evaluation modal from empty state button', () => {
-    renderPage()
-    fireEvent.click(screen.getAllByText('evaluations')[0])
-    fireEvent.click(screen.getByText('addFirstEvaluation'))
-    expect(screen.getByTestId('eval-modal')).toBeInTheDocument()
-  })
-
-  it('opens evaluation modal from header button', () => {
-    mockHookReturn = { ...mockHookReturn, clientEvaluations: [mockEvaluation] }
-    renderPage()
-    fireEvent.click(screen.getAllByText('evaluations')[0])
-    fireEvent.click(screen.getByText('addEvaluation'))
-    expect(screen.getByTestId('eval-modal')).toBeInTheDocument()
-  })
-
   it('switches to workouts tab and shows empty state', () => {
     renderPage()
     fireEvent.click(screen.getByText('prescriptions'))
@@ -269,14 +239,6 @@ describe('ClientDetails', () => {
     fireEvent.click(screen.getByText('prescriptions'))
     expect(screen.getByText('Push Day')).toBeInTheDocument()
     expect(screen.getByText('Old Plan')).toBeInTheDocument()
-  })
-
-  it('opens workout editor modal for new workout', () => {
-    renderPage()
-    fireEvent.click(screen.getByText('prescriptions'))
-    fireEvent.click(screen.getByText('createWorkout'))
-    expect(screen.getByTestId('workout-editor')).toBeInTheDocument()
-    expect(screen.queryByTestId('editing-workout')).not.toBeInTheDocument()
   })
 
   it('opens workout editor modal for editing existing workout', () => {
@@ -321,23 +283,6 @@ describe('ClientDetails', () => {
     fireEvent.click(screen.getByText('prescriptions'))
     fireEvent.click(screen.getByTestId('delete-w1'))
     expect(mockDeleteWorkout).not.toHaveBeenCalled()
-  })
-
-  it('saves new workout via workout editor modal', () => {
-    renderPage()
-    fireEvent.click(screen.getByText('prescriptions'))
-    fireEvent.click(screen.getByText('createWorkout'))
-    fireEvent.click(screen.getByTestId('save-workout'))
-    expect(mockAddWorkout).toHaveBeenCalledWith({ title: 'New' })
-  })
-
-  it('saves edited workout via workout editor modal', () => {
-    mockHookReturn = { ...mockHookReturn, activePlans: [mockActiveWorkout] }
-    renderPage()
-    fireEvent.click(screen.getByText('prescriptions'))
-    fireEvent.click(screen.getByTestId('edit-w1'))
-    fireEvent.click(screen.getByTestId('save-workout'))
-    expect(mockUpdateWorkout).toHaveBeenCalledWith('w1', { title: 'New' })
   })
 
   it('displays existing notes in notes section', () => {

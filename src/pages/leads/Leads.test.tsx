@@ -22,7 +22,7 @@ let mockClients = [
   { id: 'c1', name: 'Active Client', email: 'c@test.com', phone: '789', status: 'Active', type: 'In-Person' as const },
 ]
 
-vi.mock('../states/stores/store', () => ({
+vi.mock('../../states/stores/store', () => ({
   useStore: () => ({
     clients: mockClients,
     plans: [{ id: 'p1', name: 'Plan A', type: 'PRESENCIAL', sessionsPerWeek: 3, durationMinutes: 60, price: 400 }],
@@ -107,14 +107,14 @@ describe('Leads', () => {
     renderPage()
     fireEvent.click(screen.getByText('Lead A'))
     expect(screen.getByTestId('lead-drawer')).toBeInTheDocument()
-    fireEvent.click(screen.getByText('close'))
+    fireEvent.click(screen.getByLabelText('close'))
     expect(screen.queryByTestId('lead-drawer')).not.toBeInTheDocument()
   })
 
   it('calls updateClient with encoded notes on stage change', async () => {
     renderPage()
     fireEvent.click(screen.getByText('Lead A'))
-    fireEvent.click(screen.getByText('changeStage'))
+    fireEvent.click(screen.getByRole('button', { name: 'contacted' }))
     await waitFor(() => {
       expect(mockUpdateClient).toHaveBeenCalledWith('l1', { notes: expect.any(String) })
     })
@@ -123,9 +123,10 @@ describe('Leads', () => {
   it('calls convertLead, clears selection, and navigates on convert', async () => {
     renderPage()
     fireEvent.click(screen.getByText('Lead A'))
-    fireEvent.click(screen.getByText('convert'))
+    fireEvent.click(screen.getByText('convertToClient'))
+    fireEvent.click(screen.getByText('confirm'))
     await waitFor(() => {
-      expect(mockConvertLead).toHaveBeenCalledWith('l1', 'p1')
+      expect(mockConvertLead).toHaveBeenCalledWith('l1', undefined)
       expect(mockNavigate).toHaveBeenCalledWith('/clients/l1')
     })
   })
@@ -134,7 +135,7 @@ describe('Leads', () => {
     vi.spyOn(window, 'confirm').mockReturnValue(true)
     renderPage()
     fireEvent.click(screen.getByText('Lead A'))
-    fireEvent.click(screen.getByText('markLost'))
+    fireEvent.click(screen.getByText('markAsLost'))
     await waitFor(() => {
       expect(mockUpdateClient).toHaveBeenCalledWith('l1', { status: 'Inactive' })
     })
@@ -144,7 +145,7 @@ describe('Leads', () => {
     vi.spyOn(window, 'confirm').mockReturnValue(false)
     renderPage()
     fireEvent.click(screen.getByText('Lead A'))
-    fireEvent.click(screen.getByText('markLost'))
+    fireEvent.click(screen.getByText('markAsLost'))
     expect(mockUpdateClient).not.toHaveBeenCalled()
   })
 

@@ -1,6 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router'
-import { Phone, Mail, Globe, MapPin, Eye, Wallet, User } from 'lucide-react'
+import { Phone, Mail, Globe, MapPin, Eye, Pencil, Wallet, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { ClientStatus } from '../../../types'
@@ -13,9 +13,10 @@ interface ClientsTableProps {
   plans: Plan[]
   searchTerm: string
   onSearchChange: (value: string) => void
+  onEditClient?: (client: Client) => void
 }
 
-export const ClientsTable: React.FC<ClientsTableProps> = ({ clients, plans, searchTerm, onSearchChange }) => {
+export const ClientsTable: React.FC<ClientsTableProps> = ({ clients, plans, searchTerm, onSearchChange, onEditClient }) => {
   const { t } = useTranslation('clients')
   const { t: tco } = useTranslation('common')
   const navigate = useNavigate()
@@ -98,16 +99,30 @@ export const ClientsTable: React.FC<ClientsTableProps> = ({ clients, plans, sear
                     </div>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <Button
-                      variant="ghost"
-                      className="h-8 w-8 p-0"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        navigate(`/clients/${client.id}`)
-                      }}
-                    >
-                      <Eye className="h-4 w-4 text-slate-400 hover:text-indigo-600" />
-                    </Button>
+                    <div className="flex items-center justify-end space-x-1">
+                      <Button
+                        variant="ghost"
+                        className="h-8 w-8 p-0"
+                        title={t('editProfile')}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          onEditClient?.(client)
+                        }}
+                      >
+                        <Pencil className="h-4 w-4 text-slate-400 hover:text-indigo-600" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        className="h-8 w-8 p-0"
+                        title={tco('view')}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          navigate(`/clients/${client.id}`)
+                        }}
+                      >
+                        <Eye className="h-4 w-4 text-slate-400 hover:text-indigo-600" />
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               )

@@ -82,8 +82,9 @@ export const createClientActions: StateCreator<ClientStoreState, [], [], ClientA
 
   uploadClientAvatar: async (clientId, file) => {
     const { uploadUrl, publicUrl } = await api.getAvatarUploadUrl(clientId, file.type)
-    await uploadFileToGcs(uploadUrl, file)
-    const updatedClient = await api.updateClient(clientId, { avatar: publicUrl })
+    const localDataUrl = await uploadFileToGcs(uploadUrl, file)
+    const avatarUrl = localDataUrl || publicUrl
+    const updatedClient = await api.updateClient(clientId, { avatar: avatarUrl })
     get()._updateClient(updatedClient)
   },
 

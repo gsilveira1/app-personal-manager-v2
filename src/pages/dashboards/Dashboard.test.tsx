@@ -55,7 +55,7 @@ const mockSessions = [
 
 const mockToggleSessionComplete = vi.fn()
 
-vi.mock('../states/stores/store', () => ({
+vi.mock('../../states/stores/store', () => ({
   useStore: () => ({
     clients: mockClients,
     sessions: mockSessions,

@@ -19,7 +19,7 @@ const mockPlans = [
   { id: 'p2', type: 'CONSULTORIA' as const, name: 'Plano B', sessionsPerWeek: 2, price: 200 },
 ]
 
-vi.mock('../states/stores/store', () => ({
+vi.mock('../../states/stores/store', () => ({
   useStore: () => ({
     plans: mockPlans,
     addPlan: mockAddPlan,
@@ -46,11 +46,11 @@ vi.mock('../states/stores/store', () => ({
 
 let mockUserRole = 'trainer'
 
-vi.mock('../states/stores/auth/authStore', () => ({
+vi.mock('../../states/stores/auth/authStore', () => ({
   useAuthStore: () => ({ user: { id: '1', name: 'Test', email: 'test@test.com', role: mockUserRole } }),
 }))
 
-vi.mock('../components/organisms/settings/PlanCard', () => ({
+vi.mock('../../components/organisms/settings/PlanCard', () => ({
   PlanCard: ({ plan, onEdit, onDelete }: any) => (
     <div data-testid={`plan-${plan.id}`}>
       {plan.name}
@@ -60,7 +60,7 @@ vi.mock('../components/organisms/settings/PlanCard', () => ({
   ),
 }))
 
-vi.mock('../components/organisms/settings/PlanEditorModal', () => ({
+vi.mock('../../components/organisms/settings/PlanEditorModal', () => ({
   PlanEditorModal: ({ isOpen, onClose, onSave }: any) =>
     isOpen ? (
       <div data-testid="plan-modal">
@@ -70,11 +70,11 @@ vi.mock('../components/organisms/settings/PlanEditorModal', () => ({
     ) : null,
 }))
 
-vi.mock('../components/organisms/settings/SystemFeaturesSection', () => ({
+vi.mock('../../components/organisms/settings/SystemFeaturesSection', () => ({
   SystemFeaturesSection: () => <div data-testid="system-features" />,
 }))
 
-vi.mock('../components/organisms/settings/WorkHoursEditor', () => ({
+vi.mock('../../components/organisms/settings/WorkHoursEditor', () => ({
   WorkHoursEditor: () => <div data-testid="work-hours-editor" />,
 }))
 

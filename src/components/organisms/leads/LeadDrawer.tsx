@@ -72,7 +72,7 @@ export const LeadDrawer: React.FC<LeadDrawerProps> = ({ lead, plans, onClose, on
               {created && <p className="text-xs text-slate-400">{daysAgo(created, t)}</p>}
             </div>
           </div>
-          <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg">
+          <button onClick={onClose} aria-label="close" className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg">
             <X className="h-5 w-5" />
           </button>
         </div>

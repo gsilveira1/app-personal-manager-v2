@@ -12,8 +12,6 @@ export interface ClientWorkoutsTabProps {
   activePlans: WorkoutPlan[]
   /** The archived workout plans for the client. */
   archivedPlans: WorkoutPlan[]
-  /** Callback fired to open the workout modal for creating a new workout. */
-  onOpenWorkoutModal: () => void
   /** Callback fired to edit an existing workout plan. */
   onEditWorkout: (workout: WorkoutPlan) => void
   /** Callback fired to delete a workout plan. */
@@ -31,7 +29,6 @@ export interface ClientWorkoutsTabProps {
 export const ClientWorkoutsTab = ({
   activePlans,
   archivedPlans,
-  onOpenWorkoutModal,
   onEditWorkout,
   onDeleteWorkout,
   onUpdateWorkoutStatus,
@@ -43,9 +40,6 @@ export const ClientWorkoutsTab = ({
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold text-slate-900">{t('workoutPlans')}</h3>
-        <Button onClick={onOpenWorkoutModal}>
-          <Plus className="mr-2 h-4 w-4" /> {t('createWorkout')}
-        </Button>
       </div>
       <div className="space-y-4">
         <h4 className="text-sm font-medium text-slate-500 uppercase tracking-wider flex items-center">

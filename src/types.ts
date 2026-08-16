@@ -3,6 +3,9 @@ export interface User {
   name: string
   email: string
   role: string
+  avatar?: string
+  phone?: string
+  bio?: string
 }
 
 export const ClientStatus = {
@@ -131,6 +134,9 @@ export interface WorkoutPlan {
   createdAt: string
 }
 
+export type ProtocolType = 'POLLOCK_3' | 'POLLOCK_7' | 'PETROSKI_4' | 'DURNIN_WOMERSLEY_4'
+export type EquationType = 'SIRI' | 'BROZEK'
+
 export interface Evaluation {
   id: string
   clientId: string
@@ -139,6 +145,10 @@ export interface Evaluation {
   height?: number
   bodyFatPercentage?: number
   leanMass?: number
+  fatMass?: number
+  bodyDensity?: number
+  protocol?: ProtocolType | string
+  equation?: EquationType | string
   idealWeight?: number
   absoluteBodyFat?: number
   notes?: string

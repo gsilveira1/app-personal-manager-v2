@@ -2,6 +2,7 @@ import { type StateCreator } from 'zustand'
 
 import { type User } from '../../../types'
 import * as api from '../../../services/api/apiService'
+import { uploadFileToGcs } from '../../../utils/uploadToGcs'
 
 /**
  * Represents the authentication slice of the application state.
@@ -52,6 +53,20 @@ export interface AuthSlice {
    * await checkAuthStatus();
    */
   checkAuthStatus: () => Promise<void>
+  /**
+   * Updates the logged-in user's profile details.
+   * 
+   * @param updates - Partial object containing updated profile fields
+   * @returns A promise resolving when profile update completes
+   */
+  updateProfile: (updates: Partial<User>) => Promise<void>
+  /**
+   * Uploads the user avatar photo file to GCS and updates profile state.
+   * 
+   * @param file - Image File object to upload
+   * @returns A promise resolving when avatar upload completes
+   */
+  uploadAvatar: (file: File) => Promise<void>
 }
 
 /**
@@ -98,5 +113,18 @@ export const createAuthSlice: StateCreator<AuthSlice, [], [], AuthSlice> = (set,
     } finally {
       set({ isLoading: false })
     }
+  },
+
+  updateProfile: async (updates) => {
+    const updatedUser = await api.updateUserProfile(updates)
+    set({ user: updatedUser })
+  },
+
+  uploadAvatar: async (file) => {
+    const { uploadUrl, publicUrl } = await api.getUserAvatarUploadUrl(file.type)
+    const localDataUrl = await uploadFileToGcs(uploadUrl, file)
+    const avatarUrl = localDataUrl || publicUrl
+    const updatedUser = await api.updateUserProfile({ avatar: avatarUrl })
+    set({ user: updatedUser })
   },
 })

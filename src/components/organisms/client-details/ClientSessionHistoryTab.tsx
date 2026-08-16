@@ -11,8 +11,6 @@ import type { Session } from '../../../types'
 export interface ClientSessionHistoryTabProps {
   /** The list of sessions for the client. */
   clientSessions: Session[]
-  /** Callback fired to open the session modal for adding a new session. */
-  onOpenSessionModal: () => void
 }
 
 /**
@@ -21,16 +19,13 @@ export interface ClientSessionHistoryTabProps {
  * @param props - The component props.
  * @returns The session history tab content.
  */
-export const ClientSessionHistoryTab = ({ clientSessions, onOpenSessionModal }: ClientSessionHistoryTabProps) => {
+export const ClientSessionHistoryTab = ({ clientSessions }: ClientSessionHistoryTabProps) => {
   const { t } = useTranslation('clients')
 
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold text-slate-900">{t('sessionHistory')}</h3>
-        <Button onClick={onOpenSessionModal}>
-          <Plus className="mr-2 h-4 w-4" /> {t('newSession')}
-        </Button>
       </div>
       {clientSessions.length > 0 ? (
         clientSessions.map((session) => (
@@ -53,7 +48,6 @@ export const ClientSessionHistoryTab = ({ clientSessions, onOpenSessionModal }: 
         <div className="text-center py-12 bg-slate-50 rounded-lg border border-dashed border-slate-200">
           <History className="h-12 w-12 text-slate-300 mx-auto mb-3" />
           <h3 className="text-lg font-medium text-slate-900">{t('noSessions')}</h3>
-          <Button className="mt-3" onClick={onOpenSessionModal}>{t('logFirstSession')}</Button>
         </div>
       )}
     </div>

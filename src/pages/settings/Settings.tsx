@@ -1,18 +1,18 @@
 import { useState, useEffect } from 'react'
-import { Bot, Plus, Tag } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { useStore } from '../../states/stores/store'
 import { useAuthStore } from '../../states/stores/auth/authStore'
 import { type Plan } from '../../types'
-import { Card, Button, Label } from '../../components/atoms'
-import { Textarea } from '../../components/atoms'
-import { PlanCard } from '../../components/organisms/settings/PlanCard'
-import { PlanEditorModal } from '../../components/organisms/settings/PlanEditorModal'
-import { SystemFeaturesSection } from '../../components/organisms/settings/SystemFeaturesSection'
-import { WorkHoursEditor } from '../../components/organisms/settings/WorkHoursEditor'
-import { AiInstructionsSection } from '../../components/organisms/settings/AiInstructionsSection'
-import { PlansSection } from '../../components/organisms/settings/PlansSection'
+import {
+  ProfileEditSection,
+  WorkHoursEditor,
+  AppFeaturesConfigSection,
+  AiInstructionsSection,
+  PlansSection,
+  SystemFeaturesSection,
+  PlanEditorModal,
+} from '../../components/organisms/settings'
 
 export const Settings = () => {
   const { t } = useTranslation('settings')
@@ -44,14 +44,15 @@ export const Settings = () => {
     setIsModalOpen(false)
   }
 
-  const presencialPlans = plans.filter((p) => p.type === 'PRESENCIAL')
-  const consultoriaPlans = plans.filter((p) => p.type === 'CONSULTORIA')
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="settings-page">
       <h1 className="text-2xl font-bold text-slate-900">{t('title')}</h1>
 
+      <ProfileEditSection />
+
       <WorkHoursEditor />
+
+      <AppFeaturesConfigSection />
 
       <AiInstructionsSection
         value={aiPromptInstructions}

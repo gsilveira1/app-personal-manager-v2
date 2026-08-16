@@ -3,3 +3,7 @@ export { PlanEditorModal, defaultPresencial, defaultConsultoria } from './PlanEd
 export { SystemFeaturesSection } from './SystemFeaturesSection'
 export { FeatureEditorModal } from './FeatureEditorModal'
 export { WorkHoursEditor } from './WorkHoursEditor'
+export { ProfileEditSection } from './ProfileEditSection'
+export { AppFeaturesConfigSection } from './AppFeaturesConfigSection'
+export { AiInstructionsSection } from './AiInstructionsSection'
+export { PlansSection } from './PlansSection'

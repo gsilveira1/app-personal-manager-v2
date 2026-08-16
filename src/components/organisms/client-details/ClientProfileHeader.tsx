@@ -1,9 +1,12 @@
-import React from 'react'
-import { Calendar, Mail, Phone, User, Camera, Loader2 } from 'lucide-react'
+import React, { useState } from 'react'
+import { Calendar, Mail, Phone, User, Camera, Loader2, Edit2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { parseISO } from 'date-fns'
 
-import { Badge } from '../../atoms'
+import { Badge, Button } from '../../atoms'
 import type { Client, Plan } from '../../../types'
+import { formatLocalized } from '../../../utils/dateLocale'
+import { ClientProfileEditorModal } from './ClientProfileEditorModal'
 
 interface ClientProfileHeaderProps {
   client: Client
@@ -22,13 +25,17 @@ export const ClientProfileHeader: React.FC<ClientProfileHeaderProps> = ({
 }) => {
   const { t } = useTranslation('clients')
   const { t: tco } = useTranslation('common')
+  const [isEditorOpen, setIsEditorOpen] = useState(false)
 
   const age = client.dateOfBirth
     ? new Date().getFullYear() - new Date(client.dateOfBirth).getFullYear()
     : 'N/A'
+    
+  const formattedDob = client.dateOfBirth ? formatLocalized(parseISO(client.dateOfBirth), 'PP') : null
 
   return (
-    <div data-testid="client-profile-header" className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm flex flex-col md:flex-row gap-6 items-start">
+    <>
+      <div data-testid="client-profile-header" className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm flex flex-col md:flex-row gap-6 items-start">
       <button
         type="button"
         className="relative h-24 w-24 rounded-full border-4 border-slate-50 overflow-hidden group shrink-0 cursor-pointer"
@@ -79,7 +86,7 @@ export const ClientProfileHeader: React.FC<ClientProfileHeaderProps> = ({
               </span>
               <span className="flex items-center">
                 <Calendar className="h-4 w-4 mr-2" />
-                {t('yearsOld', { age })}
+                {formattedDob ? `${formattedDob} (${t('yearsOld', { age })})` : t('yearsOld', { age })}
               </span>
             </div>
           </div>
@@ -92,8 +99,21 @@ export const ClientProfileHeader: React.FC<ClientProfileHeaderProps> = ({
               </span>
             </div>
           )}
+          <div className="flex flex-col items-start md:items-end gap-1 shrink-0 mt-2 md:mt-0">
+            <Button variant="outline" size="sm" onClick={() => setIsEditorOpen(true)}>
+              <Edit2 className="h-4 w-4 mr-2" />
+              {t('editProfile')}
+            </Button>
+          </div>
         </div>
       </div>
-    </div>
+      </div>
+
+      <ClientProfileEditorModal
+        isOpen={isEditorOpen}
+        onClose={() => setIsEditorOpen(false)}
+        client={client}
+      />
+    </>
   )
 }
