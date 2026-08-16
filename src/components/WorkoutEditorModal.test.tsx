@@ -100,9 +100,7 @@ describe('WorkoutEditorModal', () => {
       title: 'Push Day',
       description: 'Upper body push',
       tags: ['push', 'chest'],
-      exercises: [
-        { name: 'Bench Press', sets: 4, reps: '8-10', notes: 'Slow eccentric', isWarmup: false },
-      ],
+      exercises: [{ name: 'Bench Press', sets: 4, reps: '8-10', notes: 'Slow eccentric', isWarmup: false }],
       createdAt: '2026-01-01',
       status: 'Active' as const,
     }

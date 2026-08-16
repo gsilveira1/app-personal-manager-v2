@@ -79,9 +79,7 @@ export const Leads = () => {
 
       {leads.length > 0 && <LeadKanban stages={STAGES} byStage={byStage} onLeadClick={setSelectedLead} />}
 
-      {selectedLead && (
-        <LeadDrawer lead={selectedLead} plans={plans} onClose={() => setSelectedLead(null)} onStageChange={handleStageChange} onConvert={handleConvert} onMarkLost={handleMarkLost} />
-      )}
+      {selectedLead && <LeadDrawer lead={selectedLead} plans={plans} onClose={() => setSelectedLead(null)} onStageChange={handleStageChange} onConvert={handleConvert} onMarkLost={handleMarkLost} />}
     </div>
   )
 }

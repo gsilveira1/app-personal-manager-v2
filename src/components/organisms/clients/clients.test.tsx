@@ -153,9 +153,7 @@ describe('ClientsTable', () => {
   })
 
   it('paginates clients correctly when initialItemsPerPage is specified', () => {
-    const manyClients = Array.from({ length: 12 }, (_, i) =>
-      makeClient({ id: `c${i + 1}`, name: `Client ${i + 1}`, email: `client${i + 1}@test.com` })
-    )
+    const manyClients = Array.from({ length: 12 }, (_, i) => makeClient({ id: `c${i + 1}`, name: `Client ${i + 1}`, email: `client${i + 1}@test.com` }))
 
     render(<ClientsTable clients={manyClients} plans={plans} searchTerm="" onSearchChange={vi.fn()} initialItemsPerPage={5} />)
 
@@ -173,9 +171,7 @@ describe('ClientsTable', () => {
   })
 
   it('changes items per page when selector changes', () => {
-    const manyClients = Array.from({ length: 12 }, (_, i) =>
-      makeClient({ id: `c${i + 1}`, name: `Client ${i + 1}`, email: `client${i + 1}@test.com` })
-    )
+    const manyClients = Array.from({ length: 12 }, (_, i) => makeClient({ id: `c${i + 1}`, name: `Client ${i + 1}`, email: `client${i + 1}@test.com` }))
 
     render(<ClientsTable clients={manyClients} plans={plans} searchTerm="" onSearchChange={vi.fn()} initialItemsPerPage={5} />)
 

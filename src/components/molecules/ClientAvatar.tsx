@@ -19,9 +19,5 @@ export const ClientAvatar: React.FC<ClientAvatarProps> = ({ name, avatar, size =
     return <img src={avatar} alt={name} className={cn('rounded-full object-cover', sizeMap[size], className)} />
   }
 
-  return (
-    <div className={cn('rounded-full bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center flex-shrink-0', sizeMap[size], className)}>
-      {name.charAt(0).toUpperCase()}
-    </div>
-  )
+  return <div className={cn('rounded-full bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center flex-shrink-0', sizeMap[size], className)}>{name.charAt(0).toUpperCase()}</div>
 }

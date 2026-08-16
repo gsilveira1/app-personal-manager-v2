@@ -5,7 +5,6 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { Login } from './Login'
 
-
 const mockNavigate = vi.fn()
 vi.mock('react-router', () => ({
   useNavigate: () => mockNavigate,

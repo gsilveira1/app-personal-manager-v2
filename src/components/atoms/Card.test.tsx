@@ -14,7 +14,11 @@ describe('Card', () => {
   })
 
   it('merges custom className', () => {
-    render(<Card className="p-6" data-testid="card">Content</Card>)
+    render(
+      <Card className="p-6" data-testid="card">
+        Content
+      </Card>
+    )
     expect(screen.getByTestId('card')).toHaveClass('p-6')
   })
 })

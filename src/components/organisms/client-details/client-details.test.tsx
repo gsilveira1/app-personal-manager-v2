@@ -137,9 +137,7 @@ describe('ClientProfileHeader', () => {
   it('avatar upload triggers onAvatarChange', async () => {
     const onAvatarChange = vi.fn()
     const ref = { current: null } as React.RefObject<HTMLInputElement | null>
-    render(
-      <ClientProfileHeader {...defaultProps} avatarInputRef={ref} onAvatarChange={onAvatarChange} />
-    )
+    render(<ClientProfileHeader {...defaultProps} avatarInputRef={ref} onAvatarChange={onAvatarChange} />)
     const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement
     expect(fileInput).toBeInTheDocument()
 

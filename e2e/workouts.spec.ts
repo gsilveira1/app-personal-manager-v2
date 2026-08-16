@@ -133,21 +133,25 @@ test.describe('Workouts', () => {
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify({
-          candidates: [{
-            content: {
-              parts: [{
-                text: JSON.stringify({
-                  title: 'E2E AI Workout',
-                  description: 'Generated for testing',
-                  exercises: [
-                    { name: 'Squat', sets: 3, reps: '12', notes: 'Full depth' },
-                    { name: 'Bench Press', sets: 4, reps: '10', notes: 'Control descent' },
-                  ],
-                  tags: ['strength', 'test'],
-                }),
-              }],
+          candidates: [
+            {
+              content: {
+                parts: [
+                  {
+                    text: JSON.stringify({
+                      title: 'E2E AI Workout',
+                      description: 'Generated for testing',
+                      exercises: [
+                        { name: 'Squat', sets: 3, reps: '12', notes: 'Full depth' },
+                        { name: 'Bench Press', sets: 4, reps: '10', notes: 'Control descent' },
+                      ],
+                      tags: ['strength', 'test'],
+                    }),
+                  },
+                ],
+              },
             },
-          }],
+          ],
         }),
       })
     })

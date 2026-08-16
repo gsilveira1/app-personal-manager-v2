@@ -4,7 +4,7 @@ import { createAuthSlice, type AuthSlice } from '../../slices/auth/authSlice'
 
 /**
  * Dedicated Zustand hook for consuming authentication state and actions.
- * 
+ *
  * @example
  * const { user, isAuthenticated, login } = useAuthStore();
  */

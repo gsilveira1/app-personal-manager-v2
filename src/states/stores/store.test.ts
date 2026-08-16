@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('../../services/api/apiService', () => ({
   getClients: vi.fn(),
@@ -261,7 +261,10 @@ describe('store async actions', () => {
     it('should remove plan and unlink clients with that planId', async () => {
       useStore.setState({
         plans: [{ id: 'p-1' }] as any,
-        clients: [{ id: 'c-1', planId: 'p-1' }, { id: 'c-2', planId: 'p-2' }] as any,
+        clients: [
+          { id: 'c-1', planId: 'p-1' },
+          { id: 'c-2', planId: 'p-2' },
+        ] as any,
       })
       mockApi.deletePlan.mockResolvedValue(undefined)
 
@@ -289,10 +292,9 @@ describe('store async actions', () => {
       mockApi.createPlan.mockResolvedValue(plan)
       mockApi.createClient.mockResolvedValue({ id: 'c-new', name: 'Test', planId: 'p-new' })
 
-      await useStore.getState().addClient(
-        { name: 'Test', email: 't@t.com', phone: '1', status: 'Active', type: 'In-Person' } as any,
-        { name: 'Custom', type: 'PRESENCIAL', sessionsPerWeek: 3, price: 300 } as any
-      )
+      await useStore
+        .getState()
+        .addClient({ name: 'Test', email: 't@t.com', phone: '1', status: 'Active', type: 'In-Person' } as any, { name: 'Custom', type: 'PRESENCIAL', sessionsPerWeek: 3, price: 300 } as any)
 
       expect(mockApi.createPlan).toHaveBeenCalled()
       expect(mockApi.createClient).toHaveBeenCalled()
@@ -319,8 +321,13 @@ describe('store async actions', () => {
       mockApi.createRecurringEvent.mockResolvedValue({ id: 're1' })
 
       await useStore.getState().addRecurringEvent({
-        rrule: 'FREQ=WEEKLY', timezone: 'America/Sao_Paulo', dtstart: '2025-01-01',
-        durationMinutes: 60, type: 'In-Person', category: 'Workout', clientId: 'c1',
+        rrule: 'FREQ=WEEKLY',
+        timezone: 'America/Sao_Paulo',
+        dtstart: '2025-01-01',
+        durationMinutes: 60,
+        type: 'In-Person',
+        category: 'Workout',
+        clientId: 'c1',
       })
 
       expect(mockApi.createRecurringEvent).toHaveBeenCalled()
@@ -329,11 +336,13 @@ describe('store async actions', () => {
 
   describe('deleteRecurringSeries', () => {
     it('should remove sessions by recurringEventId or recurrenceId', async () => {
-      useStore.setState({ sessions: [
-        { id: 's1', recurringEventId: 're1' },
-        { id: 's2', recurrenceId: 're1' },
-        { id: 's3', recurringEventId: 'other' },
-      ] as any })
+      useStore.setState({
+        sessions: [
+          { id: 's1', recurringEventId: 're1' },
+          { id: 's2', recurrenceId: 're1' },
+          { id: 's3', recurringEventId: 'other' },
+        ] as any,
+      })
       mockApi.deleteRecurringSeries.mockResolvedValue(undefined)
 
       await useStore.getState().deleteRecurringSeries('re1')
@@ -345,14 +354,18 @@ describe('store async actions', () => {
 
   describe('upsertSessionException', () => {
     it('should remove cancelled session from store', async () => {
-      useStore.setState({ sessions: [
-        { id: 's1', recurringEventId: 're1', originalStartTime: '2025-01-01' },
-        { id: 's2', recurringEventId: 're1', originalStartTime: '2025-01-08' },
-      ] as any })
+      useStore.setState({
+        sessions: [
+          { id: 's1', recurringEventId: 're1', originalStartTime: '2025-01-01' },
+          { id: 's2', recurringEventId: 're1', originalStartTime: '2025-01-08' },
+        ] as any,
+      })
       mockApi.upsertSessionException.mockResolvedValue({ id: 'se1' })
 
       await useStore.getState().upsertSessionException({
-        recurringEventId: 're1', originalStartTime: '2025-01-01', cancelled: true,
+        recurringEventId: 're1',
+        originalStartTime: '2025-01-01',
+        cancelled: true,
       })
 
       expect(useStore.getState().sessions).toHaveLength(1)
@@ -360,13 +373,12 @@ describe('store async actions', () => {
     })
 
     it('should not filter sessions when not cancelled', async () => {
-      useStore.setState({ sessions: [
-        { id: 's1', recurringEventId: 're1', originalStartTime: '2025-01-01' },
-      ] as any })
+      useStore.setState({ sessions: [{ id: 's1', recurringEventId: 're1', originalStartTime: '2025-01-01' }] as any })
       mockApi.upsertSessionException.mockResolvedValue({ id: 'se1' })
 
       await useStore.getState().upsertSessionException({
-        recurringEventId: 're1', originalStartTime: '2025-01-01',
+        recurringEventId: 're1',
+        originalStartTime: '2025-01-01',
       })
 
       expect(useStore.getState().sessions).toHaveLength(1)

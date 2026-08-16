@@ -20,13 +20,9 @@ export const initialEvalState: Omit<Evaluation, 'id' | 'clientId' | 'date'> = {
   skinfolds: {},
 }
 
-export const perimeterFields: (keyof Perimeters)[] = [
-  'relaxedArm', 'flexedArm', 'forearm', 'chest', 'waist', 'abdomen', 'hip', 'thigh', 'calf',
-]
+export const perimeterFields: (keyof Perimeters)[] = ['relaxedArm', 'flexedArm', 'forearm', 'chest', 'waist', 'abdomen', 'hip', 'thigh', 'calf']
 
-export const skinfoldFields: (keyof Skinfolds)[] = [
-  'triceps', 'biceps', 'subscapular', 'pectoral', 'suprailiac', 'axillary', 'abdominal', 'thigh', 'calf', 'supraSpinal',
-]
+export const skinfoldFields: (keyof Skinfolds)[] = ['triceps', 'biceps', 'subscapular', 'pectoral', 'suprailiac', 'axillary', 'abdominal', 'thigh', 'calf', 'supraSpinal']
 
 interface EvaluationModalProps {
   clientId: string
@@ -103,8 +99,7 @@ export const EvaluationModal: React.FC<EvaluationModalProps> = ({ clientId, onCl
     onClose()
   }
 
-  const handleNumericChange = (key: keyof Evaluation, value: string) =>
-    setData((d) => ({ ...d, [key]: value === '' ? undefined : parseFloat(value) }))
+  const handleNumericChange = (key: keyof Evaluation, value: string) => setData((d) => ({ ...d, [key]: value === '' ? undefined : parseFloat(value) }))
 
   const handleNestedChange = (category: 'perimeters' | 'skinfolds', key: string, value: string) =>
     setData((d) => ({ ...d, [category]: { ...d[category], [key]: value === '' ? undefined : parseFloat(value) } }))
@@ -146,18 +141,27 @@ export const EvaluationModal: React.FC<EvaluationModalProps> = ({ clientId, onCl
 
         <div className="border-b border-slate-200 px-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <button onClick={() => setTab('skinfolds')} className={`py-3 text-sm font-medium transition-colors ${tab === 'skinfolds' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-500 hover:text-slate-700'}`}>
+            <button
+              onClick={() => setTab('skinfolds')}
+              className={`py-3 text-sm font-medium transition-colors ${tab === 'skinfolds' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-500 hover:text-slate-700'}`}
+            >
               {t('skinfolds')} (Dobras)
             </button>
-            <button onClick={() => setTab('perimeters')} className={`py-3 text-sm font-medium transition-colors ${tab === 'perimeters' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-500 hover:text-slate-700'}`}>
+            <button
+              onClick={() => setTab('perimeters')}
+              className={`py-3 text-sm font-medium transition-colors ${tab === 'perimeters' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-500 hover:text-slate-700'}`}
+            >
               {t('perimeters')} (Circunferências)
             </button>
-            <button onClick={() => setTab('vitals')} className={`py-3 text-sm font-medium transition-colors ${tab === 'vitals' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-500 hover:text-slate-700'}`}>
+            <button
+              onClick={() => setTab('vitals')}
+              className={`py-3 text-sm font-medium transition-colors ${tab === 'vitals' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-500 hover:text-slate-700'}`}
+            >
               {t('vitals')} & Resultados
             </button>
           </div>
 
-          <Button type="button" variant="ghost" size="sm" onClick={handleApplyCalculated} className="text-xs text-indigo-600 hover:bg-indigo-50">
+          <Button type="button" variant="ghost" onClick={handleApplyCalculated} className="text-xs text-indigo-600 hover:bg-indigo-50">
             <Sparkles className="h-3.5 w-3.5 mr-1" />
             Aplicar Cálculos
           </Button>
@@ -198,9 +202,7 @@ export const EvaluationModal: React.FC<EvaluationModalProps> = ({ clientId, onCl
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <h4 className="text-sm font-semibold text-slate-800">Dobras Cutâneas (mm)</h4>
-                  <span className="text-xs text-indigo-600 font-medium">
-                    Campos destacados são obrigatórios para {data.protocol || 'POLLOCK_3'}
-                  </span>
+                  <span className="text-xs text-indigo-600 font-medium">Campos destacados são obrigatórios para {data.protocol || 'POLLOCK_3'}</span>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {skinfoldFields.map((key) => {
@@ -208,18 +210,10 @@ export const EvaluationModal: React.FC<EvaluationModalProps> = ({ clientId, onCl
                     return (
                       <div key={key} className={`space-y-1.5 p-2 rounded-lg border transition-colors ${isRequired ? 'bg-indigo-50/40 border-indigo-200' : 'border-slate-200'}`}>
                         <div className="flex justify-between items-center">
-                          <Label className={`text-xs ${isRequired ? 'font-bold text-indigo-900' : 'text-slate-600'}`}>
-                            {t(`skinfoldLabel.${key}`)}
-                          </Label>
+                          <Label className={`text-xs ${isRequired ? 'font-bold text-indigo-900' : 'text-slate-600'}`}>{t(`skinfoldLabel.${key}`)}</Label>
                           {isRequired && <CheckCircle2 className="h-3.5 w-3.5 text-indigo-600" />}
                         </div>
-                        <Input
-                          type="number"
-                          step="0.1"
-                          placeholder="0.0"
-                          value={data.skinfolds?.[key] || ''}
-                          onChange={(e) => handleNestedChange('skinfolds', key, e.target.value)}
-                        />
+                        <Input type="number" step="0.1" placeholder="0.0" value={data.skinfolds?.[key] || ''} onChange={(e) => handleNestedChange('skinfolds', key, e.target.value)} />
                       </div>
                     )
                   })}
@@ -234,13 +228,7 @@ export const EvaluationModal: React.FC<EvaluationModalProps> = ({ clientId, onCl
                   {perimeterFields.map((key) => (
                     <div key={key} className="space-y-1.5">
                       <Label className="text-xs text-slate-600">{t(`perimeterLabel.${key}`)}</Label>
-                      <Input
-                        type="number"
-                        step="0.1"
-                        placeholder="0.0"
-                        value={data.perimeters?.[key] || ''}
-                        onChange={(e) => handleNestedChange('perimeters', key, e.target.value)}
-                      />
+                      <Input type="number" step="0.1" placeholder="0.0" value={data.perimeters?.[key] || ''} onChange={(e) => handleNestedChange('perimeters', key, e.target.value)} />
                     </div>
                   ))}
                 </div>
@@ -252,23 +240,11 @@ export const EvaluationModal: React.FC<EvaluationModalProps> = ({ clientId, onCl
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <Label>{t('weightKg')}</Label>
-                    <Input
-                      type="number"
-                      step="0.1"
-                      value={data.weight || ''}
-                      onChange={(e) => handleNumericChange('weight', e.target.value)}
-                      required
-                    />
+                    <Input type="number" step="0.1" value={data.weight || ''} onChange={(e) => handleNumericChange('weight', e.target.value)} required />
                   </div>
                   <div className="space-y-1.5">
                     <Label>{t('heightM')}</Label>
-                    <Input
-                      type="number"
-                      step="0.1"
-                      placeholder="170"
-                      value={data.height || ''}
-                      onChange={(e) => handleNumericChange('height', e.target.value)}
-                    />
+                    <Input type="number" step="0.1" placeholder="170" value={data.height || ''} onChange={(e) => handleNumericChange('height', e.target.value)} />
                   </div>
                 </div>
 
@@ -317,11 +293,7 @@ export const EvaluationModal: React.FC<EvaluationModalProps> = ({ clientId, onCl
 
                 <div className="space-y-1.5">
                   <Label>{t('evalNotes')}</Label>
-                  <Input
-                    placeholder="Observações clínicas ou meta..."
-                    value={data.notes || ''}
-                    onChange={(e) => setData((d) => ({ ...d, notes: e.target.value }))}
-                  />
+                  <Input placeholder="Observações clínicas ou meta..." value={data.notes || ''} onChange={(e) => setData((d) => ({ ...d, notes: e.target.value }))} />
                 </div>
               </div>
             )}

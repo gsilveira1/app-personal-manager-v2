@@ -60,7 +60,10 @@ test.describe('Clients', () => {
     await page.locator('#phone').fill('53999000000')
 
     // Submit
-    await page.getByRole('button', { name: /adicionar|salvar|save|add client/i }).last().click()
+    await page
+      .getByRole('button', { name: /adicionar|salvar|save|add client/i })
+      .last()
+      .click()
 
     // Verify client appears in table
     await expect(page.locator(`text=${uniqueName}`)).toBeVisible({ timeout: 10000 })

@@ -74,28 +74,13 @@ describe('Pagination', () => {
   })
 
   it('renders empty message when totalItems is 0', () => {
-    render(
-      <Pagination
-        {...defaultProps}
-        totalItems={0}
-        startIndex={0}
-        endIndex={0}
-        totalPages={1}
-      />
-    )
+    render(<Pagination {...defaultProps} totalItems={0} startIndex={0} endIndex={0} totalPages={1} />)
 
     expect(screen.getByText('No results')).toBeInTheDocument()
   })
 
   it('renders ellipsis for large page counts', () => {
-    render(
-      <Pagination
-        {...defaultProps}
-        currentPage={5}
-        totalPages={10}
-        totalItems={100}
-      />
-    )
+    render(<Pagination {...defaultProps} currentPage={5} totalPages={10} totalItems={100} />)
 
     expect(screen.getAllByText('...').length).toBeGreaterThan(0)
     expect(screen.getByTestId('pagination-page-1')).toBeInTheDocument()

@@ -9,8 +9,7 @@ export const getSessions = async () => apiClient<Session[]>('/sessions')
 /**
  * Retrieves sessions for a specific date range.
  */
-export const getSessionsForRange = async (start: Date, end: Date) =>
-  apiClient<Session[]>(`/sessions?start=${start.toISOString()}&end=${end.toISOString()}`)
+export const getSessionsForRange = async (start: Date, end: Date) => apiClient<Session[]>(`/sessions?start=${start.toISOString()}&end=${end.toISOString()}`)
 
 /**
  * Creates a single session.
@@ -43,8 +42,7 @@ export const createRecurringEvent = async (dto: {
 /**
  * Deletes a recurring series of sessions.
  */
-export const deleteRecurringSeries = async (id: string) =>
-  apiClient<void>(`/sessions/recurring-event/${id}`, { method: 'DELETE' })
+export const deleteRecurringSeries = async (id: string) => apiClient<void>(`/sessions/recurring-event/${id}`, { method: 'DELETE' })
 
 /**
  * Creates or updates an exception in a recurring series.
@@ -75,11 +73,7 @@ export const updateSession = async (id: string, updates: Partial<Session>) =>
 /**
  * Updates a session with a target scope (single or future).
  */
-export const updateSessionWithScope = async (
-  id: string,
-  updates: Partial<Session>,
-  scope: 'single' | 'future'
-) =>
+export const updateSessionWithScope = async (id: string, updates: Partial<Session>, scope: 'single' | 'future') =>
   apiClient<Session>(`/sessions/${id}/scope`, {
     method: 'PATCH',
     body: JSON.stringify({ ...updates, scope }),

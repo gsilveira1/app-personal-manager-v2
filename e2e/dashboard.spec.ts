@@ -48,9 +48,7 @@ test.describe('Dashboard', () => {
 
   test('quick link navigates to schedule', async ({ page }) => {
     // Dashboard has a "+ New Session" button that links to schedule
-    const newSessionLink = page.getByRole('link', { name: /nova sessão|new session|agenda/i }).or(
-      page.locator('a[href*="schedule"]').first()
-    )
+    const newSessionLink = page.getByRole('link', { name: /nova sessão|new session|agenda/i }).or(page.locator('a[href*="schedule"]').first())
     if (await newSessionLink.isVisible({ timeout: 3000 }).catch(() => false)) {
       await newSessionLink.click()
       await expect(page).toHaveURL(/\/#\/schedule/)

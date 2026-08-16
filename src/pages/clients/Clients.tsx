@@ -33,23 +33,11 @@ export const Clients = () => {
         </Button>
       </div>
 
-      <ClientsTable
-        clients={clients}
-        plans={plans}
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        onEditClient={setEditingClient}
-      />
+      <ClientsTable clients={clients} plans={plans} searchTerm={searchTerm} onSearchChange={setSearchTerm} onEditClient={setEditingClient} />
 
       {isModalOpen && <AddClientModal onClose={() => setIsModalOpen(false)} onSave={addClient} />}
 
-      {editingClient && (
-        <ClientProfileEditorModal
-          isOpen={true}
-          onClose={() => setEditingClient(null)}
-          client={editingClient}
-        />
-      )}
+      {editingClient && <ClientProfileEditorModal isOpen={true} onClose={() => setEditingClient(null)} client={editingClient} />}
     </div>
   )
 }

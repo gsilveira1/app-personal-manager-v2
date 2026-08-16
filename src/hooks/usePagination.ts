@@ -53,15 +53,8 @@ export interface UsePaginationResult<T> {
  * @example
  * const { paginatedItems, currentPage, totalPages, setPage } = usePagination(clients, { initialItemsPerPage: 10 })
  */
-export function usePagination<T>(
-  items: T[],
-  options: UsePaginationOptions = {}
-): UsePaginationResult<T> {
-  const {
-    initialPage = 1,
-    initialItemsPerPage = 10,
-    pageSizeOptions = [5, 10, 20, 50],
-  } = options
+export function usePagination<T>(items: T[], options: UsePaginationOptions = {}): UsePaginationResult<T> {
+  const { initialPage = 1, initialItemsPerPage = 10, pageSizeOptions = [5, 10, 20, 50] } = options
 
   const [currentPage, setCurrentPage] = useState<number>(initialPage)
   const [itemsPerPage, setItemsPerPageState] = useState<number>(initialItemsPerPage)

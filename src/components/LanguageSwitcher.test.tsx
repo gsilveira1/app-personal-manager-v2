@@ -137,10 +137,7 @@ describe('LanguageSwitcher', () => {
     render(<LanguageSwitcher />)
     fireEvent.change(screen.getByRole('combobox'), { target: { value: 'es' } })
     await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('language'),
-        expect.any(Error),
-      )
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('language'), expect.any(Error))
     })
     consoleSpy.mockRestore()
   })

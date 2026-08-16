@@ -13,7 +13,7 @@ import { createFinanceSlice, type FinanceSlice } from '../../slices/finance/fina
 export interface ClientActions {
   /**
    * Creates a new client and optionally creates/associates a custom plan.
-   * 
+   *
    * @param clientData - Client fields excluding generated ID and avatar
    * @param customPlanData - Optional plan details to create for client
    * @returns A promise resolving when client is created and added to state
@@ -21,7 +21,7 @@ export interface ClientActions {
   addClient: (clientData: Omit<Client, 'id' | 'avatar'>, customPlanData?: Omit<Plan, 'id'>) => Promise<void>
   /**
    * Updates an existing client entity on backend and state.
-   * 
+   *
    * @param id - Unique identifier of client
    * @param updates - Partial fields to update
    * @returns A promise resolving when client update completes
@@ -29,7 +29,7 @@ export interface ClientActions {
   updateClient: (id: string, updates: Partial<Client>) => Promise<void>
   /**
    * Uploads client avatar image file to GCS and updates profile.
-   * 
+   *
    * @param clientId - Unique identifier of client
    * @param file - Avatar image File object
    * @returns A promise resolving when avatar upload completes
@@ -37,14 +37,14 @@ export interface ClientActions {
   uploadClientAvatar: (clientId: string, file: File) => Promise<void>
   /**
    * Deletes a client entity from backend and state.
-   * 
+   *
    * @param id - Unique identifier of client to delete
    * @returns A promise resolving when deletion completes
    */
   deleteClient: (id: string) => Promise<void>
   /**
    * Converts a lead client to an active member with optional plan assignment.
-   * 
+   *
    * @param id - Unique identifier of lead client
    * @param planId - Optional plan ID to assign upon conversion
    * @returns A promise resolving when conversion completes
@@ -58,12 +58,12 @@ export type ClientStoreState = ClientSlice & FinanceSlice & ClientActions
 /**
  * Single source of truth for all client async actions.
  * Consumed by both useClientStore (standalone) and useStore (global).
- * 
+ *
  * @param set - Zustand state setter function
  * @param get - Zustand state getter function
  * @returns Object containing client async action implementations
  */
-export const createClientActions: StateCreator<ClientStoreState, [], [], ClientActions> = (set, get) => ({
+export const createClientActions: StateCreator<ClientStoreState, [], [], ClientActions> = (_set, get) => ({
   addClient: async (clientData, customPlanData) => {
     const finalClientData = { ...clientData }
     if (customPlanData) {
@@ -101,7 +101,7 @@ export const createClientActions: StateCreator<ClientStoreState, [], [], ClientA
 
 /**
  * Zustand hook for managing client state and actions.
- * 
+ *
  * @example
  * const { clients, addClient } = useClientStore();
  */

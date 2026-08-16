@@ -4,8 +4,7 @@ import { useTranslation } from 'react-i18next'
 
 import { type Session, type MaterializedBlock, type AvailabilityBlock } from '../../types'
 import { useStore } from '../../states/stores/store'
-import { Card, Button } from '../../components/atoms'
-import { useScheduleNavigation, type ViewType } from '../../hooks/useScheduleNavigation'
+import { useScheduleNavigation } from '../../hooks/useScheduleNavigation'
 import { useScheduleDragDrop } from '../../hooks/useScheduleDragDrop'
 import { DayView } from '../../components/organisms/schedule/DayView'
 import { WeekView } from '../../components/organisms/schedule/WeekView'
@@ -125,12 +124,7 @@ export const Schedule = () => {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-6">
-        <ScheduleHeader
-          view={nav.view}
-          onViewChange={nav.setView}
-          onOpenBlockEditor={openBlockEditor}
-          onOpenNewSession={openNewSession}
-        />
+        <ScheduleHeader view={nav.view} onViewChange={nav.setView} onOpenBlockEditor={openBlockEditor} onOpenNewSession={openNewSession} />
 
         <ScheduleOverviewBanner
           title={t(`overview${nav.view.charAt(0).toUpperCase() + nav.view.slice(1)}`)}
@@ -141,12 +135,7 @@ export const Schedule = () => {
       </div>
 
       <div className="space-y-4">
-        <ScheduleNavigationPanel
-          headerText={nav.getHeaderText()}
-          onPrevious={nav.handlePrevious}
-          onToday={nav.handleToday}
-          onNext={nav.handleNext}
-        />
+        <ScheduleNavigationPanel headerText={nav.getHeaderText()} onPrevious={nav.handlePrevious} onToday={nav.handleToday} onNext={nav.handleNext} />
         <div className="animate-in fade-in duration-300">{renderView()}</div>
       </div>
 

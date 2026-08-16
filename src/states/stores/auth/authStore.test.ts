@@ -134,7 +134,9 @@ describe('authStore', () => {
 
     it('should set isLoading=true during check, false after', async () => {
       let resolvePromise: (value: any) => void
-      const pendingPromise = new Promise((resolve) => { resolvePromise = resolve })
+      const pendingPromise = new Promise((resolve) => {
+        resolvePromise = resolve
+      })
       mockApi.getCurrentUser.mockReturnValue(pendingPromise)
 
       const promise = useAuthStore.getState().checkAuthStatus()

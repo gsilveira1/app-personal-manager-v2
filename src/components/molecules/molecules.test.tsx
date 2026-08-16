@@ -62,13 +62,21 @@ describe('ModalShell', () => {
   })
 
   it('renders children', () => {
-    render(<ModalShell {...defaultProps}><p>Body content</p></ModalShell>)
+    render(
+      <ModalShell {...defaultProps}>
+        <p>Body content</p>
+      </ModalShell>
+    )
     expect(screen.getByText('Body content')).toBeInTheDocument()
   })
 
   it('calls onClose when close button is clicked', () => {
     const onClose = vi.fn()
-    render(<ModalShell title="Test" onClose={onClose}>Content</ModalShell>)
+    render(
+      <ModalShell title="Test" onClose={onClose}>
+        Content
+      </ModalShell>
+    )
     // The close button is a ghost Button containing the X icon
     const buttons = screen.getAllByRole('button')
     fireEvent.click(buttons[0])
@@ -228,9 +236,7 @@ describe('TabBar', () => {
   })
 
   it('renders tab icons when provided', () => {
-    const tabsWithIcons = [
-      { id: 'tab1', label: 'Tab 1', icon: MockIcon },
-    ]
+    const tabsWithIcons = [{ id: 'tab1', label: 'Tab 1', icon: MockIcon }]
     render(<TabBar tabs={tabsWithIcons} activeTab="tab1" onChange={vi.fn()} />)
     expect(screen.getByTestId('mock-icon')).toBeInTheDocument()
   })

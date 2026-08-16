@@ -11,14 +11,14 @@ import { createScheduleSlice, type ScheduleSlice } from '../../slices/schedule/s
 export interface ScheduleActions {
   /**
    * Adds a single non-recurring session to backend and state.
-   * 
+   *
    * @param session - Session data omitting generated ID, completed flag, and recurrence ID
    * @returns A promise resolving when session is created
    */
   addSession: (session: Omit<Session, 'id' | 'completed' | 'recurrenceId'>) => Promise<void>
   /**
    * Creates an RRULE-based recurring event on the server.
-   * 
+   *
    * @param dto - Object containing RRULE string, timezone, category, client, etc.
    * @returns A promise resolving when recurring event is created
    */
@@ -35,14 +35,14 @@ export interface ScheduleActions {
   }) => Promise<void>
   /**
    * Deletes an entire recurring event series by ID.
-   * 
+   *
    * @param id - Recurrence series identifier
    * @returns A promise resolving when recurring series is deleted
    */
   deleteRecurringSeries: (id: string) => Promise<void>
   /**
    * Creates or updates an exception for a recurring event instance.
-   * 
+   *
    * @param dto - Exception parameters including cancellation or new start time
    * @returns A promise resolving when exception is saved
    */
@@ -57,7 +57,7 @@ export interface ScheduleActions {
   }) => Promise<void>
   /**
    * Updates a single session by ID.
-   * 
+   *
    * @param id - Unique identifier of session
    * @param session - Partial session updates
    * @returns A promise resolving when session update completes
@@ -65,7 +65,7 @@ export interface ScheduleActions {
   updateSession: (id: string, session: Partial<Session>) => Promise<void>
   /**
    * Updates a session with scoping (single vs. future instances).
-   * 
+   *
    * @param sessionId - Session identifier
    * @param updates - Partial session updates
    * @param scope - Scope of update ('single' or 'future')
@@ -74,7 +74,7 @@ export interface ScheduleActions {
   updateSessionWithScope: (sessionId: string, updates: Partial<Session>, scope: 'single' | 'future') => Promise<void>
   /**
    * Fetches scheduled sessions within a specified date range.
-   * 
+   *
    * @param start - Start Date of range
    * @param end - End Date of range
    * @returns A promise resolving when sessions are loaded into state
@@ -82,7 +82,7 @@ export interface ScheduleActions {
   fetchSessionsForRange: (start: Date, end: Date) => Promise<void>
   /**
    * Toggles completion status of a session by ID.
-   * 
+   *
    * @param id - Unique identifier of session
    * @returns A promise resolving when completion state is toggled
    */
@@ -95,7 +95,7 @@ export type ScheduleStoreState = ScheduleSlice & ScheduleActions
 /**
  * Single source of truth for all schedule/session async actions.
  * Consumed by both useScheduleStore (standalone) and useStore (global).
- * 
+ *
  * @param set - Zustand state setter function
  * @param get - Zustand state getter function
  * @returns Object containing schedule async action implementations
@@ -121,9 +121,7 @@ export const createScheduleActions: StateCreator<ScheduleStoreState, [], [], Sch
     await api.upsertSessionException(dto)
     if (dto.cancelled) {
       set((state) => ({
-        sessions: state.sessions.filter(
-          (s: any) => !(s.recurringEventId === dto.recurringEventId && s.originalStartTime === dto.originalStartTime),
-        ),
+        sessions: state.sessions.filter((s: any) => !(s.recurringEventId === dto.recurringEventId && s.originalStartTime === dto.originalStartTime)),
       }))
     }
   },
@@ -158,7 +156,7 @@ export const createScheduleActions: StateCreator<ScheduleStoreState, [], [], Sch
 
 /**
  * Zustand hook for managing schedule state and actions.
- * 
+ *
  * @example
  * const { sessions, addSession } = useScheduleStore();
  */

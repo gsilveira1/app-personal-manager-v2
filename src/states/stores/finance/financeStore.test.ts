@@ -19,7 +19,7 @@ describe('financeStore', () => {
   })
 
   it('should initialize with empty plans array', () => {
-    expect(useFinanceStore.getState().plans).toEqual([]  )
+    expect(useFinanceStore.getState().plans).toEqual([])
   })
 
   it('should manage finance state correctly (sync)', () => {
@@ -55,7 +55,7 @@ describe('financeStore', () => {
       useFinanceStore.setState({ plans: [{ id: 'p-1' }] as any })
       mockApi.deletePlan.mockResolvedValue(undefined)
 
-      await useFinanceStore.getState().deletePlan('p-1', () => ({ clients: [] } as any))
+      await useFinanceStore.getState().deletePlan('p-1', () => ({ clients: [] }) as any)
 
       expect(useFinanceStore.getState().plans).toHaveLength(0)
     })

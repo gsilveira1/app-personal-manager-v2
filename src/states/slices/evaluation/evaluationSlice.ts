@@ -10,25 +10,25 @@ export interface EvaluationSlice {
   evaluations: Evaluation[]
   /**
    * Replaces the list of physical evaluations in state.
-   * 
+   *
    * @param evaluations - Array of Evaluation objects
    */
   _setEvaluations: (evaluations: Evaluation[]) => void
   /**
    * Prepends a new physical evaluation to state.
-   * 
+   *
    * @param evaluation - The newly created Evaluation record
    */
   _addEvaluation: (evaluation: Evaluation) => void
   /**
    * Updates an existing physical evaluation by ID in state.
-   * 
+   *
    * @param evaluation - The updated Evaluation record
    */
   _updateEvaluation: (evaluation: Evaluation) => void
   /**
    * Removes a physical evaluation record by ID.
-   * 
+   *
    * @param evaluationId - Unique identifier of evaluation to remove
    */
   _removeEvaluation: (evaluationId: string) => void
@@ -36,7 +36,7 @@ export interface EvaluationSlice {
 
 /**
  * Creates the evaluation slice state creator for Zustand store integration.
- * 
+ *
  * @param set - Zustand state setter function
  * @returns Initialized EvaluationSlice state object and methods
  * @example

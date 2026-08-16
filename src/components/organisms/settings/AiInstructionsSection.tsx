@@ -32,14 +32,7 @@ export const AiInstructionsSection = ({ value, onChange }: AiInstructionsSection
       </div>
       <div className="p-6">
         <Label htmlFor="ai-instructions">{t('aiInstructions')}</Label>
-        <Textarea
-          id="ai-instructions"
-          rows={5}
-          className="mt-2"
-          placeholder={t('aiInstructionsPlaceholder')}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-        />
+        <Textarea id="ai-instructions" rows={5} className="mt-2" placeholder={t('aiInstructionsPlaceholder')} value={value} onChange={(e) => onChange(e.target.value)} />
         <p className="text-xs text-slate-400 mt-2">{t('autoSave')}</p>
       </div>
     </Card>

@@ -59,14 +59,7 @@ export const SessionLogModal: React.FC<SessionLogModalProps> = ({ clientId, onCl
             </div>
             <div className="space-y-2">
               <Label htmlFor="session-duration">{t('durationMinutes')}</Label>
-              <Input
-                id="session-duration"
-                type="number"
-                min={1}
-                value={durationMinutes}
-                onChange={(e) => setDurationMinutes(parseInt(e.target.value, 10))}
-                required
-              />
+              <Input id="session-duration" type="number" min={1} value={durationMinutes} onChange={(e) => setDurationMinutes(parseInt(e.target.value, 10))} required />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">

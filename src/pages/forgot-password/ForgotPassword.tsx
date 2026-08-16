@@ -51,9 +51,7 @@ export const ForgotPassword = () => {
         <div className="text-center">
           <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-slate-900">{t('checkYourEmail')}</h1>
-          <p className="text-slate-500 text-sm mt-2">
-            {t('recoveryLinkSent', { email })}
-          </p>
+          <p className="text-slate-500 text-sm mt-2">{t('recoveryLinkSent', { email })}</p>
         </div>
       )}
       <p className="text-center text-sm text-slate-500 mt-6">

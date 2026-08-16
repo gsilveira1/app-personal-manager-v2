@@ -21,16 +21,7 @@ export interface EvaluationCalculatorOutput {
   idealWeight?: number
 }
 
-export const calculateEvaluationMetrics = ({
-  gender,
-  age,
-  weight,
-  height,
-  skinfolds = {},
-  perimeters = {},
-  protocol,
-  equation,
-}: EvaluationCalculatorParams): EvaluationCalculatorOutput => {
+export const calculateEvaluationMetrics = ({ gender, age, weight, height, skinfolds = {}, perimeters = {}, protocol, equation }: EvaluationCalculatorParams): EvaluationCalculatorOutput => {
   const isFemale = (gender || 'M').toUpperCase().startsWith('F')
   const gNorm: 'M' | 'F' = isFemale ? 'F' : 'M'
   const validAge = age || 25

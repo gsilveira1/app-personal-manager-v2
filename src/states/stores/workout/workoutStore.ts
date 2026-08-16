@@ -11,14 +11,14 @@ import { createWorkoutSlice, type WorkoutSlice } from '../../slices/workout/work
 export interface WorkoutActions {
   /**
    * Creates a new workout plan on backend and state.
-   * 
+   *
    * @param workout - Workout data omitting generated ID and creation date
    * @returns A promise resolving when workout plan creation completes
    */
   addWorkout: (workout: Omit<WorkoutPlan, 'id' | 'createdAt'>) => Promise<void>
   /**
    * Updates an existing workout plan.
-   * 
+   *
    * @param id - Unique identifier of workout plan
    * @param workout - Partial workout properties to update
    * @returns A promise resolving when workout plan update completes
@@ -26,7 +26,7 @@ export interface WorkoutActions {
   updateWorkout: (id: string, workout: Partial<WorkoutPlan>) => Promise<void>
   /**
    * Deletes a workout plan by ID.
-   * 
+   *
    * @param id - Unique identifier of workout plan to delete
    * @returns A promise resolving when deletion completes
    */
@@ -39,12 +39,12 @@ export type WorkoutStoreState = WorkoutSlice & WorkoutActions
 /**
  * Single source of truth for all workout async actions.
  * Consumed by both useWorkoutStore (standalone) and useStore (global).
- * 
+ *
  * @param set - Zustand state setter function
  * @param get - Zustand state getter function
  * @returns Object containing workout async action implementations
  */
-export const createWorkoutActions: StateCreator<WorkoutStoreState, [], [], WorkoutActions> = (set, get) => ({
+export const createWorkoutActions: StateCreator<WorkoutStoreState, [], [], WorkoutActions> = (_set, get) => ({
   addWorkout: async (workoutData) => {
     const newWorkout = await api.createWorkout(workoutData)
     get()._addWorkout(newWorkout)
@@ -63,7 +63,7 @@ export const createWorkoutActions: StateCreator<WorkoutStoreState, [], [], Worko
 
 /**
  * Zustand hook for managing workout state and actions.
- * 
+ *
  * @example
  * const { workouts, addWorkout } = useWorkoutStore();
  */

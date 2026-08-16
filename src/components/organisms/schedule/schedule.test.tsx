@@ -129,9 +129,7 @@ describe('SessionCard', () => {
   })
 
   it('does not render recurring icon when recurrenceId is absent', () => {
-    render(
-      <SessionCard session={makeSession({ recurrenceId: undefined })} client={makeClient()} onClick={vi.fn()} onToggle={vi.fn()} onDragStart={vi.fn()} onDragEnd={vi.fn()} isDragged={false} />,
-    )
+    render(<SessionCard session={makeSession({ recurrenceId: undefined })} client={makeClient()} onClick={vi.fn()} onToggle={vi.fn()} onDragStart={vi.fn()} onDragEnd={vi.fn()} isDragged={false} />)
 
     expect(screen.queryByTitle('recurringSession')).not.toBeInTheDocument()
   })
@@ -144,16 +142,14 @@ describe('SessionCard', () => {
 
   it('renders Check-in category badge with purple styling', () => {
     const { container } = render(
-      <SessionCard session={makeSession({ category: 'Check-in' })} client={makeClient()} onClick={vi.fn()} onToggle={vi.fn()} onDragStart={vi.fn()} onDragEnd={vi.fn()} isDragged={false} />,
+      <SessionCard session={makeSession({ category: 'Check-in' })} client={makeClient()} onClick={vi.fn()} onToggle={vi.fn()} onDragStart={vi.fn()} onDragEnd={vi.fn()} isDragged={false} />
     )
 
     expect(container.querySelector('.bg-purple-100')).toBeInTheDocument()
   })
 
   it('applies dragged opacity when isDragged is true', () => {
-    const { container } = render(
-      <SessionCard session={makeSession()} client={makeClient()} onClick={vi.fn()} onToggle={vi.fn()} onDragStart={vi.fn()} onDragEnd={vi.fn()} isDragged={true} />,
-    )
+    const { container } = render(<SessionCard session={makeSession()} client={makeClient()} onClick={vi.fn()} onToggle={vi.fn()} onDragStart={vi.fn()} onDragEnd={vi.fn()} isDragged={true} />)
 
     expect(container.firstChild).toHaveClass('opacity-50')
   })
@@ -181,9 +177,7 @@ describe('DayView', () => {
   const testDate = new Date(2026, 2, 15)
 
   it('renders 17 hour slots (6am to 10pm)', () => {
-    const { container } = render(
-      <DayView date={testDate} sessions={[]} clients={[]} onSessionClick={vi.fn()} onToggleComplete={vi.fn()} onAreaClick={vi.fn()} dragHandlers={makeDragHandlers()} />,
-    )
+    const { container } = render(<DayView date={testDate} sessions={[]} clients={[]} onSessionClick={vi.fn()} onToggleComplete={vi.fn()} onAreaClick={vi.fn()} dragHandlers={makeDragHandlers()} />)
 
     // Each hour slot has a time label with formatted-h:00 a text
     const timeLabels = screen.getAllByText('formatted-h:00 a')
@@ -193,9 +187,7 @@ describe('DayView', () => {
   it('places session in correct hour slot', () => {
     const session = makeSession({ date: new Date(2026, 2, 15, 10, 0).toISOString() })
 
-    render(
-      <DayView date={testDate} sessions={[session]} clients={[makeClient()]} onSessionClick={vi.fn()} onToggleComplete={vi.fn()} onAreaClick={vi.fn()} dragHandlers={makeDragHandlers()} />,
-    )
+    render(<DayView date={testDate} sessions={[session]} clients={[makeClient()]} onSessionClick={vi.fn()} onToggleComplete={vi.fn()} onAreaClick={vi.fn()} dragHandlers={makeDragHandlers()} />)
 
     expect(screen.getByText('John Doe')).toBeInTheDocument()
   })
@@ -203,9 +195,7 @@ describe('DayView', () => {
   it('does not render session from different day', () => {
     const session = makeSession({ date: new Date(2026, 2, 16, 10, 0).toISOString() })
 
-    render(
-      <DayView date={testDate} sessions={[session]} clients={[makeClient()]} onSessionClick={vi.fn()} onToggleComplete={vi.fn()} onAreaClick={vi.fn()} dragHandlers={makeDragHandlers()} />,
-    )
+    render(<DayView date={testDate} sessions={[session]} clients={[makeClient()]} onSessionClick={vi.fn()} onToggleComplete={vi.fn()} onAreaClick={vi.fn()} dragHandlers={makeDragHandlers()} />)
 
     expect(screen.queryByText('John Doe')).not.toBeInTheDocument()
   })
@@ -214,17 +204,7 @@ describe('DayView', () => {
     const onSessionClick = vi.fn()
     const session = makeSession({ date: new Date(2026, 2, 15, 10, 0).toISOString() })
 
-    render(
-      <DayView
-        date={testDate}
-        sessions={[session]}
-        clients={[makeClient()]}
-        onSessionClick={onSessionClick}
-        onToggleComplete={vi.fn()}
-        onAreaClick={vi.fn()}
-        dragHandlers={makeDragHandlers()}
-      />,
-    )
+    render(<DayView date={testDate} sessions={[session]} clients={[makeClient()]} onSessionClick={onSessionClick} onToggleComplete={vi.fn()} onAreaClick={vi.fn()} dragHandlers={makeDragHandlers()} />)
 
     fireEvent.click(screen.getByText('John Doe'))
     expect(onSessionClick).toHaveBeenCalledWith(session)
@@ -233,9 +213,7 @@ describe('DayView', () => {
   it('calls onAreaClick when empty slot is clicked', () => {
     const onAreaClick = vi.fn()
 
-    render(
-      <DayView date={testDate} sessions={[]} clients={[]} onSessionClick={vi.fn()} onToggleComplete={vi.fn()} onAreaClick={onAreaClick} dragHandlers={makeDragHandlers()} />,
-    )
+    render(<DayView date={testDate} sessions={[]} clients={[]} onSessionClick={vi.fn()} onToggleComplete={vi.fn()} onAreaClick={onAreaClick} dragHandlers={makeDragHandlers()} />)
 
     const addButtons = screen.getAllByText('addShort')
     fireEvent.click(addButtons[0])
@@ -267,9 +245,7 @@ describe('WeekView', () => {
 
   it('highlights today with indigo background', () => {
     const today = new Date()
-    const { container } = render(
-      <WeekView date={today} sessions={[]} clients={[]} onSessionClick={vi.fn()} onToggleComplete={vi.fn()} onAreaClick={vi.fn()} dragHandlers={makeDragHandlers()} />,
-    )
+    const { container } = render(<WeekView date={today} sessions={[]} clients={[]} onSessionClick={vi.fn()} onToggleComplete={vi.fn()} onAreaClick={vi.fn()} dragHandlers={makeDragHandlers()} />)
 
     expect(container.querySelector('.bg-indigo-600')).toBeInTheDocument()
   })
@@ -278,9 +254,7 @@ describe('WeekView', () => {
     const weekStart = startOfWeek(testDate, { weekStartsOn: 1 })
     const session = makeSession({ date: weekStart.toISOString() })
 
-    render(
-      <WeekView date={testDate} sessions={[session]} clients={[makeClient()]} onSessionClick={vi.fn()} onToggleComplete={vi.fn()} onAreaClick={vi.fn()} dragHandlers={makeDragHandlers()} />,
-    )
+    render(<WeekView date={testDate} sessions={[session]} clients={[makeClient()]} onSessionClick={vi.fn()} onToggleComplete={vi.fn()} onAreaClick={vi.fn()} dragHandlers={makeDragHandlers()} />)
 
     expect(screen.getByText('John Doe')).toBeInTheDocument()
   })

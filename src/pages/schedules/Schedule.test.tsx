@@ -9,9 +9,7 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }))
 
-const mockSessions = [
-  { id: 's1', clientId: 'c1', date: new Date().toISOString(), durationMinutes: 60, type: 'In-Person' as const, category: 'Workout' as const, completed: false },
-]
+const mockSessions = [{ id: 's1', clientId: 'c1', date: new Date().toISOString(), durationMinutes: 60, type: 'In-Person' as const, category: 'Workout' as const, completed: false }]
 
 vi.mock('../../states/stores/store', () => ({
   useStore: () => ({
@@ -72,7 +70,7 @@ vi.mock('../../components/organisms/schedule/MonthView', () => ({
 }))
 
 vi.mock('../../components/organisms/schedule/SessionEditorModal', () => ({
-  SessionEditorModal: ({ isOpen }: any) => isOpen ? <div data-testid="session-editor" /> : null,
+  SessionEditorModal: ({ isOpen }: any) => (isOpen ? <div data-testid="session-editor" /> : null),
 }))
 
 vi.mock('../../components/organisms/schedule/SessionDetailsModal', () => ({
@@ -80,11 +78,11 @@ vi.mock('../../components/organisms/schedule/SessionDetailsModal', () => ({
 }))
 
 vi.mock('../../components/organisms/schedule/OverviewModal', () => ({
-  OverviewModal: ({ isOpen }: any) => isOpen ? <div data-testid="overview-modal" /> : null,
+  OverviewModal: ({ isOpen }: any) => (isOpen ? <div data-testid="overview-modal" /> : null),
 }))
 
 vi.mock('../../components/organisms/schedule/BlockEditorModal', () => ({
-  BlockEditorModal: ({ isOpen }: any) => isOpen ? <div data-testid="block-editor" /> : null,
+  BlockEditorModal: ({ isOpen }: any) => (isOpen ? <div data-testid="block-editor" /> : null),
 }))
 
 vi.mock('../../components/organisms/schedule/ScheduleHeader', () => ({
@@ -115,9 +113,16 @@ vi.mock('../../components/organisms/schedule/ScheduleNavigationPanel', () => ({
 }))
 
 describe('Schedule', () => {
-  beforeEach(() => { vi.clearAllMocks() })
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
 
-  const renderPage = () => render(<MemoryRouter><Schedule /></MemoryRouter>)
+  const renderPage = () =>
+    render(
+      <MemoryRouter>
+        <Schedule />
+      </MemoryRouter>
+    )
 
   it('renders page title', () => {
     renderPage()

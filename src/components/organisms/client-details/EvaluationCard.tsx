@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Activity, Edit2, Trash2, ChevronDown, Ruler, Droplets, Dumbbell, ShieldCheck } from 'lucide-react'
+import { Activity, Edit2, Trash2, ChevronDown, Ruler, Droplets } from 'lucide-react'
 import { parseISO } from 'date-fns'
 import { useTranslation } from 'react-i18next'
 
@@ -31,10 +31,8 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ evaluation }) =>
     setIsRemoveEvalModalOpen(false)
   }
 
-  const protocolName = evaluation.protocol === 'POLLOCK_7' ? 'Pollock 7'
-    : evaluation.protocol === 'PETROSKI_4' ? 'Petroski 4'
-    : evaluation.protocol === 'DURNIN_WOMERSLEY_4' ? 'Durnin & Womersley 4'
-    : 'Pollock 3'
+  const protocolName =
+    evaluation.protocol === 'POLLOCK_7' ? 'Pollock 7' : evaluation.protocol === 'PETROSKI_4' ? 'Petroski 4' : evaluation.protocol === 'DURNIN_WOMERSLEY_4' ? 'Durnin & Womersley 4' : 'Pollock 3'
 
   const equationName = evaluation.equation === 'BROZEK' ? 'Brozek' : 'Siri'
 
@@ -48,7 +46,9 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ evaluation }) =>
             </div>
             <div>
               <div className="flex items-center gap-2 font-bold text-slate-900">
-                <span>{t('evaluation')} - {formatLocalized(parseISO(evaluation.date), 'MMMM d, yyyy')}</span>
+                <span>
+                  {t('evaluation')} - {formatLocalized(parseISO(evaluation.date), 'MMMM d, yyyy')}
+                </span>
                 <div className="flex items-center gap-1">
                   <button
                     onClick={(e) => {
@@ -167,12 +167,7 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({ evaluation }) =>
         <EvaluationModal clientId={evaluation.clientId} initialData={evaluation} onClose={() => setIsEditEvalModalOpen(false)} onSave={(data) => editEvaluation(evaluation.id, data)} />
       )}
       {isRemoveEvalModalOpen && (
-        <ConfirmationModal
-          title={t('deleteEvaluation')}
-          message={t('deleteEvaluationConfirm')}
-          onConfirm={() => removeEvaluation(evaluation.id)}
-          onCancel={() => setIsRemoveEvalModalOpen(false)}
-        />
+        <ConfirmationModal title={t('deleteEvaluation')} message={t('deleteEvaluationConfirm')} onConfirm={() => removeEvaluation(evaluation.id)} onCancel={() => setIsRemoveEvalModalOpen(false)} />
       )}
     </>
   )

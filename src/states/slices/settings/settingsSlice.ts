@@ -11,7 +11,7 @@ export interface SettingsSlice {
   aiPromptInstructions: string
   /**
    * Internal mutator for setting AI instructions.
-   * 
+   *
    * @param instructions - The custom instruction prompt string
    */
   _setAiPromptInstructions: (instructions: string) => void
@@ -19,13 +19,13 @@ export interface SettingsSlice {
   locale: SupportedLocale | ''
   /**
    * Internal mutator for updating locale.
-   * 
+   *
    * @param locale - Supported locale identifier string
    */
   _setLocale: (locale: string) => void
   /**
    * Hydrates user locale preference from backend or fallback.
-   * 
+   *
    * @returns A promise resolving when locale is loaded and set
    * @example
    * await hydrateLocale();
@@ -33,7 +33,7 @@ export interface SettingsSlice {
   hydrateLocale: () => Promise<void>
   /**
    * Hydrates custom AI instructions from backend.
-   * 
+   *
    * @returns A promise resolving when AI instructions are loaded
    * @example
    * await hydrateAiInstructions();
@@ -43,7 +43,7 @@ export interface SettingsSlice {
 
 /**
  * Creates the settings slice state creator for Zustand store integration.
- * 
+ *
  * @param set - Zustand state setter function
  * @param get - Zustand state getter function
  * @returns Initialized SettingsSlice state object and methods

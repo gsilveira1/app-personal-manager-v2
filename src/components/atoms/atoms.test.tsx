@@ -48,7 +48,11 @@ describe('Button', () => {
 
   it('supports disabled state', () => {
     const handleClick = vi.fn()
-    render(<Button disabled onClick={handleClick}>Disabled</Button>)
+    render(
+      <Button disabled onClick={handleClick}>
+        Disabled
+      </Button>
+    )
     const btn = screen.getByRole('button')
     expect(btn).toBeDisabled()
     expect(btn).toHaveClass('disabled:opacity-50')
@@ -60,7 +64,11 @@ describe('Button', () => {
 // ---------------------------------------------------------------------------
 describe('Card', () => {
   it('renders children', () => {
-    render(<Card><p>Card content</p></Card>)
+    render(
+      <Card>
+        <p>Card content</p>
+      </Card>
+    )
     expect(screen.getByText('Card content')).toBeInTheDocument()
   })
 

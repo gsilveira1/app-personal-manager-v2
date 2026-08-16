@@ -19,9 +19,16 @@ vi.mock('../../states/stores/auth/authStore', () => ({
 }))
 
 describe('SignUp', () => {
-  beforeEach(() => { vi.clearAllMocks() })
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
 
-  const renderSignUp = () => render(<MemoryRouter><SignUp /></MemoryRouter>)
+  const renderSignUp = () =>
+    render(
+      <MemoryRouter>
+        <SignUp />
+      </MemoryRouter>
+    )
 
   it('renders name, email, and password fields', () => {
     renderSignUp()

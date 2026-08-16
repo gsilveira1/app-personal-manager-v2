@@ -20,20 +20,30 @@ export const Workouts = () => {
   const navigate = useNavigate()
   const { workouts, addWorkout, updateWorkout, deleteWorkout, clients, addSession, addEvaluation } = useStore()
   const [activeTab, setActiveTab] = useState<'clients' | 'library' | 'ai'>('clients')
-  
+
   const [isEditorOpen, setIsEditorOpen] = useState(false)
   const [editingWorkout, setEditingWorkout] = useState<WorkoutPlan | null>(null)
-  
+
   const [isSessionModalOpen, setIsSessionModalOpen] = useState(false)
   const [isEvalModalOpen, setIsEvalModalOpen] = useState(false)
   const [selectedClient, setSelectedClient] = useState<Client | null>(null)
 
   const libraryWorkouts = workouts.filter((w) => !w.clientId)
-  const activeClients = clients.filter(c => c.status === ClientStatus.Active)
+  const activeClients = clients.filter((c) => c.status === ClientStatus.Active)
 
-  const handleCreateTemplate = () => { setEditingWorkout(null); setSelectedClient(null); setIsEditorOpen(true) }
-  const handleEditTemplate = (workout: WorkoutPlan) => { setEditingWorkout(workout); setSelectedClient(null); setIsEditorOpen(true) }
-  const handleDeleteTemplate = (id: string) => { if (window.confirm(t('deleteWorkoutConfirm'))) deleteWorkout(id) }
+  const handleCreateTemplate = () => {
+    setEditingWorkout(null)
+    setSelectedClient(null)
+    setIsEditorOpen(true)
+  }
+  const handleEditTemplate = (workout: WorkoutPlan) => {
+    setEditingWorkout(workout)
+    setSelectedClient(null)
+    setIsEditorOpen(true)
+  }
+  const handleDeleteTemplate = (id: string) => {
+    if (window.confirm(t('deleteWorkoutConfirm'))) deleteWorkout(id)
+  }
 
   const handleSaveWorkout = (workout: Omit<WorkoutPlan, 'id' | 'createdAt'>) => {
     if (editingWorkout) updateWorkout(editingWorkout.id, { ...editingWorkout, ...workout })
@@ -72,12 +82,9 @@ export const Workouts = () => {
 
       {activeTab === 'clients' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {activeClients.map(client => (
+          {activeClients.map((client) => (
             <Card key={client.id} className="p-4 flex flex-col space-y-4 hover:shadow-md transition-shadow">
-              <div 
-                className="flex items-center space-x-3 cursor-pointer" 
-                onClick={() => navigate(`/clients/${client.id}`)}
-              >
+              <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigate(`/clients/${client.id}`)}>
                 <ClientAvatar name={client.name} avatar={client.avatar} size="lg" />
                 <div>
                   <h3 className="font-medium text-slate-900">{client.name}</h3>
@@ -98,44 +105,62 @@ export const Workouts = () => {
             </Card>
           ))}
           {activeClients.length === 0 && (
-            <div className="col-span-full p-8 text-center text-slate-500 bg-white rounded-lg border border-slate-200">
-              {tc('noActiveClients', 'No active clients found.')}
-            </div>
+            <div className="col-span-full p-8 text-center text-slate-500 bg-white rounded-lg border border-slate-200">{tc('noActiveClients', 'No active clients found.')}</div>
           )}
         </div>
       )}
 
-      {activeTab === 'library' && (
-        <WorkoutLibrary workouts={libraryWorkouts} onCreate={handleCreateTemplate} onEdit={handleEditTemplate} onDelete={handleDeleteTemplate} />
-      )}
+      {activeTab === 'library' && <WorkoutLibrary workouts={libraryWorkouts} onCreate={handleCreateTemplate} onEdit={handleEditTemplate} onDelete={handleDeleteTemplate} />}
 
       {activeTab === 'ai' && (
-        <AIWorkoutGenerator onSave={(w) => { addWorkout(w); setActiveTab('library') }} />
+        <AIWorkoutGenerator
+          onSave={(w) => {
+            addWorkout(w)
+            setActiveTab('library')
+          }}
+        />
       )}
 
       {isEditorOpen && (
-        <WorkoutEditorModal 
-          isOpen={isEditorOpen} 
-          onClose={() => { setIsEditorOpen(false); setSelectedClient(null); }} 
-          onSave={handleSaveWorkout} 
+        <WorkoutEditorModal
+          isOpen={isEditorOpen}
+          onClose={() => {
+            setIsEditorOpen(false)
+            setSelectedClient(null)
+          }}
+          onSave={handleSaveWorkout}
           initialData={editingWorkout}
           client={selectedClient || undefined}
         />
       )}
-      
+
       {isSessionModalOpen && selectedClient && (
-        <SessionLogModal 
-          clientId={selectedClient.id} 
-          onClose={() => { setIsSessionModalOpen(false); setSelectedClient(null); }} 
-          onSave={(session) => { addSession(session); setIsSessionModalOpen(false); setSelectedClient(null); }} 
+        <SessionLogModal
+          clientId={selectedClient.id}
+          onClose={() => {
+            setIsSessionModalOpen(false)
+            setSelectedClient(null)
+          }}
+          onSave={async (session) => {
+            await addSession(session)
+            setIsSessionModalOpen(false)
+            setSelectedClient(null)
+          }}
         />
       )}
 
       {isEvalModalOpen && selectedClient && (
-        <EvaluationModal 
-          clientId={selectedClient.id} 
-          onClose={() => { setIsEvalModalOpen(false); setSelectedClient(null); }} 
-          onSave={(ev) => { addEvaluation(ev); setIsEvalModalOpen(false); setSelectedClient(null); }} 
+        <EvaluationModal
+          clientId={selectedClient.id}
+          onClose={() => {
+            setIsEvalModalOpen(false)
+            setSelectedClient(null)
+          }}
+          onSave={(ev) => {
+            addEvaluation(ev)
+            setIsEvalModalOpen(false)
+            setSelectedClient(null)
+          }}
         />
       )}
     </div>

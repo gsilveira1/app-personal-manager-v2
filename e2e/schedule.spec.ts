@@ -31,7 +31,13 @@ test.describe('Schedule', () => {
     await expect(page.getByTestId('day-view')).toBeVisible({ timeout: 10000 })
 
     // Get current header text
-    const header = page.locator('h2, h3').filter({ hasText: /\w+ \d+|janeiro|fevereiro|março|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro|january|february|march|april|may|june|july|august|september|october|november|december/i }).first()
+    const header = page
+      .locator('h2, h3')
+      .filter({
+        hasText:
+          /\w+ \d+|janeiro|fevereiro|março|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro|january|february|march|april|may|june|july|august|september|october|november|december/i,
+      })
+      .first()
     const initialText = await header.textContent()
 
     // Click next
@@ -73,7 +79,10 @@ test.describe('Schedule', () => {
     await expect(page.getByTestId('day-view')).toBeVisible({ timeout: 10000 })
 
     // The overview banner is a gradient div that's clickable
-    const overviewBanner = page.locator('[class*="gradient"], [class*="bg-indigo"]').filter({ hasText: /overview|visão|total|sessões|sessions/i }).first()
+    const overviewBanner = page
+      .locator('[class*="gradient"], [class*="bg-indigo"]')
+      .filter({ hasText: /overview|visão|total|sessões|sessions/i })
+      .first()
     if (await overviewBanner.isVisible({ timeout: 3000 }).catch(() => false)) {
       await expect(overviewBanner).toContainText(/\d/)
     }

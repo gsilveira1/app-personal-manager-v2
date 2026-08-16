@@ -16,7 +16,7 @@ export interface AuthSlice {
   isLoading: boolean
   /**
    * Authenticates the user with email and password credentials.
-   * 
+   *
    * @param email - The user's account email address
    * @param pass - The user's account password
    * @returns A promise that resolves when authentication completes
@@ -27,7 +27,7 @@ export interface AuthSlice {
   login: (email: string, pass: string) => Promise<void>
   /**
    * Registers a new user account and sets current user session.
-   * 
+   *
    * @param name - The full name of the new user
    * @param email - The email address for the new account
    * @param pass - The password for the new account
@@ -39,7 +39,7 @@ export interface AuthSlice {
   signup: (name: string, email: string, pass: string) => Promise<void>
   /**
    * Terminates the current user session and resets auth state.
-   * 
+   *
    * @returns A promise that resolves when logout completes
    * @example
    * await logout();
@@ -47,7 +47,7 @@ export interface AuthSlice {
   logout: () => Promise<void>
   /**
    * Checks current authentication status against the backend session.
-   * 
+   *
    * @returns A promise that resolves once auth status is verified
    * @example
    * await checkAuthStatus();
@@ -55,14 +55,14 @@ export interface AuthSlice {
   checkAuthStatus: () => Promise<void>
   /**
    * Updates the logged-in user's profile details.
-   * 
+   *
    * @param updates - Partial object containing updated profile fields
    * @returns A promise resolving when profile update completes
    */
   updateProfile: (updates: Partial<User>) => Promise<void>
   /**
    * Uploads the user avatar photo file to GCS and updates profile state.
-   * 
+   *
    * @param file - Image File object to upload
    * @returns A promise resolving when avatar upload completes
    */
@@ -71,7 +71,7 @@ export interface AuthSlice {
 
 /**
  * Creates the auth slice state creator for Zustand store integration.
- * 
+ *
  * @param set - Zustand state setter function
  * @param _get - Zustand state getter function
  * @returns Initialized AuthSlice state object and methods

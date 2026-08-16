@@ -26,7 +26,17 @@ const mockUpdateWorkout = vi.fn()
 const mockDeleteWorkout = vi.fn()
 const mockUploadClientAvatar = vi.fn()
 
-const mockClient = { id: 'c1', name: 'Maria Silva', email: 'maria@test.com', phone: '123', status: 'Active', type: 'In-Person' as const, planId: 'p1', notes: 'Test notes', medicalHistory: { objective: ['Health'], injuries: '', surgeries: '', medications: '' } }
+const mockClient = {
+  id: 'c1',
+  name: 'Maria Silva',
+  email: 'maria@test.com',
+  phone: '123',
+  status: 'Active',
+  type: 'In-Person' as const,
+  planId: 'p1',
+  notes: 'Test notes',
+  medicalHistory: { objective: ['Health'], injuries: '', surgeries: '', medications: '' },
+}
 
 let mockStoreClients = [mockClient]
 
@@ -86,20 +96,44 @@ vi.mock('../../components/organisms/client-details/WorkoutCard', () => ({
   WorkoutCard: ({ workout, onDelete, onArchive, onActivate, onEdit }: any) => (
     <div data-testid="workout-card">
       {workout.title}
-      {onDelete && <button data-testid={`delete-${workout.id}`} onClick={() => onDelete(workout.id)}>delete</button>}
-      {onArchive && <button data-testid={`archive-${workout.id}`} onClick={() => onArchive(workout.id)}>archive</button>}
-      {onActivate && <button data-testid={`activate-${workout.id}`} onClick={() => onActivate(workout.id)}>activate</button>}
-      {onEdit && <button data-testid={`edit-${workout.id}`} onClick={() => onEdit(workout)}>edit</button>}
+      {onDelete && (
+        <button data-testid={`delete-${workout.id}`} onClick={() => onDelete(workout.id)}>
+          delete
+        </button>
+      )}
+      {onArchive && (
+        <button data-testid={`archive-${workout.id}`} onClick={() => onArchive(workout.id)}>
+          archive
+        </button>
+      )}
+      {onActivate && (
+        <button data-testid={`activate-${workout.id}`} onClick={() => onActivate(workout.id)}>
+          activate
+        </button>
+      )}
+      {onEdit && (
+        <button data-testid={`edit-${workout.id}`} onClick={() => onEdit(workout)}>
+          edit
+        </button>
+      )}
     </div>
   ),
 }))
 
 vi.mock('../../components/organisms/client-details/EvaluationModal', () => ({
-  EvaluationModal: ({ onClose }: any) => <div data-testid="eval-modal"><button onClick={onClose}>close-eval</button></div>,
+  EvaluationModal: ({ onClose }: any) => (
+    <div data-testid="eval-modal">
+      <button onClick={onClose}>close-eval</button>
+    </div>
+  ),
 }))
 
 vi.mock('../../components/organisms/client-details/SessionLogModal', () => ({
-  SessionLogModal: ({ onClose }: any) => <div data-testid="session-modal"><button onClick={onClose}>close-session</button></div>,
+  SessionLogModal: ({ onClose }: any) => (
+    <div data-testid="session-modal">
+      <button onClick={onClose}>close-session</button>
+    </div>
+  ),
 }))
 
 vi.mock('../../components/organisms/client-details/ProgressChart', () => ({
@@ -107,7 +141,16 @@ vi.mock('../../components/organisms/client-details/ProgressChart', () => ({
 }))
 
 vi.mock('../../components/WorkoutEditorModal', () => ({
-  WorkoutEditorModal: ({ isOpen, onClose, onSave, initialData }: any) => isOpen ? <div data-testid="workout-editor"><button onClick={onClose}>close-workout</button><button onClick={() => onSave({ title: 'New' })} data-testid="save-workout">save</button>{initialData && <span data-testid="editing-workout">{initialData.title}</span>}</div> : null,
+  WorkoutEditorModal: ({ isOpen, onClose, onSave, initialData }: any) =>
+    isOpen ? (
+      <div data-testid="workout-editor">
+        <button onClick={onClose}>close-workout</button>
+        <button onClick={() => onSave({ title: 'New' })} data-testid="save-workout">
+          save
+        </button>
+        {initialData && <span data-testid="editing-workout">{initialData.title}</span>}
+      </div>
+    ) : null,
 }))
 
 describe('ClientDetails', () => {

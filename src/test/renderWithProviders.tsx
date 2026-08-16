@@ -6,18 +6,11 @@ interface WrapperOptions {
   initialRoute?: string
 }
 
-export function renderWithProviders(
-  ui: ReactElement,
-  options?: WrapperOptions & Omit<RenderOptions, 'wrapper'>
-) {
+export function renderWithProviders(ui: ReactElement, options?: WrapperOptions & Omit<RenderOptions, 'wrapper'>) {
   const { initialRoute = '/', ...renderOptions } = options ?? {}
 
   function Wrapper({ children }: { children: React.ReactNode }) {
-    return (
-      <MemoryRouter initialEntries={[initialRoute]}>
-        {children}
-      </MemoryRouter>
-    )
+    return <MemoryRouter initialEntries={[initialRoute]}>{children}</MemoryRouter>
   }
 
   return render(ui, { wrapper: Wrapper, ...renderOptions })

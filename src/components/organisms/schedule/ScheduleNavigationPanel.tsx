@@ -35,9 +35,7 @@ export const ScheduleNavigationPanel = ({ headerText, onPrevious, onToday, onNex
           {t('today')}
         </Button>
       </div>
-      <div className="text-base sm:text-lg font-bold text-slate-900 truncate max-w-[200px] sm:max-w-none">
-        {headerText}
-      </div>
+      <div className="text-base sm:text-lg font-bold text-slate-900 truncate max-w-[200px] sm:max-w-none">{headerText}</div>
       <button onClick={onNext} className="p-2 hover:bg-slate-100 rounded-full">
         <ChevronRight className="h-5 w-5 text-slate-600" />
       </button>

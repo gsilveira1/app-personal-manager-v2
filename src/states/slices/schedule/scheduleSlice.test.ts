@@ -49,8 +49,30 @@ describe('scheduleSlice', () => {
   })
 
   it('_updateSessionSeries should replace sessions matching recurrenceId', () => {
-    const s1 = { id: '1', recurrenceId: 'r1', clientId: 'c1', clientName: 'Maria', date: '2026-03-20', time: '10:00', durationMinutes: 60, status: 'Scheduled' as const, type: 'In-Person' as const, completed: false }
-    const s2 = { id: '2', recurrenceId: 'r2', clientId: 'c2', clientName: 'João', date: '2026-03-21', time: '11:00', durationMinutes: 60, status: 'Scheduled' as const, type: 'Online' as const, completed: false }
+    const s1 = {
+      id: '1',
+      recurrenceId: 'r1',
+      clientId: 'c1',
+      clientName: 'Maria',
+      date: '2026-03-20',
+      time: '10:00',
+      durationMinutes: 60,
+      status: 'Scheduled' as const,
+      type: 'In-Person' as const,
+      completed: false,
+    }
+    const s2 = {
+      id: '2',
+      recurrenceId: 'r2',
+      clientId: 'c2',
+      clientName: 'João',
+      date: '2026-03-21',
+      time: '11:00',
+      durationMinutes: 60,
+      status: 'Scheduled' as const,
+      type: 'Online' as const,
+      completed: false,
+    }
 
     store.getState()._setSessions([s1, s2])
 

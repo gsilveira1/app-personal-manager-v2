@@ -1,13 +1,5 @@
 import { http, HttpResponse } from 'msw'
-import {
-  mockUser,
-  mockClients,
-  mockSessions,
-  mockPlans,
-  mockWorkouts,
-  mockEvaluations,
-  mockSystemFeatures,
-} from './mockData'
+import { mockUser, mockClients, mockSessions, mockPlans, mockWorkouts, mockEvaluations, mockSystemFeatures } from './mockData'
 
 const API = 'http://localhost:9090/api'
 

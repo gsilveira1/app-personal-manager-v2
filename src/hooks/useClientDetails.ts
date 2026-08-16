@@ -24,36 +24,15 @@ function getMetricValue(evaluation: Evaluation, metricKey: string): number | und
   return typeof value === 'number' ? value : undefined
 }
 
-export function useClientDetails(
-  clientId: string | undefined,
-  sessions: Session[],
-  evaluations: Evaluation[],
-  workouts: WorkoutPlan[],
-  selectedMetric: string
-) {
+export function useClientDetails(clientId: string | undefined, sessions: Session[], evaluations: Evaluation[], workouts: WorkoutPlan[], selectedMetric: string) {
   const clientSessions = useMemo(
-    () =>
-      sessions
-        .filter((s) => s.clientId === clientId && isPast(parseISO(s.date)))
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
+    () => sessions.filter((s) => s.clientId === clientId && isPast(parseISO(s.date))).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
     [sessions, clientId]
   )
 
-  const clientEvaluations = useMemo(
-    () =>
-      evaluations
-        .filter((e) => e.clientId === clientId)
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
-    [evaluations, clientId]
-  )
+  const clientEvaluations = useMemo(() => evaluations.filter((e) => e.clientId === clientId).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()), [evaluations, clientId])
 
-  const clientWorkouts = useMemo(
-    () =>
-      workouts
-        .filter((w) => w.clientId === clientId)
-        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
-    [workouts, clientId]
-  )
+  const clientWorkouts = useMemo(() => workouts.filter((w) => w.clientId === clientId).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()), [workouts, clientId])
 
   const activePlans = useMemo(() => clientWorkouts.filter((w) => w.status === 'Active' || !w.status), [clientWorkouts])
   const archivedPlans = useMemo(() => clientWorkouts.filter((w) => w.status === 'Archived'), [clientWorkouts])

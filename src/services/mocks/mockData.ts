@@ -1,4 +1,4 @@
-import { type Client, ClientStatus, type Session, type WorkoutPlan, type Evaluation, type Plan, type User } from '../types'
+import { type Client, ClientStatus, type Session, type WorkoutPlan, type Evaluation, type Plan, type User } from '../../types'
 import { subDays, addDays, formatISO } from 'date-fns'
 
 // --- Users ---

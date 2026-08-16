@@ -1,8 +1,8 @@
-import { Plus, History, CheckCircle2, XCircle } from 'lucide-react'
+import { History, CheckCircle2, XCircle } from 'lucide-react'
 import { parseISO } from 'date-fns'
 import { useTranslation } from 'react-i18next'
 import { formatLocalized } from '../../../utils/dateLocale'
-import { Card, Button } from '../../atoms'
+import { Card } from '../../atoms'
 import type { Session } from '../../../types'
 
 /**

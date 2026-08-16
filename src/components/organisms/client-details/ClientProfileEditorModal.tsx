@@ -61,7 +61,7 @@ export const ClientProfileEditorModal: React.FC<ClientProfileEditorModalProps> =
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
+    setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
   const onSubmit = (e: React.FormEvent) => {
@@ -87,49 +87,54 @@ export const ClientProfileEditorModal: React.FC<ClientProfileEditorModalProps> =
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-700">{t('fullName')}</label>
-              <input 
+              <input
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
                 required
-                className="w-full p-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none" 
+                className="w-full p-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-700">{t('email')}</label>
-              <input 
-                type="email" 
+              <input
+                type="email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
                 required
-                className="w-full p-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none" 
+                className="w-full p-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-700">{t('phone')}</label>
-              <input 
+              <input
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
                 required
-                className="w-full p-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none" 
+                className="w-full p-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-700">{t('dateOfBirth')}</label>
-              <input 
-                type="date" 
+              <input
+                type="date"
                 name="dateOfBirth"
                 value={formData.dateOfBirth}
                 onChange={handleChange}
-                className="w-full p-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none" 
+                className="w-full p-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               />
             </div>
-            
+
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-700">{t('status')}</label>
-              <select name="status" value={formData.status} onChange={handleChange} className="w-full p-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+              <select
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                className="w-full p-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white"
+              >
                 <option value="Active">Active</option>
                 <option value="Inactive">Inactive</option>
                 <option value="Lead">Lead</option>
@@ -137,24 +142,29 @@ export const ClientProfileEditorModal: React.FC<ClientProfileEditorModalProps> =
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-700">{t('type')}</label>
-              <select name="type" value={formData.type} onChange={handleChange} className="w-full p-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+              <select
+                name="type"
+                value={formData.type}
+                onChange={handleChange}
+                className="w-full p-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white"
+              >
                 <option value="In-Person">{t('inPerson')}</option>
                 <option value="Online">{t('online')}</option>
               </select>
             </div>
-            
+
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-700">{t('primaryGoal')}</label>
-              <input 
-                name="goal"
-                value={formData.goal}
-                onChange={handleChange}
-                className="w-full p-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none" 
-              />
+              <input name="goal" value={formData.goal} onChange={handleChange} className="w-full p-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-700">{t('checkInFrequency')}</label>
-              <select name="checkInFrequency" value={formData.checkInFrequency || ''} onChange={handleChange} className="w-full p-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+              <select
+                name="checkInFrequency"
+                value={formData.checkInFrequency || ''}
+                onChange={handleChange}
+                className="w-full p-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white"
+              >
                 <option value="">{t('none')}</option>
                 <option value="Weekly">{t('frequencyWeekly')}</option>
                 <option value="Bi-weekly">{t('frequencyBiweekly')}</option>
@@ -164,17 +174,26 @@ export const ClientProfileEditorModal: React.FC<ClientProfileEditorModalProps> =
 
             <div className="space-y-2 sm:col-span-2">
               <label className="text-sm font-medium text-slate-700">{t('subscriptionPlan')}</label>
-              <select name="planId" value={formData.planId || ''} onChange={handleChange} className="w-full p-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+              <select
+                name="planId"
+                value={formData.planId || ''}
+                onChange={handleChange}
+                className="w-full p-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white"
+              >
                 <option value="">{t('noPlan')}</option>
-                {plans.map(p => (
-                  <option key={p.id} value={p.id}>{p.name}</option>
+                {plans.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
                 ))}
               </select>
             </div>
           </div>
-          
+
           <div className="flex justify-end gap-3 pt-6 border-t border-slate-100">
-            <Button variant="outline" type="button" onClick={onClose}>{tco('cancel')}</Button>
+            <Button variant="outline" type="button" onClick={onClose}>
+              {tco('cancel')}
+            </Button>
             <Button type="submit">{tco('save')}</Button>
           </div>
         </form>

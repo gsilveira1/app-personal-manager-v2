@@ -93,7 +93,10 @@ test.describe('Error States & Resilience', () => {
       await page.locator('#phone').fill('53999999999')
 
       // Submit — should fail
-      await page.getByRole('button', { name: /adicionar|salvar|save/i }).last().click()
+      await page
+        .getByRole('button', { name: /adicionar|salvar|save/i })
+        .last()
+        .click()
 
       // Wait for error handling — either a toast, alert, or the form stays open
       await page.waitForTimeout(2000)
@@ -103,7 +106,7 @@ test.describe('Error States & Resilience', () => {
       const modalStillOpen = await modal.isVisible()
 
       // Either an error is shown OR the modal remains open (both are acceptable)
-      expect(await toastOrError.isVisible().catch(() => false) || modalStillOpen).toBe(true)
+      expect((await toastOrError.isVisible().catch(() => false)) || modalStillOpen).toBe(true)
     }
   })
 })

@@ -3,8 +3,7 @@ import apiClient from '../../utils/apiClient'
 /**
  * Retrieves custom instructions for AI workout generation.
  */
-export const getAiInstructions = async () =>
-  apiClient<{ instructions: string }>('/settings/ai-instructions')
+export const getAiInstructions = async () => apiClient<{ instructions: string }>('/settings/ai-instructions')
 
 /**
  * Updates custom instructions for AI workout generation.

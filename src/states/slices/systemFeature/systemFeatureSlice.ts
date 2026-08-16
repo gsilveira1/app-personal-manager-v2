@@ -10,25 +10,25 @@ export interface SystemFeatureSlice {
   systemFeatures: SystemFeature[]
   /**
    * Replaces system feature flags list in state.
-   * 
+   *
    * @param features - List of SystemFeature objects
    */
   _setSystemFeatures: (features: SystemFeature[]) => void
   /**
    * Appends a new system feature configuration to state.
-   * 
+   *
    * @param feature - The new SystemFeature object
    */
   _addSystemFeature: (feature: SystemFeature) => void
   /**
    * Updates an existing system feature in state by matching ID.
-   * 
+   *
    * @param feature - The updated SystemFeature object
    */
   _updateSystemFeature: (feature: SystemFeature) => void
   /**
    * Removes a system feature from state by ID.
-   * 
+   *
    * @param id - Unique identifier of system feature to remove
    */
   _removeSystemFeature: (id: string) => void
@@ -36,7 +36,7 @@ export interface SystemFeatureSlice {
 
 /**
  * Creates the system feature slice state creator for Zustand store integration.
- * 
+ *
  * @param set - Zustand state setter function
  * @returns Initialized SystemFeatureSlice state object and methods
  * @example

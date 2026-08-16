@@ -46,11 +46,13 @@ describe('scheduleStore', () => {
 
   describe('deleteRecurringSeries', () => {
     it('should remove sessions by recurringEventId or recurrenceId', async () => {
-      useScheduleStore.setState({ sessions: [
-        { id: 's1', recurringEventId: 're1' },
-        { id: 's2', recurrenceId: 're1' },
-        { id: 's3', recurringEventId: 'other' },
-      ] as any })
+      useScheduleStore.setState({
+        sessions: [
+          { id: 's1', recurringEventId: 're1' },
+          { id: 's2', recurrenceId: 're1' },
+          { id: 's3', recurringEventId: 'other' },
+        ] as any,
+      })
       mockApi.deleteRecurringSeries.mockResolvedValue(undefined)
 
       await useScheduleStore.getState().deleteRecurringSeries('re1')

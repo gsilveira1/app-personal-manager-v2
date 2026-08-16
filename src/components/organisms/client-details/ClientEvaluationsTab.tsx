@@ -1,6 +1,5 @@
-import { Plus, Activity } from 'lucide-react'
+import { Activity } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { Button } from '../../atoms'
 import { EvaluationCard } from './EvaluationCard'
 import { EvaluationInsightsCard } from './EvaluationInsightsCard'
 import { ProgressChart } from './ProgressChart'
@@ -19,7 +18,7 @@ export interface ClientEvaluationsTabProps {
   /** Callback fired to change the selected metric. */
   setSelectedMetric: (metric: string) => void
   /** The metrics available to display in the chart. */
-  chartableMetrics: { id: string; label: string; unit: string }[]
+  chartableMetrics: Record<string, { label: string; unit: string }> | { id: string; label: string; unit: string }[]
 }
 
 /**
@@ -28,34 +27,19 @@ export interface ClientEvaluationsTabProps {
  * @param props - The component props.
  * @returns The evaluation tab content.
  */
-export const ClientEvaluationsTab = ({
-  clientEvaluations,
-  chartData,
-  selectedMetric,
-  setSelectedMetric,
-  chartableMetrics
-}: ClientEvaluationsTabProps) => {
+export const ClientEvaluationsTab = ({ clientEvaluations, chartData, selectedMetric, setSelectedMetric, chartableMetrics }: ClientEvaluationsTabProps) => {
   const { t } = useTranslation('clients')
 
   return (
     <div className="space-y-6">
-      {clientEvaluations.length > 0 && (
-        <EvaluationInsightsCard evaluations={clientEvaluations} />
-      )}
+      {clientEvaluations.length > 0 && <EvaluationInsightsCard evaluations={clientEvaluations} />}
 
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold text-slate-900">{t('progressTracking')}</h3>
       </div>
       {clientEvaluations.length > 0 ? (
         <>
-          {clientEvaluations.length > 1 && (
-            <ProgressChart
-              chartData={chartData}
-              selectedMetric={selectedMetric}
-              onMetricChange={setSelectedMetric}
-              chartableMetrics={chartableMetrics}
-            />
-          )}
+          {clientEvaluations.length > 1 && <ProgressChart chartData={chartData} selectedMetric={selectedMetric} onMetricChange={setSelectedMetric} chartableMetrics={chartableMetrics} />}
           <div className="space-y-4">
             {clientEvaluations.map((ev) => (
               <EvaluationCard key={ev.id} evaluation={ev} />

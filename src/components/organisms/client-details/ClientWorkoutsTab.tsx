@@ -1,6 +1,5 @@
-import { Plus, Dumbbell, History } from 'lucide-react'
+import { Dumbbell, History } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { Button } from '../../atoms'
 import { WorkoutCard } from './WorkoutCard'
 import type { WorkoutPlan } from '../../../types'
 
@@ -26,13 +25,7 @@ export interface ClientWorkoutsTabProps {
  * @param props - The component props.
  * @returns The workout tab content.
  */
-export const ClientWorkoutsTab = ({
-  activePlans,
-  archivedPlans,
-  onEditWorkout,
-  onDeleteWorkout,
-  onUpdateWorkoutStatus,
-}: ClientWorkoutsTabProps) => {
+export const ClientWorkoutsTab = ({ activePlans, archivedPlans, onEditWorkout, onDeleteWorkout, onUpdateWorkoutStatus }: ClientWorkoutsTabProps) => {
   const { t } = useTranslation('clients')
   const { t: tw } = useTranslation('workouts')
 
@@ -59,9 +52,7 @@ export const ClientWorkoutsTab = ({
             />
           ))
         ) : (
-          <div className="p-8 bg-slate-50 rounded-lg border border-dashed border-slate-200 text-center text-slate-500">
-            {t('noActivePrescriptions')}
-          </div>
+          <div className="p-8 bg-slate-50 rounded-lg border border-dashed border-slate-200 text-center text-slate-500">{t('noActivePrescriptions')}</div>
         )}
       </div>
       <div className="space-y-4 pt-4 border-t border-slate-200">

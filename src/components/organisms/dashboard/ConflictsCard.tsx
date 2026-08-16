@@ -26,9 +26,7 @@ export const ConflictsCard: React.FC<ConflictsCardProps> = ({ conflicts }) => {
             <AlertTriangle className="h-6 w-6 text-red-600" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-red-900">
-              {t('conflictsDetected', { count: conflicts.length })}
-            </h3>
+            <h3 className="text-lg font-bold text-red-900">{t('conflictsDetected', { count: conflicts.length })}</h3>
             <p className="text-sm text-red-700">{t('conflictsMessage')}</p>
           </div>
         </div>

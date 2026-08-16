@@ -39,7 +39,11 @@ vi.mock('../components/organisms/leads/LeadKanban', () => ({
   LeadKanban: ({ stages, byStage, onLeadClick }: any) => (
     <div data-testid="lead-kanban">
       {Object.entries(byStage).map(([stage, leads]: [string, any]) =>
-        leads.map((l: any) => <button key={l.id} onClick={() => onLeadClick(l)}>{l.name}</button>)
+        leads.map((l: any) => (
+          <button key={l.id} onClick={() => onLeadClick(l)}>
+            {l.name}
+          </button>
+        ))
       )}
     </div>
   ),
@@ -72,7 +76,12 @@ describe('Leads', () => {
     ]
   })
 
-  const renderPage = () => render(<MemoryRouter><Leads /></MemoryRouter>)
+  const renderPage = () =>
+    render(
+      <MemoryRouter>
+        <Leads />
+      </MemoryRouter>
+    )
 
   it('renders page title', () => {
     renderPage()

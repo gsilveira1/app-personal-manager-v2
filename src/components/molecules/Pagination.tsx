@@ -88,16 +88,9 @@ export const Pagination: React.FC<PaginationProps> = ({
   const pageNumbers = getPageNumbers()
 
   return (
-    <div
-      data-testid="pagination-container"
-      className={`px-4 py-3 border-t border-slate-200 bg-slate-50/50 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm ${className}`}
-    >
+    <div data-testid="pagination-container" className={`px-4 py-3 border-t border-slate-200 bg-slate-50/50 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm ${className}`}>
       {/* Information text */}
-      <div className="text-slate-600 text-xs sm:text-sm">
-        {totalItems > 0
-          ? t('pagination.showing', { start: startIndex, end: endIndex, total: totalItems })
-          : t('pagination.showingEmpty')}
-      </div>
+      <div className="text-slate-600 text-xs sm:text-sm">{totalItems > 0 ? t('pagination.showing', { start: startIndex, end: endIndex, total: totalItems }) : t('pagination.showingEmpty')}</div>
 
       <div className="flex flex-wrap items-center gap-3">
         {/* Items per page selector */}
@@ -142,9 +135,7 @@ export const Pagination: React.FC<PaginationProps> = ({
                 size="sm"
                 data-testid={`pagination-page-${page}`}
                 onClick={() => onPageChange(page)}
-                className={`h-8 min-w-[2rem] px-2 text-xs ${
-                  page === currentPage ? 'bg-indigo-600 text-white font-medium' : 'text-slate-700 hover:bg-slate-200'
-                }`}
+                className={`h-8 min-w-[2rem] px-2 text-xs ${page === currentPage ? 'bg-indigo-600 text-white font-medium' : 'text-slate-700 hover:bg-slate-200'}`}
               >
                 {page}
               </Button>

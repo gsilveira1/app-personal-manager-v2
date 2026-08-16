@@ -27,7 +27,7 @@ const DEFAULT_CONFIG: AppFeaturesConfig = {
 /**
  * Organism component allowing personal trainers to configure feature flags
  * and settings for their clients' mobile app experience.
- * 
+ *
  * @returns The rendered app feature configuration section component.
  */
 export const AppFeaturesConfigSection: React.FC = () => {
@@ -102,10 +102,7 @@ export const AppFeaturesConfigSection: React.FC = () => {
 
       <form onSubmit={handleSave} className="p-6 space-y-4">
         {showSavedFeedback && (
-          <div
-            className="p-4 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center space-x-3"
-            role="alert"
-          >
+          <div className="p-4 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center space-x-3" role="alert">
             <CheckCircle className="h-5 w-5 text-emerald-600 flex-shrink-0" />
             <span className="text-sm font-medium">{t('settingsSaved')}</span>
           </div>
@@ -120,26 +117,18 @@ export const AppFeaturesConfigSection: React.FC = () => {
               <div
                 key={item.key}
                 className={`p-4 rounded-xl border transition-all cursor-pointer flex items-start space-x-4 ${
-                  isEnabled
-                    ? 'border-indigo-200 bg-indigo-50/40'
-                    : 'border-slate-200 bg-slate-50/50 opacity-80'
+                  isEnabled ? 'border-indigo-200 bg-indigo-50/40' : 'border-slate-200 bg-slate-50/50 opacity-80'
                 }`}
                 onClick={() => toggleFeature(item.key)}
                 data-testid={`feature-card-${item.key}`}
               >
-                <div
-                  className={`p-2.5 rounded-lg ${
-                    isEnabled ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-500'
-                  }`}
-                >
+                <div className={`p-2.5 rounded-lg ${isEnabled ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-500'}`}>
                   <Icon className="h-5 w-5" />
                 </div>
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-semibold text-slate-900 truncate">
-                      {t(item.titleKey as any)}
-                    </h3>
+                    <h3 className="text-sm font-semibold text-slate-900 truncate">{t(item.titleKey as any)}</h3>
 
                     <button
                       type="button"
@@ -162,9 +151,7 @@ export const AppFeaturesConfigSection: React.FC = () => {
                     </button>
                   </div>
 
-                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                    {t(item.descKey as any)}
-                  </p>
+                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">{t(item.descKey as any)}</p>
                 </div>
               </div>
             )

@@ -1,5 +1,5 @@
 import React from 'react'
-import { TrendingDown, TrendingUp, Award, Target, Flame, HeartPulse } from 'lucide-react'
+import { TrendingDown, TrendingUp, Target, HeartPulse } from 'lucide-react'
 import { Card } from '../../atoms'
 import type { Evaluation } from '../../../types'
 
@@ -14,17 +14,11 @@ export const EvaluationInsightsCard: React.FC<EvaluationInsightsCardProps> = ({ 
   const previous = evaluations.length > 1 ? evaluations[1] : null
 
   // Delta calculations
-  const fatDiff = (latest.bodyFatPercentage && previous?.bodyFatPercentage)
-    ? Number((latest.bodyFatPercentage - previous.bodyFatPercentage).toFixed(1))
-    : null
+  const fatDiff = latest.bodyFatPercentage && previous?.bodyFatPercentage ? Number((latest.bodyFatPercentage - previous.bodyFatPercentage).toFixed(1)) : null
 
-  const leanDiff = (latest.leanMass && previous?.leanMass)
-    ? Number((latest.leanMass - previous.leanMass).toFixed(1))
-    : null
+  const leanDiff = latest.leanMass && previous?.leanMass ? Number((latest.leanMass - previous.leanMass).toFixed(1)) : null
 
-  const weightDiff = (latest.weight && previous?.weight)
-    ? Number((latest.weight - previous.weight).toFixed(1))
-    : null
+  const weightDiff = latest.weight && previous?.weight ? Number((latest.weight - previous.weight).toFixed(1)) : null
 
   // ACSM Body Fat Classification for Males/Females
   const getFatClassification = (fatPct?: number) => {
@@ -40,7 +34,7 @@ export const EvaluationInsightsCard: React.FC<EvaluationInsightsCardProps> = ({ 
 
   // Ideal weight recommendation based on 15% body fat target
   const targetFatPct = 15
-  const idealWeight = latest.leanMass ? Number((latest.leanMass / (1 - (targetFatPct / 100))).toFixed(1)) : null
+  const idealWeight = latest.leanMass ? Number((latest.leanMass / (1 - targetFatPct / 100)).toFixed(1)) : null
 
   return (
     <Card className="p-6 bg-gradient-to-br from-slate-900 to-indigo-950 text-white shadow-xl border-0 overflow-hidden relative">
@@ -55,18 +49,14 @@ export const EvaluationInsightsCard: React.FC<EvaluationInsightsCardProps> = ({ 
           <h3 className="text-xl font-bold text-white mt-1">Diagnóstico & Evolução Recente</h3>
         </div>
 
-        <span className={`px-3 py-1 text-xs font-bold rounded-full border shadow-sm ${classification.color}`}>
-          {classification.label}
-        </span>
+        <span className={`px-3 py-1 text-xs font-bold rounded-full border shadow-sm ${classification.color}`}>{classification.label}</span>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         {/* % Body Fat Insight */}
         <div className="bg-white/5 border border-white/10 rounded-xl p-4 backdrop-blur-sm">
           <div className="text-xs text-slate-400 font-medium">% Gordura Atual</div>
-          <div className="text-2xl font-black text-indigo-300 mt-1">
-            {latest.bodyFatPercentage ?? '-'}%
-          </div>
+          <div className="text-2xl font-black text-indigo-300 mt-1">{latest.bodyFatPercentage ?? '-'}%</div>
           {fatDiff !== null && (
             <div className={`flex items-center gap-1 text-xs font-bold mt-2 ${fatDiff <= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
               {fatDiff <= 0 ? <TrendingDown className="h-3.5 w-3.5" /> : <TrendingUp className="h-3.5 w-3.5" />}
@@ -78,9 +68,7 @@ export const EvaluationInsightsCard: React.FC<EvaluationInsightsCardProps> = ({ 
         {/* Lean Mass Insight */}
         <div className="bg-white/5 border border-white/10 rounded-xl p-4 backdrop-blur-sm">
           <div className="text-xs text-slate-400 font-medium">Massa Magra (kg)</div>
-          <div className="text-2xl font-black text-emerald-400 mt-1">
-            {latest.leanMass ?? '-'} kg
-          </div>
+          <div className="text-2xl font-black text-emerald-400 mt-1">{latest.leanMass ?? '-'} kg</div>
           {leanDiff !== null && (
             <div className={`flex items-center gap-1 text-xs font-bold mt-2 ${leanDiff >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
               {leanDiff >= 0 ? <TrendingUp className="h-3.5 w-3.5" /> : <TrendingDown className="h-3.5 w-3.5" />}
@@ -92,12 +80,12 @@ export const EvaluationInsightsCard: React.FC<EvaluationInsightsCardProps> = ({ 
         {/* Fat Mass Insight */}
         <div className="bg-white/5 border border-white/10 rounded-xl p-4 backdrop-blur-sm">
           <div className="text-xs text-slate-400 font-medium">Massa Gorda (kg)</div>
-          <div className="text-2xl font-black text-rose-400 mt-1">
-            {latest.fatMass ?? '-'} kg
-          </div>
+          <div className="text-2xl font-black text-rose-400 mt-1">{latest.fatMass ?? '-'} kg</div>
           {weightDiff !== null && (
             <div className="flex items-center gap-1 text-xs font-medium text-slate-300 mt-2">
-              <span>Peso total: {latest.weight} kg ({weightDiff > 0 ? `+${weightDiff}` : weightDiff} kg)</span>
+              <span>
+                Peso total: {latest.weight} kg ({weightDiff > 0 ? `+${weightDiff}` : weightDiff} kg)
+              </span>
             </div>
           )}
         </div>

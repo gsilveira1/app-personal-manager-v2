@@ -67,9 +67,7 @@ test.describe('i18n — Language Switcher', () => {
   })
 
   test('language switch triggers PATCH /api/settings/language with correct body', async ({ page }) => {
-    const patchPromise = page.waitForRequest(
-      (req) => req.url().includes('/api/settings/language') && req.method() === 'PATCH',
-    )
+    const patchPromise = page.waitForRequest((req) => req.url().includes('/api/settings/language') && req.method() === 'PATCH')
 
     await selectLanguage(page, 'pt-BR')
 
@@ -81,9 +79,7 @@ test.describe('i18n — Language Switcher', () => {
   test('language persists across logout and login (DB round-trip)', async ({ page }) => {
     // Switch to English
     await selectLanguage(page, 'en')
-    await page.waitForResponse(
-      (res) => res.url().includes('/api/settings/language') && res.request().method() === 'PATCH',
-    )
+    await page.waitForResponse((res) => res.url().includes('/api/settings/language') && res.request().method() === 'PATCH')
 
     // Logout
     await page.getByTestId('user-menu-toggle').click()

@@ -4,12 +4,12 @@ import { useTranslation } from 'react-i18next'
 import { Card } from '../../atoms'
 
 export interface WeeklyScheduleData {
-  name: string;
-  sessions: number;
+  name: string
+  sessions: number
 }
 
 export interface WeeklyOverviewCardProps {
-  data: WeeklyScheduleData[];
+  data: WeeklyScheduleData[]
 }
 
 /**

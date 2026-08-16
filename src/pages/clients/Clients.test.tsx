@@ -22,9 +22,7 @@ const mockClients = [
   { id: '2', name: 'João Santos', email: 'joao@test.com', phone: '456', status: 'Active', type: 'Online' as const },
   { id: '3', name: 'Ana Lead', email: 'ana@test.com', phone: '789', status: 'Lead', type: 'In-Person' as const },
 ]
-const mockPlans = [
-  { id: 'plan-1', type: 'PRESENCIAL' as const, name: 'Plano Básico', sessionsPerWeek: 3, durationMinutes: 60, price: 300 },
-]
+const mockPlans = [{ id: 'plan-1', type: 'PRESENCIAL' as const, name: 'Plano Básico', sessionsPerWeek: 3, durationMinutes: 60, price: 300 }]
 
 vi.mock('../../states/stores/store', () => ({
   useStore: () => ({

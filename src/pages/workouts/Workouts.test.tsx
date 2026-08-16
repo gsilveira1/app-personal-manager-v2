@@ -22,9 +22,7 @@ const mockWorkouts = [
   },
 ]
 
-const mockClients = [
-  { id: 'c1', name: 'John Doe', status: 'Active' },
-]
+const mockClients = [{ id: 'c1', name: 'John Doe', status: 'Active' }]
 
 vi.mock('../../states/stores/store', () => ({
   useStore: () => ({
@@ -61,19 +59,27 @@ vi.mock('../../components/organisms/workouts/AIWorkoutGenerator', () => ({
 }))
 
 vi.mock('../../components/WorkoutEditorModal', () => ({
-  WorkoutEditorModal: ({ isOpen, onClose, onSave, initialData }: any) => isOpen ? (
-    <div data-testid="editor-modal">
-      <button onClick={onClose}>close</button>
-      <button onClick={() => onSave({ title: 'New Workout', exercises: [], tags: [] })}>save</button>
-      {initialData && <span data-testid="editing-indicator">editing-{initialData.id}</span>}
-    </div>
-  ) : null,
+  WorkoutEditorModal: ({ isOpen, onClose, onSave, initialData }: any) =>
+    isOpen ? (
+      <div data-testid="editor-modal">
+        <button onClick={onClose}>close</button>
+        <button onClick={() => onSave({ title: 'New Workout', exercises: [], tags: [] })}>save</button>
+        {initialData && <span data-testid="editing-indicator">editing-{initialData.id}</span>}
+      </div>
+    ) : null,
 }))
 
 describe('Workouts', () => {
-  beforeEach(() => { vi.clearAllMocks() })
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
 
-  const renderPage = () => render(<MemoryRouter><Workouts /></MemoryRouter>)
+  const renderPage = () =>
+    render(
+      <MemoryRouter>
+        <Workouts />
+      </MemoryRouter>
+    )
 
   it('renders page title and tab bar', () => {
     renderPage()

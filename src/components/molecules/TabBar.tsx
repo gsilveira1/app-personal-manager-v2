@@ -14,9 +14,7 @@ export function TabBar<T extends string>({ tabs, activeTab, onChange, className 
         <button
           key={tab.id}
           onClick={() => onChange(tab.id)}
-          className={`px-4 py-2 text-sm font-medium rounded-md transition-all flex items-center ${
-            activeTab === tab.id ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-          }`}
+          className={`px-4 py-2 text-sm font-medium rounded-md transition-all flex items-center ${activeTab === tab.id ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
         >
           {tab.icon && <tab.icon className="h-4 w-4 mr-2" />}
           {tab.label}

@@ -42,36 +42,14 @@ export interface ClientsTableProps {
  *   onEditClient={handleEdit}
  * />
  */
-export const ClientsTable: React.FC<ClientsTableProps> = ({
-  clients,
-  plans,
-  searchTerm,
-  onSearchChange,
-  onEditClient,
-  initialItemsPerPage = 10,
-}) => {
+export const ClientsTable: React.FC<ClientsTableProps> = ({ clients, plans, searchTerm, onSearchChange, onEditClient, initialItemsPerPage = 10 }) => {
   const { t } = useTranslation('clients')
   const { t: tco } = useTranslation('common')
   const navigate = useNavigate()
 
-  const filteredClients = clients.filter(
-    (c) =>
-      c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.email.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const filteredClients = clients.filter((c) => c.name.toLowerCase().includes(searchTerm.toLowerCase()) || c.email.toLowerCase().includes(searchTerm.toLowerCase()))
 
-  const {
-    paginatedItems,
-    currentPage,
-    totalPages,
-    totalItems,
-    startIndex,
-    endIndex,
-    itemsPerPage,
-    pageSizeOptions,
-    setPage,
-    setItemsPerPage,
-  } = usePagination(filteredClients, { initialItemsPerPage })
+  const { paginatedItems, currentPage, totalPages, totalItems, startIndex, endIndex, itemsPerPage, pageSizeOptions, setPage, setItemsPerPage } = usePagination(filteredClients, { initialItemsPerPage })
 
   // Reset to page 1 when search term changes
   useEffect(() => {
@@ -101,12 +79,7 @@ export const ClientsTable: React.FC<ClientsTableProps> = ({
             {paginatedItems.map((client) => {
               const clientPlan = plans.find((p) => p.id === client.planId)
               return (
-                <tr
-                  key={client.id}
-                  data-testid={`client-row-${client.id}`}
-                  className="hover:bg-slate-50 transition-colors cursor-pointer"
-                  onClick={() => navigate(`/clients/${client.id}`)}
-                >
+                <tr key={client.id} data-testid={`client-row-${client.id}`} className="hover:bg-slate-50 transition-colors cursor-pointer" onClick={() => navigate(`/clients/${client.id}`)}>
                   <td className="px-6 py-4">
                     <div className="flex items-center space-x-3">
                       {client.avatar ? (
@@ -123,9 +96,7 @@ export const ClientsTable: React.FC<ClientsTableProps> = ({
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <Badge variant={client.status === ClientStatus.Active ? 'success' : 'default'}>
-                      {t(`status.${client.status.toLowerCase()}`, { ns: 'common' })}
-                    </Badge>
+                    <Badge variant={client.status === ClientStatus.Active ? 'success' : 'default'}>{t(`status.${client.status.toLowerCase()}`, { ns: 'common' })}</Badge>
                   </td>
                   <td className="px-6 py-4">
                     {clientPlan ? (
@@ -145,13 +116,7 @@ export const ClientsTable: React.FC<ClientsTableProps> = ({
                     {client.type === 'Online' && client.checkInFrequency && (
                       <div className="text-xs text-slate-400 mt-1">
                         {t('checkInsLabel', {
-                          frequency: t(
-                            client.checkInFrequency === 'Weekly'
-                              ? 'frequencyWeekly'
-                              : client.checkInFrequency === 'Bi-weekly'
-                              ? 'frequencyBiweekly'
-                              : 'frequencyMonthly'
-                          ),
+                          frequency: t(client.checkInFrequency === 'Weekly' ? 'frequencyWeekly' : client.checkInFrequency === 'Bi-weekly' ? 'frequencyBiweekly' : 'frequencyMonthly'),
                         })}
                       </div>
                     )}

@@ -13,16 +13,7 @@ interface ConfirmationDialogProps {
   variant?: 'danger' | 'primary'
 }
 
-export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
-  title,
-  message,
-  confirmLabel,
-  cancelLabel,
-  onConfirm,
-  onCancel,
-  isLoading,
-  variant = 'primary',
-}) => (
+export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({ title, message, confirmLabel, cancelLabel, onConfirm, onCancel, isLoading, variant = 'primary' }) => (
   <ModalShell title={title} onClose={onCancel} maxWidth="max-w-sm">
     <div className="p-6 space-y-4">
       <p className="text-sm text-slate-600">{message}</p>

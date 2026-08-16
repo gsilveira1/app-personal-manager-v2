@@ -18,8 +18,7 @@ export const updateWorkHours = (config: WorkHoursConfig) =>
 /**
  * Retrieves availability blocks within a date range.
  */
-export const getAvailabilityBlocks = (start: Date, end: Date) =>
-  apiClient<MaterializedBlock[]>(`/availability-blocks?start=${start.toISOString()}&end=${end.toISOString()}`)
+export const getAvailabilityBlocks = (start: Date, end: Date) => apiClient<MaterializedBlock[]>(`/availability-blocks?start=${start.toISOString()}&end=${end.toISOString()}`)
 
 /**
  * Creates a new availability block.

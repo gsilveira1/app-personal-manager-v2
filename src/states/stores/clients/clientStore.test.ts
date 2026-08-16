@@ -58,10 +58,9 @@ describe('clientStore', () => {
       mockApi.createPlan.mockResolvedValue(plan)
       mockApi.createClient.mockResolvedValue({ id: 'c-new', name: 'Test', planId: 'p-new' })
 
-      await useClientStore.getState().addClient(
-        { name: 'Test', email: 't@t.com', phone: '1', status: 'Active', type: 'In-Person' } as any,
-        { name: 'Custom', type: 'PRESENCIAL', sessionsPerWeek: 3, price: 300 } as any,
-      )
+      await useClientStore
+        .getState()
+        .addClient({ name: 'Test', email: 't@t.com', phone: '1', status: 'Active', type: 'In-Person' } as any, { name: 'Custom', type: 'PRESENCIAL', sessionsPerWeek: 3, price: 300 } as any)
 
       expect(mockApi.createPlan).toHaveBeenCalled()
       expect(mockApi.createClient).toHaveBeenCalled()

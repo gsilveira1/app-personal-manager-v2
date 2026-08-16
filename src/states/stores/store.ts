@@ -29,22 +29,29 @@ import { type AvailabilityActions, createAvailabilityActions } from './availabil
  *  Only adds application-level concerns: fetchInitialData, clearDataOnLogout.
  * Domain-specific async logic lives exclusively in each domain store file.
  */
-export type AppState =
-  ClientSlice & ClientActions &
-  ScheduleSlice & ScheduleActions &
-  WorkoutSlice & WorkoutActions &
-  FinanceSlice & FinanceActions &
-  EvaluationSlice & EvaluationActions &
-  SettingsSlice & SettingsActions &
-  SystemFeatureSlice & SystemFeatureActions &
-  AvailabilitySlice & AvailabilityActions & {
+export type AppState = ClientSlice &
+  ClientActions &
+  ScheduleSlice &
+  ScheduleActions &
+  WorkoutSlice &
+  WorkoutActions &
+  FinanceSlice &
+  FinanceActions &
+  EvaluationSlice &
+  EvaluationActions &
+  SettingsSlice &
+  SettingsActions &
+  SystemFeatureSlice &
+  SystemFeatureActions &
+  AvailabilitySlice &
+  AvailabilityActions & {
     /** General application lifecycle status flag ('idle' | 'loading' | 'ready' | 'error'). */
     appState: 'idle' | 'loading' | 'ready' | 'error'
     /** Human-readable error message if application startup/data fetch failed. */
     errorMessage: string | null
     /**
      * Fetches all domain entities from backend APIs and hydrates initial state.
-     * 
+     *
      * @returns A promise resolving when initial data loading completes
      * @example
      * await fetchInitialData();
@@ -52,7 +59,7 @@ export type AppState =
     fetchInitialData: () => Promise<void>
     /**
      * Resets all domain slices and state back to empty/idle upon user logout.
-     * 
+     *
      * @example
      * clearDataOnLogout();
      */
@@ -61,7 +68,7 @@ export type AppState =
 
 /**
  * Primary Zustand hook for accessing global application state and actions across all domains.
- * 
+ *
  * @example
  * const { clients, fetchInitialData } = useStore();
  */
@@ -94,13 +101,7 @@ export const useStore = create<AppState>()((set, get) => ({
   fetchInitialData: async () => {
     set({ appState: 'loading', errorMessage: null })
     try {
-      const [clients, evaluations, plans, sessions, workouts] = await Promise.all([
-        api.getClients(),
-        api.getEvaluations(),
-        api.getPlans(),
-        api.getSessions(),
-        api.getWorkouts(),
-      ])
+      const [clients, evaluations, plans, sessions, workouts] = await Promise.all([api.getClients(), api.getEvaluations(), api.getPlans(), api.getSessions(), api.getWorkouts()])
 
       get()._setClients(clients || [])
       get()._setSessions(sessions || [])
@@ -139,18 +140,18 @@ export const useStore = create<AppState>()((set, get) => ({
     })
   },
 
-  /** 
-   * Cross-domain override: deletePlan must also unlink affected clients 
+  /**
+   * Cross-domain override: deletePlan must also unlink affected clients
    *  This is the only action that touches two domains (finance + clients),
    * so it lives here in the global store rather than in financeStore.
-  */
+   */
   deletePlan: async (id) => {
     await api.deletePlan(id)
     get()._removePlan(id)
     set((state) => ({
       clients: state.clients.map((c) => (c.planId === id ? { ...c, planId: undefined } : c)),
     }))
-  }
+  },
 }))
 
 /** Need to import authStore here to prevent circular dependency issues */

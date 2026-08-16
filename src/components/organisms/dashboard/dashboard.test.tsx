@@ -142,10 +142,7 @@ describe('TodayAgenda', () => {
 describe('ConflictsCard', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mockClients = [
-      makeClient({ id: 'c1', name: 'Alice Smith' }),
-      makeClient({ id: 'c2', name: 'Bob Jones' }),
-    ]
+    mockClients = [makeClient({ id: 'c1', name: 'Alice Smith' }), makeClient({ id: 'c2', name: 'Bob Jones' })]
   })
 
   it('renders conflict count in the title', () => {
@@ -160,9 +157,7 @@ describe('ConflictsCard', () => {
   })
 
   it('renders client names within conflict groups', () => {
-    const conflicts: Session[][] = [
-      [makeSession({ id: 's1', clientId: 'c1' }), makeSession({ id: 's2', clientId: 'c2' })],
-    ]
+    const conflicts: Session[][] = [[makeSession({ id: 's1', clientId: 'c1' }), makeSession({ id: 's2', clientId: 'c2' })]]
     render(<ConflictsCard conflicts={conflicts} />)
 
     expect(screen.getByText('Alice Smith')).toBeInTheDocument()
@@ -170,9 +165,7 @@ describe('ConflictsCard', () => {
   })
 
   it('navigates to /schedule when resolve button is clicked', () => {
-    const conflicts: Session[][] = [
-      [makeSession({ id: 's1', clientId: 'c1' })],
-    ]
+    const conflicts: Session[][] = [[makeSession({ id: 's1', clientId: 'c1' })]]
     render(<ConflictsCard conflicts={conflicts} />)
 
     const resolveButton = screen.getByText('resolveConflicts').closest('button')!
@@ -186,10 +179,7 @@ describe('ConflictsCard', () => {
   })
 
   it('renders conflict group labels', () => {
-    const conflicts: Session[][] = [
-      [makeSession({ id: 's1', clientId: 'c1' })],
-      [makeSession({ id: 's2', clientId: 'c2' })],
-    ]
+    const conflicts: Session[][] = [[makeSession({ id: 's1', clientId: 'c1' })], [makeSession({ id: 's2', clientId: 'c2' })]]
     render(<ConflictsCard conflicts={conflicts} />)
 
     // Each group renders t('conflictGroup', { index: n }) which returns 'conflictGroup'
@@ -204,10 +194,7 @@ describe('ClientWatchlist', () => {
   })
 
   it('renders client names', () => {
-    const clients = [
-      makeClient({ id: 'c1', name: 'Alice Smith' }),
-      makeClient({ id: 'c2', name: 'Bob Jones' }),
-    ]
+    const clients = [makeClient({ id: 'c1', name: 'Alice Smith' }), makeClient({ id: 'c2', name: 'Bob Jones' })]
     render(<ClientWatchlist clients={clients} />)
 
     expect(screen.getByText('Alice Smith')).toBeInTheDocument()
@@ -220,10 +207,7 @@ describe('ClientWatchlist', () => {
   })
 
   it('renders view buttons for each client', () => {
-    const clients = [
-      makeClient({ id: 'c1', name: 'Alice Smith' }),
-      makeClient({ id: 'c2', name: 'Bob Jones' }),
-    ]
+    const clients = [makeClient({ id: 'c1', name: 'Alice Smith' }), makeClient({ id: 'c2', name: 'Bob Jones' })]
     render(<ClientWatchlist clients={clients} />)
 
     // Each client has a 'view' button (translation key)
