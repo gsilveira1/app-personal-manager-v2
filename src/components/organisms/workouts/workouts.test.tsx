@@ -14,11 +14,11 @@ vi.mock('../../../utils/dateLocale', () => ({
 
 const mockGenerateWorkoutPlan = vi.fn()
 
-vi.mock('../../../services/geminiService', () => ({
+vi.mock('../../../services/gemini/geminiService', () => ({
   generateWorkoutPlan: (...args: any[]) => mockGenerateWorkoutPlan(...args),
 }))
 
-vi.mock('../../../store/store', () => ({
+vi.mock('../../../states/stores/store', () => ({
   useStore: () => ({
     aiPromptInstructions: 'custom instructions',
   }),
@@ -46,9 +46,7 @@ const workouts: WorkoutPlan[] = [
     id: 'w2',
     title: 'Treino B - Lower Body',
     description: 'Legs and glutes',
-    exercises: [
-      { name: 'Squat', sets: 4, reps: '12', isWarmup: false },
-    ],
+    exercises: [{ name: 'Squat', sets: 4, reps: '12', isWarmup: false }],
     tags: ['Lower'],
     createdAt: '2025-11-05T00:00:00.000Z',
   },
@@ -204,9 +202,7 @@ describe('AIWorkoutGenerator', () => {
   })
 
   it('loading state shown during generation', async () => {
-    mockGenerateWorkoutPlan.mockImplementation(
-      () => new Promise((resolve) => setTimeout(resolve, 1000))
-    )
+    mockGenerateWorkoutPlan.mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 1000)))
 
     render(<AIWorkoutGenerator {...defaultProps} />)
 

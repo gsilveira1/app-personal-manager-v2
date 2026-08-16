@@ -26,6 +26,7 @@ vi.mock('../../../utils/rruleHelpers', () => ({
 
 vi.mock('../../../utils/scheduleUtils', () => ({
   isTimeSlotTaken: vi.fn().mockReturnValue(null),
+  isTimeSlotBlocked: vi.fn().mockReturnValue(null),
 }))
 
 import { SessionEditorModal } from './SessionEditorModal'
@@ -43,7 +44,6 @@ const makeClient = (overrides: Record<string, unknown> = {}) => ({
 
 const mockOnClose = vi.fn()
 const mockOnSaveNew = vi.fn()
-const mockOnSaveRecurring = vi.fn()
 const mockOnSaveRecurringEvent = vi.fn()
 const mockOnUpdate = vi.fn()
 
@@ -51,12 +51,12 @@ const defaultProps = {
   isOpen: true,
   onClose: mockOnClose,
   onSaveNew: mockOnSaveNew,
-  onSaveRecurring: mockOnSaveRecurring,
   onSaveRecurringEvent: mockOnSaveRecurringEvent,
   onUpdate: mockOnUpdate,
   sessionToEdit: null,
   clients: [makeClient(), makeClient({ id: 'c2', name: 'Jane Smith', type: 'Online' })],
   sessions: [],
+  blocks: [],
   initialDate: new Date(2026, 2, 15, 10, 0), // March 15, 2026 at 10:00
 }
 
@@ -327,6 +327,32 @@ describe('SessionEditorModal', () => {
     expect(mockOnSaveNew).not.toHaveBeenCalled()
 
     mockedIsTimeSlotTaken.mockReturnValue(null)
+  })
+
+  it('shows block conflict error when slot overlaps an availability block', async () => {
+    const { isTimeSlotBlocked } = await import('../../../utils/scheduleUtils')
+    const mockedIsTimeSlotBlocked = vi.mocked(isTimeSlotBlocked)
+    mockedIsTimeSlotBlocked.mockReturnValue({
+      id: 'block-1',
+      blockId: 'block-1',
+      title: 'Lunch Break',
+      start: new Date(2026, 2, 15, 10, 0).toISOString(),
+      end: new Date(2026, 2, 15, 11, 0).toISOString(),
+      isRecurring: false,
+      notes: null,
+    })
+
+    render(<SessionEditorModal {...defaultProps} />)
+
+    const form = screen.getByText('common.save').closest('form')
+    fireEvent.submit(form!)
+
+    // Error message should be displayed
+    expect(screen.getByText(/blockConflict/)).toBeInTheDocument()
+    // Should NOT call onSaveNew
+    expect(mockOnSaveNew).not.toHaveBeenCalled()
+
+    mockedIsTimeSlotBlocked.mockReturnValue(null)
   })
 
   it('shows RecurrenceUpdateModal when editing a recurring session with date change', async () => {

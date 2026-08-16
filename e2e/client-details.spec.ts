@@ -101,7 +101,10 @@ test.describe('Client Details', () => {
         }
 
         // Submit
-        await page.getByRole('button', { name: /salvar|save/i }).last().click()
+        await page
+          .getByRole('button', { name: /salvar|save/i })
+          .last()
+          .click()
         await page.waitForTimeout(1000)
       }
     }
@@ -204,7 +207,12 @@ test.describe('Client Details', () => {
 
     // Click back button or clients nav link
     const backBtn = page.locator('button:has(svg.lucide-arrow-left), a:has-text("Clientes"), a:has-text("Clients")')
-    if (await backBtn.first().isVisible({ timeout: 3000 }).catch(() => false)) {
+    if (
+      await backBtn
+        .first()
+        .isVisible({ timeout: 3000 })
+        .catch(() => false)
+    ) {
       await backBtn.first().click()
       await expect(page).toHaveURL(/\/#\/clients$/, { timeout: 5000 })
     }

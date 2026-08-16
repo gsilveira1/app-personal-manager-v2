@@ -4,7 +4,7 @@ import { MemoryRouter, Routes, Route } from 'react-router'
 
 const mockState = { user: null as any }
 
-vi.mock('../store/authStore', () => ({
+vi.mock('../states/stores/auth/authStore', () => ({
   useAuthStore: () => ({ user: mockState.user }),
 }))
 

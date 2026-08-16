@@ -33,8 +33,14 @@ export const PlanCard: React.FC<PlanCardProps> = ({ plan, onEdit, onDelete }) =>
           <div className="flex items-center">
             <Repeat className="h-4 w-4 mr-2 text-indigo-400" />
             <span>
-              <strong>{plan.sessionsPerWeek}x</strong>{t('perWeek')}
-              {plan.type === 'PRESENCIAL' && <span className="text-slate-400"> ({plan.sessionsPerWeek * 4}x{tc('perMonth')})</span>}
+              <strong>{plan.sessionsPerWeek}x</strong>
+              {t('perWeek')}
+              {plan.type === 'PRESENCIAL' && (
+                <span className="text-slate-400">
+                  {' '}
+                  ({plan.sessionsPerWeek * 4}x{tc('perMonth')})
+                </span>
+              )}
             </span>
           </div>
           {plan.durationMinutes && (

@@ -40,15 +40,7 @@ export function getClients() {
   return apiCall<any[]>('GET', '/clients')
 }
 
-export function createClient(data: {
-  name: string
-  email: string
-  phone: string
-  status?: string
-  type?: string
-  goal?: string
-  dateOfBirth?: string
-}) {
+export function createClient(data: { name: string; email: string; phone: string; status?: string; type?: string; goal?: string; dateOfBirth?: string }) {
   return apiCall<any>('POST', '/clients', {
     type: 'In-Person',
     status: 'Active',
@@ -66,14 +58,7 @@ export function deleteClient(id: string) {
 
 // ── Sessions ──
 
-export function createSession(data: {
-  clientId: string
-  date: string
-  durationMinutes: number
-  type: string
-  category: string
-  notes?: string
-}) {
+export function createSession(data: { clientId: string; date: string; durationMinutes: number; type: string; category: string; notes?: string }) {
   return apiCall<any>('POST', '/sessions', data)
 }
 
@@ -87,13 +72,7 @@ export function toggleSessionComplete(id: string) {
 
 // ── Workouts ──
 
-export function createWorkout(data: {
-  title: string
-  description?: string
-  exercises: { name: string; sets: number; reps: string; notes?: string }[]
-  tags?: string[]
-  clientId?: string
-}) {
+export function createWorkout(data: { title: string; description?: string; exercises: { name: string; sets: number; reps: string; notes?: string }[]; tags?: string[]; clientId?: string }) {
   return apiCall<any>('POST', '/workouts', data)
 }
 
@@ -103,14 +82,7 @@ export function deleteWorkout(id: string) {
 
 // ── Evaluations ──
 
-export function createEvaluation(data: {
-  clientId: string
-  date: string
-  weight: number
-  height?: number
-  bodyFatPercentage?: number
-  notes?: string
-}) {
+export function createEvaluation(data: { clientId: string; date: string; weight: number; height?: number; bodyFatPercentage?: number; notes?: string }) {
   return apiCall<any>('POST', '/evaluations', data)
 }
 
@@ -124,13 +96,7 @@ export function getPlans() {
   return apiCall<any[]>('GET', '/plans')
 }
 
-export function createPlan(data: {
-  type: 'PRESENCIAL' | 'CONSULTORIA'
-  name: string
-  sessionsPerWeek: number
-  durationMinutes?: number
-  price: number
-}) {
+export function createPlan(data: { type: 'PRESENCIAL' | 'CONSULTORIA'; name: string; sessionsPerWeek: number; durationMinutes?: number; price: number }) {
   return apiCall<any>('POST', '/plans', data)
 }
 
@@ -140,12 +106,7 @@ export function deletePlan(id: string) {
 
 // ── Availability Blocks ──
 
-export function createAvailabilityBlock(data: {
-  title: string
-  dtstart: string
-  dtend: string
-  notes?: string
-}) {
+export function createAvailabilityBlock(data: { title: string; dtstart: string; dtend: string; notes?: string }) {
   return apiCall<any>('POST', '/availability-blocks', data)
 }
 

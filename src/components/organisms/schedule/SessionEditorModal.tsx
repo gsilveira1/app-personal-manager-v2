@@ -3,12 +3,12 @@ import { useTranslation } from 'react-i18next'
 import { Repeat, AlertTriangle } from 'lucide-react'
 import { format, parseISO, add } from 'date-fns'
 import { Card, Button, Label, Select, Input } from '../../atoms'
-import { isTimeSlotTaken } from '../../../utils/scheduleUtils'
+import { isTimeSlotTaken, isTimeSlotBlocked } from '../../../utils/scheduleUtils'
 import { formatLocalized } from '../../../utils/dateLocale'
 import { type Client, type Session } from '../../../types'
 import { WEEKDAYS, buildRrule, rruleHumanText } from '../../../utils/rruleHelpers'
 
-const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurring: _onSaveRecurring, onSaveRecurringEvent, onUpdate, sessionToEdit, clients, sessions, initialDate }: any) => {
+const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurringEvent, onUpdate, sessionToEdit, clients, sessions, blocks, initialDate }: any) => {
   const { t } = useTranslation('schedule')
   const { t: tco } = useTranslation('common')
   const [formData, setFormData] = useState({
@@ -52,8 +52,7 @@ const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurring: _onSa
     }
   }, [sessionToEdit])
 
-  const toggleDay = (day: string) =>
-    setRruleDays((prev) => prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day])
+  const toggleDay = (day: string) => setRruleDays((prev) => (prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]))
 
   const client = clients.find((c: Client) => c.id === formData.clientId)
   const sessionType: 'Online' | 'In-Person' = client?.type === 'Online' ? 'Online' : 'In-Person'
@@ -70,6 +69,13 @@ const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurring: _onSa
     if (conflictingSession) {
       const conflictClientName = clients.find((c: any) => c.id === conflictingSession.clientId)?.name || t('aClient')
       setError(t('timeConflict', { clientName: conflictClientName, time: formatLocalized(parseISO(conflictingSession.date), 'h:mm a') }))
+      return
+    }
+
+    const newSessionEnd = new Date(combinedDate.getTime() + Number(formData.durationMinutes) * 60_000)
+    const conflictingBlock = isTimeSlotBlocked(blocks || [], combinedDate, newSessionEnd)
+    if (conflictingBlock) {
+      setError(t('blockConflict', { blockTitle: conflictingBlock.title }))
       return
     }
 
@@ -115,9 +121,7 @@ const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurring: _onSa
   }
   if (!isOpen) return null
 
-  const rrulePreview = isRecurring
-    ? rruleHumanText(rruleFreq, rruleInterval, rruleDays, rruleEndType, rruleUntil, rruleCount)
-    : ''
+  const rrulePreview = isRecurring ? rruleHumanText(rruleFreq, rruleInterval, rruleDays, rruleEndType, rruleUntil, rruleCount) : ''
 
   return (
     <>
@@ -185,14 +189,7 @@ const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurring: _onSa
                   <div className="space-y-1.5">
                     <Label>{t('every')}</Label>
                     <div className="flex items-center gap-2">
-                      <Input
-                        type="number"
-                        min="1"
-                        max="52"
-                        value={rruleInterval}
-                        onChange={(e) => setRruleInterval(Number(e.target.value))}
-                        className="w-16 text-center"
-                      />
+                      <Input type="number" min="1" max="52" value={rruleInterval} onChange={(e) => setRruleInterval(Number(e.target.value))} className="w-16 text-center" />
                       <span className="text-sm text-slate-500">{rruleFreq === 'DAILY' ? t('intervalDays') : rruleFreq === 'WEEKLY' ? t('intervalWeeks') : t('intervalMonths')}</span>
                     </div>
                   </div>
@@ -208,10 +205,9 @@ const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurring: _onSa
                           key={rruleDay}
                           type="button"
                           onClick={() => toggleDay(rruleDay)}
-                          className={`w-10 h-10 rounded-full text-xs font-semibold border transition-all ${rruleDays.includes(rruleDay)
-                              ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
-                              : 'bg-white text-slate-600 border-slate-300 hover:border-indigo-400'
-                            }`}
+                          className={`w-10 h-10 rounded-full text-xs font-semibold border transition-all ${
+                            rruleDays.includes(rruleDay) ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' : 'bg-white text-slate-600 border-slate-300 hover:border-indigo-400'
+                          }`}
                         >
                           {label}
                         </button>
@@ -235,14 +231,7 @@ const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurring: _onSa
                   </div>
                   {rruleEndType === 'count' ? (
                     <div className="flex items-center gap-2">
-                      <Input
-                        type="number"
-                        min="1"
-                        max="365"
-                        value={rruleCount}
-                        onChange={(e) => setRruleCount(Number(e.target.value))}
-                        className="w-20 text-center"
-                      />
+                      <Input type="number" min="1" max="365" value={rruleCount} onChange={(e) => setRruleCount(Number(e.target.value))} className="w-20 text-center" />
                       <span className="text-sm text-slate-500">{t('occurrences')}</span>
                     </div>
                   ) : (
@@ -251,11 +240,7 @@ const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurring: _onSa
                 </div>
 
                 {/* Human-readable preview */}
-                {rrulePreview && (
-                  <p className="text-xs text-indigo-700 bg-indigo-100 px-3 py-2 rounded-md font-medium">
-                    {rrulePreview}
-                  </p>
-                )}
+                {rrulePreview && <p className="text-xs text-indigo-700 bg-indigo-100 px-3 py-2 rounded-md font-medium">{rrulePreview}</p>}
               </div>
             )}
 

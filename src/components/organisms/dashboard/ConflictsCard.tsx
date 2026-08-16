@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router'
 import { parseISO } from 'date-fns'
 import { useTranslation } from 'react-i18next'
 
-import { useStore } from '../../../store/store'
+import { useStore } from '../../../states/stores/store'
 import { type Session } from '../../../types'
 import { Card, Button } from '../../atoms'
 import { formatLocalized } from '../../../utils/dateLocale'
@@ -26,9 +26,7 @@ export const ConflictsCard: React.FC<ConflictsCardProps> = ({ conflicts }) => {
             <AlertTriangle className="h-6 w-6 text-red-600" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-red-900">
-              {t('conflictsDetected', { count: conflicts.length })}
-            </h3>
+            <h3 className="text-lg font-bold text-red-900">{t('conflictsDetected', { count: conflicts.length })}</h3>
             <p className="text-sm text-red-700">{t('conflictsMessage')}</p>
           </div>
         </div>

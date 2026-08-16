@@ -24,7 +24,7 @@ vi.mock('react-i18next', () => ({
 // Mock Zustand store
 const mockUpdateLocale = vi.fn()
 
-vi.mock('../store/store', () => ({
+vi.mock('../states/stores/store', () => ({
   useStore: (selector: (s: any) => any) => selector({ updateLocale: mockUpdateLocale }),
 }))
 
@@ -137,10 +137,7 @@ describe('LanguageSwitcher', () => {
     render(<LanguageSwitcher />)
     fireEvent.change(screen.getByRole('combobox'), { target: { value: 'es' } })
     await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('language'),
-        expect.any(Error),
-      )
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('language'), expect.any(Error))
     })
     consoleSpy.mockRestore()
   })

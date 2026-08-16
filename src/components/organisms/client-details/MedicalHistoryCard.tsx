@@ -14,14 +14,7 @@ interface MedicalHistoryCardProps {
   onBufferChange: (buffer: MedicalHistory) => void
 }
 
-export const MedicalHistoryCard: React.FC<MedicalHistoryCardProps> = ({
-  client,
-  isEditing,
-  buffer,
-  onStartEdit,
-  onSave,
-  onBufferChange,
-}) => {
+export const MedicalHistoryCard: React.FC<MedicalHistoryCardProps> = ({ client, isEditing, buffer, onStartEdit, onSave, onBufferChange }) => {
   const { t } = useTranslation('clients')
 
   return (

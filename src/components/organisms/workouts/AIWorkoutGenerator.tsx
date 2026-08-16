@@ -2,10 +2,10 @@ import React, { useState } from 'react'
 import { Sparkles, Loader2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { useStore } from '../../../store/store'
+import { useStore } from '../../../states/stores/store'
 import { type WorkoutPlan } from '../../../types'
 import { Card, Button, Input, Label, Select } from '../../atoms'
-import { generateWorkoutPlan } from '../../../services/geminiService'
+import { generateWorkoutPlan } from '../../../services/gemini/geminiService'
 
 interface AIWorkoutGeneratorProps {
   onSave: (w: Omit<WorkoutPlan, 'id' | 'createdAt'>) => void

@@ -1,15 +1,5 @@
 import React, { useState } from 'react'
-import {
-  Phone,
-  Mail,
-  MessageSquare,
-  X,
-  CheckCircle2,
-  XCircle,
-  Dumbbell,
-  Globe,
-  MapPin,
-} from 'lucide-react'
+import { Phone, Mail, MessageSquare, X, CheckCircle2, XCircle, Dumbbell, Globe, MapPin } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import type { Client, Plan } from '../../../types'
@@ -64,15 +54,13 @@ export const LeadDrawer: React.FC<LeadDrawerProps> = ({ lead, plans, onClose, on
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-slate-200">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center">
-              {lead.name.charAt(0).toUpperCase()}
-            </div>
+            <div className="h-10 w-10 rounded-full bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center">{lead.name.charAt(0).toUpperCase()}</div>
             <div>
               <h2 className="font-bold text-slate-900">{lead.name}</h2>
               {created && <p className="text-xs text-slate-400">{daysAgo(created, t)}</p>}
             </div>
           </div>
-          <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg">
+          <button onClick={onClose} aria-label="close" className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -81,20 +69,12 @@ export const LeadDrawer: React.FC<LeadDrawerProps> = ({ lead, plans, onClose, on
           {/* Contact info */}
           <section className="space-y-2">
             <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{t('contact')}</h3>
-            <a
-              href={whatsappUrl(lead.phone)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 p-3 rounded-lg bg-green-50 hover:bg-green-100 transition-colors group"
-            >
+            <a href={whatsappUrl(lead.phone)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg bg-green-50 hover:bg-green-100 transition-colors group">
               <Phone className="h-4 w-4 text-green-600" />
               <span className="text-sm font-medium text-green-800">{lead.phone}</span>
               <span className="ml-auto text-xs text-green-600 font-medium opacity-0 group-hover:opacity-100">{t('openWhatsApp')}</span>
             </a>
-            <a
-              href={`mailto:${lead.email}`}
-              className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors"
-            >
+            <a href={`mailto:${lead.email}`} className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors">
               <Mail className="h-4 w-4 text-slate-500" />
               <span className="text-sm text-slate-700">{lead.email}</span>
             </a>
@@ -125,10 +105,9 @@ export const LeadDrawer: React.FC<LeadDrawerProps> = ({ lead, plans, onClose, on
                 <button
                   key={s.id}
                   onClick={() => handleStageChange(s.id)}
-                  className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold border-2 transition-all ${localStage === s.id
-                    ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
-                    : 'border-slate-200 text-slate-500 hover:border-slate-300'
-                    }`}
+                  className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold border-2 transition-all ${
+                    localStage === s.id ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-slate-200 text-slate-500 hover:border-slate-300'
+                  }`}
                 >
                   {t(s.labelKey)}
                 </button>
@@ -154,18 +133,11 @@ export const LeadDrawer: React.FC<LeadDrawerProps> = ({ lead, plans, onClose, on
 
         {/* Action footer */}
         <div className="p-5 border-t border-slate-200 space-y-3">
-          <Button
-            className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700"
-            onClick={() => setShowConvertModal(true)}
-          >
+          <Button className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700" onClick={() => setShowConvertModal(true)}>
             <CheckCircle2 className="h-4 w-4" />
             {t('convertToClient')}
           </Button>
-          <Button
-            variant="outline"
-            className="w-full flex items-center justify-center gap-2 text-red-600 border-red-200 hover:bg-red-50"
-            onClick={() => onMarkLost(lead.id)}
-          >
+          <Button variant="outline" className="w-full flex items-center justify-center gap-2 text-red-600 border-red-200 hover:bg-red-50" onClick={() => onMarkLost(lead.id)}>
             <XCircle className="h-4 w-4" />
             {t('markAsLost')}
           </Button>
@@ -177,19 +149,15 @@ export const LeadDrawer: React.FC<LeadDrawerProps> = ({ lead, plans, onClose, on
         <div className="absolute inset-0 flex items-center justify-center z-10 bg-black/30">
           <Card className="w-full max-w-sm p-6 m-4">
             <h3 className="text-lg font-bold text-slate-900 mb-1">{t('convertLeadTitle')}</h3>
-            <p className="text-sm text-slate-500 mb-5">
-              {t('convertLeadSubtitle', { name: lead.name })}
-            </p>
+            <p className="text-sm text-slate-500 mb-5">{t('convertLeadSubtitle', { name: lead.name })}</p>
             <div className="space-y-2 mb-5">
               <Label htmlFor="plan-select">{t('subscriptionPlanOptional')}</Label>
-              <Select
-                id="plan-select"
-                value={selectedPlanId}
-                onChange={(e) => setSelectedPlanId(e.target.value)}
-              >
+              <Select id="plan-select" value={selectedPlanId} onChange={(e) => setSelectedPlanId(e.target.value)}>
                 <option value="">{t('noPlanYet')}</option>
                 {plans.map((p) => (
-                  <option key={p.id} value={p.id}>{p.name}</option>
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
                 ))}
               </Select>
             </div>
@@ -197,11 +165,7 @@ export const LeadDrawer: React.FC<LeadDrawerProps> = ({ lead, plans, onClose, on
               <Button variant="outline" className="flex-1" onClick={() => setShowConvertModal(false)}>
                 {t('cancel', { ns: 'common' })}
               </Button>
-              <Button
-                className="flex-1 bg-emerald-600 hover:bg-emerald-700"
-                disabled={converting}
-                onClick={handleConvert}
-              >
+              <Button className="flex-1 bg-emerald-600 hover:bg-emerald-700" disabled={converting} onClick={handleConvert}>
                 {converting ? t('loading', { ns: 'common' }) : t('confirm', { ns: 'common' })}
               </Button>
             </div>

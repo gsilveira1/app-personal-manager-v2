@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { Clock } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { useStore } from '../../../store/store'
+import { useStore } from '../../../states/stores/store'
 import { type WorkHoursConfig, type DaySchedule } from '../../../types'
 import { Card, Input, Select, Label } from '../../atoms'
 

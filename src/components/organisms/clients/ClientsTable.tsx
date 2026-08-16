@@ -1,26 +1,60 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router'
-import { Phone, Mail, Globe, MapPin, Eye, Wallet, User } from 'lucide-react'
+import { Phone, Mail, Globe, MapPin, Eye, Pencil, Wallet, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { ClientStatus } from '../../../types'
 import type { Client, Plan } from '../../../types'
 import { Card, Button, Badge } from '../../atoms'
-import { SearchBar } from '../../molecules'
+import { SearchBar, Pagination } from '../../molecules'
+import { usePagination } from '../../../hooks/usePagination'
 
-interface ClientsTableProps {
+/**
+ * Props for the `ClientsTable` organism component.
+ */
+export interface ClientsTableProps {
+  /** Array of clients to display */
   clients: Client[]
+  /** Array of available subscription plans */
   plans: Plan[]
+  /** Current search input term */
   searchTerm: string
+  /** Callback fired when search term changes */
   onSearchChange: (value: string) => void
+  /** Callback fired when edit button for a client is clicked */
+  onEditClient?: (client: Client) => void
+  /** Initial number of items per page for pagination. Defaults to 10. */
+  initialItemsPerPage?: number
 }
 
-export const ClientsTable: React.FC<ClientsTableProps> = ({ clients, plans, searchTerm, onSearchChange }) => {
+/**
+ * Clients table component featuring search filtering, responsive layout,
+ * action triggers, and generic pagination integration.
+ *
+ * @param props - Component props specified by {@link ClientsTableProps}
+ * @returns React functional component rendering clients table with pagination
+ * @example
+ * <ClientsTable
+ *   clients={clientsList}
+ *   plans={plansList}
+ *   searchTerm={search}
+ *   onSearchChange={setSearch}
+ *   onEditClient={handleEdit}
+ * />
+ */
+export const ClientsTable: React.FC<ClientsTableProps> = ({ clients, plans, searchTerm, onSearchChange, onEditClient, initialItemsPerPage = 10 }) => {
   const { t } = useTranslation('clients')
   const { t: tco } = useTranslation('common')
   const navigate = useNavigate()
 
   const filteredClients = clients.filter((c) => c.name.toLowerCase().includes(searchTerm.toLowerCase()) || c.email.toLowerCase().includes(searchTerm.toLowerCase()))
+
+  const { paginatedItems, currentPage, totalPages, totalItems, startIndex, endIndex, itemsPerPage, pageSizeOptions, setPage, setItemsPerPage } = usePagination(filteredClients, { initialItemsPerPage })
+
+  // Reset to page 1 when search term changes
+  useEffect(() => {
+    setPage(1)
+  }, [searchTerm])
 
   return (
     <Card data-testid="clients-table" className="overflow-hidden">
@@ -42,7 +76,7 @@ export const ClientsTable: React.FC<ClientsTableProps> = ({ clients, plans, sear
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200">
-            {filteredClients.map((client) => {
+            {paginatedItems.map((client) => {
               const clientPlan = plans.find((p) => p.id === client.planId)
               return (
                 <tr key={client.id} data-testid={`client-row-${client.id}`} className="hover:bg-slate-50 transition-colors cursor-pointer" onClick={() => navigate(`/clients/${client.id}`)}>
@@ -51,8 +85,8 @@ export const ClientsTable: React.FC<ClientsTableProps> = ({ clients, plans, sear
                       {client.avatar ? (
                         <img src={client.avatar} alt={client.name} className="h-10 w-10 rounded-full bg-slate-200 object-cover" />
                       ) : (
-                        <div className="h-10 w-10 rounded-full bg-slate-200 object-cover">
-                          <User className="h-10 w-10 text-slate-400" />
+                        <div className="h-10 w-10 rounded-full bg-slate-200 object-cover flex items-center justify-center">
+                          <User className="h-6 w-6 text-slate-400" />
                         </div>
                       )}
                       <div>
@@ -81,7 +115,9 @@ export const ClientsTable: React.FC<ClientsTableProps> = ({ clients, plans, sear
                     </div>
                     {client.type === 'Online' && client.checkInFrequency && (
                       <div className="text-xs text-slate-400 mt-1">
-                        {t('checkInsLabel', { frequency: t(client.checkInFrequency === 'Weekly' ? 'frequencyWeekly' : client.checkInFrequency === 'Bi-weekly' ? 'frequencyBiweekly' : 'frequencyMonthly') })}
+                        {t('checkInsLabel', {
+                          frequency: t(client.checkInFrequency === 'Weekly' ? 'frequencyWeekly' : client.checkInFrequency === 'Bi-weekly' ? 'frequencyBiweekly' : 'frequencyMonthly'),
+                        })}
                       </div>
                     )}
                   </td>
@@ -98,21 +134,35 @@ export const ClientsTable: React.FC<ClientsTableProps> = ({ clients, plans, sear
                     </div>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <Button
-                      variant="ghost"
-                      className="h-8 w-8 p-0"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        navigate(`/clients/${client.id}`)
-                      }}
-                    >
-                      <Eye className="h-4 w-4 text-slate-400 hover:text-indigo-600" />
-                    </Button>
+                    <div className="flex items-center justify-end space-x-1">
+                      <Button
+                        variant="ghost"
+                        className="h-8 w-8 p-0"
+                        title={t('editProfile')}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          onEditClient?.(client)
+                        }}
+                      >
+                        <Pencil className="h-4 w-4 text-slate-400 hover:text-indigo-600" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        className="h-8 w-8 p-0"
+                        title={tco('view')}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          navigate(`/clients/${client.id}`)
+                        }}
+                      >
+                        <Eye className="h-4 w-4 text-slate-400 hover:text-indigo-600" />
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               )
             })}
-            {filteredClients.length === 0 && (
+            {paginatedItems.length === 0 && (
               <tr>
                 <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
                   {t('noClients')}
@@ -122,6 +172,18 @@ export const ClientsTable: React.FC<ClientsTableProps> = ({ clients, plans, sear
           </tbody>
         </table>
       </div>
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={totalItems}
+        startIndex={startIndex}
+        endIndex={endIndex}
+        itemsPerPage={itemsPerPage}
+        pageSizeOptions={pageSizeOptions}
+        onPageChange={setPage}
+        onItemsPerPageChange={setItemsPerPage}
+      />
     </Card>
   )
 }

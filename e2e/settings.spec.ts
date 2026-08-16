@@ -160,7 +160,10 @@ test.describe('Settings', () => {
     // Scroll to AI instructions section
     const aiSection = page.locator('text=/instruções ia|ai instructions|prompt/i').first()
     if (await aiSection.isVisible({ timeout: 5000 }).catch(() => false)) {
-      const aiTextarea = page.locator('textarea').filter({ hasNot: page.locator('[class*="notes"]') }).last()
+      const aiTextarea = page
+        .locator('textarea')
+        .filter({ hasNot: page.locator('[class*="notes"]') })
+        .last()
       if (await aiTextarea.isVisible({ timeout: 3000 }).catch(() => false)) {
         const testInstructions = `E2E test instructions ${Date.now()}`
         await aiTextarea.fill(testInstructions)

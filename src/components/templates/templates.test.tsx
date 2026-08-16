@@ -25,9 +25,7 @@ vi.mock('../organisms/layout/AppHeader', () => ({
 
 // Mock lucide-react Dumbbell icon
 vi.mock('lucide-react', () => ({
-  Dumbbell: ({ className }: { className?: string }) => (
-    <svg data-testid="dumbbell-icon" className={className} />
-  ),
+  Dumbbell: ({ className }: { className?: string }) => <svg data-testid="dumbbell-icon" className={className} />,
 }))
 
 import { DashboardLayout } from './DashboardLayout'

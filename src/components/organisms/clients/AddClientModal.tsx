@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { HeartPulse, ChevronDown } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { useStore } from '../../../store/store'
+import { useStore } from '../../../states/stores/store'
 import { ClientStatus } from '../../../types'
 import type { Client, ClientType, CheckInFrequency, Plan, MedicalHistory } from '../../../types'
 import { Card, Button, Input, Select, Label } from '../../atoms'

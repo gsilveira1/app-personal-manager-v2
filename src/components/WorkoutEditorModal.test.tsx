@@ -6,7 +6,7 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }))
 
-vi.mock('../store/store', () => ({
+vi.mock('../states/stores/store', () => ({
   useStore: () => ({
     evaluations: [],
     workouts: [],
@@ -14,12 +14,12 @@ vi.mock('../store/store', () => ({
   }),
 }))
 
-vi.mock('../services/geminiService', () => ({
+vi.mock('../services/gemini/geminiService', () => ({
   generateWorkoutInsights: vi.fn(),
 }))
 
 import { WorkoutEditorModal } from './WorkoutEditorModal'
-import { generateWorkoutInsights } from '../services/geminiService'
+import { generateWorkoutInsights } from '../services/gemini/geminiService'
 
 const mockOnClose = vi.fn()
 const mockOnSave = vi.fn()
@@ -100,9 +100,7 @@ describe('WorkoutEditorModal', () => {
       title: 'Push Day',
       description: 'Upper body push',
       tags: ['push', 'chest'],
-      exercises: [
-        { name: 'Bench Press', sets: 4, reps: '8-10', notes: 'Slow eccentric', isWarmup: false },
-      ],
+      exercises: [{ name: 'Bench Press', sets: 4, reps: '8-10', notes: 'Slow eccentric', isWarmup: false }],
       createdAt: '2026-01-01',
       status: 'Active' as const,
     }

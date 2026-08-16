@@ -25,7 +25,7 @@ vi.mock('recharts', () => ({
 const mockUpdateEvaluation = vi.fn()
 const mockDeleteEvaluation = vi.fn()
 
-vi.mock('../../../store/store', () => ({
+vi.mock('../../../states/stores/store', () => ({
   useStore: () => ({
     updateEvaluation: mockUpdateEvaluation,
     deleteEvaluation: mockDeleteEvaluation,
@@ -125,7 +125,7 @@ describe('ClientProfileHeader', () => {
   it('shows age calculated from dateOfBirth', () => {
     render(<ClientProfileHeader {...defaultProps} />)
     const expectedAge = new Date().getFullYear() - 1990
-    expect(screen.getByText(`yearsOld`)).toBeInTheDocument()
+    expect(screen.getByText(/yearsOld/)).toBeInTheDocument()
   })
 
   it('shows email and phone', () => {
@@ -137,9 +137,7 @@ describe('ClientProfileHeader', () => {
   it('avatar upload triggers onAvatarChange', async () => {
     const onAvatarChange = vi.fn()
     const ref = { current: null } as React.RefObject<HTMLInputElement | null>
-    render(
-      <ClientProfileHeader {...defaultProps} avatarInputRef={ref} onAvatarChange={onAvatarChange} />
-    )
+    render(<ClientProfileHeader {...defaultProps} avatarInputRef={ref} onAvatarChange={onAvatarChange} />)
     const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement
     expect(fileInput).toBeInTheDocument()
 
@@ -220,7 +218,7 @@ describe('EvaluationCard', () => {
 
   it('renders weight and date', () => {
     render(<EvaluationCard evaluation={baseEvaluation} />)
-    expect(screen.getByText('68kg')).toBeInTheDocument()
+    expect(screen.getByText(/68/)).toBeInTheDocument()
     // formatted date comes from the mock
     expect(screen.getByText(/formatted-date/)).toBeInTheDocument()
   })
@@ -236,7 +234,7 @@ describe('EvaluationCard', () => {
     expect(screen.queryByText('perimetersCm')).not.toBeInTheDocument()
 
     // Click the expandable area
-    const expandableArea = screen.getByText('68kg').closest('[class*="cursor-pointer"]')
+    const expandableArea = screen.getByText(/68/).closest('[class*="cursor-pointer"]')
     if (expandableArea) {
       await userEvent.click(expandableArea)
     }
@@ -441,30 +439,31 @@ describe('EvaluationModal', () => {
     vi.clearAllMocks()
   })
 
-  it('renders with empty fields for new evaluation', () => {
+  it('renders with empty fields for new evaluation', async () => {
     render(<EvaluationModal {...defaultProps} />)
     expect(screen.getByText('addEvaluation')).toBeInTheDocument()
-    // Vitals tab is active by default
+    await userEvent.click(screen.getByText(/vitals/))
     expect(screen.getByText('weightKg')).toBeInTheDocument()
   })
 
   it('tab switching works', async () => {
     render(<EvaluationModal {...defaultProps} />)
     // Switch to perimeters tab
-    await userEvent.click(screen.getByText('perimeters'))
+    await userEvent.click(screen.getByText(/perimeters/))
     expect(screen.getByText('perimeterLabel.chest')).toBeInTheDocument()
 
     // Switch to skinfolds tab
-    await userEvent.click(screen.getByText('skinfolds'))
+    await userEvent.click(screen.getByText(/skinfolds/))
     expect(screen.getByText('skinfoldLabel.triceps')).toBeInTheDocument()
 
     // Switch back to vitals
-    await userEvent.click(screen.getByText('vitals'))
+    await userEvent.click(screen.getByText(/vitals/))
     expect(screen.getByText('weightKg')).toBeInTheDocument()
   })
 
   it('submit calls onSave', async () => {
     render(<EvaluationModal {...defaultProps} />)
+    await userEvent.click(screen.getByText(/vitals/))
     // Weight is required — fill it in before submitting
     const weightInput = screen.getAllByRole('spinbutton')[0]
     await userEvent.type(weightInput, '70')
@@ -480,8 +479,9 @@ describe('EvaluationModal', () => {
     expect(defaultProps.onClose).toHaveBeenCalled()
   })
 
-  it('renders pre-filled when initialData is provided', () => {
+  it('renders pre-filled when initialData is provided', async () => {
     render(<EvaluationModal {...defaultProps} initialData={baseEvaluation} />)
+    await userEvent.click(screen.getByText(/vitals/))
     const weightInput = screen.getByDisplayValue('68')
     expect(weightInput).toBeInTheDocument()
   })

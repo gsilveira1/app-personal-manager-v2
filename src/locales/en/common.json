@@ -39,5 +39,13 @@
   "perMonth": "/mo",
   "durationMin": "{{minutes}} min",
   "selectLanguage": "Select language",
-  "weekAcronym": "wk"
+  "weekAcronym": "wk",
+  "pagination": {
+    "showing": "Showing {{start}} to {{end}} of {{total}} results",
+    "showingEmpty": "No results",
+    "itemsPerPage": "Per page",
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {{current}} of {{total}}"
+  }
 }

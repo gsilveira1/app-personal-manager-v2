@@ -51,9 +51,7 @@ describe('useClientDetails', () => {
   })
 
   it('returns empty arrays when clientId is undefined', () => {
-    const { result } = renderHook(() =>
-      useClientDetails(undefined, [], [], [], 'weight')
-    )
+    const { result } = renderHook(() => useClientDetails(undefined, [], [], [], 'weight'))
     expect(result.current.clientSessions).toEqual([])
     expect(result.current.clientEvaluations).toEqual([])
     expect(result.current.clientWorkouts).toEqual([])
@@ -67,9 +65,7 @@ describe('useClientDetails', () => {
     const evaluations = [makeEvaluation({ id: 'e1', date: '2025-06-10T10:00:00.000Z', clientId: OTHER_CLIENT })]
     const workouts = [makeWorkout({ id: 'w1', clientId: OTHER_CLIENT })]
 
-    const { result } = renderHook(() =>
-      useClientDetails(CLIENT_ID, sessions, evaluations, workouts, 'weight')
-    )
+    const { result } = renderHook(() => useClientDetails(CLIENT_ID, sessions, evaluations, workouts, 'weight'))
     expect(result.current.clientSessions).toEqual([])
     expect(result.current.clientEvaluations).toEqual([])
     expect(result.current.clientWorkouts).toEqual([])
@@ -83,9 +79,7 @@ describe('useClientDetails', () => {
         makeSession({ id: 's3', date: '2025-06-12T10:00:00.000Z', clientId: OTHER_CLIENT }), // wrong client
       ]
 
-      const { result } = renderHook(() =>
-        useClientDetails(CLIENT_ID, sessions, [], [], 'weight')
-      )
+      const { result } = renderHook(() => useClientDetails(CLIENT_ID, sessions, [], [], 'weight'))
       expect(result.current.clientSessions).toHaveLength(1)
       expect(result.current.clientSessions[0].id).toBe('s1')
     })
@@ -97,9 +91,7 @@ describe('useClientDetails', () => {
         makeSession({ id: 's3', date: '2025-06-10T10:00:00.000Z' }),
       ]
 
-      const { result } = renderHook(() =>
-        useClientDetails(CLIENT_ID, sessions, [], [], 'weight')
-      )
+      const { result } = renderHook(() => useClientDetails(CLIENT_ID, sessions, [], [], 'weight'))
       expect(result.current.clientSessions.map((s) => s.id)).toEqual(['s2', 's3', 's1'])
     })
   })
@@ -112,9 +104,7 @@ describe('useClientDetails', () => {
         makeEvaluation({ id: 'e3', date: '2025-02-01T00:00:00.000Z', clientId: OTHER_CLIENT }),
       ]
 
-      const { result } = renderHook(() =>
-        useClientDetails(CLIENT_ID, [], evaluations, [], 'weight')
-      )
+      const { result } = renderHook(() => useClientDetails(CLIENT_ID, [], evaluations, [], 'weight'))
       expect(result.current.clientEvaluations).toHaveLength(2)
       expect(result.current.clientEvaluations[0].id).toBe('e2')
       expect(result.current.clientEvaluations[1].id).toBe('e1')
@@ -129,9 +119,7 @@ describe('useClientDetails', () => {
         makeWorkout({ id: 'w3', clientId: OTHER_CLIENT, createdAt: '2025-02-01T00:00:00.000Z' }),
       ]
 
-      const { result } = renderHook(() =>
-        useClientDetails(CLIENT_ID, [], [], workouts, 'weight')
-      )
+      const { result } = renderHook(() => useClientDetails(CLIENT_ID, [], [], workouts, 'weight'))
       expect(result.current.clientWorkouts).toHaveLength(2)
       expect(result.current.clientWorkouts[0].id).toBe('w2')
       expect(result.current.clientWorkouts[1].id).toBe('w1')
@@ -146,26 +134,17 @@ describe('useClientDetails', () => {
         makeWorkout({ id: 'w3' }), // no status => treated as active
       ]
 
-      const { result } = renderHook(() =>
-        useClientDetails(CLIENT_ID, [], [], workouts, 'weight')
-      )
-      expect(result.current.activePlans.map((w) => w.id)).toEqual(
-        expect.arrayContaining(['w1', 'w3'])
-      )
+      const { result } = renderHook(() => useClientDetails(CLIENT_ID, [], [], workouts, 'weight'))
+      expect(result.current.activePlans.map((w) => w.id)).toEqual(expect.arrayContaining(['w1', 'w3']))
       expect(result.current.activePlans).toHaveLength(2)
       expect(result.current.archivedPlans).toHaveLength(1)
       expect(result.current.archivedPlans[0].id).toBe('w2')
     })
 
     it('returns all as active when none are archived', () => {
-      const workouts = [
-        makeWorkout({ id: 'w1', status: 'Active' }),
-        makeWorkout({ id: 'w2', status: 'Active' }),
-      ]
+      const workouts = [makeWorkout({ id: 'w1', status: 'Active' }), makeWorkout({ id: 'w2', status: 'Active' })]
 
-      const { result } = renderHook(() =>
-        useClientDetails(CLIENT_ID, [], [], workouts, 'weight')
-      )
+      const { result } = renderHook(() => useClientDetails(CLIENT_ID, [], [], workouts, 'weight'))
       expect(result.current.activePlans).toHaveLength(2)
       expect(result.current.archivedPlans).toHaveLength(0)
     })
@@ -173,14 +152,9 @@ describe('useClientDetails', () => {
 
   describe('chartData', () => {
     it('extracts top-level metric values', () => {
-      const evaluations = [
-        makeEvaluation({ id: 'e1', date: '2025-01-01T00:00:00.000Z', weight: 80 }),
-        makeEvaluation({ id: 'e2', date: '2025-02-01T00:00:00.000Z', weight: 78 }),
-      ]
+      const evaluations = [makeEvaluation({ id: 'e1', date: '2025-01-01T00:00:00.000Z', weight: 80 }), makeEvaluation({ id: 'e2', date: '2025-02-01T00:00:00.000Z', weight: 78 })]
 
-      const { result } = renderHook(() =>
-        useClientDetails(CLIENT_ID, [], evaluations, [], 'weight')
-      )
+      const { result } = renderHook(() => useClientDetails(CLIENT_ID, [], evaluations, [], 'weight'))
       // chartData is reversed from sorted-desc evaluations, so chronological order
       expect(result.current.chartData).toEqual([
         { date: 'formatted-MMM d', value: 80 },
@@ -202,9 +176,7 @@ describe('useClientDetails', () => {
         } as Partial<Evaluation> & { id: string; date: string }),
       ]
 
-      const { result } = renderHook(() =>
-        useClientDetails(CLIENT_ID, [], evaluations, [], 'perimeters.waist')
-      )
+      const { result } = renderHook(() => useClientDetails(CLIENT_ID, [], evaluations, [], 'perimeters.waist'))
       expect(result.current.chartData).toEqual([
         { date: 'formatted-MMM d', value: 85 },
         { date: 'formatted-MMM d', value: 82 },
@@ -220,12 +192,8 @@ describe('useClientDetails', () => {
         } as Partial<Evaluation> & { id: string; date: string }),
       ]
 
-      const { result } = renderHook(() =>
-        useClientDetails(CLIENT_ID, [], evaluations, [], 'skinfolds.triceps')
-      )
-      expect(result.current.chartData).toEqual([
-        { date: 'formatted-MMM d', value: 12 },
-      ])
+      const { result } = renderHook(() => useClientDetails(CLIENT_ID, [], evaluations, [], 'skinfolds.triceps'))
+      expect(result.current.chartData).toEqual([{ date: 'formatted-MMM d', value: 12 }])
     })
 
     it('filters out evaluations where metric value is undefined', () => {
@@ -239,9 +207,7 @@ describe('useClientDetails', () => {
         } as Partial<Evaluation> & { id: string; date: string }),
       ]
 
-      const { result } = renderHook(() =>
-        useClientDetails(CLIENT_ID, [], evaluations, [], 'perimeters.waist')
-      )
+      const { result } = renderHook(() => useClientDetails(CLIENT_ID, [], evaluations, [], 'perimeters.waist'))
       // Neither evaluation has perimeters.waist as a number, only e1 has no perimeters at all
       expect(result.current.chartData).toEqual([])
     })
@@ -249,9 +215,7 @@ describe('useClientDetails', () => {
 
   describe('chartableMetrics', () => {
     it('returns the chartableMetrics constant with expected keys', () => {
-      const { result } = renderHook(() =>
-        useClientDetails(CLIENT_ID, [], [], [], 'weight')
-      )
+      const { result } = renderHook(() => useClientDetails(CLIENT_ID, [], [], [], 'weight'))
       const metrics = result.current.chartableMetrics
       expect(metrics).toHaveProperty('weight')
       expect(metrics).toHaveProperty('bodyFatPercentage')

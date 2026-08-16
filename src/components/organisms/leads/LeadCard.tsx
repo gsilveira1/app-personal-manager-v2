@@ -25,9 +25,7 @@ export const LeadCard: React.FC<LeadCardProps> = ({ client, stage, onClick }) =>
     >
       {/* Avatar + name */}
       <div className="flex items-center gap-3 mb-3">
-        <div className="h-9 w-9 rounded-full bg-indigo-100 text-indigo-700 font-bold text-sm flex items-center justify-center flex-shrink-0">
-          {client.name.charAt(0).toUpperCase()}
-        </div>
+        <div className="h-9 w-9 rounded-full bg-indigo-100 text-indigo-700 font-bold text-sm flex items-center justify-center flex-shrink-0">{client.name.charAt(0).toUpperCase()}</div>
         <div className="flex-1 min-w-0">
           <p className="font-semibold text-slate-900 text-sm truncate">{client.name}</p>
           {created && <p className="text-xs text-slate-400">{daysAgo(created, t)}</p>}

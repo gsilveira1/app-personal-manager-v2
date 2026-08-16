@@ -31,10 +31,7 @@ function createMockDragEvent(overrides: Record<string, unknown> = {}): React.Dra
 describe('useScheduleDragDrop', () => {
   let updateSessionMock: ReturnType<typeof vi.fn>
 
-  const sessions: Session[] = [
-    makeSession({ id: 's1', date: '2025-06-15T14:30:00.000Z' }),
-    makeSession({ id: 's2', date: '2025-06-16T09:00:00.000Z' }),
-  ]
+  const sessions: Session[] = [makeSession({ id: 's1', date: '2025-06-15T14:30:00.000Z' }), makeSession({ id: 's2', date: '2025-06-16T09:00:00.000Z' })]
 
   beforeEach(() => {
     updateSessionMock = vi.fn()

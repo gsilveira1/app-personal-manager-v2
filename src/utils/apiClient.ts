@@ -42,7 +42,7 @@ const apiClient = async <T>(endpoint: string, options: RequestInit = {}): Promis
       let errorData
       try {
         errorData = await response.json()
-      } catch (e) {
+      } catch (_e) {
         errorData = { message: response.statusText }
       }
 

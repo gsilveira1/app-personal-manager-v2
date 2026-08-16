@@ -1,15 +1,20 @@
 import React from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { useTranslation } from 'react-i18next'
-
 import { Card, Label, Select } from '../../atoms'
 
-interface ChartDataPoint {
+export interface ChartDataPoint {
   date: string
-  value: number | undefined
+  value: number
 }
 
-interface ChartableMetric {
+export interface ChartableMetric {
+  label: string
+  unit: string
+}
+
+export interface ChartableMetricItem {
+  id: string
   label: string
   unit: string
 }
@@ -18,29 +23,28 @@ interface ProgressChartProps {
   chartData: ChartDataPoint[]
   selectedMetric: string
   onMetricChange: (metric: string) => void
-  chartableMetrics: Record<string, ChartableMetric>
+  chartableMetrics: ChartableMetricItem[] | Record<string, ChartableMetric>
 }
 
-export const ProgressChart: React.FC<ProgressChartProps> = ({
-  chartData,
-  selectedMetric,
-  onMetricChange,
-  chartableMetrics,
-}) => {
+export const ProgressChart: React.FC<ProgressChartProps> = ({ chartData, selectedMetric, onMetricChange, chartableMetrics }) => {
   const { t } = useTranslation('clients')
+
+  const metricList = Array.isArray(chartableMetrics)
+    ? chartableMetrics.map((m) => ({ key: m.id, label: m.label, unit: m.unit }))
+    : Object.entries(chartableMetrics).map(([key, m]) => ({ key, label: m.label, unit: m.unit }))
+
+  const currentMetric = metricList.find((m) => m.key === selectedMetric) || metricList[0]
 
   return (
     <Card className="p-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
-        <h4 className="text-sm font-medium text-slate-500 whitespace-nowrap">
-          {chartableMetrics[selectedMetric].label} Progression ({chartableMetrics[selectedMetric].unit})
-        </h4>
+        <h4 className="text-sm font-medium text-slate-500 whitespace-nowrap">{currentMetric ? `${currentMetric.label} Progression (${currentMetric.unit})` : ''}</h4>
         <div className="w-full sm:w-56">
           <Label htmlFor="metric-select" className="sr-only">
             {t('selectMetric')}
           </Label>
           <Select id="metric-select" value={selectedMetric} onChange={(e) => onMetricChange(e.target.value)}>
-            {Object.entries(chartableMetrics).map(([key, { label, unit }]) => (
+            {metricList.map(({ key, label, unit }) => (
               <option key={key} value={key}>
                 {label} ({unit})
               </option>

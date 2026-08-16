@@ -6,7 +6,7 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }))
 
-vi.mock('../../../services/apiService', () => ({
+vi.mock('../../../services/api/apiService', () => ({
   getSystemFeatures: vi.fn(),
   createSystemFeature: vi.fn(),
   updateSystemFeature: vi.fn(),
@@ -17,7 +17,7 @@ import { PlanCard } from './PlanCard'
 import { PlanEditorModal } from './PlanEditorModal'
 import { FeatureEditorModal } from './FeatureEditorModal'
 import { SystemFeaturesSection } from './SystemFeaturesSection'
-import * as api from '../../../services/apiService'
+import * as api from '../../../services/api/apiService'
 import type { Plan, SystemFeature } from '../../../types'
 
 // ---------------------------------------------------------------------------
@@ -113,10 +113,7 @@ describe('PlanCard', () => {
 // PlanEditorModal
 // ===========================================================================
 describe('PlanEditorModal', () => {
-  const availableFeatures: SystemFeature[] = [
-    makeFeature(),
-    makeFeature({ id: 'feat-2', key: 'app_access', name: 'Acesso ao App' }),
-  ]
+  const availableFeatures: SystemFeature[] = [makeFeature(), makeFeature({ id: 'feat-2', key: 'app_access', name: 'Acesso ao App' })]
 
   const defaultProps = {
     isOpen: true,
@@ -251,20 +248,13 @@ describe('FeatureEditorModal', () => {
 // SystemFeaturesSection
 // ===========================================================================
 describe('SystemFeaturesSection', () => {
-  const features: SystemFeature[] = [
-    makeFeature(),
-    makeFeature({ id: 'feat-2', key: 'app_access', name: 'Acesso ao App', isActive: false }),
-  ]
+  const features: SystemFeature[] = [makeFeature(), makeFeature({ id: 'feat-2', key: 'app_access', name: 'Acesso ao App', isActive: false })]
 
   beforeEach(() => {
     vi.clearAllMocks()
     vi.mocked(api.getSystemFeatures).mockResolvedValue(features)
-    vi.mocked(api.createSystemFeature).mockResolvedValue(
-      makeFeature({ id: 'feat-new', key: 'new_feat', name: 'Nova Feature' })
-    )
-    vi.mocked(api.updateSystemFeature).mockResolvedValue(
-      makeFeature({ isActive: false })
-    )
+    vi.mocked(api.createSystemFeature).mockResolvedValue(makeFeature({ id: 'feat-new', key: 'new_feat', name: 'Nova Feature' }))
+    vi.mocked(api.updateSystemFeature).mockResolvedValue(makeFeature({ isActive: false }))
     vi.mocked(api.deleteSystemFeature).mockResolvedValue(undefined as any)
   })
 
@@ -289,9 +279,7 @@ describe('SystemFeaturesSection', () => {
     // Wait for features to load
     await screen.findByText('Nutrição')
     // Find toggle buttons (the rounded-full switch buttons)
-    const toggleButtons = screen.getAllByRole('button').filter(
-      (b) => b.className.includes('rounded-full') && b.className.includes('transition-colors')
-    )
+    const toggleButtons = screen.getAllByRole('button').filter((b) => b.className.includes('rounded-full') && b.className.includes('transition-colors'))
     expect(toggleButtons.length).toBeGreaterThan(0)
     await user.click(toggleButtons[0])
     expect(api.updateSystemFeature).toHaveBeenCalledWith('feat-1', { isActive: false })
@@ -313,9 +301,7 @@ describe('SystemFeaturesSection', () => {
     render(<SystemFeaturesSection />)
     await screen.findByText('Nutrição')
     // Find delete buttons (Trash2 icon buttons)
-    const deleteButtons = screen.getAllByRole('button').filter(
-      (b) => b.querySelector('.lucide-trash-2')
-    )
+    const deleteButtons = screen.getAllByRole('button').filter((b) => b.querySelector('.lucide-trash-2'))
     expect(deleteButtons.length).toBeGreaterThan(0)
     await user.click(deleteButtons[0])
     expect(confirmSpy).toHaveBeenCalledWith('deleteFeatureConfirm')
@@ -328,9 +314,7 @@ describe('SystemFeaturesSection', () => {
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false)
     render(<SystemFeaturesSection />)
     await screen.findByText('Nutrição')
-    const deleteButtons = screen.getAllByRole('button').filter(
-      (b) => b.querySelector('.lucide-trash-2')
-    )
+    const deleteButtons = screen.getAllByRole('button').filter((b) => b.querySelector('.lucide-trash-2'))
     await user.click(deleteButtons[0])
     expect(confirmSpy).toHaveBeenCalled()
     expect(api.deleteSystemFeature).not.toHaveBeenCalled()
@@ -342,9 +326,7 @@ describe('SystemFeaturesSection', () => {
     vi.spyOn(window, 'confirm').mockReturnValue(true)
     render(<SystemFeaturesSection />)
     await screen.findByText('Nutrição')
-    const deleteButtons = screen.getAllByRole('button').filter(
-      (b) => b.querySelector('.lucide-trash-2')
-    )
+    const deleteButtons = screen.getAllByRole('button').filter((b) => b.querySelector('.lucide-trash-2'))
     await user.click(deleteButtons[0])
     await waitFor(() => {
       expect(screen.queryByText('Nutrição')).not.toBeInTheDocument()
@@ -360,9 +342,7 @@ describe('SystemFeaturesSection', () => {
     vi.mocked(api.deleteSystemFeature).mockRejectedValueOnce(new Error('Network error'))
     render(<SystemFeaturesSection />)
     await screen.findByText('Nutrição')
-    const deleteButtons = screen.getAllByRole('button').filter(
-      (b) => b.querySelector('.lucide-trash-2')
-    )
+    const deleteButtons = screen.getAllByRole('button').filter((b) => b.querySelector('.lucide-trash-2'))
     await user.click(deleteButtons[0])
     await waitFor(() => {
       expect(consoleSpy).toHaveBeenCalledWith('Failed to delete system feature:', expect.any(Error))
@@ -376,17 +356,13 @@ describe('SystemFeaturesSection', () => {
     vi.mocked(api.updateSystemFeature).mockResolvedValueOnce(updatedFeature)
     render(<SystemFeaturesSection />)
     await screen.findByText('Nutrição')
-    const toggleButtons = screen.getAllByRole('button').filter(
-      (b) => b.className.includes('rounded-full') && b.className.includes('transition-colors')
-    )
+    const toggleButtons = screen.getAllByRole('button').filter((b) => b.className.includes('rounded-full') && b.className.includes('transition-colors'))
     // First toggle is for feat-1 (active, bg-green-500)
     expect(toggleButtons[0].className).toContain('bg-green-500')
     await user.click(toggleButtons[0])
     await waitFor(() => {
       // After toggle, the button should reflect inactive state
-      const updatedToggles = screen.getAllByRole('button').filter(
-        (b) => b.className.includes('rounded-full') && b.className.includes('transition-colors')
-      )
+      const updatedToggles = screen.getAllByRole('button').filter((b) => b.className.includes('rounded-full') && b.className.includes('transition-colors'))
       expect(updatedToggles[0].className).toContain('bg-slate-300')
     })
   })
@@ -397,9 +373,7 @@ describe('SystemFeaturesSection', () => {
     vi.mocked(api.updateSystemFeature).mockRejectedValueOnce(new Error('Toggle error'))
     render(<SystemFeaturesSection />)
     await screen.findByText('Nutrição')
-    const toggleButtons = screen.getAllByRole('button').filter(
-      (b) => b.className.includes('rounded-full') && b.className.includes('transition-colors')
-    )
+    const toggleButtons = screen.getAllByRole('button').filter((b) => b.className.includes('rounded-full') && b.className.includes('transition-colors'))
     await user.click(toggleButtons[0])
     await waitFor(() => {
       expect(consoleSpy).toHaveBeenCalledWith('Failed to toggle system feature:', expect.any(Error))
@@ -412,9 +386,7 @@ describe('SystemFeaturesSection', () => {
     render(<SystemFeaturesSection />)
     await screen.findByText('Nutrição')
     // Find ghost variant buttons that are 7x7 (edit/delete buttons come in pairs per feature)
-    const ghostButtons = screen.getAllByRole('button').filter(
-      (b) => b.className.includes('h-7') && b.className.includes('w-7')
-    )
+    const ghostButtons = screen.getAllByRole('button').filter((b) => b.className.includes('h-7') && b.className.includes('w-7'))
     // Edit buttons are the odd-indexed (first of each pair)
     expect(ghostButtons.length).toBeGreaterThanOrEqual(2)
     await user.click(ghostButtons[0])
@@ -455,9 +427,7 @@ describe('SystemFeaturesSection', () => {
     render(<SystemFeaturesSection />)
     await screen.findByText('Nutrição')
     // Open edit modal for first feature using ghost buttons
-    const ghostButtons = screen.getAllByRole('button').filter(
-      (b) => b.className.includes('h-7') && b.className.includes('w-7')
-    )
+    const ghostButtons = screen.getAllByRole('button').filter((b) => b.className.includes('h-7') && b.className.includes('w-7'))
     await user.click(ghostButtons[0])
     // Change the name
     const nameInput = screen.getByLabelText('featureName') as HTMLInputElement

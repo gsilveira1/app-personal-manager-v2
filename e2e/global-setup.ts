@@ -19,7 +19,7 @@ setup('authenticate', async ({ page }) => {
       localStorage.setItem('token', token)
       localStorage.setItem('user', JSON.stringify(userData))
     },
-    { token: access_token, userData: user },
+    { token: access_token, userData: user }
   )
 
   // 4. Save storage state for reuse by all authenticated tests

@@ -5,5 +5,5 @@
   "workouts": "Entrenamientos",
   "leads": "Prospectos",
   "settings": "Configuración",
-  "welcomeSubtitle": "Bienvenido de nuevo, Coach Alex. Aquí está tu resumen del día."
+  "welcomeSubtitle": "Bienvenido de nuevo, {{user}}. Aquí está tu resumen del día."
 }
