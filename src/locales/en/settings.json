@@ -69,5 +69,17 @@
   "enablePostureAnalysis": "Posture Photo Analysis",
   "enablePostureAnalysisDesc": "Experimental computer vision feature for posture evaluation support.",
   "saveProfile": "Save Profile",
-  "saveAppFeatures": "Save App Settings"
+  "saveAppFeatures": "Save App Settings",
+  "workHoursTitle": "Schedule Settings",
+  "workHoursSubtitle": "Set your working hours for each day of the week.",
+  "slotDuration": "Slot Duration",
+  "enabled": "Enabled",
+  "saving": "Saving...",
+  "tabs": {
+    "profile": "Trainer Profile",
+    "schedule": "Schedule Settings",
+    "features": "App & System Features",
+    "ai": "AI Settings & Instructions",
+    "plans": "Service Plans"
+  }
 }

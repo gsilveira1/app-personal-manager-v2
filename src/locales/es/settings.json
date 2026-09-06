@@ -69,5 +69,17 @@
   "enablePostureAnalysis": "Análisis de Postura por Foto",
   "enablePostureAnalysisDesc": "Función experimental de visión por computadora para apoyo en evaluación.",
   "saveProfile": "Guardar Perfil",
-  "saveAppFeatures": "Guardar Configuración de la App"
+  "saveAppFeatures": "Guardar Configuración de la App",
+  "workHoursTitle": "Configuración de Horario",
+  "workHoursSubtitle": "Define los horarios de atención para cada día de la semana.",
+  "slotDuration": "Duración del Intervalo",
+  "enabled": "Activo",
+  "saving": "Guardando...",
+  "tabs": {
+    "profile": "Perfil del Entrenador",
+    "schedule": "Configuración de Horario",
+    "features": "Funcionalidades App y Sistema",
+    "ai": "Configuración e Instrucciones de IA",
+    "plans": "Planes de Servicio"
+  }
 }

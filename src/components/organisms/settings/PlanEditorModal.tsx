@@ -6,8 +6,20 @@ import { type Plan, type SystemFeature } from '../../../types'
 import { Button, Input, Label, Select } from '../../atoms'
 import { ModalShell } from '../../molecules'
 
-const defaultPresencial = { type: 'PRESENCIAL' as const, name: '', sessionsPerWeek: 2, durationMinutes: 60, price: 400 }
-const defaultConsultoria = { type: 'CONSULTORIA' as const, name: '', sessionsPerWeek: 1, durationMinutes: undefined, price: 150 }
+const defaultPresencial = {
+  type: 'PRESENCIAL' as const,
+  name: '',
+  sessionsPerWeek: 2,
+  durationMinutes: 60,
+  price: 400,
+}
+const defaultConsultoria = {
+  type: 'CONSULTORIA' as const,
+  name: '',
+  sessionsPerWeek: 1,
+  durationMinutes: undefined,
+  price: 150,
+}
 
 interface PlanEditorModalProps {
   isOpen: boolean
