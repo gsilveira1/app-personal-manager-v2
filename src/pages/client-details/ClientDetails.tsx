@@ -26,7 +26,12 @@ export const ClientDetails = () => {
   const [isEditingNotes, setIsEditingNotes] = useState(false)
   const [isEditingMedicalHistory, setIsEditingMedicalHistory] = useState(false)
   const [notesBuffer, setNotesBuffer] = useState('')
-  const [medicalHistoryBuffer, setMedicalHistoryBuffer] = useState<MedicalHistory>({ objective: [''], injuries: '', surgeries: '', medications: '' })
+  const [medicalHistoryBuffer, setMedicalHistoryBuffer] = useState<MedicalHistory>({
+    objective: [''],
+    injuries: '',
+    surgeries: '',
+    medications: '',
+  })
   const [selectedMetric, setSelectedMetric] = useState<string>('weight')
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
   const avatarInputRef = useRef<HTMLInputElement>(null)

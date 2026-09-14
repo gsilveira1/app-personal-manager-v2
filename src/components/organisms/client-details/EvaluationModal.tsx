@@ -102,7 +102,10 @@ export const EvaluationModal: React.FC<EvaluationModalProps> = ({ clientId, onCl
   const handleNumericChange = (key: keyof Evaluation, value: string) => setData((d) => ({ ...d, [key]: value === '' ? undefined : parseFloat(value) }))
 
   const handleNestedChange = (category: 'perimeters' | 'skinfolds', key: string, value: string) =>
-    setData((d) => ({ ...d, [category]: { ...d[category], [key]: value === '' ? undefined : parseFloat(value) } }))
+    setData((d) => ({
+      ...d,
+      [category]: { ...d[category], [key]: value === '' ? undefined : parseFloat(value) },
+    }))
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">

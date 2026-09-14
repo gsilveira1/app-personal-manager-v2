@@ -9,7 +9,17 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }))
 
-const mockSessions = [{ id: 's1', clientId: 'c1', date: new Date().toISOString(), durationMinutes: 60, type: 'In-Person' as const, category: 'Workout' as const, completed: false }]
+const mockSessions = [
+  {
+    id: 's1',
+    clientId: 'c1',
+    date: new Date().toISOString(),
+    durationMinutes: 60,
+    type: 'In-Person' as const,
+    category: 'Workout' as const,
+    completed: false,
+  },
+]
 
 vi.mock('../../states/stores/store', () => ({
   useStore: () => ({

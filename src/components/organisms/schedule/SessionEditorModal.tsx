@@ -68,7 +68,12 @@ const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurringEvent, 
     const conflictingSession = isTimeSlotTaken(sessions, combinedDate, Number(formData.durationMinutes), sessionToEdit?.id)
     if (conflictingSession) {
       const conflictClientName = clients.find((c: any) => c.id === conflictingSession.clientId)?.name || t('aClient')
-      setError(t('timeConflict', { clientName: conflictClientName, time: formatLocalized(parseISO(conflictingSession.date), 'h:mm a') }))
+      setError(
+        t('timeConflict', {
+          clientName: conflictClientName,
+          time: formatLocalized(parseISO(conflictingSession.date), 'h:mm a'),
+        })
+      )
       return
     }
 

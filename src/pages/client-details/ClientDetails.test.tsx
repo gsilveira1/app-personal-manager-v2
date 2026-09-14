@@ -57,14 +57,59 @@ vi.mock('../../states/stores/store', () => ({
   }),
 }))
 
-const mockSession = { id: 's1', clientId: 'c1', date: '2024-01-15T10:00:00.000Z', durationMinutes: 60, type: 'In-Person', category: 'Workout', completed: true, notes: 'Great session' }
-const mockSessionIncomplete = { id: 's2', clientId: 'c1', date: '2024-01-14T10:00:00.000Z', durationMinutes: 45, type: 'Online', category: 'Check-in', completed: false }
+const mockSession = {
+  id: 's1',
+  clientId: 'c1',
+  date: '2024-01-15T10:00:00.000Z',
+  durationMinutes: 60,
+  type: 'In-Person',
+  category: 'Workout',
+  completed: true,
+  notes: 'Great session',
+}
+const mockSessionIncomplete = {
+  id: 's2',
+  clientId: 'c1',
+  date: '2024-01-14T10:00:00.000Z',
+  durationMinutes: 45,
+  type: 'Online',
+  category: 'Check-in',
+  completed: false,
+}
 
-const mockEvaluation = { id: 'e1', clientId: 'c1', date: '2024-01-10T00:00:00.000Z', weight: 75, bodyFatPercentage: 15 }
-const mockEvaluation2 = { id: 'e2', clientId: 'c1', date: '2024-01-20T00:00:00.000Z', weight: 73, bodyFatPercentage: 14 }
+const mockEvaluation = {
+  id: 'e1',
+  clientId: 'c1',
+  date: '2024-01-10T00:00:00.000Z',
+  weight: 75,
+  bodyFatPercentage: 15,
+}
+const mockEvaluation2 = {
+  id: 'e2',
+  clientId: 'c1',
+  date: '2024-01-20T00:00:00.000Z',
+  weight: 73,
+  bodyFatPercentage: 14,
+}
 
-const mockActiveWorkout = { id: 'w1', clientId: 'c1', title: 'Push Day', status: 'Active', exercises: [], tags: [], createdAt: '2024-01-01T00:00:00.000Z' }
-const mockArchivedWorkout = { id: 'w2', clientId: 'c1', title: 'Old Plan', status: 'Archived', exercises: [], tags: [], createdAt: '2023-06-01T00:00:00.000Z' }
+const mockActiveWorkout = {
+  id: 'w1',
+  clientId: 'c1',
+  title: 'Push Day',
+  status: 'Active',
+  exercises: [],
+  tags: [],
+  createdAt: '2024-01-01T00:00:00.000Z',
+}
+const mockArchivedWorkout = {
+  id: 'w2',
+  clientId: 'c1',
+  title: 'Old Plan',
+  status: 'Archived',
+  exercises: [],
+  tags: [],
+  createdAt: '2023-06-01T00:00:00.000Z',
+}
 
 let mockHookReturn: any = {
   clientSessions: [],
@@ -277,7 +322,11 @@ describe('ClientDetails', () => {
   })
 
   it('shows active and archived workout cards', () => {
-    mockHookReturn = { ...mockHookReturn, activePlans: [mockActiveWorkout], archivedPlans: [mockArchivedWorkout] }
+    mockHookReturn = {
+      ...mockHookReturn,
+      activePlans: [mockActiveWorkout],
+      archivedPlans: [mockArchivedWorkout],
+    }
     renderPage()
     fireEvent.click(screen.getByText('prescriptions'))
     expect(screen.getByText('Push Day')).toBeInTheDocument()

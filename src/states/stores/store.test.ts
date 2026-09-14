@@ -138,10 +138,23 @@ describe('store async actions', () => {
 
   describe('addClient', () => {
     it('should call createClient API and add to store', async () => {
-      const newClient = { id: 'new-1', name: 'João', email: 'joao@test.com', phone: '123', status: 'Active', type: 'In-Person' }
+      const newClient = {
+        id: 'new-1',
+        name: 'João',
+        email: 'joao@test.com',
+        phone: '123',
+        status: 'Active',
+        type: 'In-Person',
+      }
       mockApi.createClient.mockResolvedValue(newClient)
 
-      await useStore.getState().addClient({ name: 'João', email: 'joao@test.com', phone: '123', status: 'Active', type: 'In-Person' } as any)
+      await useStore.getState().addClient({
+        name: 'João',
+        email: 'joao@test.com',
+        phone: '123',
+        status: 'Active',
+        type: 'In-Person',
+      } as any)
 
       expect(mockApi.createClient).toHaveBeenCalled()
       expect(useStore.getState().clients).toHaveLength(1)
@@ -151,7 +164,14 @@ describe('store async actions', () => {
 
   describe('updateClient', () => {
     it('should call updateClient API and update in store', async () => {
-      const client = { id: '1', name: 'Maria', email: 'maria@test.com', phone: '123', status: 'Active', type: 'In-Person' }
+      const client = {
+        id: '1',
+        name: 'Maria',
+        email: 'maria@test.com',
+        phone: '123',
+        status: 'Active',
+        type: 'In-Person',
+      }
       useStore.setState({ clients: [client] as any })
 
       const updated = { ...client, name: 'Maria Santos' }
@@ -190,10 +210,24 @@ describe('store async actions', () => {
 
   describe('addSession', () => {
     it('should call createSession API and add to store', async () => {
-      const session = { id: 'sess-1', clientId: 'c1', date: '2025-02-01', durationMinutes: 60, type: 'In-Person', category: 'Workout', completed: false }
+      const session = {
+        id: 'sess-1',
+        clientId: 'c1',
+        date: '2025-02-01',
+        durationMinutes: 60,
+        type: 'In-Person',
+        category: 'Workout',
+        completed: false,
+      }
       mockApi.createSession.mockResolvedValue(session)
 
-      await useStore.getState().addSession({ clientId: 'c1', date: '2025-02-01', durationMinutes: 60, type: 'In-Person', category: 'Workout' } as any)
+      await useStore.getState().addSession({
+        clientId: 'c1',
+        date: '2025-02-01',
+        durationMinutes: 60,
+        type: 'In-Person',
+        category: 'Workout',
+      } as any)
 
       expect(useStore.getState().sessions).toHaveLength(1)
     })
@@ -305,7 +339,10 @@ describe('store async actions', () => {
   describe('uploadClientAvatar', () => {
     it('should get upload URL, upload file, and update client', async () => {
       useStore.setState({ clients: [{ id: 'c1', name: 'Test' }] as any })
-      mockApi.getAvatarUploadUrl.mockResolvedValue({ uploadUrl: 'https://upload.url', publicUrl: 'https://public.url' })
+      mockApi.getAvatarUploadUrl.mockResolvedValue({
+        uploadUrl: 'https://upload.url',
+        publicUrl: 'https://public.url',
+      })
       mockApi.updateClient.mockResolvedValue({ id: 'c1', name: 'Test', avatar: 'https://public.url' })
 
       const file = new File(['img'], 'avatar.jpg', { type: 'image/jpeg' })
@@ -373,7 +410,9 @@ describe('store async actions', () => {
     })
 
     it('should not filter sessions when not cancelled', async () => {
-      useStore.setState({ sessions: [{ id: 's1', recurringEventId: 're1', originalStartTime: '2025-01-01' }] as any })
+      useStore.setState({
+        sessions: [{ id: 's1', recurringEventId: 're1', originalStartTime: '2025-01-01' }] as any,
+      })
       mockApi.upsertSessionException.mockResolvedValue({ id: 'se1' })
 
       await useStore.getState().upsertSessionException({

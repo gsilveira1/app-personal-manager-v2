@@ -26,7 +26,13 @@ export const AddClientModal: React.FC<AddClientModalProps> = ({ onClose, onSave 
   const [isCustomPlan, setIsCustomPlan] = useState(false)
   const [showMedical, setShowMedical] = useState(false)
 
-  const [customPlan, setCustomPlan] = useState<Omit<Plan, 'id'>>({ type: 'PRESENCIAL', name: '', sessionsPerWeek: 2, durationMinutes: 60, price: 400 })
+  const [customPlan, setCustomPlan] = useState<Omit<Plan, 'id'>>({
+    type: 'PRESENCIAL',
+    name: '',
+    sessionsPerWeek: 2,
+    durationMinutes: 60,
+    price: 400,
+  })
 
   const handleCustomPlanChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target

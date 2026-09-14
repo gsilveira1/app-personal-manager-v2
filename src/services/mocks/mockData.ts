@@ -9,9 +9,32 @@ const today = new Date()
 
 // --- Plans ---
 export const plans: Plan[] = [
-  { id: 'plan1', type: 'PRESENCIAL', name: 'Starter 2x/sem (60min)', sessionsPerWeek: 2, durationMinutes: 60, price: 400, active: true },
-  { id: 'plan2', type: 'CONSULTORIA', name: 'Acompanhamento Online Semanal', sessionsPerWeek: 1, price: 150, active: true },
-  { id: 'plan3', type: 'PRESENCIAL', name: 'Elite 4x/sem (60min)', sessionsPerWeek: 4, durationMinutes: 60, price: 750, active: true },
+  {
+    id: 'plan1',
+    type: 'PRESENCIAL',
+    name: 'Starter 2x/sem (60min)',
+    sessionsPerWeek: 2,
+    durationMinutes: 60,
+    price: 400,
+    active: true,
+  },
+  {
+    id: 'plan2',
+    type: 'CONSULTORIA',
+    name: 'Acompanhamento Online Semanal',
+    sessionsPerWeek: 1,
+    price: 150,
+    active: true,
+  },
+  {
+    id: 'plan3',
+    type: 'PRESENCIAL',
+    name: 'Elite 4x/sem (60min)',
+    sessionsPerWeek: 4,
+    durationMinutes: 60,
+    price: 750,
+    active: true,
+  },
 ]
 
 // --- Clients ---
@@ -69,20 +92,104 @@ export const clients: Client[] = [
 // --- Sessions ---
 export const sessions: Session[] = [
   // Eleanor (client1)
-  { id: 'sess1', clientId: 'client1', date: formatISO(subDays(today, 15)), durationMinutes: 60, type: 'In-Person', category: 'Workout', completed: true, recurrenceId: 'rec1' },
-  { id: 'sess2', clientId: 'client1', date: formatISO(subDays(today, 8)), durationMinutes: 60, type: 'In-Person', category: 'Workout', completed: true, recurrenceId: 'rec1' },
-  { id: 'sess3', clientId: 'client1', date: formatISO(subDays(today, 1)), durationMinutes: 60, type: 'In-Person', category: 'Workout', completed: true, recurrenceId: 'rec1' },
-  { id: 'sess4', clientId: 'client1', date: formatISO(addDays(today, 6)), durationMinutes: 60, type: 'In-Person', category: 'Workout', completed: false, recurrenceId: 'rec1' },
-  { id: 'sess5', clientId: 'client1', date: new Date(today.setHours(10, 0, 0, 0)).toISOString(), durationMinutes: 60, type: 'In-Person', category: 'Workout', completed: false },
+  {
+    id: 'sess1',
+    clientId: 'client1',
+    date: formatISO(subDays(today, 15)),
+    durationMinutes: 60,
+    type: 'In-Person',
+    category: 'Workout',
+    completed: true,
+    recurrenceId: 'rec1',
+  },
+  {
+    id: 'sess2',
+    clientId: 'client1',
+    date: formatISO(subDays(today, 8)),
+    durationMinutes: 60,
+    type: 'In-Person',
+    category: 'Workout',
+    completed: true,
+    recurrenceId: 'rec1',
+  },
+  {
+    id: 'sess3',
+    clientId: 'client1',
+    date: formatISO(subDays(today, 1)),
+    durationMinutes: 60,
+    type: 'In-Person',
+    category: 'Workout',
+    completed: true,
+    recurrenceId: 'rec1',
+  },
+  {
+    id: 'sess4',
+    clientId: 'client1',
+    date: formatISO(addDays(today, 6)),
+    durationMinutes: 60,
+    type: 'In-Person',
+    category: 'Workout',
+    completed: false,
+    recurrenceId: 'rec1',
+  },
+  {
+    id: 'sess5',
+    clientId: 'client1',
+    date: new Date(today.setHours(10, 0, 0, 0)).toISOString(),
+    durationMinutes: 60,
+    type: 'In-Person',
+    category: 'Workout',
+    completed: false,
+  },
 
   // Marcus (client2)
-  { id: 'sess6', clientId: 'client2', date: formatISO(subDays(today, 10)), durationMinutes: 30, type: 'Online', category: 'Check-in', completed: true },
-  { id: 'sess7', clientId: 'client2', date: new Date(today.setHours(14, 30, 0, 0)).toISOString(), durationMinutes: 30, type: 'Online', category: 'Check-in', completed: false },
-  { id: 'sess8', clientId: 'client2', date: formatISO(addDays(today, 4)), durationMinutes: 30, type: 'Online', category: 'Check-in', completed: false },
+  {
+    id: 'sess6',
+    clientId: 'client2',
+    date: formatISO(subDays(today, 10)),
+    durationMinutes: 30,
+    type: 'Online',
+    category: 'Check-in',
+    completed: true,
+  },
+  {
+    id: 'sess7',
+    clientId: 'client2',
+    date: new Date(today.setHours(14, 30, 0, 0)).toISOString(),
+    durationMinutes: 30,
+    type: 'Online',
+    category: 'Check-in',
+    completed: false,
+  },
+  {
+    id: 'sess8',
+    clientId: 'client2',
+    date: formatISO(addDays(today, 4)),
+    durationMinutes: 30,
+    type: 'Online',
+    category: 'Check-in',
+    completed: false,
+  },
 
   // Sofia (client3 - inactive, past sessions)
-  { id: 'sess9', clientId: 'client3', date: formatISO(subDays(today, 40)), durationMinutes: 60, type: 'In-Person', category: 'Workout', completed: true },
-  { id: 'sess10', clientId: 'client3', date: formatISO(subDays(today, 33)), durationMinutes: 60, type: 'In-Person', category: 'Workout', completed: true },
+  {
+    id: 'sess9',
+    clientId: 'client3',
+    date: formatISO(subDays(today, 40)),
+    durationMinutes: 60,
+    type: 'In-Person',
+    category: 'Workout',
+    completed: true,
+  },
+  {
+    id: 'sess10',
+    clientId: 'client3',
+    date: formatISO(subDays(today, 33)),
+    durationMinutes: 60,
+    type: 'In-Person',
+    category: 'Workout',
+    completed: true,
+  },
 ]
 
 // --- Workouts ---

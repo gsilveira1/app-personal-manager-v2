@@ -30,7 +30,14 @@ describe('clientStore', () => {
   })
 
   it('should manage clients state correctly (sync)', () => {
-    const client = { id: '1', name: 'Maria', email: 'maria@test.com', phone: '123', status: 'Active' as const, type: 'In-Person' as const }
+    const client = {
+      id: '1',
+      name: 'Maria',
+      email: 'maria@test.com',
+      phone: '123',
+      status: 'Active' as const,
+      type: 'In-Person' as const,
+    }
     useClientStore.getState()._addClient(client)
     expect(useClientStore.getState().clients).toEqual([client])
 
@@ -43,10 +50,23 @@ describe('clientStore', () => {
 
   describe('addClient', () => {
     it('should call createClient API and add to store', async () => {
-      const newClient = { id: 'c-1', name: 'João', email: 'joao@test.com', phone: '123', status: 'Active', type: 'In-Person' }
+      const newClient = {
+        id: 'c-1',
+        name: 'João',
+        email: 'joao@test.com',
+        phone: '123',
+        status: 'Active',
+        type: 'In-Person',
+      }
       mockApi.createClient.mockResolvedValue(newClient)
 
-      await useClientStore.getState().addClient({ name: 'João', email: 'joao@test.com', phone: '123', status: 'Active', type: 'In-Person' } as any)
+      await useClientStore.getState().addClient({
+        name: 'João',
+        email: 'joao@test.com',
+        phone: '123',
+        status: 'Active',
+        type: 'In-Person',
+      } as any)
 
       expect(mockApi.createClient).toHaveBeenCalled()
       expect(useClientStore.getState().clients).toHaveLength(1)
@@ -70,7 +90,14 @@ describe('clientStore', () => {
 
   describe('updateClient', () => {
     it('should call updateClient API and update in store', async () => {
-      const client = { id: '1', name: 'Maria', email: 'maria@test.com', phone: '123', status: 'Active', type: 'In-Person' }
+      const client = {
+        id: '1',
+        name: 'Maria',
+        email: 'maria@test.com',
+        phone: '123',
+        status: 'Active',
+        type: 'In-Person',
+      }
       useClientStore.setState({ clients: [client] as any })
 
       const updated = { ...client, name: 'Maria Santos' }
@@ -110,7 +137,10 @@ describe('clientStore', () => {
   describe('uploadClientAvatar', () => {
     it('should get upload URL, upload file, and update client avatar', async () => {
       useClientStore.setState({ clients: [{ id: 'c1', name: 'Test' }] as any })
-      mockApi.getAvatarUploadUrl.mockResolvedValue({ uploadUrl: 'https://upload.url', publicUrl: 'https://public.url' })
+      mockApi.getAvatarUploadUrl.mockResolvedValue({
+        uploadUrl: 'https://upload.url',
+        publicUrl: 'https://public.url',
+      })
       mockApi.updateClient.mockResolvedValue({ id: 'c1', name: 'Test', avatar: 'https://public.url' })
 
       const file = new File(['img'], 'avatar.jpg', { type: 'image/jpeg' })

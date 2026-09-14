@@ -23,7 +23,11 @@ export const EvaluationInsightsCard: React.FC<EvaluationInsightsCardProps> = ({ 
   // ACSM Body Fat Classification for Males/Females
   const getFatClassification = (fatPct?: number) => {
     if (!fatPct) return { label: 'Não avaliado', color: 'bg-slate-100 text-slate-700' }
-    if (fatPct < 8) return { label: 'Atleta / Gordura Essencial', color: 'bg-emerald-100 text-emerald-800 border-emerald-200' }
+    if (fatPct < 8)
+      return {
+        label: 'Atleta / Gordura Essencial',
+        color: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+      }
     if (fatPct <= 15) return { label: 'Excelente (Fitness)', color: 'bg-emerald-100 text-emerald-800 border-emerald-200' }
     if (fatPct <= 20) return { label: 'Bom / Saudável', color: 'bg-blue-100 text-blue-800 border-blue-200' }
     if (fatPct <= 25) return { label: 'Média Aceitável', color: 'bg-amber-100 text-amber-800 border-amber-200' }

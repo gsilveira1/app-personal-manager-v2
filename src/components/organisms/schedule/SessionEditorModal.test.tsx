@@ -405,7 +405,9 @@ describe('SessionEditorModal', () => {
     render(<SessionEditorModal {...defaultProps} sessionToEdit={sessionToEdit} />)
 
     // Change date
-    fireEvent.change(screen.getByDisplayValue('2026-03-15'), { target: { value: '2026-03-22', name: 'date' } })
+    fireEvent.change(screen.getByDisplayValue('2026-03-15'), {
+      target: { value: '2026-03-22', name: 'date' },
+    })
 
     // Submit
     fireEvent.submit(screen.getByText('common.save').closest('form')!)
@@ -434,7 +436,9 @@ describe('SessionEditorModal', () => {
 
     render(<SessionEditorModal {...defaultProps} sessionToEdit={sessionToEdit} />)
 
-    fireEvent.change(screen.getByDisplayValue('2026-03-15'), { target: { value: '2026-03-22', name: 'date' } })
+    fireEvent.change(screen.getByDisplayValue('2026-03-15'), {
+      target: { value: '2026-03-22', name: 'date' },
+    })
     fireEvent.submit(screen.getByText('common.save').closest('form')!)
 
     await user.click(screen.getByText('onlyThis'))
@@ -460,7 +464,9 @@ describe('SessionEditorModal', () => {
 
     render(<SessionEditorModal {...defaultProps} sessionToEdit={sessionToEdit} />)
 
-    fireEvent.change(screen.getByDisplayValue('2026-03-15'), { target: { value: '2026-03-22', name: 'date' } })
+    fireEvent.change(screen.getByDisplayValue('2026-03-15'), {
+      target: { value: '2026-03-22', name: 'date' },
+    })
     fireEvent.submit(screen.getByText('common.save').closest('form')!)
 
     // RecurrenceUpdateModal should be visible

@@ -26,10 +26,16 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run Tests
-        run: npm run test
+      - name: Check Linting
+        run: npm run lint
+
+      - name: Run unit tests with coverage gate
+        run: npm run test:coverage
 
       - name: Check TypeScript Compilation
+        run: npm run typecheck
+
+      - name: Check build
         run: npm run build
   # ----------------------------------------------------
   # 2. Entrega Contínua (Deploy para o Fly.io)

@@ -3,7 +3,10 @@ import { type Session, type Client, type MaterializedBlock } from '../../../type
 
 const MonthView = ({ date, sessions, clients, onDayClick, blocks = [] }: any) => {
   const monthStart = startOfMonth(date)
-  const calendarDays = eachDayOfInterval({ start: startOfWeek(monthStart, { weekStartsOn: 1 }), end: endOfWeek(endOfMonth(monthStart), { weekStartsOn: 1 }) })
+  const calendarDays = eachDayOfInterval({
+    start: startOfWeek(monthStart, { weekStartsOn: 1 }),
+    end: endOfWeek(endOfMonth(monthStart), { weekStartsOn: 1 }),
+  })
   return (
     <div data-testid="month-view" className="bg-white rounded-lg border border-slate-200 overflow-hidden">
       <div className="grid grid-cols-7 border-b border-slate-200 bg-slate-50">

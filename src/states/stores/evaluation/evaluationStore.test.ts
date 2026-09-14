@@ -23,7 +23,14 @@ describe('evaluationStore', () => {
   })
 
   it('should manage evaluation state correctly (sync)', () => {
-    const evaluation = { id: '1', clientId: 'c1', date: '2026-03-20', weightKg: 75, heightCm: 175, bodyFatPercentage: 15 }
+    const evaluation = {
+      id: '1',
+      clientId: 'c1',
+      date: '2026-03-20',
+      weightKg: 75,
+      heightCm: 175,
+      bodyFatPercentage: 15,
+    }
     useEvaluationStore.getState()._addEvaluation(evaluation)
     expect(useEvaluationStore.getState().evaluations).toEqual([evaluation])
   })
