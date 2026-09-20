@@ -116,5 +116,21 @@
     "thigh": "Thigh",
     "calf": "Calf",
     "supraSpinal": "Supraspinal"
+  },
+  "manualPayment": {
+    "title": "Record Manual Payment",
+    "subtitle": "Access renewal for",
+    "method": "Payment Method",
+    "validUntil": "New Expiration Date",
+    "amount": "Amount Paid (Optional)",
+    "notes": "Notes",
+    "confirm": "Confirm Payment"
+  },
+  "anamnesis": {
+    "title": "Anamnesis & Health History",
+    "subtitle": "Track health questionnaire answers and physique progress",
+    "print": "Print (Ctrl+P)",
+    "requestReassessment": "Request Reassessment",
+    "photos": "Physique Photos"
   }
 }

@@ -1,9 +1,9 @@
 import React from 'react'
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Users, Calendar, Dumbbell, X, Settings, UserPlus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-
 import { useStore } from '../../../states/stores/store'
+import { useAuthStore } from '../../../states/stores/auth/authStore'
+import { LayoutDashboard, Users, Calendar, Dumbbell, X, Settings, UserPlus, Shield, MessageSquare } from 'lucide-react'
 
 interface SidebarProps {
   isOpen: boolean
@@ -12,6 +12,7 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const { clients } = useStore()
+  const { user } = useAuthStore()
   const { t } = useTranslation('navigation')
   const leadCount = clients.filter((c) => c.status === 'Lead').length
 
@@ -26,41 +27,60 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     { to: '/settings', icon: Settings, label: t('settings') },
   ]
 
+  if (user?.role === 'admin' || user?.role === 'ADMIN') {
+    navItems.push({ to: '/admin/tenants', icon: Shield, label: 'Super Admin' })
+  }
+
   return (
     <aside
       data-testid="sidebar"
-      className={`fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 text-white transform transition-transform duration-200 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}
+      className={`fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 text-white transform transition-transform duration-200 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 flex flex-col justify-between`}
     >
-      <div className="flex items-center justify-between p-4 h-16 border-b border-slate-700">
-        <div className="flex items-center space-x-2">
-          <div className="bg-indigo-500 p-1.5 rounded-lg">
-            <Dumbbell className="h-5 w-5 text-white" />
+      <div>
+        <div className="flex items-center justify-between p-4 h-16 border-b border-slate-700">
+          <div className="flex items-center space-x-2">
+            <div className="bg-indigo-500 p-1.5 rounded-lg">
+              <Dumbbell className="h-5 w-5 text-white" />
+            </div>
+            <span className="text-xl font-bold tracking-tight">PersonalMgr</span>
           </div>
-          <span className="text-xl font-bold tracking-tight">PersonalMgr</span>
+          <button onClick={onClose} className="md:hidden text-slate-400 hover:text-white">
+            <X className="h-6 w-6" />
+          </button>
         </div>
-        <button onClick={onClose} className="md:hidden text-slate-400 hover:text-white">
-          <X className="h-6 w-6" />
-        </button>
+        <nav className="flex-1 px-3 py-4 space-y-1">
+          {navItems.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              data-testid={`nav-${item.to === '/' ? 'dashboard' : item.to.replace(/\//g, '-')}`}
+              onClick={() => window.innerWidth < 768 && onClose()}
+              className={({ isActive }) =>
+                `flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors group ${isActive ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`
+              }
+            >
+              <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
+              {item.label}
+              {item.badge !== undefined && (
+                <span className="ml-auto bg-red-500 text-white text-xs font-bold h-5 min-w-[20px] px-1 rounded-full flex items-center justify-center">{item.badge > 9 ? '9+' : item.badge}</span>
+              )}
+            </NavLink>
+          ))}
+        </nav>
       </div>
-      <nav className="flex-1 px-3 py-4 space-y-1">
-        {navItems.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            data-testid={`nav-${item.to === '/' ? 'dashboard' : item.to.slice(1)}`}
-            onClick={() => window.innerWidth < 768 && onClose()}
-            className={({ isActive }) =>
-              `flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors group ${isActive ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`
-            }
-          >
-            <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
-            {item.label}
-            {item.badge !== undefined && (
-              <span className="ml-auto bg-red-500 text-white text-xs font-bold h-5 min-w-[20px] px-1 rounded-full flex items-center justify-center">{item.badge > 9 ? '9+' : item.badge}</span>
-            )}
-          </NavLink>
-        ))}
-      </nav>
+
+      {/* Support Link for Feature 008 RN 5 */}
+      <div className="p-4 border-t border-slate-800">
+        <a
+          href="https://wa.me/5511999998888"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 text-xs text-slate-400 hover:text-emerald-400 transition-colors"
+        >
+          <MessageSquare className="h-4 w-4" />
+          <span>Suporte do Sistema</span>
+        </a>
+      </div>
     </aside>
   )
 }

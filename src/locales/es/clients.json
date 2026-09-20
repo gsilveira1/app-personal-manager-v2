@@ -116,5 +116,21 @@
     "thigh": "Muslo",
     "calf": "Pantorrilla",
     "supraSpinal": "Supraespinal"
+  },
+  "manualPayment": {
+    "title": "Registrar Pago Manual",
+    "subtitle": "Renovación de acceso para",
+    "method": "Método de Pago",
+    "validUntil": "Nuevo Vencimiento",
+    "amount": "Monto Pagado (Opcional)",
+    "notes": "Notas",
+    "confirm": "Confirmar Pago"
+  },
+  "anamnesis": {
+    "title": "Anamnesis e Historial de Salud",
+    "subtitle": "Siga las respuestas del cuestionario y evolución estética",
+    "print": "Imprimir (Ctrl+P)",
+    "requestReassessment": "Solicitar Reevaluación",
+    "photos": "Fotos Corporales"
   }
 }

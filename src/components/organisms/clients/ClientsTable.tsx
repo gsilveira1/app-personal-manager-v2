@@ -96,7 +96,16 @@ export const ClientsTable: React.FC<ClientsTableProps> = ({ clients, plans, sear
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <Badge variant={client.status === ClientStatus.Active ? 'success' : 'default'}>{t(`status.${client.status.toLowerCase()}`, { ns: 'common' })}</Badge>
+                    <div className="flex flex-col gap-1 items-start">
+                      <Badge variant={client.subscriptionStatus === 'PAUSED' ? 'warning' : client.status === ClientStatus.Active ? 'success' : 'default'}>
+                        {client.subscriptionStatus === 'PAUSED' ? 'Pausado' : t(`status.${client.status.toLowerCase()}`, { ns: 'common' })}
+                      </Badge>
+                      {client.activeWorkoutSheet?.expiresAt && new Date(client.activeWorkoutSheet.expiresAt).getTime() - Date.now() < 5 * 24 * 3600 * 1000 && (
+                        <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-800">
+                          Ficha Vencendo
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-6 py-4">
                     {clientPlan ? (
@@ -109,9 +118,21 @@ export const ClientsTable: React.FC<ClientsTableProps> = ({ clients, plans, sear
                     )}
                   </td>
                   <td className="px-6 py-4">
-                    <div className="flex items-center text-slate-600">
-                      {client.type === 'Online' ? <Globe className="h-3 w-3 mr-1.5 text-indigo-500" /> : <MapPin className="h-3 w-3 mr-1.5 text-emerald-500" />}
-                      {client.type === 'Online' ? t('online') : t('inPerson')}
+                    {/* Modality Tag */}
+                    <div className="flex items-center gap-1.5">
+                      {client.modality === 'ONLINE' || client.type === 'Online' ? (
+                        <span className="inline-flex items-center rounded-md bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-800">
+                          <Globe className="h-3 w-3 mr-1 text-blue-600" /> Online
+                        </span>
+                      ) : client.modality === 'HYBRID' ? (
+                        <span className="inline-flex items-center rounded-md bg-purple-100 px-2 py-0.5 text-xs font-semibold text-purple-800">
+                          Híbrido
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center rounded-md bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-800">
+                          <MapPin className="h-3 w-3 mr-1 text-emerald-600" /> Presencial
+                        </span>
+                      )}
                     </div>
                     {client.type === 'Online' && client.checkInFrequency && (
                       <div className="text-xs text-slate-400 mt-1">

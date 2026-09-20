@@ -116,5 +116,21 @@
     "thigh": "Coxa",
     "calf": "Panturrilha",
     "supraSpinal": "Supra-espinal"
+  },
+  "manualPayment": {
+    "title": "Registrar Pagamento Manual",
+    "subtitle": "Renovação de acesso para",
+    "method": "Forma de Pagamento",
+    "validUntil": "Novo Vencimento",
+    "amount": "Valor Pago (R$) (Opcional)",
+    "notes": "Observações",
+    "confirm": "Confirmar Baixa"
+  },
+  "anamnesis": {
+    "title": "Anamnese e Histórico de Saúde",
+    "subtitle": "Acompanhe respostas do formulário e evolução estética",
+    "print": "Imprimir (Ctrl+P)",
+    "requestReassessment": "Solicitar Reavaliação",
+    "photos": "Fotos Corporais"
   }
 }

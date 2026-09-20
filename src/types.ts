@@ -104,12 +104,19 @@ export interface MedicalHistory {
   observations?: string
 }
 
+export type StudentModality = 'ONLINE' | 'PRESENCIAL' | 'HYBRID'
+export type StudentSubscriptionStatus = 'ACTIVE' | 'OVERDUE' | 'PAUSED'
+
 export interface Client {
   id: string
   name: string
   email: string
   phone: string
+  whatsapp?: string
   status: ClientStatus
+  modality?: StudentModality
+  subscriptionStatus?: StudentSubscriptionStatus
+  currentPeriodEnd?: string
   type: ClientType
   dateOfBirth?: string
   checkInFrequency?: CheckInFrequency
@@ -118,6 +125,127 @@ export interface Client {
   notes?: string
   avatar?: string
   planId?: string // Links to a Plan
+  activeWorkoutSheet?: { id: string; name: string; expiresAt?: string } | null
+}
+
+export interface ManualPayment {
+  id: string
+  clientId: string
+  paymentType: 'MANUAL_PIX' | 'MANUAL_CASH' | 'MANUAL_CARD'
+  validUntil: string
+  notes?: string
+  amount?: number
+  createdAt: string
+}
+
+export interface AnamnesisRecord {
+  id: string
+  clientId: string
+  isCurrent: boolean
+  token?: string
+  tokenUsed?: boolean
+  medicalHistory?: string
+  injuriesAndPain?: string
+  routineAndSchedule?: string
+  fitnessGoals?: string
+  experienceLevel?: string
+  parqAnswers?: Record<string, boolean>
+  frontPhotoUrl?: string
+  backPhotoUrl?: string
+  sidePhotoUrl?: string
+  weightKg?: number
+  measurements?: Record<string, number>
+  createdAt: string
+}
+
+export interface ExerciseCatalogItem {
+  id: string
+  name: string
+  bodyPart: string
+  targetMuscle?: string
+  equipment: string
+  gifUrl?: string
+  videoUrl?: string
+  isCustom: boolean
+}
+
+export interface WorkoutSheetExercise {
+  id?: string
+  workoutExerciseId?: string
+  exerciseId?: string
+  exerciseName: string
+  gifUrl?: string
+  sets: number
+  reps: string
+  suggestedLoadKg?: number | null
+  executionNotes?: string
+  lastLoadKg?: number | null
+  orderIndex?: number
+}
+
+export interface WorkoutSheetBlock {
+  id?: string
+  type: 'REGULAR' | 'BISET' | 'TRISET'
+  orderIndex?: number
+  restTimeSeconds: number
+  exercises: WorkoutSheetExercise[]
+}
+
+export interface WorkoutSheetItem {
+  id?: string
+  letter: string
+  name: string
+  orderIndex?: number
+  blocks: WorkoutSheetBlock[]
+}
+
+export interface WorkoutSheet {
+  id: string
+  name: string
+  expiresAt?: string | null
+  active: boolean
+  clientId: string
+  workouts: WorkoutSheetItem[]
+  createdAt?: string
+}
+
+export interface WorkoutTemplate {
+  id: string
+  name: string
+  description?: string
+  structure: any
+  createdAt: string
+}
+
+export interface ActivityHeatmapDay {
+  date: string
+  status: 'COMPLETED' | 'EXPIRED' | 'NO_ACTIVITY'
+  workoutName?: string
+  durationMinutes?: number
+}
+
+export interface ActivityHeatmapData {
+  studentId: string
+  totalCompletedMonth: number
+  currentStreak: number
+  lastWorkoutDate: string | null
+  days: ActivityHeatmapDay[]
+}
+
+export interface AdminTenant {
+  id: string
+  name: string
+  slug: string
+  status: TenantStatus
+  studentsCount: number
+  features: {
+    maxStudents?: number
+    canUploadVideos?: boolean
+    whatsappAlerts?: boolean
+    isEnterprise?: boolean
+    [key: string]: any
+  }
+  createdAt: string
 }
 
 export interface Session {

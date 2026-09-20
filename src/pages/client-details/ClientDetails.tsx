@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router'
-import { ArrowLeft, Save, Edit2, FileText } from 'lucide-react'
+import { ArrowLeft, Save, Edit2, FileText, DollarSign, MessageCircle, PauseCircle, PlayCircle, Dumbbell, Activity, Flame } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { useStore } from '../../states/stores/store'
@@ -12,6 +12,12 @@ import { WorkoutEditorModal } from '../../components/WorkoutEditorModal'
 import { ClientSessionHistoryTab } from '../../components/organisms/client-details/ClientSessionHistoryTab'
 import { ClientEvaluationsTab } from '../../components/organisms/client-details/ClientEvaluationsTab'
 import { ClientWorkoutsTab } from '../../components/organisms/client-details/ClientWorkoutsTab'
+import { ManualPaymentModal } from '../../components/organisms/client-details/ManualPaymentModal'
+import { AnamnesisTab } from '../../components/organisms/client-details/AnamnesisTab'
+import { WorkoutSheetsTab } from '../../components/organisms/client-details/WorkoutSheetsTab'
+import { ConsistencyHeatmap } from '../../components/organisms/client-details/ConsistencyHeatmap'
+import { ResendMagicLinkModal } from '../../components/organisms/client-details/ResendMagicLinkModal'
+import * as api from '../../services/api/apiService'
 import type { WorkoutPlan, MedicalHistory } from '../../types'
 
 export const ClientDetails = () => {
@@ -20,7 +26,7 @@ export const ClientDetails = () => {
   const navigate = useNavigate()
   const { clients, sessions, evaluations, workouts, plans, updateClient, uploadClientAvatar, addWorkout, updateWorkout, deleteWorkout } = useStore()
 
-  const [activeTab, setActiveTab] = useState<'history' | 'evaluations' | 'workouts'>('history')
+  const [activeTab, setActiveTab] = useState<'history' | 'evaluations' | 'workouts' | 'sheets' | 'anamnesis' | 'consistency'>('history')
   const [isWorkoutModalOpen, setIsWorkoutModalOpen] = useState(false)
   const [editingWorkout, setEditingWorkout] = useState<WorkoutPlan | null>(null)
   const [isEditingNotes, setIsEditingNotes] = useState(false)
@@ -30,6 +36,10 @@ export const ClientDetails = () => {
   const [selectedMetric, setSelectedMetric] = useState<string>('weight')
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
   const avatarInputRef = useRef<HTMLInputElement>(null)
+
+  // Modals for Features 002, 007
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false)
+  const [isResendModalOpen, setIsResendModalOpen] = useState(false)
 
   const client = clients.find((c) => c.id === id)
   const clientPlan = plans.find((p) => p.id === client?.planId)
@@ -75,17 +85,67 @@ export const ClientDetails = () => {
     setIsWorkoutModalOpen(false)
   }
 
+  const handleSaveManualPayment = async (paymentData: { paymentType: string; validUntil: string; notes?: string; amount?: number }) => {
+    await api.recordManualPayment(client.id, paymentData)
+    await updateClient(client.id, {
+      subscriptionStatus: 'ACTIVE',
+      currentPeriodEnd: paymentData.validUntil,
+    })
+  }
+
+  const handleToggleStatus = async () => {
+    const newStatus = client.subscriptionStatus === 'PAUSED' ? 'ACTIVE' : 'PAUSED'
+    await api.updateStudentStatus(client.id, newStatus)
+    await updateClient(client.id, {
+      subscriptionStatus: newStatus as any,
+    })
+  }
+
   const tabItems = [
     { key: 'history', label: t('sessionHistory') },
+    { key: 'sheets', label: 'Fichas (Divisões A/B/C)' },
+    { key: 'anamnesis', label: 'Anamnese & Saúde' },
+    { key: 'consistency', label: 'Consistência (Heatmap)' },
     { key: 'evaluations', label: t('evaluations') },
     { key: 'workouts', label: t('prescriptions') },
   ] as const
 
   return (
     <div className="space-y-6">
-      <Button variant="ghost" onClick={() => navigate('/clients')} className="pl-0 text-slate-500 hover:text-slate-900">
-        <ArrowLeft className="mr-2 h-4 w-4" /> {t('backToClients')}
-      </Button>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Button variant="ghost" onClick={() => navigate('/clients')} className="pl-0 text-slate-500 hover:text-slate-900">
+          <ArrowLeft className="mr-2 h-4 w-4" /> {t('backToClients')}
+        </Button>
+
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => setIsResendModalOpen(true)}>
+            <MessageCircle className="mr-1.5 h-4 w-4 text-emerald-600" />
+            Enviar Link WhatsApp
+          </Button>
+
+          <Button variant="outline" size="sm" onClick={() => setIsPaymentModalOpen(true)}>
+            <DollarSign className="mr-1.5 h-4 w-4 text-emerald-600" />
+            Pagamento Manual
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleToggleStatus}
+            className={client.subscriptionStatus === 'PAUSED' ? 'text-emerald-700 hover:bg-emerald-50' : 'text-amber-700 hover:bg-amber-50'}
+          >
+            {client.subscriptionStatus === 'PAUSED' ? (
+              <>
+                <PlayCircle className="mr-1.5 h-4 w-4" /> Ativar Aluno
+              </>
+            ) : (
+              <>
+                <PauseCircle className="mr-1.5 h-4 w-4" /> Pausar Aluno
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
 
       <ClientProfileHeader client={client} clientPlan={clientPlan} isUploadingAvatar={isUploadingAvatar} avatarInputRef={avatarInputRef} onAvatarChange={handleAvatarChange} />
 
@@ -146,12 +206,12 @@ export const ClientDetails = () => {
         </div>
 
         <div className="lg:col-span-2 space-y-6">
-          <div className="flex border-b border-slate-200 space-x-6">
+          <div className="flex border-b border-slate-200 space-x-6 overflow-x-auto pb-1">
             {tabItems.map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`pb-3 text-sm font-medium transition-colors border-b-2 ${activeTab === tab.key ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+                className={`pb-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${activeTab === tab.key ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
               >
                 {tab.label}
               </button>
@@ -159,6 +219,12 @@ export const ClientDetails = () => {
           </div>
 
           {activeTab === 'history' && <ClientSessionHistoryTab clientSessions={clientSessions} />}
+
+          {activeTab === 'sheets' && <WorkoutSheetsTab client={client} />}
+
+          {activeTab === 'anamnesis' && <AnamnesisTab client={client} />}
+
+          {activeTab === 'consistency' && <ConsistencyHeatmap clientId={client.id} />}
 
           {activeTab === 'evaluations' && (
             <ClientEvaluationsTab
@@ -186,9 +252,23 @@ export const ClientDetails = () => {
       </div>
 
       {isWorkoutModalOpen && <WorkoutEditorModal client={client} initialData={editingWorkout} isOpen={isWorkoutModalOpen} onClose={() => setIsWorkoutModalOpen(false)} onSave={handleSaveWorkout} />}
+
+      <ManualPaymentModal
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        client={client}
+        onSave={handleSaveManualPayment}
+      />
+
+      <ResendMagicLinkModal
+        isOpen={isResendModalOpen}
+        onClose={() => setIsResendModalOpen(false)}
+        client={client}
+      />
     </div>
   )
 }
 
 // Re-export for backward compatibility
 export { ConfirmationModal } from '../../components/organisms/client-details/ConfirmationModal'
+

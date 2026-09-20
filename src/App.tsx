@@ -22,6 +22,11 @@ import { SignUp } from './pages/sign-up/SignUp'
 import { ForgotPassword } from './pages/forgot-password/ForgotPassword'
 import { SetupWizard } from './pages/setup-wizard/SetupWizard'
 
+import { AnamnesisForm } from './pages/anamnesis-form/AnamnesisForm'
+import { WorkoutPlayer } from './pages/workout-player/WorkoutPlayer'
+import { AdminTenants } from './pages/admin/AdminTenants'
+import { TenantBlocked } from './pages/blocked/TenantBlocked'
+
 const FullScreenLoader = ({ message }: { message: string }) => (
   <div className="flex h-screen w-full flex-col items-center justify-center bg-slate-50 text-slate-500">
     <Loader2 className="h-8 w-8 animate-spin" />
@@ -63,6 +68,11 @@ const ProtectedRoute = () => {
     return <Navigate to="/login" replace />
   }
 
+  // Feature 008 Guardrail: Blocked tenant redirection
+  if (user?.tenant && (user.tenant.status === 'BLOCKED' || user.tenant.status === 'OVERDUE')) {
+    return <Navigate to="/blocked" replace />
+  }
+
   // Feature 001 Guardrail: Mandatory Setup Wizard redirection if setupCompleted is false
   if (user?.tenant && user.tenant.setupCompleted === false) {
     return <Navigate to="/setup-wizard" replace />
@@ -87,10 +97,6 @@ function App() {
     checkAuthStatus()
   }, [checkAuthStatus])
 
-  // Sync Zustand locale → i18n whenever the store's locale changes.
-  // This is a defensive bridge: hydrateLocale already calls i18n.changeLanguage
-  // directly, but this useEffect ensures the language is always applied even if
-  // there are any React 18 concurrent-rendering timing edge cases.
   useEffect(() => {
     if (locale && i18n.language !== locale) {
       i18n.changeLanguage(locale)
@@ -105,6 +111,12 @@ function App() {
     <I18nextProvider i18n={i18n}>
       <HashRouter>
         <Routes>
+          {/* Public Student Magic Link Routes */}
+          <Route path="/anamnesis" element={<AnamnesisForm />} />
+          <Route path="/p/:slug" element={<WorkoutPlayer />} />
+          <Route path="/workout-player" element={<WorkoutPlayer />} />
+          <Route path="/blocked" element={<TenantBlocked />} />
+
           {/* Public Auth Routes */}
           <Route element={<AuthLayout />}>
             <Route path="/login" element={<Login />} />
@@ -128,6 +140,7 @@ function App() {
               <Route path="workouts" element={<Workouts />} />
               <Route path="leads" element={<Leads />} />
               <Route path="settings" element={<Settings />} />
+              <Route path="admin/tenants" element={<AdminTenants />} />
             </Route>
           </Route>
 
