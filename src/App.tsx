@@ -20,6 +20,7 @@ import { Leads } from './pages/leads/Leads'
 import { Login } from './pages/login/Login'
 import { SignUp } from './pages/sign-up/SignUp'
 import { ForgotPassword } from './pages/forgot-password/ForgotPassword'
+import { SetupWizard } from './pages/setup-wizard/SetupWizard'
 
 const FullScreenLoader = ({ message }: { message: string }) => (
   <div className="flex h-screen w-full flex-col items-center justify-center bg-slate-50 text-slate-500">
@@ -43,7 +44,7 @@ const FullScreenError = ({ message, onRetry }: { message: string | null; onRetry
 )
 
 const ProtectedRoute = () => {
-  const { isAuthenticated } = useAuthStore()
+  const { isAuthenticated, user } = useAuthStore()
   const { appState, errorMessage, fetchInitialData, clearDataOnLogout } = useStore()
 
   useEffect(() => {
@@ -62,6 +63,11 @@ const ProtectedRoute = () => {
     return <Navigate to="/login" replace />
   }
 
+  // Feature 001 Guardrail: Mandatory Setup Wizard redirection if setupCompleted is false
+  if (user?.tenant && user.tenant.setupCompleted === false) {
+    return <Navigate to="/setup-wizard" replace />
+  }
+
   if (appState === 'loading' || appState === 'idle') {
     return <FullScreenLoader message={i18n.t('appLoading')} />
   }
@@ -74,7 +80,7 @@ const ProtectedRoute = () => {
 }
 
 function App() {
-  const { checkAuthStatus, isLoading } = useAuthStore()
+  const { checkAuthStatus, isLoading, isAuthenticated } = useAuthStore()
   const locale = useStore((s) => s.locale)
 
   useEffect(() => {
@@ -105,6 +111,12 @@ function App() {
             <Route path="/signup" element={<SignUp />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
           </Route>
+
+          {/* Setup Wizard Route */}
+          <Route
+            path="/setup-wizard"
+            element={isAuthenticated ? <SetupWizard /> : <Navigate to="/login" replace />}
+          />
 
           {/* Protected App Routes */}
           <Route element={<ProtectedRoute />}>

@@ -1,3 +1,20 @@
+export type WhatsappStatus = 'CONNECTED' | 'DISCONNECTED' | 'PENDING'
+export type TenantStatus = 'ACTIVE' | 'BLOCKED' | 'OVERDUE'
+
+export interface Tenant {
+  id: string
+  name: string
+  slug: string
+  status?: TenantStatus
+  primaryColor?: string
+  logoUrl?: string | null
+  whatsappInstanceName?: string | null
+  whatsappStatus?: WhatsappStatus
+  setupCompleted: boolean
+  createdAt?: string
+  updatedAt?: string
+}
+
 export interface User {
   id: string
   name: string
@@ -6,6 +23,8 @@ export interface User {
   avatar?: string
   phone?: string
   bio?: string
+  tenantId?: string | null
+  tenant?: Tenant | null
 }
 
 export const ClientStatus = {

@@ -1,0 +1,41 @@
+{
+  "title": "Initial Trainer Setup",
+  "subtitle": "Customize your visual identity and connect your WhatsApp to get started",
+  "step1": {
+    "badge": "Step 1",
+    "title": "Visual Identity (White-Label)",
+    "description": "Set up your brand logo and primary color to personalize your students' experience.",
+    "logoLabel": "Brand Logo",
+    "logoHelp": "Supported formats: PNG, SVG, WebP. Max size: 2MB.",
+    "uploadButton": "Choose Logo File",
+    "uploading": "Uploading logo...",
+    "colorLabel": "Brand Primary Color",
+    "presetColors": "Suggested Colors",
+    "customColor": "Custom Color (HEX)",
+    "previewTitle": "Brand Preview",
+    "previewCard": "Student Workout Card",
+    "previewButton": "Start Workout",
+    "previewBadge": "Active",
+    "nextButton": "Save & Continue to WhatsApp"
+  },
+  "step2": {
+    "badge": "Step 2",
+    "title": "WhatsApp Pairing",
+    "description": "Connect your WhatsApp so workouts, reminders, and alerts are sent automatically from your number.",
+    "instructionsTitle": "How to connect:",
+    "instruction1": "Open WhatsApp on your phone",
+    "instruction2": "Tap Settings > Linked Devices",
+    "instruction3": "Point your camera to the QR Code below",
+    "refreshQrButton": "Generate New QR Code",
+    "connecting": "Waiting for QR Code scan...",
+    "connectedTitle": "WhatsApp Connected Successfully!",
+    "connectedSubtitle": "Your instance is active and ready to deliver workouts.",
+    "finishButton": "Complete Setup and Go to Dashboard"
+  },
+  "alerts": {
+    "fileSizeError": "The file is too large. Maximum allowed size is 2MB.",
+    "fileTypeError": "Invalid file format. Please use PNG, SVG, or WebP.",
+    "brandingSaved": "Visual identity saved successfully!",
+    "setupCompleteSuccess": "Setup completed successfully! Welcome to your platform."
+  }
+}

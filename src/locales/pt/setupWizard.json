@@ -1,0 +1,41 @@
+{
+  "title": "Configuração Inicial do Personal",
+  "subtitle": "Personalize sua identidade visual e conecte seu WhatsApp para começar",
+  "step1": {
+    "badge": "Passo 1",
+    "title": "Identidade Visual (White-Label)",
+    "description": "Configure seu logotipo e as cores da sua marca para personalizar a experiência dos seus alunos.",
+    "logoLabel": "Logotipo da sua Marca",
+    "logoHelp": "Formatos suportados: PNG, SVG, WebP. Máximo 2MB.",
+    "uploadButton": "Escolher Arquivo de Logo",
+    "uploading": "Enviando logo...",
+    "colorLabel": "Cor Primária da Marca",
+    "presetColors": "Cores Sugeridas",
+    "customColor": "Cor Personalizada (HEX)",
+    "previewTitle": "Pré-visualização da sua Marca",
+    "previewCard": "Cartão de Treino do Aluno",
+    "previewButton": "Iniciar Treino",
+    "previewBadge": "Ativo",
+    "nextButton": "Salvar e Continuar para o WhatsApp"
+  },
+  "step2": {
+    "badge": "Passo 2",
+    "title": "Pareamento do WhatsApp",
+    "description": "Conecte seu WhatsApp para que mensagens, treinos e lembretes sejam enviados automaticamente com seu número.",
+    "instructionsTitle": "Como conectar:",
+    "instruction1": "Abra o WhatsApp no seu celular",
+    "instruction2": "Toque em Configurações > Aparelhos Conectados",
+    "instruction3": "Aponte a câmera para o QR Code abaixo",
+    "refreshQrButton": "Gerar Novo QR Code",
+    "connecting": "Aguardando leitura do QR Code...",
+    "connectedTitle": "WhatsApp Conectado com Sucesso!",
+    "connectedSubtitle": "Sua instância está ativa e pronta para enviar treinos.",
+    "finishButton": "Concluir Configuração e Ir para o Dashboard"
+  },
+  "alerts": {
+    "fileSizeError": "O arquivo é muito grande. O tamanho máximo permitido é de 2MB.",
+    "fileTypeError": "Formato de arquivo inválido. Use PNG, SVG ou WebP.",
+    "brandingSaved": "Identidade visual salva com sucesso!",
+    "setupCompleteSuccess": "Configuração concluída com sucesso! Bem-vindo à sua plataforma."
+  }
+}
