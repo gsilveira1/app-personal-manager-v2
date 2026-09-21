@@ -56,8 +56,8 @@ const baseClient: Client = {
   name: 'Maria Silva',
   email: 'maria@example.com',
   phone: '(53) 99999-0000',
-  status: 'Active',
-  type: 'In-Person',
+  status: 'ACTIVE',
+  modality: 'PRESENCIAL',
   dateOfBirth: '1990-06-15',
   goal: 'Hypertrophy',
   medicalHistory: {
@@ -116,7 +116,7 @@ describe('ClientProfileHeader', () => {
   it('renders client name and status badge', () => {
     render(<ClientProfileHeader {...defaultProps} />)
     expect(screen.getByText('Maria Silva')).toBeInTheDocument()
-    expect(screen.getByText('Active')).toBeInTheDocument()
+    expect(screen.getByText('status.active')).toBeInTheDocument()
   })
 
   it('shows plan name when plan provided', () => {
@@ -552,20 +552,16 @@ describe('ClientProfileEditorModal', () => {
     expect(screen.getByDisplayValue('(53) 99999-0000')).toBeInTheDocument()
   })
 
-  it('submits updated profile with modality, whatsapp, notes, subscriptionStatus, and medicalHistory', async () => {
+  it('submits updated profile with modality, notes, and medicalHistory', async () => {
     const onClose = vi.fn()
     const user = userEvent.setup()
 
     render(<ClientProfileEditorModal isOpen={true} onClose={onClose} client={baseClient} />)
 
-    // Modify name, modality, notes, and whatsapp
+    // Modify name, modality, and notes
     const nameInput = screen.getByDisplayValue('Maria Silva')
     await user.clear(nameInput)
     await user.type(nameInput, 'Maria Silva Atualizada')
-
-    const whatsappInput = screen.getByPlaceholderText('whatsappPlaceholder')
-    await user.clear(whatsappInput)
-    await user.type(whatsappInput, '+5553988887777')
 
     const notesInput = screen.getByPlaceholderText('notesPlaceholder')
     await user.type(notesInput, 'Prefere treinar pela manhã')
@@ -583,7 +579,6 @@ describe('ClientProfileEditorModal', () => {
     const [calledId, calledData] = mockUpdateClient.mock.calls[0]
     expect(calledId).toBe('c1')
     expect(calledData.name).toBe('Maria Silva Atualizada')
-    expect(calledData.whatsapp).toBe('+5553988887777')
     expect(calledData.notes).toBe('Prefere treinar pela manhã')
     expect(calledData.medicalHistory?.injuries).toBe('Condromalácia patelar grau 2')
     expect(onClose).toHaveBeenCalled()

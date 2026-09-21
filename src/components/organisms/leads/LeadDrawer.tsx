@@ -85,8 +85,8 @@ export const LeadDrawer: React.FC<LeadDrawerProps> = ({ lead, plans, onClose, on
             <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{t('interest')}</h3>
             <div className="flex gap-2">
               <span className="flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-full bg-purple-100 text-purple-700 font-medium">
-                {lead.type === 'Online' ? <Globe className="h-3.5 w-3.5" /> : <MapPin className="h-3.5 w-3.5" />}
-                {interestLabel(lead.type, tc)}
+                {lead.modality === 'ONLINE' || lead.type === 'Online' ? <Globe className="h-3.5 w-3.5" /> : <MapPin className="h-3.5 w-3.5" />}
+                {interestLabel(lead.modality || lead.type, tc)}
               </span>
               {lead.goal && (
                 <span className="flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 font-medium">

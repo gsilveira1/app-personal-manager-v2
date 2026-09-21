@@ -72,4 +72,37 @@ describe('SignUp', () => {
     renderSignUp()
     expect(screen.getByText('signIn')).toBeInTheDocument()
   })
+
+  it('renders role badge and auto-provision notice', () => {
+    renderSignUp()
+    expect(screen.getByText('roleTrainer')).toBeInTheDocument()
+    expect(screen.getByText('autoStudioNotice')).toBeInTheDocument()
+  })
+
+  it('displays live studio preview when name is typed', async () => {
+    const user = userEvent.setup()
+    renderSignUp()
+
+    await user.type(screen.getByLabelText('fullName'), 'Rodrigo Silva')
+    expect(screen.getByText('studioPreview')).toBeInTheDocument()
+  })
+
+  it('toggles password visibility when eye icon is clicked', async () => {
+    const user = userEvent.setup()
+    renderSignUp()
+
+    const passwordInput = screen.getByLabelText('password')
+    expect(passwordInput).toHaveAttribute('type', 'password')
+
+    const toggleBtn = screen.getByRole('button', { name: 'showPassword' })
+    await user.click(toggleBtn)
+
+    expect(passwordInput).toHaveAttribute('type', 'text')
+
+    const hideBtn = screen.getByRole('button', { name: 'hidePassword' })
+    await user.click(hideBtn)
+
+    expect(passwordInput).toHaveAttribute('type', 'password')
+  })
 })
+

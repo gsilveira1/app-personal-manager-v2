@@ -33,8 +33,10 @@
   "email": "E-mail",
   "status": {
     "active": "Ativo",
-    "inactive": "Inativo",
-    "lead": "Lead"
+    "paused": "Pausada",
+    "overdue": "Em Atraso",
+    "lead": "Lead",
+    "inactive": "Inativo"
   },
   "perMonth": "/mês",
   "durationMin": "{{minutes}} min",

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
-import { Dumbbell, Plus, Bookmark, Clock, CheckCircle2, ChevronRight, Layers, Trash2 } from 'lucide-react'
+import { Dumbbell, Plus, Bookmark, Clock, ChevronRight } from 'lucide-react'
 import { Card, Button, Input, Label } from '../../atoms'
 import * as api from '../../../services/api/apiService'
-import type { Client, WorkoutSheet, WorkoutTemplate, ExerciseCatalogItem, WorkoutSheetItem } from '../../../types'
+import type { Client, WorkoutSheet, WorkoutTemplate, WorkoutSheetItem } from '../../../types'
 
 interface WorkoutSheetsTabProps {
   client: Client

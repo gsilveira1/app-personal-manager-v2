@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useStore } from '../../states/stores/store'
 import { useAuthStore } from '../../states/stores/auth/authStore'
 import { type Plan } from '../../types'
-import { ProfileEditSection, WorkHoursEditor, AppFeaturesConfigSection, AiInstructionsSection, PlansSection, SystemFeaturesSection, PlanEditorModal } from '../../components/organisms/settings'
+import { ProfileEditSection, WorkHoursEditor, AppFeaturesConfigSection, AiInstructionsSection, PlansSection, SystemFeaturesSection, PlanEditorModal, WhatsAppQueueManager } from '../../components/organisms/settings'
 
 export const Settings = () => {
   const { t } = useTranslation('settings')
@@ -46,6 +46,8 @@ export const Settings = () => {
 
       <AppFeaturesConfigSection />
 
+      <WhatsAppQueueManager />
+
       <AiInstructionsSection value={aiPromptInstructions} onChange={updateAiPromptInstructions} />
 
       <PlansSection plans={plans} onCreate={handleCreate} onEdit={handleEdit} onDelete={handleDelete} />
@@ -55,3 +57,4 @@ export const Settings = () => {
     </div>
   )
 }
+

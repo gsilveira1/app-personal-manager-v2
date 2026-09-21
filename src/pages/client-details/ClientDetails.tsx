@@ -24,7 +24,7 @@ export const ClientDetails = () => {
   const navigate = useNavigate()
   const { clients, sessions, evaluations, plans, updateClient, uploadClientAvatar } = useStore()
 
-  const [activeTab, setActiveTab] = useState<'history' | 'sheets' | 'anamnesis' | 'evaluations'>('history')
+  const [activeTab, setActiveTab] = useState<'history' | 'sheets' | 'anamnesis' | 'evaluations' | 'messages'>('history')
   const [isEditingNotes, setIsEditingNotes] = useState(false)
   const [isEditingMedicalHistory, setIsEditingMedicalHistory] = useState(false)
   const [notesBuffer, setNotesBuffer] = useState('')
@@ -78,16 +78,16 @@ export const ClientDetails = () => {
   const handleSaveManualPayment = async (paymentData: { paymentType: string; validUntil: string; notes?: string; amount?: number }) => {
     await api.recordManualPayment(client.id, paymentData)
     await updateClient(client.id, {
-      subscriptionStatus: 'ACTIVE',
+      status: 'ACTIVE',
       currentPeriodEnd: paymentData.validUntil,
     })
   }
 
   const handleToggleStatus = async () => {
-    const newStatus = client.subscriptionStatus === 'PAUSED' ? 'ACTIVE' : 'PAUSED'
+    const newStatus = client.status === 'PAUSED' ? 'ACTIVE' : 'PAUSED'
     await api.updateStudentStatus(client.id, newStatus)
     await updateClient(client.id, {
-      subscriptionStatus: newStatus as any,
+      status: newStatus,
     })
   }
 
@@ -96,6 +96,7 @@ export const ClientDetails = () => {
     { key: 'sheets', label: t('sheetsAndPrescriptions') },
     { key: 'anamnesis', label: t('anamnesisAndHealth') },
     { key: 'evaluations', label: t('evaluations') },
+    { key: 'messages', label: 'Mensagens' },
   ] as const
 
   return (
@@ -120,9 +121,9 @@ export const ClientDetails = () => {
             variant="outline"
             size="sm"
             onClick={handleToggleStatus}
-            className={client.subscriptionStatus === 'PAUSED' ? 'text-emerald-700 hover:bg-emerald-50' : 'text-amber-700 hover:bg-amber-50'}
+            className={client.status === 'PAUSED' ? 'text-emerald-700 hover:bg-emerald-50' : 'text-amber-700 hover:bg-amber-50'}
           >
-            {client.subscriptionStatus === 'PAUSED' ? (
+            {client.status === 'PAUSED' ? (
               <>
                 <PlayCircle className="mr-1.5 h-4 w-4" /> Ativar Aluno
               </>
@@ -225,6 +226,10 @@ export const ClientDetails = () => {
               setSelectedMetric={setSelectedMetric}
               chartableMetrics={chartableMetrics}
             />
+          )}
+
+          {activeTab === 'messages' && (
+            <ClientMessagesTab client={client} onOpenResendModal={() => setIsResendModalOpen(true)} />
           )}
         </div>
       </div>

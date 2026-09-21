@@ -28,13 +28,27 @@ export interface User {
 }
 
 export const ClientStatus = {
-  Active: 'Active',
-  Inactive: 'Inactive',
-  Lead: 'Lead',
+  ACTIVE: 'ACTIVE',
+  PAUSED: 'PAUSED',
+  OVERDUE: 'OVERDUE',
+  LEAD: 'LEAD',
+  // Backward-compatible accessors
+  Active: 'ACTIVE',
+  Inactive: 'OVERDUE',
+  Lead: 'LEAD',
 } as const
-export type ClientStatus = (typeof ClientStatus)[keyof typeof ClientStatus]
+export type ClientStatus = 'ACTIVE' | 'PAUSED' | 'OVERDUE' | 'LEAD'
+
+export const ClientModality = {
+  PRESENCIAL: 'PRESENCIAL',
+  ONLINE: 'ONLINE',
+  HYBRID: 'HYBRID',
+} as const
+export type ClientModality = 'PRESENCIAL' | 'ONLINE' | 'HYBRID'
 
 export type ClientType = 'In-Person' | 'Online'
+export type StudentModality = ClientModality
+export type StudentSubscriptionStatus = ClientStatus
 export type CheckInFrequency = 'Weekly' | 'Bi-weekly' | 'Monthly'
 
 export interface SystemFeature {
@@ -104,20 +118,14 @@ export interface MedicalHistory {
   observations?: string
 }
 
-export type StudentModality = 'ONLINE' | 'PRESENCIAL' | 'HYBRID'
-export type StudentSubscriptionStatus = 'ACTIVE' | 'OVERDUE' | 'PAUSED'
-
 export interface Client {
   id: string
   name: string
   email: string
   phone: string
-  whatsapp?: string
   status: ClientStatus
-  modality?: StudentModality
-  subscriptionStatus?: StudentSubscriptionStatus
+  modality: ClientModality
   currentPeriodEnd?: string
-  type: ClientType
   dateOfBirth?: string
   checkInFrequency?: CheckInFrequency
   goal?: string
@@ -125,8 +133,13 @@ export interface Client {
   notes?: string
   avatar?: string
   planId?: string // Links to a Plan
+  plan?: Plan | { id?: string; name?: string }
   activeWorkoutSheet?: { id: string; name: string; expiresAt?: string } | null
   notificationEnabled?: boolean
+  // Optional legacy fields for component graceful degradation
+  whatsapp?: string
+  type?: ClientType
+  subscriptionStatus?: ClientStatus
 }
 
 export interface ManualPayment {

@@ -55,7 +55,7 @@ export const Leads = () => {
 
   const handleMarkLost = async (id: string) => {
     if (window.confirm(t('markAsLostConfirm'))) {
-      await updateClient(id, { status: ClientStatus.Inactive })
+      await updateClient(id, { status: ClientStatus.OVERDUE })
       setSelectedLead(null)
     }
   }

@@ -20,7 +20,7 @@ export const WorkoutPlayer = () => {
 
   // Rest Timer State
   const [restRemaining, setRestRemaining] = useState<number | null>(null)
-  const timerRef = useRef<NodeJS.Timeout | null>(null)
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
     if (!token) {

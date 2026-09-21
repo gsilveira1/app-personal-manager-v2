@@ -45,8 +45,10 @@ export function daysAgo(dateStr: string | undefined, t: (key: string, opts?: Rec
   return t('daysAgo', { count: diff })
 }
 
-export function interestLabel(type: Client['type'], t: (key: string) => string): string {
-  return type === 'Online' ? t('online') : t('inPerson')
+export function interestLabel(modality: Client['modality'] | Client['type'] | string | undefined, t: (key: string, options?: Record<string, unknown>) => string): string {
+  if (modality === 'ONLINE' || modality === 'Online') return t('online')
+  if (modality === 'HYBRID') return t('modalityHybrid', { defaultValue: 'Híbrido' })
+  return t('inPerson')
 }
 
 // -------------------------------------------------------------------

@@ -83,7 +83,7 @@ describe('ClientsTable', () => {
     expect(screen.getByText('name')).toBeInTheDocument()
     expect(screen.getByText('status')).toBeInTheDocument()
     expect(screen.getByText('plan')).toBeInTheDocument()
-    expect(screen.getByText('type')).toBeInTheDocument()
+    expect(screen.getByText('modality')).toBeInTheDocument()
     expect(screen.getByText('email')).toBeInTheDocument()
     expect(screen.getByText('actions')).toBeInTheDocument()
   })
@@ -109,7 +109,7 @@ describe('ClientsTable', () => {
   })
 
   it('renders status badge for Active client', () => {
-    render(<ClientsTable clients={[makeClient({ status: 'Active' })]} plans={plans} searchTerm="" onSearchChange={vi.fn()} />)
+    render(<ClientsTable clients={[makeClient({ status: 'ACTIVE' })]} plans={plans} searchTerm="" onSearchChange={vi.fn()} />)
 
     expect(screen.getByText('status.active')).toBeInTheDocument()
   })
@@ -180,6 +180,53 @@ describe('ClientsTable', () => {
     expect(screen.getByText('Client 1')).toBeInTheDocument()
     expect(screen.getByText('Client 12')).toBeInTheDocument()
   })
+
+  it('sorts clients by name ascending and descending on header clicks', () => {
+    const sortableClients = [
+      makeClient({ id: 'c1', name: 'Zack Alpha', email: 'zack@test.com' }),
+      makeClient({ id: 'c2', name: 'Alice Beta', email: 'alice@test.com' }),
+    ]
+
+    render(<ClientsTable clients={sortableClients} plans={plans} searchTerm="" onSearchChange={vi.fn()} />)
+
+    const nameHeader = screen.getByTestId('sort-header-name')
+
+    // Click to sort ASC (Alice first, Zack second)
+    fireEvent.click(nameHeader)
+    let rows = screen.getAllByTestId(/client-row-/)
+    expect(rows[0]).toHaveTextContent('Alice Beta')
+    expect(rows[1]).toHaveTextContent('Zack Alpha')
+
+    // Click to sort DESC (Zack first, Alice second)
+    fireEvent.click(nameHeader)
+    rows = screen.getAllByTestId(/client-row-/)
+    expect(rows[0]).toHaveTextContent('Zack Alpha')
+    expect(rows[1]).toHaveTextContent('Alice Beta')
+  })
+
+  it('sorts clients by email, modality, and status on header clicks', () => {
+    const sortableClients = [
+      makeClient({ id: 'c1', name: 'Client 1', email: 'b@test.com', modality: 'PRESENCIAL', status: 'ACTIVE' }),
+      makeClient({ id: 'c2', name: 'Client 2', email: 'a@test.com', modality: 'ONLINE', status: 'PAUSED' }),
+    ]
+
+    render(<ClientsTable clients={sortableClients} plans={plans} searchTerm="" onSearchChange={vi.fn()} />)
+
+    // Sort by email ASC
+    fireEvent.click(screen.getByTestId('sort-header-email'))
+    let rows = screen.getAllByTestId(/client-row-/)
+    expect(rows[0]).toHaveTextContent('a@test.com')
+
+    // Sort by modality ASC
+    fireEvent.click(screen.getByTestId('sort-header-modality'))
+    rows = screen.getAllByTestId(/client-row-/)
+    expect(rows[0]).toHaveTextContent('modalityOnline')
+
+    // Sort by status ASC
+    fireEvent.click(screen.getByTestId('sort-header-status'))
+    rows = screen.getAllByTestId(/client-row-/)
+    expect(rows[0]).toHaveTextContent('status.active')
+  })
 })
 
 // ===============================
@@ -209,7 +256,7 @@ describe('AddClientModal', () => {
     expect(screen.getByPlaceholderText('phonePlaceholder')).toBeInTheDocument()
     expect(screen.getByLabelText('dateOfBirth')).toBeInTheDocument()
     expect(screen.getByLabelText('status')).toBeInTheDocument()
-    expect(screen.getByLabelText('type')).toBeInTheDocument()
+    expect(screen.getByLabelText('modality')).toBeInTheDocument()
   })
 
   it('calls onClose when cancel button is clicked', () => {
@@ -220,17 +267,17 @@ describe('AddClientModal', () => {
     expect(onClose).toHaveBeenCalled()
   })
 
-  it('does not show checkInFrequency by default (In-Person type)', () => {
+  it('does not show checkInFrequency by default (PRESENCIAL modality)', () => {
     render(<AddClientModal onClose={vi.fn()} onSave={vi.fn()} />)
 
     expect(screen.queryByText('checkInFrequency')).not.toBeInTheDocument()
   })
 
-  it('shows checkInFrequency when Online type is selected', async () => {
+  it('shows checkInFrequency when ONLINE modality is selected', async () => {
     const user = userEvent.setup()
     render(<AddClientModal onClose={vi.fn()} onSave={vi.fn()} />)
 
-    await user.selectOptions(screen.getByLabelText('type'), 'Online')
+    await user.selectOptions(screen.getByLabelText('modality'), 'ONLINE')
 
     expect(screen.getByText('checkInFrequency')).toBeInTheDocument()
   })
@@ -282,7 +329,7 @@ describe('AddClientModal', () => {
     expect(savedClient.name).toBe('Ana Costa')
     expect(savedClient.email).toBe('ana@test.com')
     expect(savedClient.phone).toBe('51-88888-0000')
-    expect(savedClient.type).toBe('In-Person')
+    expect(savedClient.modality).toBe('PRESENCIAL')
     expect(onClose).toHaveBeenCalled()
   })
 
@@ -311,7 +358,7 @@ describe('AddClientModal', () => {
     expect(screen.getByText('selectPlan')).toBeInTheDocument()
   })
 
-  it('handles full client entity submission with modality, whatsapp, notes, notifications and medical history', async () => {
+  it('handles full client entity submission with modality, status, notes, notifications and medical history', async () => {
     const onSave = vi.fn()
     const onClose = vi.fn()
     const user = userEvent.setup()
@@ -321,9 +368,8 @@ describe('AddClientModal', () => {
     await user.type(screen.getByPlaceholderText('namePlaceholder'), 'Carlos Santana')
     await user.type(screen.getByPlaceholderText('emailPlaceholder'), 'carlos@santana.com')
     await user.type(screen.getByPlaceholderText('phonePlaceholder'), '+555399991111')
-    await user.type(screen.getByPlaceholderText('whatsappPlaceholder'), '+555399991111')
     await user.selectOptions(screen.getByLabelText('modality'), 'ONLINE')
-    await user.selectOptions(screen.getByLabelText('subscriptionStatus'), 'PAUSED')
+    await user.selectOptions(screen.getByLabelText('status'), 'PAUSED')
     await user.type(screen.getByPlaceholderText('notesPlaceholder'), 'Aluno iniciante com foco em postura')
 
     // Open medical history
@@ -341,9 +387,8 @@ describe('AddClientModal', () => {
     const payload = onSave.mock.calls[0][0]
     expect(payload.name).toBe('Carlos Santana')
     expect(payload.modality).toBe('ONLINE')
-    expect(payload.type).toBe('Online')
-    expect(payload.subscriptionStatus).toBe('PAUSED')
-    expect(payload.whatsapp).toBe('+555399991111')
+    expect(payload.status).toBe('PAUSED')
+    expect(payload.phone).toBe('+555399991111')
     expect(payload.notes).toBe('Aluno iniciante com foco em postura')
     expect(payload.notificationEnabled).toBe(true)
     expect(payload.medicalHistory?.injuries).toBe('Dor lombar L4-L5')

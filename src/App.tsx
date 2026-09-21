@@ -20,6 +20,7 @@ import { Leads } from './pages/leads/Leads'
 import { Login } from './pages/login/Login'
 import { SignUp } from './pages/sign-up/SignUp'
 import { ForgotPassword } from './pages/forgot-password/ForgotPassword'
+import { ResetPassword } from './pages/reset-password/ResetPassword'
 import { SetupWizard } from './pages/setup-wizard/SetupWizard'
 
 import { AnamnesisForm } from './pages/anamnesis-form/AnamnesisForm'
@@ -122,6 +123,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
           </Route>
 
           {/* Setup Wizard Route */}

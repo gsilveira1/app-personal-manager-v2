@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Shield, Plus, Users, Settings2, CheckCircle2, AlertOctagon, Edit3 } from 'lucide-react'
+import { useState, useEffect, useCallback } from 'react'
+import { Shield, Plus, Users, Edit3 } from 'lucide-react'
 import { Card, Button, Input, Label } from '../../components/atoms'
 import * as api from '../../services/api/apiService'
 import type { AdminTenant } from '../../types'
@@ -23,7 +23,7 @@ export const AdminTenants = () => {
   const [editStatus, setEditStatus] = useState<'ACTIVE' | 'BLOCKED' | 'OVERDUE'>('ACTIVE')
   const [editFeaturesJson, setEditFeaturesJson] = useState('')
 
-  const loadTenants = async () => {
+  const loadTenants = useCallback(async () => {
     setIsLoading(true)
     try {
       const res = await api.getAdminTenants({ status: statusFilter || undefined })
@@ -33,11 +33,11 @@ export const AdminTenants = () => {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [statusFilter])
 
   useEffect(() => {
     loadTenants()
-  }, [statusFilter])
+  }, [loadTenants])
 
   const handleCreateTenant = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -128,7 +128,20 @@ export const AdminTenants = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 bg-white">
-            {tenants.map((t) => (
+            {isLoading ? (
+              <tr>
+                <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
+                  Carregando tenants...
+                </td>
+              </tr>
+            ) : tenants.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
+                  Nenhum tenant encontrado.
+                </td>
+              </tr>
+            ) : (
+              tenants.map((t) => (
               <tr key={t.id} className="hover:bg-slate-50/80 transition-colors">
                 <td className="px-6 py-4 font-bold text-slate-900">{t.name}</td>
                 <td className="px-6 py-4 font-mono text-xs text-slate-600">{t.slug}</td>
@@ -167,7 +180,7 @@ export const AdminTenants = () => {
                   </Button>
                 </td>
               </tr>
-            ))}
+            )))}
           </tbody>
         </table>
       </Card>
@@ -197,6 +210,27 @@ export const AdminTenants = () => {
               <div>
                 <Label className="text-xs font-semibold text-slate-700">Limite de Alunos</Label>
                 <Input type="number" value={maxStudents} onChange={(e) => setMaxStudents(parseInt(e.target.value) || 50)} />
+              </div>
+
+              <div className="space-y-2 pt-2">
+                <label className="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={canUploadVideos}
+                    onChange={(e) => setCanUploadVideos(e.target.checked)}
+                    className="rounded text-indigo-600 focus:ring-indigo-500"
+                  />
+                  Habilitar Upload de Vídeos de Exercícios
+                </label>
+                <label className="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={whatsappAlerts}
+                    onChange={(e) => setWhatsappAlerts(e.target.checked)}
+                    className="rounded text-indigo-600 focus:ring-indigo-500"
+                  />
+                  Habilitar Alertas e Disparos no WhatsApp
+                </label>
               </div>
 
               <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">

@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next'
 
 import { Button, Input, Select, Label } from '../../atoms'
 import { useStore } from '../../../states/stores/store'
-import type { Client, StudentModality, StudentSubscriptionStatus, ClientStatus, ClientType, MedicalHistory } from '../../../types'
+import { ClientStatus, ClientModality } from '../../../types'
+import type { Client, MedicalHistory, CheckInFrequency } from '../../../types'
 
 interface ClientProfileEditorModalProps {
   isOpen: boolean
@@ -16,13 +17,10 @@ type FormData = {
   name: string
   email: string
   phone: string
-  whatsapp?: string
-  status: Client['status']
-  modality: StudentModality
-  subscriptionStatus: StudentSubscriptionStatus
-  type: Client['type']
+  status: ClientStatus
+  modality: ClientModality
   dateOfBirth?: string
-  checkInFrequency?: Client['checkInFrequency']
+  checkInFrequency?: CheckInFrequency
   goal?: string
   planId?: string
   notes?: string
@@ -40,11 +38,8 @@ export const ClientProfileEditorModal: React.FC<ClientProfileEditorModalProps> =
     name: client.name,
     email: client.email,
     phone: client.phone,
-    whatsapp: client.whatsapp || '',
-    status: client.status,
-    modality: client.modality || (client.type === 'Online' ? 'ONLINE' : 'PRESENCIAL'),
-    subscriptionStatus: client.subscriptionStatus || 'ACTIVE',
-    type: client.type,
+    status: client.status || ClientStatus.ACTIVE,
+    modality: client.modality || ClientModality.PRESENCIAL,
     dateOfBirth: client.dateOfBirth ? client.dateOfBirth.split('T')[0] : '',
     checkInFrequency: client.checkInFrequency || undefined,
     goal: client.goal || '',
@@ -65,16 +60,12 @@ export const ClientProfileEditorModal: React.FC<ClientProfileEditorModalProps> =
 
   useEffect(() => {
     if (isOpen) {
-      const initialModality = client.modality || (client.type === 'Online' ? 'ONLINE' : 'PRESENCIAL')
       setFormData({
         name: client.name,
         email: client.email,
         phone: client.phone,
-        whatsapp: client.whatsapp || '',
-        status: client.status,
-        modality: initialModality,
-        subscriptionStatus: client.subscriptionStatus || 'ACTIVE',
-        type: client.type,
+        status: client.status || ClientStatus.ACTIVE,
+        modality: client.modality || ClientModality.PRESENCIAL,
         dateOfBirth: client.dateOfBirth ? client.dateOfBirth.split('T')[0] : '',
         checkInFrequency: client.checkInFrequency || undefined,
         goal: client.goal || '',
@@ -99,24 +90,6 @@ export const ClientProfileEditorModal: React.FC<ClientProfileEditorModalProps> =
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const handleModalityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const val = e.target.value as StudentModality
-    setFormData((prev) => ({
-      ...prev,
-      modality: val,
-      type: val === 'ONLINE' ? 'Online' : 'In-Person',
-    }))
-  }
-
-  const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const val = e.target.value as ClientType
-    setFormData((prev) => ({
-      ...prev,
-      type: val,
-      modality: val === 'Online' ? 'ONLINE' : prev.modality === 'ONLINE' ? 'PRESENCIAL' : prev.modality,
-    }))
   }
 
   const onSubmit = (e: React.FormEvent) => {
@@ -171,7 +144,7 @@ export const ClientProfileEditorModal: React.FC<ClientProfileEditorModalProps> =
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-slate-700">{t('email')}</label>
               <Input type="email" name="email" value={formData.email} onChange={handleChange} required />
@@ -180,17 +153,13 @@ export const ClientProfileEditorModal: React.FC<ClientProfileEditorModalProps> =
               <label className="text-sm font-medium text-slate-700">{t('phone')}</label>
               <Input name="phone" value={formData.phone} onChange={handleChange} required />
             </div>
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-slate-700">{t('whatsapp')}</label>
-              <Input name="whatsapp" value={formData.whatsapp || ''} onChange={handleChange} placeholder={t('whatsappPlaceholder')} />
-            </div>
           </div>
 
-          {/* Modalidade, Status e Assinatura */}
+          {/* Modalidade, Status e Objetivo */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-slate-700">{t('modality')}</label>
-              <Select name="modality" value={formData.modality} onChange={handleModalityChange}>
+              <Select name="modality" value={formData.modality} onChange={handleChange}>
                 <option value="PRESENCIAL">{t('modalityPresencial')}</option>
                 <option value="ONLINE">{t('modalityOnline')}</option>
                 <option value="HYBRID">{t('modalityHybrid')}</option>
@@ -200,29 +169,10 @@ export const ClientProfileEditorModal: React.FC<ClientProfileEditorModalProps> =
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-slate-700">{t('status')}</label>
               <Select name="status" value={formData.status} onChange={handleChange}>
-                <option value="Active">{t('status.active', { ns: 'common' })}</option>
-                <option value="Inactive">{t('status.inactive', { ns: 'common' })}</option>
-                <option value="Lead">{t('status.lead', { ns: 'common' })}</option>
-              </Select>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-slate-700">{t('subscriptionStatus')}</label>
-              <Select name="subscriptionStatus" value={formData.subscriptionStatus} onChange={handleChange}>
-                <option value="ACTIVE">{t('subStatusActive')}</option>
-                <option value="OVERDUE">{t('subStatusOverdue')}</option>
-                <option value="PAUSED">{t('subStatusPaused')}</option>
-              </Select>
-            </div>
-          </div>
-
-          {/* Tipo e Objetivo */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-slate-700">{t('type')}</label>
-              <Select name="type" value={formData.type} onChange={handleTypeChange}>
-                <option value="In-Person">{t('inPerson')}</option>
-                <option value="Online">{t('online')}</option>
+                <option value={ClientStatus.ACTIVE}>{t('status.active', { ns: 'common' })}</option>
+                <option value={ClientStatus.PAUSED}>{t('status.paused', { ns: 'common' })}</option>
+                <option value={ClientStatus.OVERDUE}>{t('status.overdue', { ns: 'common' })}</option>
+                <option value={ClientStatus.LEAD}>{t('status.lead', { ns: 'common' })}</option>
               </Select>
             </div>
 
@@ -234,15 +184,17 @@ export const ClientProfileEditorModal: React.FC<ClientProfileEditorModalProps> =
 
           {/* Check-in e Plano */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-slate-700">{t('checkInFrequency')}</label>
-              <Select name="checkInFrequency" value={formData.checkInFrequency || ''} onChange={handleChange}>
-                <option value="">{t('none')}</option>
-                <option value="Weekly">{t('frequencyWeekly')}</option>
-                <option value="Bi-weekly">{t('frequencyBiweekly')}</option>
-                <option value="Monthly">{t('frequencyMonthly')}</option>
-              </Select>
-            </div>
+            {(formData.modality === 'ONLINE' || formData.modality === 'HYBRID') ? (
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-slate-700">{t('checkInFrequency')}</label>
+                <Select name="checkInFrequency" value={formData.checkInFrequency || ''} onChange={handleChange}>
+                  <option value="">{t('none')}</option>
+                  <option value="Weekly">{t('frequencyWeekly')}</option>
+                  <option value="Bi-weekly">{t('frequencyBiweekly')}</option>
+                  <option value="Monthly">{t('frequencyMonthly')}</option>
+                </Select>
+              </div>
+            ) : <div />}
 
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-slate-700">{t('subscriptionPlan')}</label>

@@ -13,8 +13,8 @@ export const mockClients: Client[] = [
     name: 'Maria Silva',
     email: 'maria@test.com',
     phone: '(53) 99999-1111',
-    status: 'Active',
-    type: 'In-Person',
+    status: 'ACTIVE',
+    modality: 'PRESENCIAL',
     planId: 'plan-1',
   },
   {
@@ -22,8 +22,8 @@ export const mockClients: Client[] = [
     name: 'João Santos',
     email: 'joao@test.com',
     phone: '(53) 99999-2222',
-    status: 'Active',
-    type: 'Online',
+    status: 'ACTIVE',
+    modality: 'ONLINE',
     checkInFrequency: 'Weekly',
   },
   {
@@ -31,8 +31,8 @@ export const mockClients: Client[] = [
     name: 'Ana Lead',
     email: 'ana@test.com',
     phone: '(53) 99999-3333',
-    status: 'Lead',
-    type: 'In-Person',
+    status: 'LEAD',
+    modality: 'PRESENCIAL',
   },
 ]
 

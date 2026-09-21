@@ -22,7 +22,9 @@ const mockWorkouts = [
   },
 ]
 
-const mockClients = [{ id: 'c1', name: 'John Doe', status: 'Active' }]
+import { ClientStatus } from '../../types'
+
+const mockClients = [{ id: 'c1', name: 'John Doe', status: ClientStatus.ACTIVE }]
 
 vi.mock('../../states/stores/store', () => ({
   useStore: () => ({

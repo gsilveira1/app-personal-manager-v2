@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Activity, CheckCircle2, Upload, AlertTriangle, ShieldCheck } from 'lucide-react'
+import { CheckCircle2, Upload, AlertTriangle, ShieldCheck } from 'lucide-react'
 import { Card, Button, Input, Label } from '../../components/atoms'
 import * as api from '../../services/api/apiService'
 

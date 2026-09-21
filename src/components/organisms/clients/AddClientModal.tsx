@@ -3,8 +3,8 @@ import { HeartPulse, ChevronDown, Bell, FileText } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { useStore } from '../../../states/stores/store'
-import { ClientStatus } from '../../../types'
-import type { Client, ClientType, StudentModality, StudentSubscriptionStatus, CheckInFrequency, Plan, MedicalHistory } from '../../../types'
+import { ClientStatus, ClientModality } from '../../../types'
+import type { Client, CheckInFrequency, Plan, MedicalHistory } from '../../../types'
 import { Card, Button, Input, Select, Label } from '../../atoms'
 
 export const formatPlanLabel = (plan: Plan, perMonth: string) => {
@@ -23,9 +23,8 @@ export const AddClientModal: React.FC<AddClientModalProps> = ({ onClose, onSave 
   const { t: tco } = useTranslation('common')
   const { plans } = useStore()
 
-  const [clientType, setClientType] = useState<ClientType>('In-Person')
-  const [modality, setModality] = useState<StudentModality>('PRESENCIAL')
-  const [subscriptionStatus, setSubscriptionStatus] = useState<StudentSubscriptionStatus>('ACTIVE')
+  const [modality, setModality] = useState<ClientModality>('PRESENCIAL')
+  const [status, setStatus] = useState<ClientStatus>('ACTIVE')
   const [notificationEnabled, setNotificationEnabled] = useState(true)
   const [isCustomPlan, setIsCustomPlan] = useState(false)
   const [showMedical, setShowMedical] = useState(false)
@@ -42,26 +41,6 @@ export const AddClientModal: React.FC<AddClientModalProps> = ({ onClose, onSave 
     durationMinutes: 60,
     price: 400,
   })
-
-  const handleModalityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const val = e.target.value as StudentModality
-    setModality(val)
-    if (val === 'ONLINE') {
-      setClientType('Online')
-    } else {
-      setClientType('In-Person')
-    }
-  }
-
-  const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const val = e.target.value as ClientType
-    setClientType(val)
-    if (val === 'Online') {
-      setModality('ONLINE')
-    } else if (modality === 'ONLINE') {
-      setModality('PRESENCIAL')
-    }
-  }
 
   const handleCustomPlanChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -92,24 +71,21 @@ export const AddClientModal: React.FC<AddClientModalProps> = ({ onClose, onSave 
       : undefined
 
     const phoneVal = (formData.get('phone') as string) || ''
-    const whatsappVal = (formData.get('whatsapp') as string) || phoneVal
     const notesVal = (formData.get('notes') as string) || undefined
+    const planIdVal = formData.get('planId') as string
 
     const newClient: Omit<Client, 'id' | 'avatar'> = {
       name: formData.get('name') as string,
       email: formData.get('email') as string,
       phone: phoneVal,
-      whatsapp: whatsappVal,
       dateOfBirth: (formData.get('dateOfBirth') as string) || undefined,
-      status: (formData.get('status') as ClientStatus) || ClientStatus.Active,
-      modality,
-      subscriptionStatus,
-      type: clientType,
-      checkInFrequency: clientType === 'Online' || modality === 'ONLINE' || modality === 'HYBRID' ? (formData.get('frequency') as CheckInFrequency) : undefined,
+      status: (formData.get('status') as ClientStatus) || status,
+      modality: (formData.get('modality') as ClientModality) || modality,
+      checkInFrequency: modality === 'ONLINE' || modality === 'HYBRID' ? (formData.get('frequency') as CheckInFrequency) : undefined,
       goal: (formData.get('goal') as string) || undefined,
       notes: notesVal,
       notificationEnabled,
-      planId: isCustomPlan ? undefined : ((formData.get('planId') as string) || undefined),
+      planId: isCustomPlan || !planIdVal ? undefined : planIdVal,
       medicalHistory,
     }
 
@@ -142,7 +118,7 @@ export const AddClientModal: React.FC<AddClientModalProps> = ({ onClose, onSave 
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <Label htmlFor="email">{t('email')}</Label>
               <Input id="email" name="email" type="email" required placeholder={t('emailPlaceholder')} />
@@ -151,17 +127,13 @@ export const AddClientModal: React.FC<AddClientModalProps> = ({ onClose, onSave 
               <Label htmlFor="phone">{t('phone')}</Label>
               <Input id="phone" name="phone" required placeholder={t('phonePlaceholder')} />
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="whatsapp">{t('whatsapp')}</Label>
-              <Input id="whatsapp" name="whatsapp" placeholder={t('whatsappPlaceholder')} />
-            </div>
           </div>
 
-          {/* Modalidade, Status e Tipo */}
+          {/* Modalidade, Status e Objetivo */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-1.5">
               <Label htmlFor="modality">{t('modality')}</Label>
-              <Select id="modality" name="modality" value={modality} onChange={handleModalityChange}>
+              <Select id="modality" name="modality" value={modality} onChange={(e) => setModality(e.target.value as ClientModality)}>
                 <option value="PRESENCIAL">{t('modalityPresencial')}</option>
                 <option value="ONLINE">{t('modalityOnline')}</option>
                 <option value="HYBRID">{t('modalityHybrid')}</option>
@@ -170,30 +142,11 @@ export const AddClientModal: React.FC<AddClientModalProps> = ({ onClose, onSave 
 
             <div className="space-y-1.5">
               <Label htmlFor="status">{t('status')}</Label>
-              <Select id="status" name="status">
-                <option value={ClientStatus.Active}>{t(`status.${ClientStatus.Active.toLowerCase()}`, { ns: 'common' })}</option>
-                <option value={ClientStatus.Inactive}>{t(`status.${ClientStatus.Inactive.toLowerCase()}`, { ns: 'common' })}</option>
-                <option value={ClientStatus.Lead}>{t(`status.${ClientStatus.Lead.toLowerCase()}`, { ns: 'common' })}</option>
-              </Select>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="subscriptionStatus">{t('subscriptionStatus')}</Label>
-              <Select id="subscriptionStatus" name="subscriptionStatus" value={subscriptionStatus} onChange={(e) => setSubscriptionStatus(e.target.value as StudentSubscriptionStatus)}>
-                <option value="ACTIVE">{t('subStatusActive')}</option>
-                <option value="OVERDUE">{t('subStatusOverdue')}</option>
-                <option value="PAUSED">{t('subStatusPaused')}</option>
-              </Select>
-            </div>
-          </div>
-
-          {/* Type dropdown for compatibility */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="type">{t('type')}</Label>
-              <Select id="type" name="type" value={clientType} onChange={handleTypeChange}>
-                <option value="In-Person">{t('inPerson')}</option>
-                <option value="Online">{t('online')}</option>
+              <Select id="status" name="status" value={status} onChange={(e) => setStatus(e.target.value as ClientStatus)}>
+                <option value={ClientStatus.ACTIVE}>{t('status.active', { ns: 'common' })}</option>
+                <option value={ClientStatus.PAUSED}>{t('status.paused', { ns: 'common' })}</option>
+                <option value={ClientStatus.OVERDUE}>{t('status.overdue', { ns: 'common' })}</option>
+                <option value={ClientStatus.LEAD}>{t('status.lead', { ns: 'common' })}</option>
               </Select>
             </div>
 
@@ -203,7 +156,7 @@ export const AddClientModal: React.FC<AddClientModalProps> = ({ onClose, onSave 
             </div>
           </div>
 
-          {(clientType === 'Online' || modality === 'ONLINE' || modality === 'HYBRID') && (
+          {(modality === 'ONLINE' || modality === 'HYBRID') && (
             <div className="space-y-1.5 p-3.5 bg-indigo-50/70 rounded-xl border border-indigo-100">
               <Label htmlFor="frequency" className="text-indigo-900 font-semibold">
                 {t('checkInFrequency')}

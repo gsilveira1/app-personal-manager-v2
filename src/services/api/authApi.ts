@@ -54,8 +54,19 @@ export const getCurrentUser = async () => {
  * Requests a password reset for a given email.
  */
 export const requestPasswordReset = async (email: string) => {
-  return await apiClient<void>('/auth/forgot-password', {
+  return await apiClient<{ message: string }>('/auth/forgot-password', {
     method: 'POST',
     body: JSON.stringify({ email }),
   })
 }
+
+/**
+ * Resets user password using token.
+ */
+export const resetPassword = async (token: string, pass: string) => {
+  return await apiClient<{ message: string }>('/auth/reset-password', {
+    method: 'POST',
+    body: JSON.stringify({ token, password: pass }),
+  })
+}
+

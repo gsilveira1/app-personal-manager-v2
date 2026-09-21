@@ -1,5 +1,4 @@
 import apiClient from '../../utils/apiClient'
-import type { WorkoutSheet } from '../../types'
 
 export interface PortalWorkoutSheetResponse {
   sheetId: string | null
