@@ -6,3 +6,5 @@ export { EvaluationModal, initialEvalState, perimeterFields, skinfoldFields } fr
 export { SessionLogModal } from './SessionLogModal'
 export { ProgressChart } from './ProgressChart'
 export { ConfirmationModal } from './ConfirmationModal'
+export { ClientMessagesTab } from './ClientMessagesTab'
+

@@ -294,4 +294,11 @@ describe('ClientDetails', () => {
     renderPage()
     expect(screen.getByText('noNotes')).toBeInTheDocument()
   })
+
+  it('switches to messages tab without throwing ReferenceError', () => {
+    renderPage()
+    fireEvent.click(screen.getByText('Mensagens'))
+    expect(screen.getByText(/Histórico de Mensagens/i)).toBeInTheDocument()
+  })
 })
+

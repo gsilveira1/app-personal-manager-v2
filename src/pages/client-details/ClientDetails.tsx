@@ -15,7 +15,9 @@ import { AnamnesisTab } from '../../components/organisms/client-details/Anamnesi
 import { WorkoutSheetsTab } from '../../components/organisms/client-details/WorkoutSheetsTab'
 import { ConsistencyHeatmap } from '../../components/organisms/client-details/ConsistencyHeatmap'
 import { ResendMagicLinkModal } from '../../components/organisms/client-details/ResendMagicLinkModal'
+import { ClientMessagesTab } from '../../components/organisms/client-details/ClientMessagesTab'
 import * as api from '../../services/api/apiService'
+
 import type { MedicalHistory } from '../../types'
 
 export const ClientDetails = () => {
