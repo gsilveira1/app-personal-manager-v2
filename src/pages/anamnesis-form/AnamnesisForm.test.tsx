@@ -19,7 +19,7 @@ describe('AnamnesisForm', () => {
     render(
       <MemoryRouter initialEntries={['/anamnesis']}>
         <AnamnesisForm />
-      </MemoryRouter>,
+      </MemoryRouter>
     )
 
     expect(await screen.findByText('Token de anamnese não informado.')).toBeInTheDocument()
@@ -35,7 +35,7 @@ describe('AnamnesisForm', () => {
     render(
       <MemoryRouter initialEntries={['/anamnesis?token=valid-jwt']}>
         <AnamnesisForm />
-      </MemoryRouter>,
+      </MemoryRouter>
     )
 
     expect(await screen.findByText(/Mariana Souza/)).toBeInTheDocument()
@@ -57,7 +57,7 @@ describe('AnamnesisForm', () => {
     render(
       <MemoryRouter initialEntries={['/anamnesis?token=valid-jwt']}>
         <AnamnesisForm />
-      </MemoryRouter>,
+      </MemoryRouter>
     )
 
     const goalsInput = await screen.findByPlaceholderText(/Ex: Hipertrofia, emagrecimento/i)
@@ -71,7 +71,7 @@ describe('AnamnesisForm', () => {
         expect.objectContaining({
           token: 'valid-jwt',
           fitnessGoals: 'Hipertrofia e condicionamento',
-        }),
+        })
       )
     })
   })

@@ -43,7 +43,8 @@ export const AnamnesisForm = () => {
       return
     }
 
-    api.getAnamnesisForm(token)
+    api
+      .getAnamnesisForm(token)
       .then((data) => {
         setMetadata(data)
         if (data.theme?.primaryColor) {
@@ -133,9 +134,7 @@ export const AnamnesisForm = () => {
       <div className="mx-auto max-w-2xl space-y-6">
         {/* Header */}
         <div className="text-center">
-          {metadata?.theme?.logoUrl && (
-            <img src={metadata.theme.logoUrl} alt="Logo" className="mx-auto h-12 w-auto mb-2 object-contain" />
-          )}
+          {metadata?.theme?.logoUrl && <img src={metadata.theme.logoUrl} alt="Logo" className="mx-auto h-12 w-auto mb-2 object-contain" />}
           <h1 className="text-2xl font-bold text-slate-900">Ficha de Anamnese e Prontidão</h1>
           <p className="text-sm text-slate-600 mt-1">
             Olá <strong>{metadata?.studentName}</strong>, preencha o questionário abaixo para o treinador <strong>{metadata?.personalName}</strong>.
@@ -145,29 +144,17 @@ export const AnamnesisForm = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Section 1: Objectives & Experience */}
           <Card className="p-6 space-y-4 shadow-md bg-white">
-            <h3 className="font-bold text-slate-900 text-sm border-b border-slate-100 pb-2">
-              1. Objetivos e Experiência
-            </h3>
+            <h3 className="font-bold text-slate-900 text-sm border-b border-slate-100 pb-2">1. Objetivos e Experiência</h3>
 
             <div>
               <Label className="text-xs font-semibold text-slate-700">Seus Principais Objetivos</Label>
-              <Input
-                placeholder="Ex: Hipertrofia, emagrecimento, melhora de postura"
-                value={fitnessGoals}
-                onChange={(e) => setFitnessGoals(e.target.value)}
-                required
-                className="mt-1 text-sm"
-              />
+              <Input placeholder="Ex: Hipertrofia, emagrecimento, melhora de postura" value={fitnessGoals} onChange={(e) => setFitnessGoals(e.target.value)} required className="mt-1 text-sm" />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label className="text-xs font-semibold text-slate-700">Nível de Experiência com Musculação</Label>
-                <select
-                  value={experienceLevel}
-                  onChange={(e) => setExperienceLevel(e.target.value)}
-                  className="mt-1 w-full rounded-md border border-slate-300 p-2 text-sm bg-white"
-                >
+                <select value={experienceLevel} onChange={(e) => setExperienceLevel(e.target.value)} className="mt-1 w-full rounded-md border border-slate-300 p-2 text-sm bg-white">
                   <option value="BEGINNER">Iniciante (Nunca treinou / Pouco tempo)</option>
                   <option value="INTERMEDIATE">Intermediário (1 a 3 anos de treino)</option>
                   <option value="ADVANCED">Avançado (Mais de 3 anos)</option>
@@ -176,25 +163,13 @@ export const AnamnesisForm = () => {
 
               <div>
                 <Label className="text-xs font-semibold text-slate-700">Peso Atual (kg)</Label>
-                <Input
-                  type="number"
-                  step="0.1"
-                  placeholder="Ex: 68.5"
-                  value={weightKg}
-                  onChange={(e) => setWeightKg(e.target.value)}
-                  className="mt-1 text-sm"
-                />
+                <Input type="number" step="0.1" placeholder="Ex: 68.5" value={weightKg} onChange={(e) => setWeightKg(e.target.value)} className="mt-1 text-sm" />
               </div>
             </div>
 
             <div>
               <Label className="text-xs font-semibold text-slate-700">Disponibilidade de Dias e Horários</Label>
-              <Input
-                placeholder="Ex: 4x por semana, 1h por dia pela manhã"
-                value={routineAndSchedule}
-                onChange={(e) => setRoutineAndSchedule(e.target.value)}
-                className="mt-1 text-sm"
-              />
+              <Input placeholder="Ex: 4x por semana, 1h por dia pela manhã" value={routineAndSchedule} onChange={(e) => setRoutineAndSchedule(e.target.value)} className="mt-1 text-sm" />
             </div>
           </Card>
 
@@ -259,12 +234,8 @@ export const AnamnesisForm = () => {
 
           {/* Section 3: Photos */}
           <Card className="p-6 space-y-4 shadow-md bg-white">
-            <h3 className="font-bold text-slate-900 text-sm border-b border-slate-100 pb-2">
-              3. Fotos para Avaliação Postural e Corporal (Opcional)
-            </h3>
-            <p className="text-xs text-slate-500">
-              Fotos com roupas de treino (bermuda/top) em local bem iluminado para acompanhamento de evolução.
-            </p>
+            <h3 className="font-bold text-slate-900 text-sm border-b border-slate-100 pb-2">3. Fotos para Avaliação Postural e Corporal (Opcional)</h3>
+            <p className="text-xs text-slate-500">Fotos com roupas de treino (bermuda/top) em local bem iluminado para acompanhamento de evolução.</p>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {[

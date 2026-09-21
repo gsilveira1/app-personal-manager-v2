@@ -63,9 +63,7 @@ export const ResendMagicLinkModal = ({ isOpen, onClose, client }: ResendMagicLin
                     type="button"
                     onClick={() => setSelectedType('WORKOUT_SHEET')}
                     className={`p-3 rounded-lg border text-left transition-all ${
-                      selectedType === 'WORKOUT_SHEET'
-                        ? 'border-emerald-600 bg-emerald-50 text-emerald-900'
-                        : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                      selectedType === 'WORKOUT_SHEET' ? 'border-emerald-600 bg-emerald-50 text-emerald-900' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                     }`}
                   >
                     <span className="block font-bold text-sm">Ficha de Treino</span>
@@ -76,9 +74,7 @@ export const ResendMagicLinkModal = ({ isOpen, onClose, client }: ResendMagicLin
                     type="button"
                     onClick={() => setSelectedType('ANAMNESIS')}
                     className={`p-3 rounded-lg border text-left transition-all ${
-                      selectedType === 'ANAMNESIS'
-                        ? 'border-emerald-600 bg-emerald-50 text-emerald-900'
-                        : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                      selectedType === 'ANAMNESIS' ? 'border-emerald-600 bg-emerald-50 text-emerald-900' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                     }`}
                   >
                     <span className="block font-bold text-sm">Anamnese de Saúde</span>
@@ -120,11 +116,7 @@ export const ResendMagicLinkModal = ({ isOpen, onClose, client }: ResendMagicLin
                 <div>
                   <span className="block text-xs font-semibold text-slate-600 mb-1">Link Direto:</span>
                   <div className="flex items-center gap-2">
-                    <input
-                      readOnly
-                      value={`${window.location.origin}${result.link}`}
-                      className="w-full text-xs p-2 bg-slate-50 border border-slate-200 rounded font-mono select-all"
-                    />
+                    <input readOnly value={`${window.location.origin}${result.link}`} className="w-full text-xs p-2 bg-slate-50 border border-slate-200 rounded font-mono select-all" />
                     <Button size="sm" variant="outline" onClick={handleCopyLink}>
                       {copied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
                     </Button>

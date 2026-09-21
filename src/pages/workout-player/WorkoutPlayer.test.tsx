@@ -20,7 +20,7 @@ describe('WorkoutPlayer', () => {
     render(
       <MemoryRouter initialEntries={['/workout-player']}>
         <WorkoutPlayer />
-      </MemoryRouter>,
+      </MemoryRouter>
     )
 
     expect(await screen.findByText('Token de treino não informado.')).toBeInTheDocument()
@@ -62,7 +62,7 @@ describe('WorkoutPlayer', () => {
     render(
       <MemoryRouter initialEntries={['/workout-player?token=valid-jwt']}>
         <WorkoutPlayer />
-      </MemoryRouter>,
+      </MemoryRouter>
     )
 
     expect(await screen.findByText('Adaptação Hipertrofia')).toBeInTheDocument()
@@ -116,7 +116,7 @@ describe('WorkoutPlayer', () => {
     render(
       <MemoryRouter initialEntries={['/workout-player?token=valid-jwt']}>
         <WorkoutPlayer />
-      </MemoryRouter>,
+      </MemoryRouter>
     )
 
     const startBtn = await screen.findByRole('button', { name: /Iniciar Treino de Hoje/i })

@@ -1,11 +1,7 @@
 import apiClient from '../../utils/apiClient'
 import type { ExerciseCatalogItem } from '../../types'
 
-export const getExercises = async (params?: {
-  search?: string
-  bodyPart?: string
-  equipment?: string
-}): Promise<ExerciseCatalogItem[]> => {
+export const getExercises = async (params?: { search?: string; bodyPart?: string; equipment?: string }): Promise<ExerciseCatalogItem[]> => {
   const query = new URLSearchParams()
   if (params?.search) query.append('search', params.search)
   if (params?.bodyPart) query.append('bodyPart', params.bodyPart)

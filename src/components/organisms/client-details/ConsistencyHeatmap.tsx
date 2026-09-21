@@ -17,7 +17,8 @@ export const ConsistencyHeatmap = ({ clientId }: ConsistencyHeatmapProps) => {
   useEffect(() => {
     let isMounted = true
     setIsLoading(true)
-    api.getActivityHeatmap(clientId, daysCount)
+    api
+      .getActivityHeatmap(clientId, daysCount)
       .then((res) => {
         if (isMounted) setData(res)
       })
@@ -66,9 +67,7 @@ export const ConsistencyHeatmap = ({ clientId }: ConsistencyHeatmapProps) => {
           </div>
           <div>
             <span className="block text-xs font-semibold text-indigo-800">Último Treino Feito</span>
-            <span className="text-sm font-bold text-indigo-950">
-              {data?.lastWorkoutDate ? new Date(data.lastWorkoutDate).toLocaleDateString() : 'Nenhum'}
-            </span>
+            <span className="text-sm font-bold text-indigo-950">{data?.lastWorkoutDate ? new Date(data.lastWorkoutDate).toLocaleDateString() : 'Nenhum'}</span>
           </div>
         </div>
       </div>
@@ -83,17 +82,13 @@ export const ConsistencyHeatmap = ({ clientId }: ConsistencyHeatmapProps) => {
           <div className="flex gap-1">
             <button
               onClick={() => setDaysCount(30)}
-              className={`px-2.5 py-1 text-xs font-medium rounded ${
-                daysCount === 30 ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
+              className={`px-2.5 py-1 text-xs font-medium rounded ${daysCount === 30 ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
             >
               30 dias
             </button>
             <button
               onClick={() => setDaysCount(60)}
-              className={`px-2.5 py-1 text-xs font-medium rounded ${
-                daysCount === 60 ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
+              className={`px-2.5 py-1 text-xs font-medium rounded ${daysCount === 60 ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
             >
               60 dias
             </button>
@@ -129,13 +124,7 @@ export const ConsistencyHeatmap = ({ clientId }: ConsistencyHeatmapProps) => {
                 <span className="font-semibold">{hoveredDay.date}</span>
                 {hoveredDay.workoutName && <span className="ml-2 text-slate-300">• {hoveredDay.workoutName}</span>}
               </div>
-              <div>
-                {hoveredDay.durationMinutes ? (
-                  <span className="font-semibold text-emerald-400">{hoveredDay.durationMinutes} min</span>
-                ) : (
-                  <span className="text-slate-400">Sem treino</span>
-                )}
-              </div>
+              <div>{hoveredDay.durationMinutes ? <span className="font-semibold text-emerald-400">{hoveredDay.durationMinutes} min</span> : <span className="text-slate-400">Sem treino</span>}</div>
             </div>
           )}
         </div>

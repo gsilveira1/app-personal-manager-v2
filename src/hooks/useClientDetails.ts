@@ -24,13 +24,7 @@ function getMetricValue(evaluation: Evaluation, metricKey: string): number | und
   return typeof value === 'number' ? value : undefined
 }
 
-export function useClientDetails(
-  clientId: string | undefined,
-  sessions: Session[],
-  evaluations: Evaluation[],
-  workoutsOrMetric: WorkoutPlan[] | string = [],
-  maybeMetric: string = 'weight'
-) {
+export function useClientDetails(clientId: string | undefined, sessions: Session[], evaluations: Evaluation[], workoutsOrMetric: WorkoutPlan[] | string = [], maybeMetric: string = 'weight') {
   const workouts: WorkoutPlan[] = Array.isArray(workoutsOrMetric) ? workoutsOrMetric : []
   const selectedMetric: string = typeof workoutsOrMetric === 'string' ? workoutsOrMetric : maybeMetric
 

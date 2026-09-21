@@ -19,8 +19,7 @@ interface BrandingStepProps {
 
 export const BrandingStep: React.FC<BrandingStepProps> = ({ onComplete }) => {
   const { t } = useTranslation('setupWizard')
-  const { tenant, updateBranding, uploadLogo, setPrimaryColorPreview, isLoading } =
-    useTenantStore()
+  const { tenant, updateBranding, uploadLogo, setPrimaryColorPreview, isLoading } = useTenantStore()
 
   const [primaryColor, setPrimaryColor] = useState(tenant?.primaryColor || '#10B981')
   const [logoUrl, setLogoUrl] = useState(tenant?.logoUrl || '')
@@ -78,38 +77,22 @@ export const BrandingStep: React.FC<BrandingStepProps> = ({ onComplete }) => {
   return (
     <div className="space-y-8" data-testid="branding-step">
       <div>
-        <span className="inline-block px-2.5 py-1 text-xs font-semibold text-emerald-700 bg-emerald-100 rounded-full mb-2">
-          {t('step1.badge')}
-        </span>
+        <span className="inline-block px-2.5 py-1 text-xs font-semibold text-emerald-700 bg-emerald-100 rounded-full mb-2">{t('step1.badge')}</span>
         <h2 className="text-2xl font-bold text-slate-800">{t('step1.title')}</h2>
         <p className="mt-1 text-sm text-slate-600">{t('step1.description')}</p>
       </div>
 
-      {errorMessage && (
-        <div className="p-4 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700">
-          {errorMessage}
-        </div>
-      )}
+      {errorMessage && <div className="p-4 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700">{errorMessage}</div>}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Controls Column */}
         <div className="space-y-6">
           {/* Logo Upload Section */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              {t('step1.logoLabel')}
-            </label>
+            <label className="block text-sm font-medium text-slate-700 mb-2">{t('step1.logoLabel')}</label>
             <div className="flex items-center gap-4">
               <div className="h-20 w-20 rounded-xl border-2 border-dashed border-slate-300 flex items-center justify-center bg-slate-50 overflow-hidden relative">
-                {logoUrl ? (
-                  <img
-                    src={logoUrl}
-                    alt="Logo Preview"
-                    className="h-full w-full object-contain p-1"
-                  />
-                ) : (
-                  <ImageIcon className="h-8 w-8 text-slate-400" />
-                )}
+                {logoUrl ? <img src={logoUrl} alt="Logo Preview" className="h-full w-full object-contain p-1" /> : <ImageIcon className="h-8 w-8 text-slate-400" />}
                 {isUploading && (
                   <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
                     <Loader2 className="h-6 w-6 animate-spin text-emerald-600" />
@@ -136,9 +119,7 @@ export const BrandingStep: React.FC<BrandingStepProps> = ({ onComplete }) => {
 
           {/* Primary Color Section */}
           <div className="space-y-3">
-            <label className="block text-sm font-medium text-slate-700">
-              {t('step1.colorLabel')}
-            </label>
+            <label className="block text-sm font-medium text-slate-700">{t('step1.colorLabel')}</label>
             <div>
               <p className="text-xs text-slate-500 mb-2">{t('step1.presetColors')}</p>
               <div className="flex flex-wrap gap-3">
@@ -189,57 +170,32 @@ export const BrandingStep: React.FC<BrandingStepProps> = ({ onComplete }) => {
 
         {/* Live Preview Card */}
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">
-            {t('step1.previewTitle')}
-          </label>
+          <label className="block text-sm font-medium text-slate-700 mb-2">{t('step1.previewTitle')}</label>
           <Card className="p-6 border border-slate-200 shadow-sm bg-white rounded-xl space-y-4">
             <div className="flex items-center justify-between pb-4 border-b border-slate-100">
               <div className="flex items-center gap-3">
-                <div
-                  className="h-10 w-10 rounded-lg flex items-center justify-center text-white font-bold"
-                  style={{ backgroundColor: primaryColor }}
-                >
-                  {logoUrl ? (
-                    <img
-                      src={logoUrl}
-                      alt="Logo"
-                      className="h-8 w-8 object-contain rounded"
-                    />
-                  ) : (
-                    'VP'
-                  )}
+                <div className="h-10 w-10 rounded-lg flex items-center justify-center text-white font-bold" style={{ backgroundColor: primaryColor }}>
+                  {logoUrl ? <img src={logoUrl} alt="Logo" className="h-8 w-8 object-contain rounded" /> : 'VP'}
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-slate-900">
-                    {tenant?.name || 'Vivi Personal Studio'}
-                  </h4>
+                  <h4 className="text-sm font-bold text-slate-900">{tenant?.name || 'Vivi Personal Studio'}</h4>
                   <p className="text-xs text-slate-500">App do Aluno</p>
                 </div>
               </div>
-              <Badge
-                variant="success"
-                style={{ backgroundColor: `${primaryColor}20`, color: primaryColor }}
-              >
+              <Badge variant="success" style={{ backgroundColor: `${primaryColor}20`, color: primaryColor }}>
                 {t('step1.previewBadge')}
               </Badge>
             </div>
 
             <div className="space-y-3">
-              <div className="text-xs font-medium text-slate-500">
-                {t('step1.previewCard')}
-              </div>
+              <div className="text-xs font-medium text-slate-500">{t('step1.previewCard')}</div>
               <div className="p-4 rounded-lg bg-slate-50 border border-slate-100 space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm font-bold text-slate-800">
-                    Treino A - Hipertrofia
-                  </span>
+                  <span className="text-sm font-bold text-slate-800">Treino A - Hipertrofia</span>
                   <span className="text-xs text-slate-500">45 min</span>
                 </div>
                 <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-                  <div
-                    className="h-full rounded-full transition-all duration-300"
-                    style={{ backgroundColor: primaryColor, width: '65%' }}
-                  />
+                  <div className="h-full rounded-full transition-all duration-300" style={{ backgroundColor: primaryColor, width: '65%' }} />
                 </div>
               </div>
 
@@ -256,12 +212,7 @@ export const BrandingStep: React.FC<BrandingStepProps> = ({ onComplete }) => {
       </div>
 
       <div className="pt-4 flex justify-end">
-        <Button
-          onClick={handleSaveAndContinue}
-          disabled={isLoading || isUploading}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5"
-          data-testid="save-step-1-button"
-        >
+        <Button onClick={handleSaveAndContinue} disabled={isLoading || isUploading} className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5" data-testid="save-step-1-button">
           {t('step1.nextButton')}
         </Button>
       </div>

@@ -71,12 +71,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
       {/* Support Link for Feature 008 RN 5 */}
       <div className="p-4 border-t border-slate-800">
-        <a
-          href="https://wa.me/5511999998888"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2 text-xs text-slate-400 hover:text-emerald-400 transition-colors"
-        >
+        <a href="https://wa.me/5511999998888" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-xs text-slate-400 hover:text-emerald-400 transition-colors">
           <MessageSquare className="h-4 w-4" />
           <span>Suporte do Sistema</span>
         </a>

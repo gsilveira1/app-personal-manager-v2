@@ -125,10 +125,7 @@ function App() {
           </Route>
 
           {/* Setup Wizard Route */}
-          <Route
-            path="/setup-wizard"
-            element={isAuthenticated ? <SetupWizard /> : <Navigate to="/login" replace />}
-          />
+          <Route path="/setup-wizard" element={isAuthenticated ? <SetupWizard /> : <Navigate to="/login" replace />} />
 
           {/* Protected App Routes */}
           <Route element={<ProtectedRoute />}>

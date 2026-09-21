@@ -27,10 +27,7 @@ export const getMyTenant = async (): Promise<Tenant> => {
 /**
  * Updates tenant branding (logo URL, primary brand color).
  */
-export const updateTenantBranding = async (data: {
-  logoUrl?: string
-  primaryColor?: string
-}): Promise<Tenant> => {
+export const updateTenantBranding = async (data: { logoUrl?: string; primaryColor?: string }): Promise<Tenant> => {
   return await apiClient<Tenant>('/tenant/branding', {
     method: 'PATCH',
     body: JSON.stringify(data),

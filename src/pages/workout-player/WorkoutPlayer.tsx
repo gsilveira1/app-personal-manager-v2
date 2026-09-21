@@ -29,7 +29,8 @@ export const WorkoutPlayer = () => {
       return
     }
 
-    api.getPortalWorkoutSheet(token)
+    api
+      .getPortalWorkoutSheet(token)
       .then((res) => {
         setData(res)
         // Pre-populate loads map
@@ -133,9 +134,7 @@ export const WorkoutPlayer = () => {
   if (isFinished) {
     const durationMinutes = Math.round(finishedDurationSeconds / 60)
     const trainerPhone = data?.trainerPhone?.replace(/\D/g, '') || ''
-    const feedbackText = encodeURIComponent(
-      `Fala treinador! Finalizei o ${currentWorkout?.name || 'treino'} em ${durationMinutes} minutos. Treino muito bom!`,
-    )
+    const feedbackText = encodeURIComponent(`Fala treinador! Finalizei o ${currentWorkout?.name || 'treino'} em ${durationMinutes} minutos. Treino muito bom!`)
     const whatsappUrl = `https://wa.me/${trainerPhone}?text=${feedbackText}`
 
     return (
@@ -208,9 +207,7 @@ export const WorkoutPlayer = () => {
                 key={w.id}
                 onClick={() => setActiveWorkoutIdx(idx)}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                  activeWorkoutIdx === idx
-                    ? 'bg-emerald-600 text-white shadow-lg'
-                    : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                  activeWorkoutIdx === idx ? 'bg-emerald-600 text-white shadow-lg' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
                 }`}
               >
                 <span>Treino {w.letter}</span>
@@ -226,13 +223,8 @@ export const WorkoutPlayer = () => {
             <h2 className="text-lg font-bold text-white">
               Treino {currentWorkout?.letter} - {currentWorkout?.name}
             </h2>
-            <p className="text-xs text-slate-400">
-              {currentWorkout?.blocks.length || 0} blocos de exercícios para você realizar hoje.
-            </p>
-            <Button
-              onClick={handleStartWorkout}
-              className="w-full py-4 text-base font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg flex items-center justify-center gap-2"
-            >
+            <p className="text-xs text-slate-400">{currentWorkout?.blocks.length || 0} blocos de exercícios para você realizar hoje.</p>
+            <Button onClick={handleStartWorkout} className="w-full py-4 text-base font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg flex items-center justify-center gap-2">
               <Play className="h-5 w-5 fill-current" /> Iniciar Treino de Hoje
             </Button>
           </Card>
@@ -242,16 +234,10 @@ export const WorkoutPlayer = () => {
             {currentWorkout?.blocks.map((block, bIdx) => (
               <Card key={block.id} className="p-4 bg-slate-800 border-slate-700 space-y-4 shadow-md">
                 <div className="flex items-center justify-between border-b border-slate-700 pb-2">
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
-                    block.type === 'BISET' ? 'bg-purple-900/50 text-purple-300 border border-purple-700' : 'bg-slate-700 text-slate-300'
-                  }`}>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${block.type === 'BISET' ? 'bg-purple-900/50 text-purple-300 border border-purple-700' : 'bg-slate-700 text-slate-300'}`}>
                     {block.type === 'BISET' ? 'BI-SET (Sem descanso entre os dois)' : `Bloco #${bIdx + 1}`}
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => handleStartRest(block.restTimeSeconds)}
-                    className="flex items-center gap-1 text-xs text-amber-400 hover:text-amber-300 font-medium"
-                  >
+                  <button type="button" onClick={() => handleStartRest(block.restTimeSeconds)} className="flex items-center gap-1 text-xs text-amber-400 hover:text-amber-300 font-medium">
                     <Clock className="h-3.5 w-3.5" />
                     <span>Descansar ({block.restTimeSeconds}s)</span>
                   </button>
@@ -264,14 +250,7 @@ export const WorkoutPlayer = () => {
                       {exercise.gifUrl && (
                         <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-slate-900 border border-slate-700 flex items-center justify-center">
                           {exercise.gifUrl.endsWith('.mp4') || exercise.gifUrl.endsWith('.webm') ? (
-                            <video
-                              src={exercise.gifUrl}
-                              autoPlay
-                              loop
-                              muted
-                              playsInline
-                              className="h-full w-full object-cover"
-                            />
+                            <video src={exercise.gifUrl} autoPlay loop muted playsInline className="h-full w-full object-cover" />
                           ) : (
                             <img src={exercise.gifUrl} alt={exercise.exerciseName} className="h-full w-full object-cover" />
                           )}
@@ -287,11 +266,7 @@ export const WorkoutPlayer = () => {
                         </div>
                       </div>
 
-                      {exercise.executionNotes && (
-                        <p className="text-[11px] text-slate-400 bg-slate-900/60 p-2 rounded border border-slate-700/50 italic">
-                          💡 {exercise.executionNotes}
-                        </p>
-                      )}
+                      {exercise.executionNotes && <p className="text-[11px] text-slate-400 bg-slate-900/60 p-2 rounded border border-slate-700/50 italic">💡 {exercise.executionNotes}</p>}
 
                       {/* Load Input */}
                       <div className="flex items-center gap-3 pt-1">
@@ -319,10 +294,7 @@ export const WorkoutPlayer = () => {
             {/* Finish Workout Bottom Button */}
             <div className="fixed bottom-0 left-0 right-0 p-4 bg-slate-900/90 backdrop-blur-md border-t border-slate-800">
               <div className="max-w-lg mx-auto">
-                <Button
-                  onClick={handleFinishWorkout}
-                  className="w-full py-4 text-base font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xl flex items-center justify-center gap-2"
-                >
+                <Button onClick={handleFinishWorkout} className="w-full py-4 text-base font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xl flex items-center justify-center gap-2">
                   <Check className="h-5 w-5" /> Finalizar Treino
                 </Button>
               </div>

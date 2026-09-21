@@ -69,9 +69,7 @@ export const AnamnesisTab = ({ client }: AnamnesisTabProps) => {
             <Activity className="mr-2 h-5 w-5 text-emerald-600" />
             {t('anamnesis.title', 'Anamnese e Histórico de Saúde')}
           </h3>
-          <p className="text-xs text-slate-500">
-            {t('anamnesis.subtitle', 'Acompanhe respostas do formulário e evolução estética')}
-          </p>
+          <p className="text-xs text-slate-500">{t('anamnesis.subtitle', 'Acompanhe respostas do formulário e evolução estética')}</p>
         </div>
 
         <div className="flex items-center gap-2">
@@ -81,12 +79,7 @@ export const AnamnesisTab = ({ client }: AnamnesisTabProps) => {
               {t('anamnesis.print', 'Imprimir (Ctrl+P)')}
             </Button>
           )}
-          <Button
-            size="sm"
-            onClick={handleRequestReassessment}
-            disabled={isRequesting}
-            className="bg-emerald-600 text-white hover:bg-emerald-700 no-print"
-          >
+          <Button size="sm" onClick={handleRequestReassessment} disabled={isRequesting} className="bg-emerald-600 text-white hover:bg-emerald-700 no-print">
             <Send className="mr-1.5 h-4 w-4" />
             {isRequesting ? 'Enviando...' : t('anamnesis.requestReassessment', 'Solicitar Reavaliação')}
           </Button>
@@ -108,9 +101,7 @@ export const AnamnesisTab = ({ client }: AnamnesisTabProps) => {
               key={a.id}
               onClick={() => setSelectedAnamnesis(a)}
               className={`rounded-lg border px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-all ${
-                selectedAnamnesis?.id === a.id
-                  ? 'border-emerald-600 bg-emerald-50 text-emerald-800 shadow-sm'
-                  : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                selectedAnamnesis?.id === a.id ? 'border-emerald-600 bg-emerald-50 text-emerald-800 shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
               }`}
             >
               <Calendar className="mr-1 inline h-3.5 w-3.5" />
@@ -145,9 +136,7 @@ export const AnamnesisTab = ({ client }: AnamnesisTabProps) => {
                         <img src={p.url} alt={p.label} className="h-full w-full object-cover transition group-hover:scale-105" />
                       </div>
                     ) : (
-                      <div className="flex aspect-[3/4] w-full items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50 text-xs text-slate-400">
-                        Sem foto
-                      </div>
+                      <div className="flex aspect-[3/4] w-full items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50 text-xs text-slate-400">Sem foto</div>
                     )}
                   </div>
                 ))}
@@ -194,9 +183,7 @@ export const AnamnesisTab = ({ client }: AnamnesisTabProps) => {
                 {Object.entries(selectedAnamnesis.parqAnswers).map(([k, v]) => (
                   <div key={k} className="flex items-center justify-between p-2 rounded bg-slate-50">
                     <span className="text-slate-700 font-medium">{k.toUpperCase()}</span>
-                    <span className={`px-2 py-0.5 rounded font-semibold ${v ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}`}>
-                      {v ? 'SIM' : 'NÃO'}
-                    </span>
+                    <span className={`px-2 py-0.5 rounded font-semibold ${v ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}`}>{v ? 'SIM' : 'NÃO'}</span>
                   </div>
                 ))}
               </div>

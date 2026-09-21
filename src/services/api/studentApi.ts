@@ -8,13 +8,7 @@ export interface StudentsResponse {
   totalPages: number
 }
 
-export const getStudents = async (params?: {
-  page?: number
-  limit?: number
-  search?: string
-  modality?: string
-  status?: string
-}): Promise<StudentsResponse> => {
+export const getStudents = async (params?: { page?: number; limit?: number; search?: string; modality?: string; status?: string }): Promise<StudentsResponse> => {
   const query = new URLSearchParams()
   if (params?.page) query.append('page', params.page.toString())
   if (params?.limit) query.append('limit', params.limit.toString())
@@ -35,7 +29,7 @@ export const createStudent = async (data: Partial<Client>): Promise<Client> => {
 
 export const recordManualPayment = async (
   id: string,
-  data: { paymentType: string; validUntil: string; notes?: string; amount?: number },
+  data: { paymentType: string; validUntil: string; notes?: string; amount?: number }
 ): Promise<{ message: string; payment: ManualPayment; client: Client }> => {
   return apiClient<{ message: string; payment: ManualPayment; client: Client }>(`/students/${id}/manual-payment`, {
     method: 'POST',
@@ -54,10 +48,7 @@ export const getActivityHeatmap = async (id: string, days: number = 30): Promise
   return apiClient<ActivityHeatmapData>(`/students/${id}/activity-heatmap?days=${days}`)
 }
 
-export const resendStudentLink = async (
-  id: string,
-  type: 'WORKOUT_SHEET' | 'ANAMNESIS',
-): Promise<{ status: string; message: string; channel: string; scheduledDelayMs: number; link: string }> => {
+export const resendStudentLink = async (id: string, type: 'WORKOUT_SHEET' | 'ANAMNESIS'): Promise<{ status: string; message: string; channel: string; scheduledDelayMs: number; link: string }> => {
   return apiClient(`/students/${id}/resend-link`, {
     method: 'POST',
     body: JSON.stringify({ type }),

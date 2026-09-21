@@ -19,14 +19,7 @@ describe('ManualPaymentModal', () => {
     const onSave = vi.fn().mockResolvedValue(undefined)
     const onClose = vi.fn()
 
-    render(
-      <ManualPaymentModal
-        isOpen={true}
-        onClose={onClose}
-        client={mockClient}
-        onSave={onSave}
-      />,
-    )
+    render(<ManualPaymentModal isOpen={true} onClose={onClose} client={mockClient} onSave={onSave} />)
 
     expect(screen.getByText(/João Silva/)).toBeInTheDocument()
 
@@ -39,7 +32,7 @@ describe('ManualPaymentModal', () => {
     expect(onSave).toHaveBeenCalledWith(
       expect.objectContaining({
         paymentType: 'MANUAL_PIX',
-      }),
+      })
     )
   })
 })

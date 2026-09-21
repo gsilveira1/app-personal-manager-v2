@@ -16,10 +16,7 @@ export const getWorkoutSheet = async (id: string): Promise<WorkoutSheet> => {
   return apiClient<WorkoutSheet>(`/workout-sheets/${id}`)
 }
 
-export const saveWorkoutTemplate = async (
-  sheetId: string,
-  data: { name: string; description?: string },
-): Promise<WorkoutTemplate> => {
+export const saveWorkoutTemplate = async (sheetId: string, data: { name: string; description?: string }): Promise<WorkoutTemplate> => {
   return apiClient<WorkoutTemplate>(`/workout-templates/from-sheet/${sheetId}`, {
     method: 'POST',
     body: JSON.stringify(data),

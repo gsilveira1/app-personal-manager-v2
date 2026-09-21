@@ -66,11 +66,7 @@ export const createTenantSlice: StateCreator<TenantSlice, [], [], TenantSlice> =
   uploadLogo: async (file: File) => {
     set({ isLoading: true, error: null })
     try {
-      const { uploadUrl, publicUrl } = await api.getStoragePresignedUrl(
-        file.name,
-        file.type,
-        'logos',
-      )
+      const { uploadUrl, publicUrl } = await api.getStoragePresignedUrl(file.name, file.type, 'logos')
       await api.uploadFileToR2PresignedUrl(uploadUrl, file)
       await get().updateBranding({ logoUrl: publicUrl })
       set({ isLoading: false })

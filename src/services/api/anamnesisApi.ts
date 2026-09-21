@@ -25,13 +25,8 @@ export const getStudentAnamneses = async (clientId: string): Promise<AnamnesisRe
   return apiClient<AnamnesisRecord[]>(`/anamnesis/student/${clientId}`)
 }
 
-export const requestReassessment = async (
-  clientId: string,
-): Promise<{ message: string; token: string; link: string }> => {
-  return apiClient<{ message: string; token: string; link: string }>(
-    `/anamnesis/student/${clientId}/request-reassessment`,
-    {
-      method: 'POST',
-    },
-  )
+export const requestReassessment = async (clientId: string): Promise<{ message: string; token: string; link: string }> => {
+  return apiClient<{ message: string; token: string; link: string }>(`/anamnesis/student/${clientId}/request-reassessment`, {
+    method: 'POST',
+  })
 }

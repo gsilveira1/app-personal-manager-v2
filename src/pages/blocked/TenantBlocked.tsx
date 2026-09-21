@@ -11,9 +11,7 @@ export const TenantBlocked = () => {
 
         <div>
           <h1 className="text-xl font-bold text-white">Plataforma Temporariamente Indisponível</h1>
-          <p className="text-sm text-slate-400 mt-2">
-            O acesso a este serviço foi suspenso temporariamente. Por favor, entre em contato com seu treinador para regularização.
-          </p>
+          <p className="text-sm text-slate-400 mt-2">O acesso a este serviço foi suspenso temporariamente. Por favor, entre em contato com seu treinador para regularização.</p>
         </div>
 
         <div className="pt-2">

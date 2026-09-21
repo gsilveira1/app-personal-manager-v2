@@ -80,7 +80,7 @@ describe('AdminTenants', () => {
           name: 'Novo Personal',
           slug: 'novo',
           email: 'novo@email.com',
-        }),
+        })
       )
     })
   })

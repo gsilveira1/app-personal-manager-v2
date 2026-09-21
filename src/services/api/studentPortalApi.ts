@@ -38,13 +38,10 @@ export const recordPortalSession = async (
     durationSeconds: number
     completedAt?: string
     loads?: Array<{ workoutExerciseId: string; loadKg: number }>
-  },
+  }
 ): Promise<{ message: string; sessionId: string; durationSeconds: number }> => {
-  return apiClient<{ message: string; sessionId: string; durationSeconds: number }>(
-    `/student/sessions?token=${encodeURIComponent(token)}`,
-    {
-      method: 'POST',
-      body: JSON.stringify(data),
-    },
-  )
+  return apiClient<{ message: string; sessionId: string; durationSeconds: number }>(`/student/sessions?token=${encodeURIComponent(token)}`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
 }

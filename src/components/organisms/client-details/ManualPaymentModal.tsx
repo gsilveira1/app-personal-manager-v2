@@ -58,9 +58,7 @@ export const ManualPaymentModal = ({ isOpen, onClose, client, onSave }: ManualPa
 
         <form onSubmit={handleSubmit} className="space-y-4 p-6">
           <div>
-            <Label className="mb-1 block text-xs font-semibold text-slate-700">
-              {t('manualPayment.method', 'Forma de Pagamento')}
-            </Label>
+            <Label className="mb-1 block text-xs font-semibold text-slate-700">{t('manualPayment.method', 'Forma de Pagamento')}</Label>
             <div className="grid grid-cols-3 gap-2">
               {[
                 { id: 'MANUAL_PIX', label: 'Pix' },
@@ -72,9 +70,7 @@ export const ManualPaymentModal = ({ isOpen, onClose, client, onSave }: ManualPa
                   key={m.id}
                   onClick={() => setPaymentType(m.id as any)}
                   className={`rounded-lg border px-3 py-2 text-xs font-medium transition-all ${
-                    paymentType === m.id
-                      ? 'border-emerald-600 bg-emerald-50 text-emerald-700 shadow-sm'
-                      : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                    paymentType === m.id ? 'border-emerald-600 bg-emerald-50 text-emerald-700 shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
                   }`}
                 >
                   {m.label}
@@ -88,29 +84,14 @@ export const ManualPaymentModal = ({ isOpen, onClose, client, onSave }: ManualPa
               <Calendar className="mr-1 inline h-3.5 w-3.5" />
               {t('manualPayment.validUntil', 'Novo Vencimento')}
             </Label>
-            <Input
-              id="validUntil"
-              type="date"
-              value={validUntil}
-              onChange={(e) => setValidUntil(e.target.value)}
-              required
-              className="w-full text-sm"
-            />
+            <Input id="validUntil" type="date" value={validUntil} onChange={(e) => setValidUntil(e.target.value)} required className="w-full text-sm" />
           </div>
 
           <div>
             <Label htmlFor="amount" className="mb-1 block text-xs font-semibold text-slate-700">
               {t('manualPayment.amount', 'Valor Pago (R$) (Opcional)')}
             </Label>
-            <Input
-              id="amount"
-              type="number"
-              step="0.01"
-              placeholder="150.00"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="w-full text-sm"
-            />
+            <Input id="amount" type="number" step="0.01" placeholder="150.00" value={amount} onChange={(e) => setAmount(e.target.value)} className="w-full text-sm" />
           </div>
 
           <div>
@@ -118,13 +99,7 @@ export const ManualPaymentModal = ({ isOpen, onClose, client, onSave }: ManualPa
               <FileText className="mr-1 inline h-3.5 w-3.5" />
               {t('manualPayment.notes', 'Observações')}
             </Label>
-            <Input
-              id="notes"
-              placeholder="Ex: Pago adiantado em dinheiro"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              className="w-full text-sm"
-            />
+            <Input id="notes" placeholder="Ex: Pago adiantado em dinheiro" value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full text-sm" />
           </div>
 
           <div className="mt-6 flex justify-end gap-3 border-t border-slate-100 pt-4">

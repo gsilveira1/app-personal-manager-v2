@@ -88,9 +88,7 @@ export const AdminTenants = () => {
             <Shield className="mr-2 h-6 w-6 text-indigo-600" />
             Gestão de Tenants e Feature Flags (Super Admin)
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Controle de assinaturas de Personal Trainers e limites da plataforma
-          </p>
+          <p className="text-sm text-slate-500 mt-1">Controle de assinaturas de Personal Trainers e limites da plataforma</p>
         </div>
 
         <Button onClick={() => setIsCreateModalOpen(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white">
@@ -109,11 +107,7 @@ export const AdminTenants = () => {
           <button
             key={f.id}
             onClick={() => setStatusFilter(f.id)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-              statusFilter === f.id
-                ? 'bg-slate-900 text-white shadow-sm'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-            }`}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${statusFilter === f.id ? 'bg-slate-900 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
           >
             {f.label}
           </button>
@@ -147,11 +141,7 @@ export const AdminTenants = () => {
                 <td className="px-6 py-4">
                   <span
                     className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${
-                      t.status === 'ACTIVE'
-                        ? 'bg-emerald-100 text-emerald-800'
-                        : t.status === 'BLOCKED'
-                        ? 'bg-red-100 text-red-800'
-                        : 'bg-amber-100 text-amber-800'
+                      t.status === 'ACTIVE' ? 'bg-emerald-100 text-emerald-800' : t.status === 'BLOCKED' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'
                     }`}
                   >
                     {t.status}
@@ -159,16 +149,8 @@ export const AdminTenants = () => {
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex flex-wrap gap-1">
-                    {t.features?.canUploadVideos && (
-                      <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-700">
-                        Vídeos R2
-                      </span>
-                    )}
-                    {t.features?.whatsappAlerts && (
-                      <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-medium text-emerald-800">
-                        WhatsApp BullMQ
-                      </span>
-                    )}
+                    {t.features?.canUploadVideos && <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-700">Vídeos R2</span>}
+                    {t.features?.whatsappAlerts && <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-medium text-emerald-800">WhatsApp BullMQ</span>}
                   </div>
                 </td>
                 <td className="px-6 py-4 text-right">
@@ -238,11 +220,7 @@ export const AdminTenants = () => {
             <form onSubmit={handleUpdateTenant} className="space-y-4">
               <div>
                 <Label className="text-xs font-semibold text-slate-700">Status do Tenant</Label>
-                <select
-                  value={editStatus}
-                  onChange={(e) => setEditStatus(e.target.value as any)}
-                  className="mt-1 w-full rounded-md border border-slate-300 p-2 text-sm bg-white"
-                >
+                <select value={editStatus} onChange={(e) => setEditStatus(e.target.value as any)} className="mt-1 w-full rounded-md border border-slate-300 p-2 text-sm bg-white">
                   <option value="ACTIVE">ACTIVE (Ativo)</option>
                   <option value="BLOCKED">BLOCKED (Bloqueado por Inadimplência)</option>
                   <option value="OVERDUE">OVERDUE (Atrasado)</option>
@@ -251,11 +229,7 @@ export const AdminTenants = () => {
 
               <div>
                 <Label className="text-xs font-semibold text-slate-700">Feature Flags (JSON)</Label>
-                <textarea
-                  value={editFeaturesJson}
-                  onChange={(e) => setEditFeaturesJson(e.target.value)}
-                  className="mt-1 w-full font-mono text-xs rounded-md border border-slate-300 p-2 h-36"
-                />
+                <textarea value={editFeaturesJson} onChange={(e) => setEditFeaturesJson(e.target.value)} className="mt-1 w-full font-mono text-xs rounded-md border border-slate-300 p-2 h-36" />
               </div>
 
               <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">

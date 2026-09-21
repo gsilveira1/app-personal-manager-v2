@@ -49,10 +49,7 @@ export const WorkoutSheetsTab = ({ client }: WorkoutSheetsTabProps) => {
   const loadSheets = async () => {
     setIsLoading(true)
     try {
-      const [sheetsData, templatesData] = await Promise.all([
-        api.getWorkoutSheets(client.id),
-        api.getWorkoutTemplates(),
-      ])
+      const [sheetsData, templatesData] = await Promise.all([api.getWorkoutSheets(client.id), api.getWorkoutTemplates()])
       setSheets(sheetsData || [])
       setTemplates(templatesData || [])
       if (sheetsData && sheetsData.length > 0) {
@@ -183,9 +180,7 @@ export const WorkoutSheetsTab = ({ client }: WorkoutSheetsTabProps) => {
         <Card className="p-6 space-y-6">
           <div className="flex items-center justify-between border-b border-slate-100 pb-4">
             <div>
-              <span className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
-                Ficha Vigente
-              </span>
+              <span className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">Ficha Vigente</span>
               <h4 className="text-lg font-bold text-slate-900 mt-1">{activeSheet.name}</h4>
               {activeSheet.expiresAt && (
                 <span className="text-xs text-slate-500 flex items-center mt-0.5">
@@ -200,9 +195,7 @@ export const WorkoutSheetsTab = ({ client }: WorkoutSheetsTabProps) => {
             {activeSheet.workouts?.map((w) => (
               <div key={w.id || w.letter} className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 space-y-3">
                 <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-600 font-bold text-white text-xs">
-                    {w.letter}
-                  </span>
+                  <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-600 font-bold text-white text-xs">{w.letter}</span>
                   <span className="font-bold text-sm text-slate-800">{w.name}</span>
                 </div>
 
@@ -210,9 +203,11 @@ export const WorkoutSheetsTab = ({ client }: WorkoutSheetsTabProps) => {
                   {w.blocks?.map((b, bIdx) => (
                     <div key={b.id || bIdx} className="rounded-lg bg-white p-3 border border-slate-200/80 shadow-xs">
                       <div className="flex items-center justify-between mb-2">
-                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                          b.type === 'BISET' ? 'bg-purple-100 text-purple-800' : b.type === 'TRISET' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700'
-                        }`}>
+                        <span
+                          className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                            b.type === 'BISET' ? 'bg-purple-100 text-purple-800' : b.type === 'TRISET' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700'
+                          }`}
+                        >
                           {b.type}
                         </span>
                         <span className="text-[11px] text-slate-500 font-medium">{b.restTimeSeconds}s descanso</span>
@@ -305,7 +300,9 @@ export const WorkoutSheetsTab = ({ client }: WorkoutSheetsTabProps) => {
                   >
                     <option value="">Importar Template...</option>
                     {templates.map((t) => (
-                      <option key={t.id} value={t.id}>{t.name}</option>
+                      <option key={t.id} value={t.id}>
+                        {t.name}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -329,9 +326,7 @@ export const WorkoutSheetsTab = ({ client }: WorkoutSheetsTabProps) => {
                 <div key={wIdx} className="rounded-xl border border-slate-200 p-4 bg-slate-50/50 space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-600 font-bold text-white text-xs">
-                        {w.letter}
-                      </span>
+                      <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-600 font-bold text-white text-xs">{w.letter}</span>
                       <Input
                         value={w.name}
                         onChange={(e) => {
@@ -358,7 +353,9 @@ export const WorkoutSheetsTab = ({ client }: WorkoutSheetsTabProps) => {
                     {w.blocks.map((b, bIdx) => (
                       <div key={bIdx} className="rounded-lg bg-white p-3 border border-slate-200 space-y-3">
                         <div className="flex items-center justify-between text-xs border-b border-slate-100 pb-2">
-                          <span className="font-bold text-indigo-700">Bloco #{bIdx + 1} ({b.type})</span>
+                          <span className="font-bold text-indigo-700">
+                            Bloco #{bIdx + 1} ({b.type})
+                          </span>
                           <div className="flex items-center gap-2">
                             <span className="text-slate-500">Descanso (s):</span>
                             <Input
@@ -455,12 +452,7 @@ export const WorkoutSheetsTab = ({ client }: WorkoutSheetsTabProps) => {
             <h3 className="font-bold text-slate-900">Salvar como Template</h3>
             <div>
               <Label className="text-xs font-semibold text-slate-700">Nome do Template</Label>
-              <Input
-                placeholder="Ex: Treino ABC Hipertrofia Intermediário"
-                value={templateName}
-                onChange={(e) => setTemplateName(e.target.value)}
-                className="mt-1 text-sm"
-              />
+              <Input placeholder="Ex: Treino ABC Hipertrofia Intermediário" value={templateName} onChange={(e) => setTemplateName(e.target.value)} className="mt-1 text-sm" />
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="outline" onClick={() => setIsTemplateModalOpen(false)}>

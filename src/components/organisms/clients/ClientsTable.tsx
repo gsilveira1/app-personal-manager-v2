@@ -101,9 +101,7 @@ export const ClientsTable: React.FC<ClientsTableProps> = ({ clients, plans, sear
                         {client.subscriptionStatus === 'PAUSED' ? 'Pausado' : t(`status.${client.status.toLowerCase()}`, { ns: 'common' })}
                       </Badge>
                       {client.activeWorkoutSheet?.expiresAt && new Date(client.activeWorkoutSheet.expiresAt).getTime() - Date.now() < 5 * 24 * 3600 * 1000 && (
-                        <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-800">
-                          Ficha Vencendo
-                        </span>
+                        <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-800">Ficha Vencendo</span>
                       )}
                     </div>
                   </td>
@@ -125,9 +123,7 @@ export const ClientsTable: React.FC<ClientsTableProps> = ({ clients, plans, sear
                           <Globe className="h-3 w-3 mr-1 text-blue-600" /> Online
                         </span>
                       ) : client.modality === 'HYBRID' ? (
-                        <span className="inline-flex items-center rounded-md bg-purple-100 px-2 py-0.5 text-xs font-semibold text-purple-800">
-                          Híbrido
-                        </span>
+                        <span className="inline-flex items-center rounded-md bg-purple-100 px-2 py-0.5 text-xs font-semibold text-purple-800">Híbrido</span>
                       ) : (
                         <span className="inline-flex items-center rounded-md bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-800">
                           <MapPin className="h-3 w-3 mr-1 text-emerald-600" /> Presencial

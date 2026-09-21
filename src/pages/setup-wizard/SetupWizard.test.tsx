@@ -51,7 +51,7 @@ describe('SetupWizard', () => {
     render(
       <MemoryRouter>
         <SetupWizard />
-      </MemoryRouter>,
+      </MemoryRouter>
     )
 
     expect(screen.getByTestId('setup-wizard-page')).toBeInTheDocument()

@@ -37,22 +37,15 @@ export const SetupWizard: React.FC = () => {
   }
 
   return (
-    <div
-      className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8"
-      data-testid="setup-wizard-page"
-    >
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8" data-testid="setup-wizard-page">
       <div className="sm:mx-auto sm:w-full sm:max-w-3xl">
         {/* Header Branding */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center p-3 bg-emerald-100 rounded-2xl mb-4 text-emerald-700 shadow-sm">
             <ShieldCheck className="h-8 w-8" />
           </div>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-            {t('title')}
-          </h1>
-          <p className="mt-2 text-base text-slate-600 max-w-lg mx-auto">
-            {t('subtitle')}
-          </p>
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">{t('title')}</h1>
+          <p className="mt-2 text-base text-slate-600 max-w-lg mx-auto">{t('subtitle')}</p>
         </div>
 
         {/* Step Progress Bar */}
@@ -60,9 +53,7 @@ export const SetupWizard: React.FC = () => {
           <div className="flex items-center justify-center gap-4">
             <div
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                currentStep === 1
-                  ? 'bg-emerald-600 text-white shadow-md'
-                  : 'bg-white text-emerald-700 border border-emerald-200'
+                currentStep === 1 ? 'bg-emerald-600 text-white shadow-md' : 'bg-white text-emerald-700 border border-emerald-200'
               }`}
             >
               <Palette className="h-4 w-4" />
@@ -73,9 +64,7 @@ export const SetupWizard: React.FC = () => {
 
             <div
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                currentStep === 2
-                  ? 'bg-emerald-600 text-white shadow-md'
-                  : 'bg-white text-slate-500 border border-slate-200'
+                currentStep === 2 ? 'bg-emerald-600 text-white shadow-md' : 'bg-white text-slate-500 border border-slate-200'
               }`}
             >
               <MessageSquare className="h-4 w-4" />
