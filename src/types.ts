@@ -126,6 +126,7 @@ export interface Client {
   avatar?: string
   planId?: string // Links to a Plan
   activeWorkoutSheet?: { id: string; name: string; expiresAt?: string } | null
+  notificationEnabled?: boolean
 }
 
 export interface ManualPayment {

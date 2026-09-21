@@ -135,5 +135,23 @@
     "print": "Print (Ctrl+P)",
     "requestReassessment": "Request Reassessment",
     "photos": "Physique Photos"
-  }
+  },
+  "modality": "Modality",
+  "modalityOnline": "Online",
+  "modalityPresencial": "In-Person",
+  "modalityHybrid": "Hybrid",
+  "whatsapp": "WhatsApp",
+  "whatsappPlaceholder": "+55 53 99999-0000",
+  "subscriptionStatus": "Subscription Status",
+  "subStatusActive": "Active",
+  "subStatusOverdue": "Overdue",
+  "subStatusPaused": "Paused",
+  "notes": "Notes",
+  "notesPlaceholder": "General observations, medical restrictions or reminders...",
+  "notificationEnabled": "Enable automated WhatsApp alerts and notifications",
+  "hasHeartDisease": "Has history of heart disease or hypertension",
+  "smoker": "Smoker",
+  "drinker": "Consumes alcohol",
+  "healthObservations": "Health Observations",
+  "healthObservationsPlaceholder": "Allergies, specific joint discomfort, etc."
 }

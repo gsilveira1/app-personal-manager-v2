@@ -310,6 +310,45 @@ describe('AddClientModal', () => {
     await user.click(screen.getByText('selectExistingPlan'))
     expect(screen.getByText('selectPlan')).toBeInTheDocument()
   })
+
+  it('handles full client entity submission with modality, whatsapp, notes, notifications and medical history', async () => {
+    const onSave = vi.fn()
+    const onClose = vi.fn()
+    const user = userEvent.setup()
+
+    render(<AddClientModal onClose={onClose} onSave={onSave} />)
+
+    await user.type(screen.getByPlaceholderText('namePlaceholder'), 'Carlos Santana')
+    await user.type(screen.getByPlaceholderText('emailPlaceholder'), 'carlos@santana.com')
+    await user.type(screen.getByPlaceholderText('phonePlaceholder'), '+555399991111')
+    await user.type(screen.getByPlaceholderText('whatsappPlaceholder'), '+555399991111')
+    await user.selectOptions(screen.getByLabelText('modality'), 'ONLINE')
+    await user.selectOptions(screen.getByLabelText('subscriptionStatus'), 'PAUSED')
+    await user.type(screen.getByPlaceholderText('notesPlaceholder'), 'Aluno iniciante com foco em postura')
+
+    // Open medical history
+    await user.click(screen.getByText('medicalHistoryOptional'))
+    await user.type(screen.getByPlaceholderText('injuriesPlaceholder'), 'Dor lombar L4-L5')
+    await user.click(screen.getByLabelText('hasHeartDisease'))
+
+    const submitBtn = screen.getAllByRole('button').find((b) => b.getAttribute('type') === 'submit')!
+    fireEvent.click(submitBtn)
+
+    await waitFor(() => {
+      expect(onSave).toHaveBeenCalledTimes(1)
+    })
+
+    const payload = onSave.mock.calls[0][0]
+    expect(payload.name).toBe('Carlos Santana')
+    expect(payload.modality).toBe('ONLINE')
+    expect(payload.type).toBe('Online')
+    expect(payload.subscriptionStatus).toBe('PAUSED')
+    expect(payload.whatsapp).toBe('+555399991111')
+    expect(payload.notes).toBe('Aluno iniciante com foco em postura')
+    expect(payload.notificationEnabled).toBe(true)
+    expect(payload.medicalHistory?.injuries).toBe('Dor lombar L4-L5')
+    expect(payload.medicalHistory?.hasHeartDisease).toBe(true)
+  })
 })
 
 // ===============================

@@ -135,5 +135,23 @@
     "print": "Imprimir (Ctrl+P)",
     "requestReassessment": "Solicitar Reevaluación",
     "photos": "Fotos Corporales"
-  }
+  },
+  "modality": "Modalidad",
+  "modalityOnline": "En línea",
+  "modalityPresencial": "Presencial",
+  "modalityHybrid": "Híbrido",
+  "whatsapp": "WhatsApp",
+  "whatsappPlaceholder": "+55 53 99999-0000",
+  "subscriptionStatus": "Estado de Suscripción",
+  "subStatusActive": "Activa",
+  "subStatusOverdue": "Vencida",
+  "subStatusPaused": "Pausada",
+  "notes": "Observaciones",
+  "notesPlaceholder": "Observaciones generales, restricciones médicas o recordatorios...",
+  "notificationEnabled": "Notificaciones y alertas automáticas por WhatsApp activas",
+  "hasHeartDisease": "Tiene antecedentes de enfermedad cardíaca",
+  "smoker": "Fumador",
+  "drinker": "Consume alcohol",
+  "healthObservations": "Observaciones de salud",
+  "healthObservationsPlaceholder": "Alergias, molestias articulares específicas, etc."
 }

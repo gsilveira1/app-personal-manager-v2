@@ -22,18 +22,25 @@ vi.mock('recharts', () => ({
   ResponsiveContainer: (p: any) => <div>{p.children}</div>,
 }))
 
+const mockUpdateClient = vi.fn()
 const mockUpdateEvaluation = vi.fn()
 const mockDeleteEvaluation = vi.fn()
 
 vi.mock('../../../states/stores/store', () => ({
   useStore: () => ({
+    updateClient: mockUpdateClient,
     updateEvaluation: mockUpdateEvaluation,
     deleteEvaluation: mockDeleteEvaluation,
+    plans: [
+      { id: 'p1', name: 'Plano Presencial 2x' },
+      { id: 'p2', name: 'Consultoria Online' },
+    ],
   }),
 }))
 
 // ── Imports (after mocks) ─────────────────────────────────────────────
 import { ClientProfileHeader } from './ClientProfileHeader'
+import { ClientProfileEditorModal } from './ClientProfileEditorModal'
 import { MedicalHistoryCard } from './MedicalHistoryCard'
 import { EvaluationCard } from './EvaluationCard'
 import { WorkoutCard } from './WorkoutCard'
@@ -518,5 +525,67 @@ describe('ConfirmationModal', () => {
     render(<ConfirmationModal {...defaultProps} />)
     await userEvent.click(screen.getByText('cancel'))
     expect(defaultProps.onCancel).toHaveBeenCalled()
+  })
+})
+
+// =====================================================================
+// ClientProfileEditorModal
+// =====================================================================
+describe('ClientProfileEditorModal', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('renders nothing when isOpen is false', () => {
+    const { container } = render(
+      <ClientProfileEditorModal isOpen={false} onClose={vi.fn()} client={baseClient} />
+    )
+    expect(container.firstChild).toBeNull()
+  })
+
+  it('renders pre-populated fields with client entity data', () => {
+    render(<ClientProfileEditorModal isOpen={true} onClose={vi.fn()} client={baseClient} />)
+
+    expect(screen.getByRole('heading', { name: 'editProfile' })).toBeInTheDocument()
+    expect(screen.getByDisplayValue('Maria Silva')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('maria@example.com')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('(53) 99999-0000')).toBeInTheDocument()
+  })
+
+  it('submits updated profile with modality, whatsapp, notes, subscriptionStatus, and medicalHistory', async () => {
+    const onClose = vi.fn()
+    const user = userEvent.setup()
+
+    render(<ClientProfileEditorModal isOpen={true} onClose={onClose} client={baseClient} />)
+
+    // Modify name, modality, notes, and whatsapp
+    const nameInput = screen.getByDisplayValue('Maria Silva')
+    await user.clear(nameInput)
+    await user.type(nameInput, 'Maria Silva Atualizada')
+
+    const whatsappInput = screen.getByPlaceholderText('whatsappPlaceholder')
+    await user.clear(whatsappInput)
+    await user.type(whatsappInput, '+5553988887777')
+
+    const notesInput = screen.getByPlaceholderText('notesPlaceholder')
+    await user.type(notesInput, 'Prefere treinar pela manhã')
+
+    // Open medical history
+    await user.click(screen.getByText('medicalHistory'))
+    const injuriesInput = screen.getByPlaceholderText('injuriesPlaceholder')
+    await user.clear(injuriesInput)
+    await user.type(injuriesInput, 'Condromalácia patelar grau 2')
+
+    const saveBtn = screen.getByText('save')
+    await user.click(saveBtn)
+
+    expect(mockUpdateClient).toHaveBeenCalledTimes(1)
+    const [calledId, calledData] = mockUpdateClient.mock.calls[0]
+    expect(calledId).toBe('c1')
+    expect(calledData.name).toBe('Maria Silva Atualizada')
+    expect(calledData.whatsapp).toBe('+5553988887777')
+    expect(calledData.notes).toBe('Prefere treinar pela manhã')
+    expect(calledData.medicalHistory?.injuries).toBe('Condromalácia patelar grau 2')
+    expect(onClose).toHaveBeenCalled()
   })
 })
