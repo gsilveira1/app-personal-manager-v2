@@ -140,6 +140,14 @@ vi.mock('../../components/organisms/client-details/ProgressChart', () => ({
   ProgressChart: () => <div data-testid="progress-chart" />,
 }))
 
+vi.mock('../../components/organisms/client-details/ConsistencyHeatmap', () => ({
+  ConsistencyHeatmap: ({ clientId }: any) => <div data-testid="consistency-heatmap">Heatmap for {clientId}</div>,
+}))
+
+vi.mock('../../components/organisms/client-details/WorkoutSheetsTab', () => ({
+  WorkoutSheetsTab: ({ client }: any) => <div data-testid="workout-sheets-tab">Sheets for {client.name}</div>,
+}))
+
 vi.mock('../../components/WorkoutEditorModal', () => ({
   WorkoutEditorModal: ({ isOpen, onClose, onSave, initialData }: any) =>
     isOpen ? (
@@ -195,9 +203,10 @@ describe('ClientDetails', () => {
 
   it('renders tab items', () => {
     renderPage()
-    expect(screen.getAllByText('sessionHistory').length).toBeGreaterThanOrEqual(1)
-    expect(screen.getAllByText('evaluations').length).toBeGreaterThanOrEqual(1)
-    expect(screen.getByText('prescriptions')).toBeInTheDocument()
+    expect(screen.getByText('historyAndConsistency')).toBeInTheDocument()
+    expect(screen.getByText('sheetsAndPrescriptions')).toBeInTheDocument()
+    expect(screen.getByText('anamnesisAndHealth')).toBeInTheDocument()
+    expect(screen.getByText('evaluations')).toBeInTheDocument()
   })
 
   it('renders notes section', () => {
@@ -227,14 +236,16 @@ describe('ClientDetails', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/clients')
   })
 
-  it('shows empty session history with no sessions', () => {
+  it('shows heatmap and empty session history on initial history tab', () => {
     renderPage()
+    expect(screen.getByTestId('consistency-heatmap')).toBeInTheDocument()
     expect(screen.getByText('noSessions')).toBeInTheDocument()
   })
 
-  it('renders session cards when sessions exist', () => {
+  it('renders session cards and heatmap when sessions exist', () => {
     mockHookReturn = { ...mockHookReturn, clientSessions: [mockSession, mockSessionIncomplete] }
     renderPage()
+    expect(screen.getByTestId('consistency-heatmap')).toBeInTheDocument()
     // Session dates are formatted via formatLocalized mock → 'Jan 1, 2025'
     expect(screen.getAllByText('Jan 1, 2025').length).toBeGreaterThanOrEqual(1)
     // Session with notes should show the notes
@@ -243,21 +254,21 @@ describe('ClientDetails', () => {
 
   it('switches to evaluations tab and shows empty state', () => {
     renderPage()
-    fireEvent.click(screen.getAllByText('evaluations')[0])
+    fireEvent.click(screen.getByText('evaluations'))
     expect(screen.getByText('noEvaluations')).toBeInTheDocument()
   })
 
   it('shows evaluation cards when evaluations exist', () => {
     mockHookReturn = { ...mockHookReturn, clientEvaluations: [mockEvaluation] }
     renderPage()
-    fireEvent.click(screen.getAllByText('evaluations')[0])
+    fireEvent.click(screen.getByText('evaluations'))
     expect(screen.getByTestId('eval-card')).toBeInTheDocument()
   })
 
   it('shows progress chart when multiple evaluations exist', () => {
     mockHookReturn = { ...mockHookReturn, clientEvaluations: [mockEvaluation, mockEvaluation2] }
     renderPage()
-    fireEvent.click(screen.getAllByText('evaluations')[0])
+    fireEvent.click(screen.getByText('evaluations'))
     expect(screen.getByTestId('progress-chart')).toBeInTheDocument()
     expect(screen.getAllByTestId('eval-card').length).toBe(2)
   })
@@ -265,65 +276,67 @@ describe('ClientDetails', () => {
   it('does not show progress chart when only one evaluation exists', () => {
     mockHookReturn = { ...mockHookReturn, clientEvaluations: [mockEvaluation] }
     renderPage()
-    fireEvent.click(screen.getAllByText('evaluations')[0])
+    fireEvent.click(screen.getByText('evaluations'))
     expect(screen.queryByTestId('progress-chart')).not.toBeInTheDocument()
   })
 
-  it('switches to workouts tab and shows empty state', () => {
+  it('switches to sheets and prescriptions tab and shows sheets and empty prescriptions state', () => {
     renderPage()
-    fireEvent.click(screen.getByText('prescriptions'))
+    fireEvent.click(screen.getByText('sheetsAndPrescriptions'))
+    expect(screen.getByTestId('workout-sheets-tab')).toBeInTheDocument()
     expect(screen.getByText('noActivePrescriptions')).toBeInTheDocument()
     expect(screen.getByText('noArchivedPlans')).toBeInTheDocument()
   })
 
-  it('shows active and archived workout cards', () => {
+  it('shows active and archived workout cards in sheets tab', () => {
     mockHookReturn = { ...mockHookReturn, activePlans: [mockActiveWorkout], archivedPlans: [mockArchivedWorkout] }
     renderPage()
-    fireEvent.click(screen.getByText('prescriptions'))
+    fireEvent.click(screen.getByText('sheetsAndPrescriptions'))
+    expect(screen.getByTestId('workout-sheets-tab')).toBeInTheDocument()
     expect(screen.getByText('Push Day')).toBeInTheDocument()
     expect(screen.getByText('Old Plan')).toBeInTheDocument()
   })
 
-  it('opens workout editor modal for editing existing workout', () => {
+  it('opens workout editor modal for editing existing workout in sheets tab', () => {
     mockHookReturn = { ...mockHookReturn, activePlans: [mockActiveWorkout] }
     renderPage()
-    fireEvent.click(screen.getByText('prescriptions'))
+    fireEvent.click(screen.getByText('sheetsAndPrescriptions'))
     fireEvent.click(screen.getByTestId('edit-w1'))
     expect(screen.getByTestId('workout-editor')).toBeInTheDocument()
     expect(screen.getByTestId('editing-workout')).toHaveTextContent('Push Day')
   })
 
-  it('archives a workout via workout card callback', () => {
+  it('archives a workout via workout card callback in sheets tab', () => {
     mockHookReturn = { ...mockHookReturn, activePlans: [mockActiveWorkout] }
     renderPage()
-    fireEvent.click(screen.getByText('prescriptions'))
+    fireEvent.click(screen.getByText('sheetsAndPrescriptions'))
     fireEvent.click(screen.getByTestId('archive-w1'))
     expect(mockUpdateWorkout).toHaveBeenCalledWith('w1', { status: 'Archived' })
   })
 
-  it('activates an archived workout via workout card callback', () => {
+  it('activates an archived workout via workout card callback in sheets tab', () => {
     mockHookReturn = { ...mockHookReturn, archivedPlans: [mockArchivedWorkout] }
     renderPage()
-    fireEvent.click(screen.getByText('prescriptions'))
+    fireEvent.click(screen.getByText('sheetsAndPrescriptions'))
     fireEvent.click(screen.getByTestId('activate-w2'))
     expect(mockUpdateWorkout).toHaveBeenCalledWith('w2', { status: 'Active' })
   })
 
-  it('deletes a workout with confirmation', () => {
+  it('deletes a workout with confirmation in sheets tab', () => {
     mockHookReturn = { ...mockHookReturn, activePlans: [mockActiveWorkout] }
     vi.spyOn(window, 'confirm').mockReturnValue(true)
     renderPage()
-    fireEvent.click(screen.getByText('prescriptions'))
+    fireEvent.click(screen.getByText('sheetsAndPrescriptions'))
     fireEvent.click(screen.getByTestId('delete-w1'))
     expect(window.confirm).toHaveBeenCalled()
     expect(mockDeleteWorkout).toHaveBeenCalledWith('w1')
   })
 
-  it('does not delete workout when confirmation is cancelled', () => {
+  it('does not delete workout when confirmation is cancelled in sheets tab', () => {
     mockHookReturn = { ...mockHookReturn, activePlans: [mockActiveWorkout] }
     vi.spyOn(window, 'confirm').mockReturnValue(false)
     renderPage()
-    fireEvent.click(screen.getByText('prescriptions'))
+    fireEvent.click(screen.getByText('sheetsAndPrescriptions'))
     fireEvent.click(screen.getByTestId('delete-w1'))
     expect(mockDeleteWorkout).not.toHaveBeenCalled()
   })

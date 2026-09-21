@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router'
-import { ArrowLeft, Save, Edit2, FileText, DollarSign, MessageCircle, PauseCircle, PlayCircle, Dumbbell, Activity, Flame } from 'lucide-react'
+import { ArrowLeft, Save, Edit2, FileText, DollarSign, MessageCircle, PauseCircle, PlayCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { useStore } from '../../states/stores/store'
@@ -26,7 +26,7 @@ export const ClientDetails = () => {
   const navigate = useNavigate()
   const { clients, sessions, evaluations, workouts, plans, updateClient, uploadClientAvatar, addWorkout, updateWorkout, deleteWorkout } = useStore()
 
-  const [activeTab, setActiveTab] = useState<'history' | 'evaluations' | 'workouts' | 'sheets' | 'anamnesis' | 'consistency'>('history')
+  const [activeTab, setActiveTab] = useState<'history' | 'sheets' | 'anamnesis' | 'evaluations'>('history')
   const [isWorkoutModalOpen, setIsWorkoutModalOpen] = useState(false)
   const [editingWorkout, setEditingWorkout] = useState<WorkoutPlan | null>(null)
   const [isEditingNotes, setIsEditingNotes] = useState(false)
@@ -102,12 +102,10 @@ export const ClientDetails = () => {
   }
 
   const tabItems = [
-    { key: 'history', label: t('sessionHistory') },
-    { key: 'sheets', label: 'Fichas (Divisões A/B/C)' },
-    { key: 'anamnesis', label: 'Anamnese & Saúde' },
-    { key: 'consistency', label: 'Consistência (Heatmap)' },
+    { key: 'history', label: t('historyAndConsistency') },
+    { key: 'sheets', label: t('sheetsAndPrescriptions') },
+    { key: 'anamnesis', label: t('anamnesisAndHealth') },
     { key: 'evaluations', label: t('evaluations') },
-    { key: 'workouts', label: t('prescriptions') },
   ] as const
 
   return (
@@ -218,13 +216,30 @@ export const ClientDetails = () => {
             ))}
           </div>
 
-          {activeTab === 'history' && <ClientSessionHistoryTab clientSessions={clientSessions} />}
+          {activeTab === 'history' && (
+            <div className="space-y-6">
+              <ConsistencyHeatmap clientId={client.id} />
+              <ClientSessionHistoryTab clientSessions={clientSessions} />
+            </div>
+          )}
 
-          {activeTab === 'sheets' && <WorkoutSheetsTab client={client} />}
+          {activeTab === 'sheets' && (
+            <div className="space-y-6">
+              <WorkoutSheetsTab client={client} />
+              <ClientWorkoutsTab
+                activePlans={activePlans}
+                archivedPlans={archivedPlans}
+                onEditWorkout={(w) => {
+                  setEditingWorkout(w)
+                  setIsWorkoutModalOpen(true)
+                }}
+                onDeleteWorkout={deleteWorkout}
+                onUpdateWorkoutStatus={(id, status) => updateWorkout(id, { status })}
+              />
+            </div>
+          )}
 
           {activeTab === 'anamnesis' && <AnamnesisTab client={client} />}
-
-          {activeTab === 'consistency' && <ConsistencyHeatmap clientId={client.id} />}
 
           {activeTab === 'evaluations' && (
             <ClientEvaluationsTab
@@ -235,40 +250,17 @@ export const ClientDetails = () => {
               chartableMetrics={chartableMetrics}
             />
           )}
-
-          {activeTab === 'workouts' && (
-            <ClientWorkoutsTab
-              activePlans={activePlans}
-              archivedPlans={archivedPlans}
-              onEditWorkout={(w) => {
-                setEditingWorkout(w)
-                setIsWorkoutModalOpen(true)
-              }}
-              onDeleteWorkout={deleteWorkout}
-              onUpdateWorkoutStatus={(id, status) => updateWorkout(id, { status })}
-            />
-          )}
         </div>
       </div>
 
       {isWorkoutModalOpen && <WorkoutEditorModal client={client} initialData={editingWorkout} isOpen={isWorkoutModalOpen} onClose={() => setIsWorkoutModalOpen(false)} onSave={handleSaveWorkout} />}
 
-      <ManualPaymentModal
-        isOpen={isPaymentModalOpen}
-        onClose={() => setIsPaymentModalOpen(false)}
-        client={client}
-        onSave={handleSaveManualPayment}
-      />
+      <ManualPaymentModal isOpen={isPaymentModalOpen} onClose={() => setIsPaymentModalOpen(false)} client={client} onSave={handleSaveManualPayment} />
 
-      <ResendMagicLinkModal
-        isOpen={isResendModalOpen}
-        onClose={() => setIsResendModalOpen(false)}
-        client={client}
-      />
+      <ResendMagicLinkModal isOpen={isResendModalOpen} onClose={() => setIsResendModalOpen(false)} client={client} />
     </div>
   )
 }
 
 // Re-export for backward compatibility
 export { ConfirmationModal } from '../../components/organisms/client-details/ConfirmationModal'
-
