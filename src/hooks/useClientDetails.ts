@@ -24,7 +24,16 @@ function getMetricValue(evaluation: Evaluation, metricKey: string): number | und
   return typeof value === 'number' ? value : undefined
 }
 
-export function useClientDetails(clientId: string | undefined, sessions: Session[], evaluations: Evaluation[], workouts: WorkoutPlan[], selectedMetric: string) {
+export function useClientDetails(
+  clientId: string | undefined,
+  sessions: Session[],
+  evaluations: Evaluation[],
+  workoutsOrMetric: WorkoutPlan[] | string = [],
+  maybeMetric: string = 'weight'
+) {
+  const workouts: WorkoutPlan[] = Array.isArray(workoutsOrMetric) ? workoutsOrMetric : []
+  const selectedMetric: string = typeof workoutsOrMetric === 'string' ? workoutsOrMetric : maybeMetric
+
   const clientSessions = useMemo(
     () => sessions.filter((s) => s.clientId === clientId && isPast(parseISO(s.date))).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
     [sessions, clientId]

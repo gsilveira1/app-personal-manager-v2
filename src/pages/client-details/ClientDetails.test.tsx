@@ -63,9 +63,6 @@ const mockSessionIncomplete = { id: 's2', clientId: 'c1', date: '2024-01-14T10:0
 const mockEvaluation = { id: 'e1', clientId: 'c1', date: '2024-01-10T00:00:00.000Z', weight: 75, bodyFatPercentage: 15 }
 const mockEvaluation2 = { id: 'e2', clientId: 'c1', date: '2024-01-20T00:00:00.000Z', weight: 73, bodyFatPercentage: 14 }
 
-const mockActiveWorkout = { id: 'w1', clientId: 'c1', title: 'Push Day', status: 'Active', exercises: [], tags: [], createdAt: '2024-01-01T00:00:00.000Z' }
-const mockArchivedWorkout = { id: 'w2', clientId: 'c1', title: 'Old Plan', status: 'Archived', exercises: [], tags: [], createdAt: '2023-06-01T00:00:00.000Z' }
-
 let mockHookReturn: any = {
   clientSessions: [],
   clientEvaluations: [],
@@ -280,65 +277,11 @@ describe('ClientDetails', () => {
     expect(screen.queryByTestId('progress-chart')).not.toBeInTheDocument()
   })
 
-  it('switches to sheets and prescriptions tab and shows sheets and empty prescriptions state', () => {
+  it('switches to sheets and prescriptions tab and renders workout sheets tab', () => {
     renderPage()
     fireEvent.click(screen.getByText('sheetsAndPrescriptions'))
     expect(screen.getByTestId('workout-sheets-tab')).toBeInTheDocument()
-    expect(screen.getByText('noActivePrescriptions')).toBeInTheDocument()
-    expect(screen.getByText('noArchivedPlans')).toBeInTheDocument()
-  })
-
-  it('shows active and archived workout cards in sheets tab', () => {
-    mockHookReturn = { ...mockHookReturn, activePlans: [mockActiveWorkout], archivedPlans: [mockArchivedWorkout] }
-    renderPage()
-    fireEvent.click(screen.getByText('sheetsAndPrescriptions'))
-    expect(screen.getByTestId('workout-sheets-tab')).toBeInTheDocument()
-    expect(screen.getByText('Push Day')).toBeInTheDocument()
-    expect(screen.getByText('Old Plan')).toBeInTheDocument()
-  })
-
-  it('opens workout editor modal for editing existing workout in sheets tab', () => {
-    mockHookReturn = { ...mockHookReturn, activePlans: [mockActiveWorkout] }
-    renderPage()
-    fireEvent.click(screen.getByText('sheetsAndPrescriptions'))
-    fireEvent.click(screen.getByTestId('edit-w1'))
-    expect(screen.getByTestId('workout-editor')).toBeInTheDocument()
-    expect(screen.getByTestId('editing-workout')).toHaveTextContent('Push Day')
-  })
-
-  it('archives a workout via workout card callback in sheets tab', () => {
-    mockHookReturn = { ...mockHookReturn, activePlans: [mockActiveWorkout] }
-    renderPage()
-    fireEvent.click(screen.getByText('sheetsAndPrescriptions'))
-    fireEvent.click(screen.getByTestId('archive-w1'))
-    expect(mockUpdateWorkout).toHaveBeenCalledWith('w1', { status: 'Archived' })
-  })
-
-  it('activates an archived workout via workout card callback in sheets tab', () => {
-    mockHookReturn = { ...mockHookReturn, archivedPlans: [mockArchivedWorkout] }
-    renderPage()
-    fireEvent.click(screen.getByText('sheetsAndPrescriptions'))
-    fireEvent.click(screen.getByTestId('activate-w2'))
-    expect(mockUpdateWorkout).toHaveBeenCalledWith('w2', { status: 'Active' })
-  })
-
-  it('deletes a workout with confirmation in sheets tab', () => {
-    mockHookReturn = { ...mockHookReturn, activePlans: [mockActiveWorkout] }
-    vi.spyOn(window, 'confirm').mockReturnValue(true)
-    renderPage()
-    fireEvent.click(screen.getByText('sheetsAndPrescriptions'))
-    fireEvent.click(screen.getByTestId('delete-w1'))
-    expect(window.confirm).toHaveBeenCalled()
-    expect(mockDeleteWorkout).toHaveBeenCalledWith('w1')
-  })
-
-  it('does not delete workout when confirmation is cancelled in sheets tab', () => {
-    mockHookReturn = { ...mockHookReturn, activePlans: [mockActiveWorkout] }
-    vi.spyOn(window, 'confirm').mockReturnValue(false)
-    renderPage()
-    fireEvent.click(screen.getByText('sheetsAndPrescriptions'))
-    fireEvent.click(screen.getByTestId('delete-w1'))
-    expect(mockDeleteWorkout).not.toHaveBeenCalled()
+    expect(screen.getByText('Sheets for Maria Silva')).toBeInTheDocument()
   })
 
   it('displays existing notes in notes section', () => {

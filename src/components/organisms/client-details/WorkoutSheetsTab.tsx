@@ -254,6 +254,35 @@ export const WorkoutSheetsTab = ({ client }: WorkoutSheetsTabProps) => {
         </Card>
       )}
 
+      {/* Sheets History */}
+      {sheets.length > 1 && (
+        <div className="space-y-3 pt-4 border-t border-slate-200">
+          <h4 className="text-sm font-semibold text-slate-700 flex items-center">
+            <Clock className="mr-2 h-4 w-4 text-slate-400" />
+            Histórico de Fichas Anteriores ({sheets.length - 1})
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {sheets
+              .filter((s) => s.id !== activeSheet?.id)
+              .map((s) => (
+                <div
+                  key={s.id}
+                  onClick={() => setActiveSheet(s)}
+                  className="p-4 rounded-xl border border-slate-200 bg-white hover:border-indigo-300 hover:shadow-xs cursor-pointer transition-all flex items-center justify-between"
+                >
+                  <div>
+                    <h5 className="font-semibold text-sm text-slate-800">{s.name}</h5>
+                    <p className="text-xs text-slate-500">
+                      {s.workouts?.length || 0} divisões • Criada em {s.createdAt ? new Date(s.createdAt).toLocaleDateString() : 'N/A'}
+                    </p>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-slate-400" />
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
+
       {/* Builder Modal */}
       {isBuilderOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm overflow-y-auto">

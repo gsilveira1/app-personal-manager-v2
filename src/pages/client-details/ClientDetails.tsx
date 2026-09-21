@@ -8,27 +8,23 @@ import { Card, Button } from '../../components/atoms'
 import { useClientDetails } from '../../hooks/useClientDetails'
 import { ClientProfileHeader } from '../../components/organisms/client-details/ClientProfileHeader'
 import { MedicalHistoryCard } from '../../components/organisms/client-details/MedicalHistoryCard'
-import { WorkoutEditorModal } from '../../components/WorkoutEditorModal'
 import { ClientSessionHistoryTab } from '../../components/organisms/client-details/ClientSessionHistoryTab'
 import { ClientEvaluationsTab } from '../../components/organisms/client-details/ClientEvaluationsTab'
-import { ClientWorkoutsTab } from '../../components/organisms/client-details/ClientWorkoutsTab'
 import { ManualPaymentModal } from '../../components/organisms/client-details/ManualPaymentModal'
 import { AnamnesisTab } from '../../components/organisms/client-details/AnamnesisTab'
 import { WorkoutSheetsTab } from '../../components/organisms/client-details/WorkoutSheetsTab'
 import { ConsistencyHeatmap } from '../../components/organisms/client-details/ConsistencyHeatmap'
 import { ResendMagicLinkModal } from '../../components/organisms/client-details/ResendMagicLinkModal'
 import * as api from '../../services/api/apiService'
-import type { WorkoutPlan, MedicalHistory } from '../../types'
+import type { MedicalHistory } from '../../types'
 
 export const ClientDetails = () => {
   const { t } = useTranslation('clients')
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { clients, sessions, evaluations, workouts, plans, updateClient, uploadClientAvatar, addWorkout, updateWorkout, deleteWorkout } = useStore()
+  const { clients, sessions, evaluations, plans, updateClient, uploadClientAvatar } = useStore()
 
   const [activeTab, setActiveTab] = useState<'history' | 'sheets' | 'anamnesis' | 'evaluations'>('history')
-  const [isWorkoutModalOpen, setIsWorkoutModalOpen] = useState(false)
-  const [editingWorkout, setEditingWorkout] = useState<WorkoutPlan | null>(null)
   const [isEditingNotes, setIsEditingNotes] = useState(false)
   const [isEditingMedicalHistory, setIsEditingMedicalHistory] = useState(false)
   const [notesBuffer, setNotesBuffer] = useState('')
@@ -43,7 +39,7 @@ export const ClientDetails = () => {
 
   const client = clients.find((c) => c.id === id)
   const clientPlan = plans.find((p) => p.id === client?.planId)
-  const { clientSessions, clientEvaluations, activePlans, archivedPlans, chartData, chartableMetrics } = useClientDetails(id, sessions, evaluations, workouts, selectedMetric)
+  const { clientSessions, clientEvaluations, chartData, chartableMetrics } = useClientDetails(id, sessions, evaluations, selectedMetric)
 
   if (!client) {
     return (
@@ -77,12 +73,6 @@ export const ClientDetails = () => {
       setIsUploadingAvatar(false)
       if (avatarInputRef.current) avatarInputRef.current.value = ''
     }
-  }
-
-  const handleSaveWorkout = (workout: any) => {
-    if (editingWorkout) updateWorkout(editingWorkout.id, workout)
-    else addWorkout(workout)
-    setIsWorkoutModalOpen(false)
   }
 
   const handleSaveManualPayment = async (paymentData: { paymentType: string; validUntil: string; notes?: string; amount?: number }) => {
@@ -223,21 +213,7 @@ export const ClientDetails = () => {
             </div>
           )}
 
-          {activeTab === 'sheets' && (
-            <div className="space-y-6">
-              <WorkoutSheetsTab client={client} />
-              <ClientWorkoutsTab
-                activePlans={activePlans}
-                archivedPlans={archivedPlans}
-                onEditWorkout={(w) => {
-                  setEditingWorkout(w)
-                  setIsWorkoutModalOpen(true)
-                }}
-                onDeleteWorkout={deleteWorkout}
-                onUpdateWorkoutStatus={(id, status) => updateWorkout(id, { status })}
-              />
-            </div>
-          )}
+          {activeTab === 'sheets' && <WorkoutSheetsTab client={client} />}
 
           {activeTab === 'anamnesis' && <AnamnesisTab client={client} />}
 
@@ -252,8 +228,6 @@ export const ClientDetails = () => {
           )}
         </div>
       </div>
-
-      {isWorkoutModalOpen && <WorkoutEditorModal client={client} initialData={editingWorkout} isOpen={isWorkoutModalOpen} onClose={() => setIsWorkoutModalOpen(false)} onSave={handleSaveWorkout} />}
 
       <ManualPaymentModal isOpen={isPaymentModalOpen} onClose={() => setIsPaymentModalOpen(false)} client={client} onSave={handleSaveManualPayment} />
 
