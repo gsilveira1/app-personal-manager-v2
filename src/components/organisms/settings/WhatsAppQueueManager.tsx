@@ -141,6 +141,26 @@ export const WhatsAppQueueManager = () => {
     }
   }
 
+  const [isProcessingQueue, setIsProcessingQueue] = useState(false)
+
+  const handleForceDispatch = async () => {
+    if (!confirm('Deseja forçar o envio imediato de todas as mensagens pendentes na fila?')) return
+    setIsProcessingQueue(true)
+    setFeedback(null)
+    try {
+      const res = await messagingApi.processPendingQueue(true)
+      setFeedback({
+        type: 'success',
+        text: `Fila processada: ${res.successCount} enviada(s), ${res.failedCount} falha(s). ${res.message || ''}`,
+      })
+      await loadQueue()
+    } catch (err: any) {
+      setFeedback({ type: 'error', text: err.message || 'Erro ao forçar processamento da fila.' })
+    } finally {
+      setIsProcessingQueue(false)
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Header & Metrics */}
@@ -154,11 +174,28 @@ export const WhatsAppQueueManager = () => {
             Monitore, reenvie ou cancele notificações automáticas da sua consultoria.
           </p>
         </div>
-        <Button variant="outline" size="sm" onClick={loadQueue} disabled={isLoading}>
-          <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${isLoading ? 'animate-spin' : ''}`} />
-          Atualizar Fila
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            onClick={handleForceDispatch}
+            disabled={isProcessingQueue || isLoading || summary.totalQueued === 0}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white"
+            data-testid="force-dispatch-btn"
+          >
+            {isProcessingQueue ? (
+              <RefreshCw className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+            ) : (
+              <RotateCcw className="h-3.5 w-3.5 mr-1.5" />
+            )}
+            Forçar Envio
+          </Button>
+          <Button variant="outline" size="sm" onClick={loadQueue} disabled={isLoading || isProcessingQueue}>
+            <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${isLoading ? 'animate-spin' : ''}`} />
+            Atualizar Fila
+          </Button>
+        </div>
       </div>
+
 
       {feedback && (
         <div

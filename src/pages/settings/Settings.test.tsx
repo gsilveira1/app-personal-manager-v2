@@ -78,6 +78,12 @@ vi.mock('../../components/organisms/settings/WorkHoursEditor', () => ({
   WorkHoursEditor: () => <div data-testid="work-hours-editor" />,
 }))
 
+vi.mock('../../components/organisms/notifications', () => ({
+  WhatsAppConnectionCard: () => <div data-testid="whatsapp-connection-card" />,
+  NotificationAutomationsSection: () => <div data-testid="notification-automations-section" />,
+}))
+
+
 describe('Settings', () => {
   beforeEach(() => {
     vi.clearAllMocks()

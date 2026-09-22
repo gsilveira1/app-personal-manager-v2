@@ -9,6 +9,7 @@ vi.mock('../../../services/api/messagingApi', () => ({
   getTenantQueue: vi.fn(),
   retryMessage: vi.fn(),
   cancelMessage: vi.fn(),
+  processPendingQueue: vi.fn(),
 }))
 
 describe('WhatsAppQueueManager', () => {
@@ -96,4 +97,48 @@ describe('WhatsAppQueueManager', () => {
       expect(screen.getByText('Disparo reprocessado com sucesso!')).toBeInTheDocument()
     })
   })
+
+  it('allows forcing pending queue dispatch', async () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    vi.mocked(messagingApi.getTenantQueue).mockResolvedValue({
+      items: [
+        {
+          id: 'log-1',
+          recipientPhone: '11999999999',
+          templateType: 'WORKOUT_LINK',
+          status: 'QUEUED',
+          channel: 'WHATSAPP',
+          error: null,
+          createdAt: '2026-09-20T10:00:00.000Z',
+          updatedAt: '2026-09-20T10:00:00.000Z',
+        },
+      ],
+      total: 1,
+      page: 1,
+      totalPages: 1,
+      summary: { totalQueued: 1, totalSent: 0, totalFailed: 0, totalCancelled: 0 },
+    })
+    vi.mocked(messagingApi.processPendingQueue).mockResolvedValue({
+      processedCount: 1,
+      successCount: 1,
+      failedCount: 0,
+      delayedCount: 0,
+      message: 'Disparos processados com sucesso.',
+    })
+
+    const user = userEvent.setup()
+    render(<WhatsAppQueueManager />)
+
+    await waitFor(() => {
+      expect(screen.getByTestId('force-dispatch-btn')).toBeInTheDocument()
+    })
+
+    await user.click(screen.getByTestId('force-dispatch-btn'))
+
+    await waitFor(() => {
+      expect(messagingApi.processPendingQueue).toHaveBeenCalledWith(true)
+      expect(screen.getByText(/Fila processada: 1 enviada\(s\)/i)).toBeInTheDocument()
+    })
+  })
 })
+

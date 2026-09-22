@@ -70,3 +70,19 @@ export const resendStudentLink = async (
     body: JSON.stringify({ type }),
   })
 }
+
+export const processPendingQueue = async (
+  force: boolean = true
+): Promise<{
+  processedCount: number
+  successCount: number
+  failedCount: number
+  delayedCount: number
+  message: string
+}> => {
+  return apiClient('/messaging/queue/process', {
+    method: 'POST',
+    body: JSON.stringify({ force }),
+  })
+}
+
