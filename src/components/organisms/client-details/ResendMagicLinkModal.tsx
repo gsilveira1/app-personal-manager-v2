@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Send, CheckCircle2, MessageCircle, AlertCircle, Copy, Check } from 'lucide-react'
+import { useState, useEffect, useCallback } from 'react'
+import { Send, CheckCircle2, MessageCircle, AlertCircle, Copy, Check, RefreshCw } from 'lucide-react'
 import { Card, Button } from '../../atoms'
 import * as api from '../../../services/api/apiService'
 import type { Client } from '../../../types'
@@ -15,6 +15,33 @@ export const ResendMagicLinkModal = ({ isOpen, onClose, client }: ResendMagicLin
   const [isLoading, setIsLoading] = useState(false)
   const [result, setResult] = useState<{ status: string; message: string; channel: string; link: string } | null>(null)
   const [copied, setCopied] = useState(false)
+
+  // Reset modal state whenever it is opened
+  useEffect(() => {
+    if (isOpen) {
+      setResult(null)
+      setCopied(false)
+      setIsLoading(false)
+    }
+  }, [isOpen])
+
+  const handleClose = useCallback(() => {
+    setResult(null)
+    setCopied(false)
+    setIsLoading(false)
+    onClose()
+  }, [onClose])
+
+  // Handle ESC key to close modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        handleClose()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isOpen, handleClose])
 
   if (!isOpen) return null
 
@@ -40,8 +67,23 @@ export const ResendMagicLinkModal = ({ isOpen, onClose, client }: ResendMagicLin
     }
   }
 
+  const handleSendAnother = () => {
+    setResult(null)
+    setCopied(false)
+    setIsLoading(false)
+    // Toggle type to streamline sending both workout sheet and anamnesis
+    setSelectedType((prev) => (prev === 'WORKOUT_SHEET' ? 'ANAMNESIS' : 'WORKOUT_SHEET'))
+  }
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          handleClose()
+        }
+      }}
+    >
       <Card className="w-full max-w-md overflow-hidden bg-white shadow-2xl">
         <div className="border-b border-slate-100 bg-slate-50 px-6 py-4">
           <h2 className="flex items-center text-lg font-bold text-slate-900">
@@ -63,7 +105,7 @@ export const ResendMagicLinkModal = ({ isOpen, onClose, client }: ResendMagicLin
                     type="button"
                     onClick={() => setSelectedType('WORKOUT_SHEET')}
                     className={`p-3 rounded-lg border text-left transition-all ${
-                      selectedType === 'WORKOUT_SHEET' ? 'border-emerald-600 bg-emerald-50 text-emerald-900' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                      selectedType === 'WORKOUT_SHEET' ? 'border-emerald-600 bg-emerald-50 text-emerald-900 ring-2 ring-emerald-600/20' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                     }`}
                   >
                     <span className="block font-bold text-sm">Ficha de Treino</span>
@@ -74,7 +116,7 @@ export const ResendMagicLinkModal = ({ isOpen, onClose, client }: ResendMagicLin
                     type="button"
                     onClick={() => setSelectedType('ANAMNESIS')}
                     className={`p-3 rounded-lg border text-left transition-all ${
-                      selectedType === 'ANAMNESIS' ? 'border-emerald-600 bg-emerald-50 text-emerald-900' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                      selectedType === 'ANAMNESIS' ? 'border-emerald-600 bg-emerald-50 text-emerald-900 ring-2 ring-emerald-600/20' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                     }`}
                   >
                     <span className="block font-bold text-sm">Anamnese de Saúde</span>
@@ -91,7 +133,7 @@ export const ResendMagicLinkModal = ({ isOpen, onClose, client }: ResendMagicLin
               </div>
 
               <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
-                <Button variant="outline" onClick={onClose} disabled={isLoading}>
+                <Button variant="outline" onClick={handleClose} disabled={isLoading}>
                   Cancelar
                 </Button>
                 <Button onClick={handleSend} disabled={isLoading} className="bg-emerald-600 text-white hover:bg-emerald-700">
@@ -106,6 +148,9 @@ export const ResendMagicLinkModal = ({ isOpen, onClose, client }: ResendMagicLin
                 <CheckCircle2 className="h-6 w-6 text-emerald-600 flex-shrink-0" />
                 <div>
                   <h4 className="font-bold text-sm">Enviado com sucesso!</h4>
+                  <p className="text-xs text-emerald-800 mt-0.5">
+                    Tipo: <strong>{selectedType === 'WORKOUT_SHEET' ? 'Ficha de Treino' : 'Anamnese de Saúde'}</strong>
+                  </p>
                   <p className="text-xs text-emerald-800 mt-0.5">
                     Canal: <strong>{result.channel}</strong> ({result.message})
                   </p>
@@ -124,8 +169,12 @@ export const ResendMagicLinkModal = ({ isOpen, onClose, client }: ResendMagicLin
                 </div>
               )}
 
-              <div className="flex justify-end pt-3">
-                <Button onClick={onClose} className="bg-slate-800 text-white hover:bg-slate-900">
+              <div className="flex items-center justify-between gap-3 pt-3 border-t border-slate-100">
+                <Button variant="outline" size="sm" onClick={handleSendAnother} className="text-slate-700">
+                  <RefreshCw className="mr-1.5 h-3.5 w-3.5 text-slate-500" />
+                  Enviar outro link
+                </Button>
+                <Button onClick={handleClose} className="bg-slate-800 text-white hover:bg-slate-900">
                   Fechar
                 </Button>
               </div>
