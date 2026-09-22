@@ -6,7 +6,9 @@ import * as api from '../../services/api/apiService'
 
 export const AnamnesisForm = () => {
   const [searchParams] = useSearchParams()
-  const token = searchParams.get('token')
+  const token =
+    searchParams.get('token') ||
+    (typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('token') : null)
 
   const [metadata, setMetadata] = useState<api.AnamnesisFormMetadata | null>(null)
   const [isLoading, setIsLoading] = useState(true)

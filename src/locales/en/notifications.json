@@ -1,0 +1,55 @@
+{
+  "title": "Notifications & WhatsApp Hub",
+  "subtitle": "Manage your Evolution API WhatsApp instance, configure automated messages, and monitor delivery queue.",
+  "tabs": {
+    "connection": "WhatsApp Connection",
+    "automations": "Automations & Templates",
+    "queue": "Dispatch Queue"
+  },
+  "connection": {
+    "title": "Evolution API Instance (WhatsApp)",
+    "description": "Connect your WhatsApp number to send workout links, health anamnesis forms, and automatic alerts to your students.",
+    "instanceName": "Instance Name",
+    "status": "Connection Status",
+    "statusConnected": "Connected",
+    "statusConnecting": "Connecting",
+    "statusDisconnected": "Disconnected",
+    "statusPending": "Waiting for QR scan",
+    "instructionsTitle": "How to connect your WhatsApp:",
+    "step1": "Open WhatsApp on your phone",
+    "step2": "Tap Linked Devices or WhatsApp Web",
+    "step3": "Point your camera at the QR code to synchronize",
+    "connectedMessage": "Your instance is active and ready to dispatch messages!",
+    "refreshQr": "Refresh QR Code",
+    "disconnectButton": "Disconnect Session",
+    "disconnectConfirm": "Are you sure you want to disconnect this WhatsApp instance? Automated notifications will pause until reconnected.",
+    "testMessageButton": "Send Test Message",
+    "testModalTitle": "WhatsApp Delivery Test",
+    "testModalSubtitle": "Send an instant message to verify that Evolution API is delivering correctly.",
+    "phoneLabel": "Phone Number (with Country Code)",
+    "phonePlaceholder": "+55 11 99999-8888",
+    "messageLabel": "Test Message Content",
+    "messageDefault": "Hello! This is a test message sent from PersonalMgr notification hub via Evolution API. 🚀",
+    "sendTest": "Send Test",
+    "sending": "Sending...",
+    "testSuccess": "Test message sent successfully! ID:",
+    "testError": "Failed to send test message:"
+  },
+  "automations": {
+    "title": "Automated Message Triggers",
+    "description": "Configure which WhatsApp notifications will be automatically triggered when key events occur.",
+    "welcomeTitle": "Welcome & Anamnesis",
+    "welcomeDesc": "Automatically sent when a new student or lead is registered, including their unique health anamnesis link.",
+    "workoutTitle": "New Workout Sheet Link",
+    "workoutDesc": "Dispatched when you publish or update a student's workout routine, providing instant web player access.",
+    "expirationTitle": "Plan Expiration Alert",
+    "expirationDesc": "Notifies the student 3 days before their plan or routine expires for seamless renewal.",
+    "dndTitle": "Do Not Disturb (DND) Window",
+    "dndDesc": "Messages triggered between 22:00 and 08:00 (Brasília time) are safely queued and dispatched starting at 08:00 AM.",
+    "dndActive": "DND Protection Active"
+  },
+  "queue": {
+    "title": "Dispatch Queue & History",
+    "subtitle": "View queued messages, delivery logs, retry failed messages, or cancel pending notifications."
+  }
+}

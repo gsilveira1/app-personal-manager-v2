@@ -58,3 +58,23 @@ export const completeTenantSetup = async (): Promise<CompleteSetupPayload> => {
     method: 'POST',
   })
 }
+
+/**
+ * Disconnects WhatsApp instance on Evolution API.
+ */
+export const disconnectTenantWhatsapp = async (): Promise<{ success: boolean; status: WhatsappStatus; instanceName?: string }> => {
+  return await apiClient<{ success: boolean; status: WhatsappStatus; instanceName?: string }>('/tenant/whatsapp/disconnect', {
+    method: 'POST',
+  })
+}
+
+/**
+ * Sends a test WhatsApp message to verify connection.
+ */
+export const sendTestTenantWhatsappMessage = async (data: { phone: string; message: string }): Promise<{ success: boolean; messageId: string }> => {
+  return await apiClient<{ success: boolean; messageId: string }>('/tenant/whatsapp/test-message', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
+}
+

@@ -4,6 +4,8 @@
   "schedule": "Schedule",
   "workouts": "Workouts",
   "leads": "Leads",
+  "notifications": "Notifications",
   "settings": "Settings",
   "welcomeSubtitle": "Welcome back, {{user}}. Here's your daily overview."
 }
+

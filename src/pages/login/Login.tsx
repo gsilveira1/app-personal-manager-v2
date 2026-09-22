@@ -29,7 +29,7 @@ export const Login = () => {
     setError('')
     setIsLoading(true)
     try {
-      await login(email, password)
+      await login(email.trim(), password)
       navigate('/')
     } catch (err: any) {
       setError(err.message || t('failedLogin'))

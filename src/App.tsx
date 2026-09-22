@@ -16,8 +16,10 @@ import { ClientDetails } from './pages/client-details/ClientDetails'
 import { Schedule } from './pages/schedules/Schedule'
 import { Workouts } from './pages/workouts/Workouts'
 import { Settings } from './pages/settings/Settings'
+import { Notifications } from './pages/notifications/Notifications'
 import { Leads } from './pages/leads/Leads'
 import { Login } from './pages/login/Login'
+
 import { SignUp } from './pages/sign-up/SignUp'
 import { ForgotPassword } from './pages/forgot-password/ForgotPassword'
 import { ResetPassword } from './pages/reset-password/ResetPassword'
@@ -138,8 +140,10 @@ function App() {
               <Route path="schedule" element={<Schedule />} />
               <Route path="workouts" element={<Workouts />} />
               <Route path="leads" element={<Leads />} />
+              <Route path="notifications" element={<Notifications />} />
               <Route path="settings" element={<Settings />} />
               <Route path="admin/tenants" element={<AdminTenants />} />
+
             </Route>
           </Route>
 

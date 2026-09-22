@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { MessageSquare, Mail, RefreshCw, AlertCircle, CheckCircle2, Clock, XCircle, Send } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
 import { Card, Button, Badge, Spinner } from '../../../components/atoms'
+
 import * as messagingApi from '../../../services/api/messagingApi'
 import type { NotificationLogItem } from '../../../services/api/messagingApi'
 import type { Client } from '../../../types'
@@ -12,8 +12,8 @@ interface ClientMessagesTabProps {
 }
 
 export const ClientMessagesTab = ({ client, onOpenResendModal }: ClientMessagesTabProps) => {
-  const { t } = useTranslation('common')
   const [messages, setMessages] = useState<NotificationLogItem[]>([])
+
   const [isLoading, setIsLoading] = useState(true)
   const [isRetryingId, setIsRetryingId] = useState<string | null>(null)
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null)

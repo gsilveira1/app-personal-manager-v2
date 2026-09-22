@@ -1,0 +1,55 @@
+{
+  "title": "Centro de Notificaciones & WhatsApp",
+  "subtitle": "Administra tu instancia Evolution API de WhatsApp, configura automatizaciones de mensajes y monitorea la cola de envíos.",
+  "tabs": {
+    "connection": "Conexión WhatsApp",
+    "automations": "Automatizaciones & Plantillas",
+    "queue": "Cola de Envíos"
+  },
+  "connection": {
+    "title": "Instancia Evolution API (WhatsApp)",
+    "description": "Conecta tu número de WhatsApp para enviar enlaces de entrenamiento, formularios de anamnesis y alertas automáticas a tus alumnos.",
+    "instanceName": "Nombre de la Instancia",
+    "status": "Estado de la Conexión",
+    "statusConnected": "Conectado",
+    "statusConnecting": "Conectando",
+    "statusDisconnected": "Desconectado",
+    "statusPending": "Esperando escaneo QR",
+    "instructionsTitle": "Cómo conectar tu WhatsApp:",
+    "step1": "Abre WhatsApp en tu teléfono",
+    "step2": "Toca Dispositivos vinculados o WhatsApp Web",
+    "step3": "Apunta la cámara al código QR al lado para sincronizar",
+    "connectedMessage": "¡Tu instancia está activa y lista para enviar mensajes!",
+    "refreshQr": "Actualizar Código QR",
+    "disconnectButton": "Desconectar Sesión",
+    "disconnectConfirm": "¿Estás seguro de que deseas desconectar esta instancia de WhatsApp? Las notificaciones automáticas se pausarán hasta reconectar.",
+    "testMessageButton": "Enviar Mensaje de Prueba",
+    "testModalTitle": "Prueba de Envío WhatsApp",
+    "testModalSubtitle": "Envía un mensaje instantáneo para verificar que Evolution API esté entregando correctamente.",
+    "phoneLabel": "Número de Teléfono (con código de país)",
+    "phonePlaceholder": "+55 11 99999-8888",
+    "messageLabel": "Mensaje de Prueba",
+    "messageDefault": "¡Hola! Este es un mensaje de prueba enviado desde el centro de notificaciones de PersonalMgr a través de Evolution API. 🚀",
+    "sendTest": "Enviar Prueba",
+    "sending": "Enviando...",
+    "testSuccess": "¡Mensaje de prueba enviado con éxito! ID:",
+    "testError": "Error al enviar mensaje de prueba:"
+  },
+  "automations": {
+    "title": "Disparadores Automáticos de Mensajes",
+    "description": "Configura qué notificaciones se enviarán automáticamente vía WhatsApp ante eventos clave.",
+    "welcomeTitle": "Bienvenida & Anamnesis",
+    "welcomeDesc": "Enviado automáticamente cuando se registra un nuevo alumno o prospecto, con el enlace único de anamnesis.",
+    "workoutTitle": "Envío de Nueva Rutina de Entrenamiento",
+    "workoutDesc": "Enviado cuando publicas o actualizas la rutina de un alumno, con el enlace al reproductor web.",
+    "expirationTitle": "Alerta de Vencimiento de Plan",
+    "expirationDesc": "Notifica al alumno 3 días antes del vencimiento de su plan o rutina para renovación.",
+    "dndTitle": "Horario de Silencio (DND)",
+    "dndDesc": "Los mensajes activados entre las 22:00 y las 08:00 (hora de Brasilia) se guardan en cola y se envían a partir de las 08:00 AM.",
+    "dndActive": "Protección DND Activa"
+  },
+  "queue": {
+    "title": "Cola de Envíos e Historial",
+    "subtitle": "Revisa mensajes en cola, historial de envíos, reintenta fallas o cancela mensajes pendientes."
+  }
+}

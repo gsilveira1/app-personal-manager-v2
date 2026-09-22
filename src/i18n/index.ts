@@ -7,7 +7,7 @@ import { localeDetector } from './localeDetector'
 import { SUPPORTED_LOCALES, type SupportedLocale } from './constants'
 export { SUPPORTED_LOCALES, type SupportedLocale }
 
-const namespaces = ['common', 'navigation', 'auth', 'clients', 'schedule', 'workouts', 'finances', 'leads', 'settings', 'setupWizard']
+const namespaces = ['common', 'navigation', 'auth', 'clients', 'schedule', 'workouts', 'finances', 'leads', 'settings', 'setupWizard', 'notifications']
 
 const localeFiles = import.meta.glob('../locales/**/*.json', { eager: true }) as Record<string, { default: Record<string, unknown> }>
 

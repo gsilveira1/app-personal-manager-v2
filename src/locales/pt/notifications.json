@@ -1,0 +1,55 @@
+{
+  "title": "Central de Notificações & WhatsApp",
+  "subtitle": "Gerencie a conexão da sua instância Evolution API, configure automações de mensagens e acompanhe a fila de disparos.",
+  "tabs": {
+    "connection": "Conexão WhatsApp",
+    "automations": "Automações & Modelos",
+    "queue": "Fila de Envios"
+  },
+  "connection": {
+    "title": "Instância Evolution API (WhatsApp)",
+    "description": "Conecte seu número de WhatsApp para enviar links de treino, formulários de anamnese e alertas automáticos aos seus alunos.",
+    "instanceName": "Nome da Instância",
+    "status": "Status da Conexão",
+    "statusConnected": "Conectado",
+    "statusConnecting": "Conectando",
+    "statusDisconnected": "Desconectado",
+    "statusPending": "Aguardando leitura",
+    "instructionsTitle": "Como conectar seu WhatsApp:",
+    "step1": "Abra o WhatsApp no seu celular",
+    "step2": "Toque em Aparelhos Conectados ou WhatsApp Web",
+    "step3": "Aponte a câmera para o QR Code ao lado para sincronizar",
+    "connectedMessage": "Sua instância está ativa e pronta para enviar mensagens!",
+    "refreshQr": "Atualizar QR Code",
+    "disconnectButton": "Desconectar Sessão",
+    "disconnectConfirm": "Tem certeza que deseja desconectar esta instância do WhatsApp? As notificações automáticas serão pausadas até que uma nova conexão seja feita.",
+    "testMessageButton": "Enviar Mensagem de Teste",
+    "testModalTitle": "Teste de Envio WhatsApp",
+    "testModalSubtitle": "Envie uma mensagem instantânea para verificar se a Evolution API está entregando corretamente.",
+    "phoneLabel": "Número de Telefone (com DDD)",
+    "phonePlaceholder": "(11) 99999-8888",
+    "messageLabel": "Mensagem de Teste",
+    "messageDefault": "Olá! Esta é uma mensagem de teste enviada pela central de notificações do PersonalMgr via Evolution API. 🚀",
+    "sendTest": "Enviar Teste",
+    "sending": "Enviando...",
+    "testSuccess": "Mensagem de teste enviada com sucesso! ID:",
+    "testError": "Erro ao enviar mensagem de teste:"
+  },
+  "automations": {
+    "title": "Gatilhos Automáticos de Mensagens",
+    "description": "Configure quais notificações serão disparadas automaticamente via WhatsApp quando eventos ocorrerem no sistema.",
+    "welcomeTitle": "Boas-Vindas & Anamnese",
+    "welcomeDesc": "Enviado automaticamente quando um novo aluno ou lead é cadastrado, contendo o link único da anamnese de saúde.",
+    "workoutTitle": "Envio de Nova Ficha de Treino",
+    "workoutDesc": "Disparado quando você publica ou atualiza a ficha de treinos de um aluno, com o link de acesso ao treino web.",
+    "expirationTitle": "Alerta de Vencimento de Plano",
+    "expirationDesc": "Notifica o aluno quando seu plano ou ficha está a 3 dias do término para renovação.",
+    "dndTitle": "Horário de Silêncio (DND)",
+    "dndDesc": "Mensagens disparadas entre 22:00 e 08:00 (horário de Brasília) são retidas na fila e enviadas automaticamente a partir das 08:00 da manhã para não incomodar seus alunos.",
+    "dndActive": "Proteção DND Ativa"
+  },
+  "queue": {
+    "title": "Fila de Envios e Histórico",
+    "subtitle": "Visualize mensagens na fila, histórico de disparos, reenvie falhas ou cancele mensagens pendentes."
+  }
+}

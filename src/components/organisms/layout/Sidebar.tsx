@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useStore } from '../../../states/stores/store'
 import { useAuthStore } from '../../../states/stores/auth/authStore'
-import { LayoutDashboard, Users, Calendar, Dumbbell, X, Settings, UserPlus, Shield, MessageSquare } from 'lucide-react'
+import { LayoutDashboard, Users, Calendar, Dumbbell, X, Settings, UserPlus, Shield, MessageSquare, Bell } from 'lucide-react'
 
 interface SidebarProps {
   isOpen: boolean
@@ -14,9 +14,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const { clients } = useStore()
   const { user } = useAuthStore()
   const { t } = useTranslation('navigation')
-  const leadCount = clients.filter((c) => c.status === 'Lead').length
+  const leadCount = clients.filter((c) => c.status === 'LEAD' || (c.status as string) === 'Lead').length
 
   type NavItem = { to: string; icon: React.ElementType; label: string; badge?: number }
+
 
   const navItems: NavItem[] = [
     { to: '/', icon: LayoutDashboard, label: t('dashboard') },
@@ -24,8 +25,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     { to: '/schedule', icon: Calendar, label: t('schedule') },
     { to: '/workouts', icon: Dumbbell, label: t('workouts') },
     { to: '/leads', icon: UserPlus, label: t('leads'), badge: leadCount > 0 ? leadCount : undefined },
+    { to: '/notifications', icon: Bell, label: t('notifications') },
     { to: '/settings', icon: Settings, label: t('settings') },
   ]
+
 
   if (user?.role === 'admin' || user?.role === 'ADMIN') {
     navItems.push({ to: '/admin/tenants', icon: Shield, label: 'Super Admin' })

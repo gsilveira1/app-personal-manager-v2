@@ -4,6 +4,8 @@
   "schedule": "Agenda",
   "workouts": "Entrenamientos",
   "leads": "Prospectos",
+  "notifications": "Notificaciones",
   "settings": "Configuración",
   "welcomeSubtitle": "Bienvenido de nuevo, {{user}}. Aquí está tu resumen del día."
 }
+

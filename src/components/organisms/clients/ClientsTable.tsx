@@ -152,8 +152,9 @@ export const ClientsTable: React.FC<ClientsTableProps> = ({ clients, plans, sear
                   : client.status === ClientStatus.PAUSED
                   ? 'warning'
                   : client.status === ClientStatus.OVERDUE
-                  ? 'danger'
+                  ? 'error'
                   : 'default'
+
 
               return (
                 <tr key={client.id} data-testid={`client-row-${client.id}`} className="hover:bg-slate-50 transition-colors cursor-pointer" onClick={() => navigate(`/clients/${client.id}`)}>

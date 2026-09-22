@@ -64,7 +64,7 @@ export const ClientProfileHeader: React.FC<ClientProfileHeaderProps> = ({ client
                       : client.status === 'PAUSED'
                       ? 'warning'
                       : client.status === 'OVERDUE'
-                      ? 'danger'
+                      ? 'error'
                       : 'default'
                   }
                   className="w-fit"

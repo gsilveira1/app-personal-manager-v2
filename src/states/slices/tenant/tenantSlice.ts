@@ -18,6 +18,8 @@ export interface TenantSlice {
     status: WhatsappStatus
   }>
   checkWhatsappStatus: () => Promise<WhatsappStatus>
+  disconnectWhatsapp: () => Promise<void>
+  sendTestWhatsappMessage: (data: { phone: string; message: string }) => Promise<{ success: boolean; messageId: string }>
   completeSetup: () => Promise<void>
   setPrimaryColorPreview: (color: string) => void
 }
@@ -104,6 +106,33 @@ export const createTenantSlice: StateCreator<TenantSlice, [], [], TenantSlice> =
     }
   },
 
+  disconnectWhatsapp: async () => {
+    set({ isLoading: true, error: null })
+    try {
+      const response = await api.disconnectTenantWhatsapp()
+      set({
+        whatsappStatus: response.status,
+        qrCode: null,
+        isLoading: false,
+      })
+    } catch (err: any) {
+      set({ error: err.message || 'Failed to disconnect WhatsApp', isLoading: false })
+      throw err
+    }
+  },
+
+  sendTestWhatsappMessage: async (data) => {
+    set({ isLoading: true, error: null })
+    try {
+      const response = await api.sendTestTenantWhatsappMessage(data)
+      set({ isLoading: false })
+      return response
+    } catch (err: any) {
+      set({ error: err.message || 'Failed to send test message', isLoading: false })
+      throw err
+    }
+  },
+
   completeSetup: async () => {
     set({ isLoading: true, error: null })
     try {
@@ -122,3 +151,4 @@ export const createTenantSlice: StateCreator<TenantSlice, [], [], TenantSlice> =
     document.documentElement.style.setProperty('--primary', color)
   },
 })
+

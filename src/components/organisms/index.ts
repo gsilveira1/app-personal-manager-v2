@@ -7,3 +7,5 @@ export * from './clients'
 export * from './dashboard'
 export * from './workouts'
 export * from './layout'
+export * from './notifications'
+

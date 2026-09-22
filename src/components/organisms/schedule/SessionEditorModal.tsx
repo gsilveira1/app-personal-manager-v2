@@ -135,12 +135,13 @@ const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurringEvent, 
               <Label>{t('client')}</Label>
               <Select name="clientId" value={formData.clientId} onChange={handleChange}>
                 {clients
-                  .filter((c: Client) => c.status === 'Active')
+                  .filter((c: Client) => c.status === 'ACTIVE' || (c.status as string) === 'Active')
                   .map((c: Client) => (
                     <option key={c.id} value={c.id}>
                       {c.name} ({c.type})
                     </option>
                   ))}
+
               </Select>
             </div>
             <div className="grid grid-cols-2 gap-4">

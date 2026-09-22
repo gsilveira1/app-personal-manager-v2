@@ -6,7 +6,9 @@ import * as api from '../../services/api/apiService'
 
 export const WorkoutPlayer = () => {
   const [searchParams] = useSearchParams()
-  const token = searchParams.get('token')
+  const token =
+    searchParams.get('token') ||
+    (typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('token') : null)
 
   const [data, setData] = useState<api.PortalWorkoutSheetResponse | null>(null)
   const [activeWorkoutIdx, setActiveWorkoutIdx] = useState(0)
