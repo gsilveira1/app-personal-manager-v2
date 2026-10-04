@@ -1,68 +1,97 @@
 import { test, expect } from '@playwright/test'
+import { API_URL } from './helpers/constants'
 
 test.describe('Error States & Resilience', () => {
+  const errorTitle = /algo deu errado|something went wrong|algo salió mal/i
+  const retryButton = /tentar novamente|try again|reintentar/i
+
   test('API timeout on initial load shows error screen with retry', async ({ page }) => {
-    // Intercept all API calls and simulate timeout
-    await page.route('**/api/clients', (route) => {
+    // The client list is part of the initial load: make it time out
+    await page.route(/\/api\/clients(\?.*)?$/, (route) => {
       route.abort('timedout')
     })
 
     await page.goto('/#/')
-    await page.waitForTimeout(3000)
 
-    // Should show error state (FullScreenError component) or stay on loading
-    const errorScreen = page.locator('text=/erro|error|falha|failed/i')
-    const retryBtn = page.getByRole('button', { name: /tentar|retry|recarregar/i })
-
-    if (await errorScreen.isVisible({ timeout: 10000 }).catch(() => false)) {
-      await expect(errorScreen).toBeVisible()
-      await expect(retryBtn).toBeVisible()
-    }
+    // Should show the error state (FullScreenError component)
+    await expect(page.getByRole('heading', { name: errorTitle })).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('button', { name: retryButton })).toBeVisible()
+    await expect(page.getByTestId('sidebar')).not.toBeVisible()
   })
 
   test('retry button re-fetches data successfully', async ({ page }) => {
-    let callCount = 0
+    let failing = true
+    let callsAfterRetry = 0
 
-    // First call fails, second succeeds
-    await page.route('**/api/clients', (route) => {
-      callCount++
-      if (callCount === 1) {
-        route.abort('timedout')
-      } else {
-        route.continue()
-      }
+    // The client list fails until "retry" is pressed
+    await page.route(/\/api\/clients(\?.*)?$/, (route) => {
+      if (failing) return route.abort('timedout')
+      callsAfterRetry++
+      return route.continue()
     })
 
     await page.goto('/#/')
-    await page.waitForTimeout(3000)
 
-    const retryBtn = page.getByRole('button', { name: /tentar|retry|recarregar/i })
-    if (await retryBtn.isVisible({ timeout: 10000 }).catch(() => false)) {
-      // Unroute to allow retry to succeed
-      await page.unrouteAll()
-      await retryBtn.click()
+    const retryBtn = page.getByRole('button', { name: retryButton })
+    await expect(retryBtn).toBeVisible({ timeout: 10000 })
+    failing = false
+    await retryBtn.click()
 
-      // Should load successfully now
-      await expect(page.locator('main')).toBeVisible({ timeout: 15000 })
-    }
+    // Should load successfully now
+    await expect(page.getByTestId('sidebar')).toBeVisible({ timeout: 15000 })
+    await expect(page.locator('main')).toBeVisible()
+    expect(callsAfterRetry).toBeGreaterThanOrEqual(1)
   })
 
-  test('401 response redirects to login', async ({ page }) => {
+  test('cleared session redirects to login', async ({ page }) => {
     // First load the app normally
     await page.goto('/#/')
     await page.waitForLoadState('networkidle')
+    await expect(page.getByTestId('sidebar')).toBeVisible()
 
-    // Clear the token to simulate expired session
+    // Clear the token to simulate a session that is gone
     await page.evaluate(() => {
       localStorage.removeItem('token')
       localStorage.removeItem('user')
     })
 
-    // Navigate to a protected route — should get redirected
+    // Open a protected route again (a hash change alone does not reload the app)
     await page.goto('/#/clients')
-    await page.waitForTimeout(2000)
+    await page.reload()
 
     await expect(page).toHaveURL(/\/#\/login/)
+  })
+
+  test('401 response redirects to login', async ({ page }) => {
+    // The stored token is no longer accepted (expired, password changed, account blocked):
+    // the API answers 401 to every authenticated request
+    await page.route(`${API_URL}/**`, (route) => route.fulfill({ status: 401, contentType: 'application/json', body: JSON.stringify({ statusCode: 401, message: 'Unauthorized' }) }))
+
+    await page.goto('/#/clients')
+
+    await expect(page).toHaveURL(/\/#\/login/)
+    await expect(page.getByRole('button', { name: /entrar|login|sign in/i })).toBeVisible()
+  })
+
+  test('401 while loading the app data ends the session and redirects to login', async ({ page }) => {
+    // The session check still passes, but the data requests are refused
+    // (e.g. the account is blocked between the two)
+    let dataCalls = 0
+    await page.route(/\/api\/(clients|sessions|plans|evaluations|workout-templates|auth\/logout)(\?.*)?$/, (route) => {
+      dataCalls++
+      return route.fulfill({ status: 401, contentType: 'application/json', body: JSON.stringify({ statusCode: 401, message: 'Unauthorized' }) })
+    })
+
+    await page.goto('/#/clients')
+
+    await expect(page).toHaveURL(/\/#\/login/)
+    await expect(page.getByRole('button', { name: /entrar|login|sign in/i })).toBeVisible()
+    expect(await page.evaluate(() => localStorage.getItem('token'))).toBeNull()
+
+    // ...and the app does not keep retrying the load
+    const callsAfterRedirect = dataCalls
+    await page.waitForTimeout(1500)
+    expect(dataCalls).toBe(callsAfterRedirect)
   })
 
   test('network error on form submit shows error toast', async ({ page }) => {
@@ -70,7 +99,7 @@ test.describe('Error States & Resilience', () => {
     await page.waitForLoadState('networkidle')
 
     // Intercept client creation
-    await page.route('**/api/clients', (route) => {
+    await page.route(/\/api\/clients(\?.*)?$/, (route) => {
       if (route.request().method() === 'POST') {
         route.abort('failed')
       } else {

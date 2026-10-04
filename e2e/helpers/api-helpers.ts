@@ -36,14 +36,18 @@ async function apiCall<T>(method: string, path: string, body?: unknown): Promise
 
 // ── Clients ──
 
-export function getClients() {
-  return apiCall<any[]>('GET', '/clients')
+/** `GET /clients` is paginated (max 500 per page); the helper returns the items of the first page. */
+export async function getClients() {
+  const page = await apiCall<{ items: any[] }>('GET', '/clients?limit=500')
+  return page.items
 }
 
-export function createClient(data: { name: string; email: string; phone: string; status?: string; type?: string; goal?: string; dateOfBirth?: string }) {
+export function createClient(data: { name: string; email: string; phone: string; status?: 'ACTIVE' | 'PAUSED' | 'OVERDUE' | 'LEAD'; modality?: 'PRESENCIAL' | 'ONLINE' | 'HYBRID'; goal?: string; dateOfBirth?: string }) {
   return apiCall<any>('POST', '/clients', {
-    type: 'In-Person',
-    status: 'Active',
+    modality: 'PRESENCIAL',
+    status: 'ACTIVE',
+    // keep the fixture from queueing a real WhatsApp welcome message
+    notificationEnabled: false,
     ...data,
   })
 }
@@ -72,12 +76,33 @@ export function toggleSessionComplete(id: string) {
 
 // ── Workouts ──
 
-export function createWorkout(data: { title: string; description?: string; exercises: { name: string; sets: number; reps: string; notes?: string }[]; tags?: string[]; clientId?: string }) {
-  return apiCall<any>('POST', '/workouts', data)
+/**
+ * The workout library is the template list. A flat workout is one item "A" with one
+ * REGULAR block per exercise; the server assigns the structure ids.
+ */
+export function createWorkout(data: { title: string; description?: string; exercises: { name: string; sets: number; reps: string; notes?: string }[]; tags?: string[] }) {
+  return apiCall<any>('POST', '/workout-templates', {
+    name: data.title,
+    ...(data.description ? { description: data.description } : {}),
+    tags: data.tags ?? [],
+    workouts: [
+      {
+        letter: 'A',
+        name: data.title,
+        orderIndex: 0,
+        blocks: data.exercises.map((exercise, index) => ({
+          type: 'REGULAR',
+          orderIndex: index,
+          restTimeSeconds: 60,
+          exercises: [{ exerciseName: exercise.name, sets: exercise.sets, reps: exercise.reps, executionNotes: exercise.notes ?? null, orderIndex: 0 }],
+        })),
+      },
+    ],
+  })
 }
 
 export function deleteWorkout(id: string) {
-  return apiCall<void>('DELETE', `/workouts/${id}`)
+  return apiCall<void>('DELETE', `/workout-sheets/${id}`)
 }
 
 // ── Evaluations ──

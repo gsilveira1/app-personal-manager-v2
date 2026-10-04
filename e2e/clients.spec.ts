@@ -49,24 +49,31 @@ test.describe('Clients', () => {
 
     // Open modal
     await page.getByRole('button', { name: /novo|adicionar|add/i }).click()
-    await expect(page.getByTestId('add-client-modal')).toBeVisible()
+    const modal = page.getByTestId('add-client-modal')
+    await expect(modal).toBeVisible()
 
     const uniqueName = `E2E Client ${Date.now()}`
+    let clientId: string | undefined
+    try {
+      // Fill required fields
+      await page.locator('#name').fill(uniqueName)
+      await page.locator('#dateOfBirth').fill('1990-01-15')
+      await page.locator('#email').fill(`e2e-${Date.now()}@test.com`)
+      await page.locator('#phone').fill('53999000000')
 
-    // Fill required fields
-    await page.locator('#name').fill(uniqueName)
-    await page.locator('#dateOfBirth').fill('1990-01-15')
-    await page.locator('#email').fill(`e2e-${Date.now()}@test.com`)
-    await page.locator('#phone').fill('53999000000')
+      // Submit
+      const created = page.waitForResponse((res) => res.request().method() === 'POST' && new URL(res.url()).pathname.endsWith('/clients'))
+      await modal.getByRole('button', { name: /adicionar cliente|add client|agregar cliente/i }).click()
+      const response = await created
+      expect(response.status()).toBe(201)
+      clientId = (await response.json()).id
 
-    // Submit
-    await page
-      .getByRole('button', { name: /adicionar|salvar|save|add client/i })
-      .last()
-      .click()
-
-    // Verify client appears in table
-    await expect(page.locator(`text=${uniqueName}`)).toBeVisible({ timeout: 10000 })
+      // The table is paginated and a new client goes to its end: look it up by name
+      await page.getByPlaceholder(/buscar|pesquisar|search/i).fill(uniqueName)
+      await expect(page.getByTestId(`client-row-${clientId}`)).toContainText(uniqueName, { timeout: 10000 })
+    } finally {
+      if (clientId) await deleteClient(clientId)
+    }
   })
 
   test('navigate to client details by clicking row', async ({ page }) => {
@@ -116,6 +123,7 @@ test.describe('Clients', () => {
     await page.waitForTimeout(300)
 
     // Should show empty state
-    await expect(page.locator('text=/nenhum|no clients|sem resultados/i')).toBeVisible()
+    await expect(page.getByTestId('clients-table').getByRole('cell', { name: /nenhum cliente encontrado|no clients found|no se encontraron clientes/i })).toBeVisible()
+    await expect(page.locator('[data-testid^="client-row-"]')).toHaveCount(0)
   })
 })

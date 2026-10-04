@@ -7,9 +7,12 @@ test.describe('Dashboard', () => {
   })
 
   test('displays stat cards', async ({ page }) => {
-    // Dashboard shows stat cards with metrics
-    const statCards = page.locator('[class*="stat"], [class*="StatCard"], [class*="rounded-xl"]').filter({ hasText: /\d/ })
-    await expect(statCards.first()).toBeVisible({ timeout: 10000 })
+    // Sessions today, sessions this week, new leads, active clients
+    const statCards = page.getByTestId('stat-card')
+    await expect(statCards).toHaveCount(4, { timeout: 10000 })
+    for (const value of await statCards.getByTestId('stat-card-value').all()) {
+      await expect(value).toHaveText(/^\d+$/)
+    }
   })
 
   test('today agenda is visible', async ({ page }) => {

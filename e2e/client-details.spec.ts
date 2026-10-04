@@ -5,7 +5,8 @@ let testClientId: string
 
 test.beforeAll(async () => {
   const clients = await getClients()
-  const activeClient = clients.find((c: any) => c.status === 'Active')
+  // A seeded client: the "E2E ..." ones belong to other specs, which delete them while this one runs
+  const activeClient = clients.find((c: any) => c.status === 'ACTIVE' && !c.name.startsWith('E2E'))
   if (activeClient) testClientId = activeClient.id
 })
 

@@ -71,27 +71,32 @@ test.describe('Settings', () => {
   })
 
   test('create new plan', async ({ page }) => {
-    // Click "New Plan" button
-    const newPlanBtn = page.getByRole('button', { name: /novo plano|new plan|adicionar/i })
-    if (await newPlanBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
-      await newPlanBtn.click()
+    const name = `E2E Plan ${Date.now()}`
+    let planId: string | undefined
+    try {
+      await page
+        .getByRole('button', { name: /novo plano|new plan|nuevo plan/i })
+        .first()
+        .click()
 
       // Fill plan form
       const planEditor = page.getByTestId('plan-editor-modal')
       await expect(planEditor).toBeVisible({ timeout: 3000 })
+      await planEditor.locator('#name').fill(name)
+      await planEditor.locator('#price').fill('500')
 
-      // Fill name
-      await page.locator('#name').fill(`E2E Plan ${Date.now()}`)
+      // Submit (the page has other "save" buttons: use the form's own)
+      const created = page.waitForResponse((res) => res.request().method() === 'POST' && new URL(res.url()).pathname.endsWith('/plans'))
+      await planEditor.locator('button[type="submit"]').click()
+      const response = await created
+      expect(response.status()).toBe(201)
+      planId = (await response.json()).id
 
-      // Fill price
-      await page.locator('#price').fill('500')
-
-      // Submit
-      await page.getByRole('button', { name: /salvar|save/i }).click()
-      await page.waitForTimeout(1000)
-
-      // Modal should close
+      // Modal should close and the plan is listed
       await expect(planEditor).not.toBeVisible({ timeout: 5000 })
+      await expect(page.getByTestId(`plan-card-${planId}`)).toContainText(name)
+    } finally {
+      if (planId) await deletePlan(planId)
     }
   })
 
@@ -104,29 +109,33 @@ test.describe('Settings', () => {
       durationMinutes: 60,
       price: 300,
     })
+    try {
+      await page.reload()
+      await page.waitForLoadState('networkidle')
 
-    await page.reload()
-    await page.waitForLoadState('networkidle')
+      const planCard = page.getByTestId(`plan-card-${plan.id}`)
+      await expect(planCard).toBeVisible({ timeout: 5000 })
 
-    const planCard = page.getByTestId(`plan-card-${plan.id}`)
-    if (await planCard.isVisible({ timeout: 5000 }).catch(() => false)) {
-      // Click edit button
-      const editBtn = planCard.locator('button:has(svg.lucide-edit-2), button:has(svg.lucide-pencil)')
-      await editBtn.click()
+      // Click edit button (lucide's Edit2 icon renders as "pen")
+      await planCard.locator('button:has(svg.lucide-pen)').click()
 
       const planEditor = page.getByTestId('plan-editor-modal')
       await expect(planEditor).toBeVisible()
 
       // Change price
-      await page.locator('#price').clear()
-      await page.locator('#price').fill('350')
+      await planEditor.locator('#price').fill('350')
 
-      await page.getByRole('button', { name: /salvar|save/i }).click()
-      await page.waitForTimeout(1000)
+      const patched = page.waitForResponse((res) => res.request().method() === 'PATCH' && res.url().includes(`/plans/${plan.id}`))
+      await planEditor.locator('button[type="submit"]').click()
+      const response = await patched
+      expect(response.status()).toBe(200)
+      expect(Number((await response.json()).price)).toBe(350)
+
+      await expect(planEditor).not.toBeVisible({ timeout: 5000 })
+      await expect(planCard).toContainText('350')
+    } finally {
+      await deletePlan(plan.id)
     }
-
-    // Cleanup
-    await deletePlan(plan.id)
   })
 
   test('delete plan with confirmation', async ({ page }) => {
@@ -136,23 +145,24 @@ test.describe('Settings', () => {
       sessionsPerWeek: 1,
       price: 150,
     })
+    let deleted = false
+    try {
+      await page.reload()
+      await page.waitForLoadState('networkidle')
 
-    await page.reload()
-    await page.waitForLoadState('networkidle')
+      const planCard = page.getByTestId(`plan-card-${plan.id}`)
+      await expect(planCard).toBeVisible({ timeout: 5000 })
 
-    const planCard = page.getByTestId(`plan-card-${plan.id}`)
-    if (await planCard.isVisible({ timeout: 5000 }).catch(() => false)) {
-      const deleteBtn = planCard.locator('button:has(svg.lucide-trash-2)')
-      await deleteBtn.click()
+      // The confirmation is a native window.confirm
+      page.once('dialog', (dialog) => dialog.accept())
+      const removed = page.waitForResponse((res) => res.request().method() === 'DELETE' && res.url().includes(`/plans/${plan.id}`))
+      await planCard.locator('button:has(svg.lucide-trash-2)').click()
+      expect((await removed).ok()).toBe(true)
+      deleted = true
 
-      // Confirm deletion
-      const confirmBtn = page.getByRole('button', { name: /confirmar|confirm|sim|yes|excluir|delete/i })
-      if (await confirmBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
-        await confirmBtn.click()
-        await expect(planCard).not.toBeVisible({ timeout: 5000 })
-      }
-    } else {
-      await deletePlan(plan.id)
+      await expect(planCard).not.toBeVisible({ timeout: 5000 })
+    } finally {
+      if (!deleted) await deletePlan(plan.id)
     }
   })
 

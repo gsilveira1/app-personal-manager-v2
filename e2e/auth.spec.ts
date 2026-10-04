@@ -13,7 +13,7 @@ test.describe('Authentication', () => {
   test('login with valid credentials redirects to dashboard', async ({ page }) => {
     await page.goto('/#/login')
     await page.getByLabel(/email/i).fill(TEST_EMAIL)
-    await page.getByLabel(/senha|password/i).fill(TEST_PASSWORD)
+    await page.getByLabel(/^(senha|password|contraseña)$/i).fill(TEST_PASSWORD)
     await page.getByRole('button', { name: /entrar|login|sign in/i }).click()
 
     await expect(page).toHaveURL(/\/#\/$/, { timeout: 15000 })
@@ -23,7 +23,7 @@ test.describe('Authentication', () => {
   test('shows error on invalid credentials', async ({ page }) => {
     await page.goto('/#/login')
     await page.getByLabel(/email/i).fill('bad@email.com')
-    await page.getByLabel(/senha|password/i).fill('wrongpassword')
+    await page.getByLabel(/^(senha|password|contraseña)$/i).fill('wrongpassword')
     await page.getByRole('button', { name: /entrar|login|sign in/i }).click()
 
     await expect(page.locator('[role="alert"], [class*="error"], [class*="text-red"]')).toBeVisible({ timeout: 5000 })
@@ -45,7 +45,7 @@ test.describe('Authentication', () => {
     // First login
     await page.goto('/#/login')
     await page.getByLabel(/email/i).fill(TEST_EMAIL)
-    await page.getByLabel(/senha|password/i).fill(TEST_PASSWORD)
+    await page.getByLabel(/^(senha|password|contraseña)$/i).fill(TEST_PASSWORD)
     await page.getByRole('button', { name: /entrar|login|sign in/i }).click()
     await expect(page).toHaveURL(/\/#\/$/, { timeout: 15000 })
 
@@ -60,7 +60,7 @@ test.describe('Authentication', () => {
     // Login
     await page.goto('/#/login')
     await page.getByLabel(/email/i).fill(TEST_EMAIL)
-    await page.getByLabel(/senha|password/i).fill(TEST_PASSWORD)
+    await page.getByLabel(/^(senha|password|contraseña)$/i).fill(TEST_PASSWORD)
     await page.getByRole('button', { name: /entrar|login|sign in/i }).click()
     await expect(page).toHaveURL(/\/#\/$/, { timeout: 15000 })
 
@@ -79,8 +79,8 @@ test.describe('Authentication', () => {
     const uniqueEmail = `e2e-signup-${Date.now()}@test.com`
     await page.getByLabel(/nome|name/i).fill('E2E Test User')
     await page.getByLabel(/email/i).fill(uniqueEmail)
-    await page.getByLabel(/senha|password/i).fill('Test123456!')
-    await page.getByRole('button', { name: /cadastrar|sign up|criar/i }).click()
+    await page.getByLabel(/^(senha|password|contraseña)$/i).fill('Test123456!')
+    await page.getByRole('button', { name: /cadastrar|sign up|criar|create|crear/i }).click()
 
     // Should redirect to login after successful signup
     await expect(page).toHaveURL(/\/#\/login/, { timeout: 10000 })

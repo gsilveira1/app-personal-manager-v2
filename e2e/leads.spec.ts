@@ -94,8 +94,8 @@ test.describe('Leads', () => {
       name: `E2E Lead Convert ${Date.now()}`,
       email: `e2e-lead-${Date.now()}@test.com`,
       phone: '53999222222',
-      status: 'Lead',
-      type: 'In-Person',
+      status: 'LEAD',
+      modality: 'PRESENCIAL',
     })
 
     await page.reload()
@@ -122,10 +122,10 @@ test.describe('Leads', () => {
           await page.waitForTimeout(1000)
         }
       }
-    } else {
-      // Cleanup
-      await deleteClient(lead.id)
     }
+
+    // Cleanup: converted or not, the client this test created must not outlive it
+    await deleteClient(lead.id)
   })
 
   test('mark lead as lost', async ({ page }) => {
@@ -134,31 +134,29 @@ test.describe('Leads', () => {
       name: `E2E Lead Lost ${Date.now()}`,
       email: `e2e-lost-${Date.now()}@test.com`,
       phone: '53999333333',
-      status: 'Lead',
-      type: 'In-Person',
+      status: 'LEAD',
+      modality: 'PRESENCIAL',
     })
+    try {
+      await page.reload()
+      await page.waitForLoadState('networkidle')
+      await expect(page.getByTestId('lead-kanban')).toBeVisible({ timeout: 10000 })
 
-    await page.reload()
-    await page.waitForLoadState('networkidle')
-    const kanban = page.getByTestId('lead-kanban')
-    await expect(kanban).toBeVisible({ timeout: 10000 })
-
-    const leadCard = page.getByTestId(`lead-card-${lead.id}`)
-    if (await leadCard.isVisible({ timeout: 5000 }).catch(() => false)) {
+      const leadCard = page.getByTestId(`lead-card-${lead.id}`)
       await leadCard.click()
       const drawer = page.getByTestId('lead-drawer')
       await expect(drawer).toBeVisible()
 
-      // Click "Mark as Lost" button
-      const lostBtn = drawer.getByRole('button', { name: /perdido|lost|perder/i })
-      if (await lostBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
-        await lostBtn.click()
-        await page.waitForTimeout(1000)
+      // "Mark as Lost" asks through a native window.confirm
+      page.once('dialog', (dialog) => dialog.accept())
+      const patched = page.waitForResponse((res) => res.request().method() === 'PATCH' && res.url().includes(`/clients/${lead.id}`))
+      await drawer.getByRole('button', { name: /perdido|lost|perdid/i }).click()
+      expect((await patched).status()).toBe(200)
 
-        // Lead should disappear from kanban
-        await expect(page.getByTestId(`lead-card-${lead.id}`)).not.toBeVisible({ timeout: 5000 })
-      }
-    } else {
+      // Lead should disappear from kanban and the drawer closes
+      await expect(leadCard).not.toBeVisible({ timeout: 5000 })
+      await expect(drawer).not.toBeVisible()
+    } finally {
       await deleteClient(lead.id)
     }
   })

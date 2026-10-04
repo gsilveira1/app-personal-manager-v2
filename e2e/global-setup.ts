@@ -10,6 +10,13 @@ setup('authenticate', async ({ page }) => {
 
   const { access_token, user } = await res.json()
 
+  // The UI language is stored on the account: start every run from the default one
+  const language = await page.request.patch(`${API_URL}/settings/language`, {
+    headers: { Authorization: `Bearer ${access_token}` },
+    data: { language: 'pt-BR' },
+  })
+  expect(language.ok()).toBeTruthy()
+
   // 2. Navigate to the app so we can set localStorage on the correct origin
   await page.goto(`${BASE_URL}/#/login`)
 
