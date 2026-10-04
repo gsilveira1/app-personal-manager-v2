@@ -18,7 +18,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
   type NavItem = { to: string; icon: React.ElementType; label: string; badge?: number }
 
-
   const navItems: NavItem[] = [
     { to: '/', icon: LayoutDashboard, label: t('dashboard') },
     { to: '/clients', icon: Users, label: t('clients') },
@@ -28,7 +27,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     { to: '/notifications', icon: Bell, label: t('notifications') },
     { to: '/settings', icon: Settings, label: t('settings') },
   ]
-
 
   if (user?.role === 'admin' || user?.role === 'ADMIN') {
     navItems.push({ to: '/admin/tenants', icon: Shield, label: 'Super Admin' })

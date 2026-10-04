@@ -142,45 +142,46 @@ export const AdminTenants = () => {
               </tr>
             ) : (
               tenants.map((t) => (
-              <tr key={t.id} className="hover:bg-slate-50/80 transition-colors">
-                <td className="px-6 py-4 font-bold text-slate-900">{t.name}</td>
-                <td className="px-6 py-4 font-mono text-xs text-slate-600">{t.slug}</td>
-                <td className="px-6 py-4">
-                  <span className="inline-flex items-center gap-1 font-semibold text-slate-700">
-                    <Users className="h-4 w-4 text-slate-400" />
-                    {t.studentsCount} / {t.features?.maxStudents || '∞'}
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  <span
-                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${
-                      t.status === 'ACTIVE' ? 'bg-emerald-100 text-emerald-800' : t.status === 'BLOCKED' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'
-                    }`}
-                  >
-                    {t.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex flex-wrap gap-1">
-                    {t.features?.canUploadVideos && <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-700">Vídeos R2</span>}
-                    {t.features?.whatsappAlerts && <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-medium text-emerald-800">WhatsApp BullMQ</span>}
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      setEditingTenant(t)
-                      setEditStatus(t.status)
-                      setEditFeaturesJson(JSON.stringify(t.features, null, 2))
-                    }}
-                  >
-                    <Edit3 className="mr-1 h-3.5 w-3.5" /> Editar
-                  </Button>
-                </td>
-              </tr>
-            )))}
+                <tr key={t.id} className="hover:bg-slate-50/80 transition-colors">
+                  <td className="px-6 py-4 font-bold text-slate-900">{t.name}</td>
+                  <td className="px-6 py-4 font-mono text-xs text-slate-600">{t.slug}</td>
+                  <td className="px-6 py-4">
+                    <span className="inline-flex items-center gap-1 font-semibold text-slate-700">
+                      <Users className="h-4 w-4 text-slate-400" />
+                      {t.studentsCount} / {t.features?.maxStudents || '∞'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span
+                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${
+                        t.status === 'ACTIVE' ? 'bg-emerald-100 text-emerald-800' : t.status === 'BLOCKED' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'
+                      }`}
+                    >
+                      {t.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex flex-wrap gap-1">
+                      {t.features?.canUploadVideos && <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-700">Vídeos R2</span>}
+                      {t.features?.whatsappAlerts && <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-medium text-emerald-800">WhatsApp BullMQ</span>}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setEditingTenant(t)
+                        setEditStatus(t.status)
+                        setEditFeaturesJson(JSON.stringify(t.features, null, 2))
+                      }}
+                    >
+                      <Edit3 className="mr-1 h-3.5 w-3.5" /> Editar
+                    </Button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </Card>
@@ -214,21 +215,11 @@ export const AdminTenants = () => {
 
               <div className="space-y-2 pt-2">
                 <label className="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={canUploadVideos}
-                    onChange={(e) => setCanUploadVideos(e.target.checked)}
-                    className="rounded text-indigo-600 focus:ring-indigo-500"
-                  />
+                  <input type="checkbox" checked={canUploadVideos} onChange={(e) => setCanUploadVideos(e.target.checked)} className="rounded text-indigo-600 focus:ring-indigo-500" />
                   Habilitar Upload de Vídeos de Exercícios
                 </label>
                 <label className="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={whatsappAlerts}
-                    onChange={(e) => setWhatsappAlerts(e.target.checked)}
-                    className="rounded text-indigo-600 focus:ring-indigo-500"
-                  />
+                  <input type="checkbox" checked={whatsappAlerts} onChange={(e) => setWhatsappAlerts(e.target.checked)} className="rounded text-indigo-600 focus:ring-indigo-500" />
                   Habilitar Alertas e Disparos no WhatsApp
                 </label>
               </div>

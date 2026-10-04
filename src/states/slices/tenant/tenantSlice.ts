@@ -151,4 +151,3 @@ export const createTenantSlice: StateCreator<TenantSlice, [], [], TenantSlice> =
     document.documentElement.style.setProperty('--primary', color)
   },
 })
-

@@ -262,21 +262,11 @@ export const AddClientModal: React.FC<AddClientModalProps> = ({ onClose, onSave 
                     {t('hasHeartDisease')}
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-700">
-                    <input
-                      type="checkbox"
-                      checked={smoker}
-                      onChange={(e) => setSmoker(e.target.checked)}
-                      className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                    />
+                    <input type="checkbox" checked={smoker} onChange={(e) => setSmoker(e.target.checked)} className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
                     {t('smoker')}
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-700">
-                    <input
-                      type="checkbox"
-                      checked={drinker}
-                      onChange={(e) => setDrinker(e.target.checked)}
-                      className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                    />
+                    <input type="checkbox" checked={drinker} onChange={(e) => setDrinker(e.target.checked)} className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
                     {t('drinker')}
                   </label>
                 </div>

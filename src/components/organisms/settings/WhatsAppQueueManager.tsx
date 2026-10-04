@@ -1,16 +1,5 @@
 import { useEffect, useState } from 'react'
-import {
-  MessageSquare,
-  Mail,
-  RefreshCw,
-  AlertCircle,
-  CheckCircle2,
-  Clock,
-  XCircle,
-  Search,
-  RotateCcw,
-  Ban,
-} from 'lucide-react'
+import { MessageSquare, Mail, RefreshCw, AlertCircle, CheckCircle2, Clock, XCircle, Search, RotateCcw, Ban } from 'lucide-react'
 import { Card, Button, Input, Select, Spinner } from '../../../components/atoms'
 import * as messagingApi from '../../../services/api/messagingApi'
 import type { NotificationLogItem, QueueSummary } from '../../../services/api/messagingApi'
@@ -170,9 +159,7 @@ export const WhatsAppQueueManager = () => {
             <MessageSquare className="h-5 w-5 text-emerald-600" />
             Fila & Gestão de Disparos WhatsApp
           </h2>
-          <p className="text-xs text-slate-500">
-            Monitore, reenvie ou cancele notificações automáticas da sua consultoria.
-          </p>
+          <p className="text-xs text-slate-500">Monitore, reenvie ou cancele notificações automáticas da sua consultoria.</p>
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -182,11 +169,7 @@ export const WhatsAppQueueManager = () => {
             className="bg-emerald-600 hover:bg-emerald-700 text-white"
             data-testid="force-dispatch-btn"
           >
-            {isProcessingQueue ? (
-              <RefreshCw className="h-3.5 w-3.5 mr-1.5 animate-spin" />
-            ) : (
-              <RotateCcw className="h-3.5 w-3.5 mr-1.5" />
-            )}
+            {isProcessingQueue ? <RefreshCw className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : <RotateCcw className="h-3.5 w-3.5 mr-1.5" />}
             Forçar Envio
           </Button>
           <Button variant="outline" size="sm" onClick={loadQueue} disabled={isLoading || isProcessingQueue}>
@@ -196,12 +179,9 @@ export const WhatsAppQueueManager = () => {
         </div>
       </div>
 
-
       {feedback && (
         <div
-          className={`p-3 rounded-md text-xs font-medium ${
-            feedback.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'
-          }`}
+          className={`p-3 rounded-md text-xs font-medium ${feedback.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'}`}
         >
           {feedback.text}
         </div>
@@ -247,13 +227,7 @@ export const WhatsAppQueueManager = () => {
         <form onSubmit={handleSearchSubmit} className="flex flex-wrap gap-3 items-center">
           <div className="flex-1 min-w-[200px] relative">
             <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-            <Input
-              type="text"
-              placeholder="Buscar por telefone, modelo ou erro..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 text-xs"
-            />
+            <Input type="text" placeholder="Buscar por telefone, modelo ou erro..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9 text-xs" />
           </div>
 
           <div className="w-36">
@@ -322,15 +296,9 @@ export const WhatsAppQueueManager = () => {
               <tbody className="divide-y divide-slate-100">
                 {items.map((item) => (
                   <tr key={item.id} className="hover:bg-slate-50/70 transition-colors">
-                    <td className="py-3 px-4 text-slate-500 whitespace-nowrap">
-                      {new Date(item.createdAt).toLocaleString('pt-BR')}
-                    </td>
-                    <td className="py-3 px-4 font-mono font-medium text-slate-900">
-                      {item.recipientPhone}
-                    </td>
-                    <td className="py-3 px-4 text-slate-700 font-medium">
-                      {getTemplateLabel(item.templateType)}
-                    </td>
+                    <td className="py-3 px-4 text-slate-500 whitespace-nowrap">{new Date(item.createdAt).toLocaleString('pt-BR')}</td>
+                    <td className="py-3 px-4 font-mono font-medium text-slate-900">{item.recipientPhone}</td>
+                    <td className="py-3 px-4 text-slate-700 font-medium">{getTemplateLabel(item.templateType)}</td>
                     <td className="py-3 px-4">
                       <span className={`inline-flex items-center gap-1 font-medium ${item.channel === 'WHATSAPP' ? 'text-emerald-700' : 'text-blue-700'}`}>
                         {item.channel === 'WHATSAPP' ? <MessageSquare className="h-3 w-3" /> : <Mail className="h-3 w-3" />}
@@ -344,14 +312,7 @@ export const WhatsAppQueueManager = () => {
                     <td className="py-3 px-4 text-right whitespace-nowrap">
                       <div className="flex items-center justify-end gap-1.5">
                         {(item.status === 'FAILED' || item.status === 'QUEUED') && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleRetry(item.id)}
-                            disabled={actionInProgressId === item.id}
-                            className="h-7 px-2 text-xs"
-                            title="Reprocessar Disparo"
-                          >
+                          <Button variant="outline" size="sm" onClick={() => handleRetry(item.id)} disabled={actionInProgressId === item.id} className="h-7 px-2 text-xs" title="Reprocessar Disparo">
                             <RotateCcw className={`h-3 w-3 mr-1 ${actionInProgressId === item.id ? 'animate-spin' : ''}`} />
                             Reenviar
                           </Button>
@@ -385,22 +346,10 @@ export const WhatsAppQueueManager = () => {
               Total de <strong>{total}</strong> disparos • Página <strong>{page}</strong> de <strong>{totalPages}</strong>
             </span>
             <div className="flex gap-1">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1 || isLoading}
-                className="h-7 px-2 text-xs"
-              >
+              <Button variant="outline" size="sm" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1 || isLoading} className="h-7 px-2 text-xs">
                 Anterior
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages || isLoading}
-                className="h-7 px-2 text-xs"
-              >
+              <Button variant="outline" size="sm" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages || isLoading} className="h-7 px-2 text-xs">
                 Próxima
               </Button>
             </div>

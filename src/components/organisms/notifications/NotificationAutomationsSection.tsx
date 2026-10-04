@@ -1,15 +1,6 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import {
-  Sparkles,
-  ClipboardList,
-  Dumbbell,
-  CalendarClock,
-  Moon,
-  ShieldCheck,
-  Eye,
-  Check,
-} from 'lucide-react'
+import { Sparkles, ClipboardList, Dumbbell, CalendarClock, Moon, ShieldCheck, Eye, Check } from 'lucide-react'
 import { Card, Button } from '../../atoms'
 
 export const NotificationAutomationsSection: React.FC = () => {
@@ -27,8 +18,7 @@ export const NotificationAutomationsSection: React.FC = () => {
       color: 'bg-emerald-50 text-emerald-600 border-emerald-200',
       title: t('automations.welcomeTitle'),
       description: t('automations.welcomeDesc'),
-      defaultMessage:
-        'Olá, {nome}! Seja bem-vindo à minha consultoria fitness. Para começarmos sua periodização personalizada, preencha sua anamnese de saúde aqui: {link}.',
+      defaultMessage: 'Olá, {nome}! Seja bem-vindo à minha consultoria fitness. Para começarmos sua periodização personalizada, preencha sua anamnese de saúde aqui: {link}.',
     },
     {
       id: 'WORKOUT_LINK',
@@ -36,8 +26,7 @@ export const NotificationAutomationsSection: React.FC = () => {
       color: 'bg-indigo-50 text-indigo-600 border-indigo-200',
       title: t('automations.workoutTitle'),
       description: t('automations.workoutDesc'),
-      defaultMessage:
-        'Fala, {nome}! Sua nova ficha de treinos está pronta no aplicativo. Acesse a qualquer momento aqui: {link}. Bons treinos!',
+      defaultMessage: 'Fala, {nome}! Sua nova ficha de treinos está pronta no aplicativo. Acesse a qualquer momento aqui: {link}. Bons treinos!',
     },
     {
       id: 'EXPIRATION_ALERT',
@@ -45,8 +34,7 @@ export const NotificationAutomationsSection: React.FC = () => {
       color: 'bg-amber-50 text-amber-600 border-amber-200',
       title: t('automations.expirationTitle'),
       description: t('automations.expirationDesc'),
-      defaultMessage:
-        'Olá, {nome}! Sua ficha de treino atual está próxima do vencimento. Em breve iniciaremos sua nova fase!',
+      defaultMessage: 'Olá, {nome}! Sua ficha de treino atual está próxima do vencimento. Em breve iniciaremos sua nova fase!',
     },
   ]
 
@@ -67,9 +55,7 @@ export const NotificationAutomationsSection: React.FC = () => {
                   {t('automations.dndActive')}
                 </span>
               </div>
-              <p className="mt-1 text-xs sm:text-sm text-indigo-200/90 leading-relaxed max-w-2xl">
-                {t('automations.dndDesc')}
-              </p>
+              <p className="mt-1 text-xs sm:text-sm text-indigo-200/90 leading-relaxed max-w-2xl">{t('automations.dndDesc')}</p>
             </div>
           </div>
         </div>
@@ -89,10 +75,7 @@ export const NotificationAutomationsSection: React.FC = () => {
           {triggers.map((item) => {
             const Icon = item.icon
             return (
-              <div
-                key={item.id}
-                className="flex flex-col justify-between p-5 border border-slate-200 rounded-xl bg-slate-50/50 hover:bg-slate-50 transition-colors"
-              >
+              <div key={item.id} className="flex flex-col justify-between p-5 border border-slate-200 rounded-xl bg-slate-50/50 hover:bg-slate-50 transition-colors">
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div className={`p-2.5 rounded-xl border ${item.color}`}>
@@ -139,18 +122,12 @@ export const NotificationAutomationsSection: React.FC = () => {
           <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-100 p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-base font-bold text-slate-900">{previewTemplate.title}</h3>
-              <button
-                type="button"
-                onClick={() => setPreviewTemplate(null)}
-                className="text-slate-400 hover:text-slate-600 text-sm font-semibold"
-              >
+              <button type="button" onClick={() => setPreviewTemplate(null)} className="text-slate-400 hover:text-slate-600 text-sm font-semibold">
                 ✕
               </button>
             </div>
 
-            <div className="p-4 bg-emerald-50/50 border border-emerald-100 rounded-xl text-slate-800 text-sm leading-relaxed whitespace-pre-wrap font-sans">
-              {previewTemplate.content}
-            </div>
+            <div className="p-4 bg-emerald-50/50 border border-emerald-100 rounded-xl text-slate-800 text-sm leading-relaxed whitespace-pre-wrap font-sans">{previewTemplate.content}</div>
 
             <div className="flex justify-end">
               <Button type="button" size="sm" onClick={() => setPreviewTemplate(null)}>

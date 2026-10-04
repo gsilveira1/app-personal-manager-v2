@@ -44,14 +44,7 @@ export const Login = () => {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="email">{t('email')}</Label>
-          <Input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            placeholder={t('emailPlaceholder')}
-          />
+          <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder={t('emailPlaceholder')} />
         </div>
 
         <div className="space-y-2">
@@ -62,15 +55,7 @@ export const Login = () => {
             </Link>
           </div>
           <div className="relative">
-            <Input
-              id="password"
-              type={showPassword ? 'text' : 'password'}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              placeholder="••••••••"
-              className="pr-10"
-            />
+            <Input id="password" type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" className="pr-10" />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
@@ -99,4 +84,3 @@ export const Login = () => {
     </Card>
   )
 }
-

@@ -137,15 +137,7 @@ export const ResetPassword = () => {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="password">{t('newPassword')}</Label>
-          <Input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            placeholder={t('newPasswordPlaceholder')}
-            autoComplete="new-password"
-          />
+          <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder={t('newPasswordPlaceholder')} autoComplete="new-password" />
         </div>
 
         <div className="space-y-2">

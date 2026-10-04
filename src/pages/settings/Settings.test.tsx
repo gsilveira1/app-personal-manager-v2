@@ -83,7 +83,6 @@ vi.mock('../../components/organisms/notifications', () => ({
   NotificationAutomationsSection: () => <div data-testid="notification-automations-section" />,
 }))
 
-
 describe('Settings', () => {
   beforeEach(() => {
     vi.clearAllMocks()

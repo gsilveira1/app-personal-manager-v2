@@ -77,4 +77,3 @@ export const sendTestTenantWhatsappMessage = async (data: { phone: string; messa
     body: JSON.stringify(data),
   })
 }
-

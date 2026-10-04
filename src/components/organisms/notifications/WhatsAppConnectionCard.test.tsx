@@ -131,7 +131,7 @@ describe('WhatsAppConnectionCard', () => {
       expect(mockSendTestWhatsappMessage).toHaveBeenCalledWith(
         expect.objectContaining({
           phone: '5511999998888',
-        }),
+        })
       )
       expect(screen.getByText(/Mensagem de teste enviada com sucesso!/i)).toBeInTheDocument()
     })

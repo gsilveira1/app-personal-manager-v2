@@ -182,10 +182,7 @@ describe('ClientsTable', () => {
   })
 
   it('sorts clients by name ascending and descending on header clicks', () => {
-    const sortableClients = [
-      makeClient({ id: 'c1', name: 'Zack Alpha', email: 'zack@test.com' }),
-      makeClient({ id: 'c2', name: 'Alice Beta', email: 'alice@test.com' }),
-    ]
+    const sortableClients = [makeClient({ id: 'c1', name: 'Zack Alpha', email: 'zack@test.com' }), makeClient({ id: 'c2', name: 'Alice Beta', email: 'alice@test.com' })]
 
     render(<ClientsTable clients={sortableClients} plans={plans} searchTerm="" onSearchChange={vi.fn()} />)
 

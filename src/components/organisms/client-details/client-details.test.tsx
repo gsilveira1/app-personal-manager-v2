@@ -537,9 +537,7 @@ describe('ClientProfileEditorModal', () => {
   })
 
   it('renders nothing when isOpen is false', () => {
-    const { container } = render(
-      <ClientProfileEditorModal isOpen={false} onClose={vi.fn()} client={baseClient} />
-    )
+    const { container } = render(<ClientProfileEditorModal isOpen={false} onClose={vi.fn()} client={baseClient} />)
     expect(container.firstChild).toBeNull()
   })
 

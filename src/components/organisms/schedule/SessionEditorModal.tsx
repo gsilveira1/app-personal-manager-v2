@@ -141,7 +141,6 @@ const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurringEvent, 
                       {c.name} ({c.type})
                     </option>
                   ))}
-
               </Select>
             </div>
             <div className="grid grid-cols-2 gap-4">

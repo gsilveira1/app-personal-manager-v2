@@ -27,13 +27,7 @@ export interface QueueResponse {
   summary: QueueSummary
 }
 
-export const getTenantQueue = async (params?: {
-  status?: string
-  channel?: string
-  search?: string
-  page?: number
-  limit?: number
-}): Promise<QueueResponse> => {
+export const getTenantQueue = async (params?: { status?: string; channel?: string; search?: string; page?: number; limit?: number }): Promise<QueueResponse> => {
   const query = new URLSearchParams()
   if (params?.status) query.append('status', params.status)
   if (params?.channel) query.append('channel', params.channel)
@@ -85,4 +79,3 @@ export const processPendingQueue = async (
     body: JSON.stringify({ force }),
   })
 }
-

@@ -105,4 +105,3 @@ describe('SignUp', () => {
     expect(passwordInput).toHaveAttribute('type', 'password')
   })
 })
-

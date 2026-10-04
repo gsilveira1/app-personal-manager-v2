@@ -184,7 +184,7 @@ export const ClientProfileEditorModal: React.FC<ClientProfileEditorModalProps> =
 
           {/* Check-in e Plano */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {(formData.modality === 'ONLINE' || formData.modality === 'HYBRID') ? (
+            {formData.modality === 'ONLINE' || formData.modality === 'HYBRID' ? (
               <div className="space-y-1.5">
                 <label className="text-sm font-medium text-slate-700">{t('checkInFrequency')}</label>
                 <Select name="checkInFrequency" value={formData.checkInFrequency || ''} onChange={handleChange}>
@@ -194,7 +194,9 @@ export const ClientProfileEditorModal: React.FC<ClientProfileEditorModalProps> =
                   <option value="Monthly">{t('frequencyMonthly')}</option>
                 </Select>
               </div>
-            ) : <div />}
+            ) : (
+              <div />
+            )}
 
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-slate-700">{t('subscriptionPlan')}</label>
@@ -275,21 +277,11 @@ export const ClientProfileEditorModal: React.FC<ClientProfileEditorModalProps> =
                     {t('hasHeartDisease')}
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-700">
-                    <input
-                      type="checkbox"
-                      checked={smoker}
-                      onChange={(e) => setSmoker(e.target.checked)}
-                      className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                    />
+                    <input type="checkbox" checked={smoker} onChange={(e) => setSmoker(e.target.checked)} className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
                     {t('smoker')}
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-700">
-                    <input
-                      type="checkbox"
-                      checked={drinker}
-                      onChange={(e) => setDrinker(e.target.checked)}
-                      className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                    />
+                    <input type="checkbox" checked={drinker} onChange={(e) => setDrinker(e.target.checked)} className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
                     {t('drinker')}
                   </label>
                 </div>

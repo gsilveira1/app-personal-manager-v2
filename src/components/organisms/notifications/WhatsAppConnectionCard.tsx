@@ -1,33 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import {
-  QrCode,
-  RefreshCw,
-  CheckCircle2,
-  Smartphone,
-  Loader2,
-  AlertCircle,
-  LogOut,
-  Send,
-  X,
-  Radio,
-} from 'lucide-react'
+import { QrCode, RefreshCw, CheckCircle2, Smartphone, Loader2, AlertCircle, LogOut, Send, X, Radio } from 'lucide-react'
 import { Button, Card, Input } from '../../atoms'
 import { useTenantStore } from '../../../states/stores/tenant/tenantStore'
 
 export const WhatsAppConnectionCard: React.FC = () => {
   const { t } = useTranslation('notifications')
-  const {
-    tenant,
-    fetchTenant,
-    connectWhatsapp,
-    checkWhatsappStatus,
-    disconnectWhatsapp,
-    sendTestWhatsappMessage,
-    qrCode,
-    whatsappStatus,
-    isLoading,
-  } = useTenantStore()
+  const { tenant, fetchTenant, connectWhatsapp, checkWhatsappStatus, disconnectWhatsapp, sendTestWhatsappMessage, qrCode, whatsappStatus, isLoading } = useTenantStore()
 
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [isDisconnecting, setIsDisconnecting] = useState(false)
@@ -151,7 +130,6 @@ export const WhatsAppConnectionCard: React.FC = () => {
     }
   }
 
-
   return (
     <div className="space-y-6" data-testid="whatsapp-connection-card">
       <Card className="p-6 border border-slate-200 bg-white rounded-2xl shadow-sm">
@@ -191,11 +169,7 @@ export const WhatsAppConnectionCard: React.FC = () => {
                   className="text-red-700 border-red-200 hover:bg-red-50"
                   data-testid="disconnect-whatsapp-btn"
                 >
-                  {isDisconnecting ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
-                  ) : (
-                    <LogOut className="h-4 w-4 mr-1.5" />
-                  )}
+                  {isDisconnecting ? <Loader2 className="h-4 w-4 animate-spin mr-1.5" /> : <LogOut className="h-4 w-4 mr-1.5" />}
                   {t('connection.disconnectButton')}
                 </Button>
               </>
@@ -221,12 +195,8 @@ export const WhatsAppConnectionCard: React.FC = () => {
           {/* Left Column: Instructions & Instance Info */}
           <div className="space-y-4">
             <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
-              <span className="text-xs font-medium text-slate-500 uppercase tracking-wider block">
-                {t('connection.instanceName')}
-              </span>
-              <span className="text-base font-semibold text-slate-900 mt-1 block">
-                {tenant?.whatsappInstanceName || 'Instância padrão'}
-              </span>
+              <span className="text-xs font-medium text-slate-500 uppercase tracking-wider block">{t('connection.instanceName')}</span>
+              <span className="text-base font-semibold text-slate-900 mt-1 block">{tenant?.whatsappInstanceName || 'Instância padrão'}</span>
             </div>
 
             <div className="p-5 bg-slate-50/70 border border-slate-200 rounded-xl space-y-3">
@@ -266,12 +236,7 @@ export const WhatsAppConnectionCard: React.FC = () => {
                       <span className="text-xs text-slate-500">{t('connection.statusConnecting')}</span>
                     </div>
                   ) : qrCode ? (
-                    <img
-                      src={qrCode}
-                      alt="WhatsApp QR Code"
-                      className="h-full w-full object-contain"
-                      data-testid="notifications-qr-image"
-                    />
+                    <img src={qrCode} alt="WhatsApp QR Code" className="h-full w-full object-contain" data-testid="notifications-qr-image" />
                   ) : (
                     <div className="flex flex-col items-center gap-2 text-slate-400">
                       <QrCode className="h-12 w-12" />
@@ -312,11 +277,7 @@ export const WhatsAppConnectionCard: React.FC = () => {
                   <p className="text-xs text-slate-500">{t('connection.testModalSubtitle')}</p>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={() => setIsTestModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
-              >
+              <button type="button" onClick={() => setIsTestModalOpen(false)} className="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -325,38 +286,21 @@ export const WhatsAppConnectionCard: React.FC = () => {
               {testFeedback && (
                 <div
                   className={`p-3.5 rounded-xl text-xs flex items-center gap-2 ${
-                    testFeedback.type === 'success'
-                      ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                      : 'bg-red-50 text-red-700 border border-red-200'
+                    testFeedback.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'
                   }`}
                 >
-                  {testFeedback.type === 'success' ? (
-                    <CheckCircle2 className="h-4 w-4 flex-shrink-0 text-emerald-600" />
-                  ) : (
-                    <AlertCircle className="h-4 w-4 flex-shrink-0 text-red-600" />
-                  )}
+                  {testFeedback.type === 'success' ? <CheckCircle2 className="h-4 w-4 flex-shrink-0 text-emerald-600" /> : <AlertCircle className="h-4 w-4 flex-shrink-0 text-red-600" />}
                   <span>{testFeedback.text}</span>
                 </div>
               )}
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  {t('connection.phoneLabel')}
-                </label>
-                <Input
-                  type="text"
-                  placeholder={t('connection.phonePlaceholder')}
-                  value={testPhone}
-                  onChange={(e) => setTestPhone(e.target.value)}
-                  required
-                  data-testid="test-phone-input"
-                />
+                <label className="block text-xs font-semibold text-slate-700 mb-1">{t('connection.phoneLabel')}</label>
+                <Input type="text" placeholder={t('connection.phonePlaceholder')} value={testPhone} onChange={(e) => setTestPhone(e.target.value)} required data-testid="test-phone-input" />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  {t('connection.messageLabel')}
-                </label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">{t('connection.messageLabel')}</label>
                 <textarea
                   className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
                   rows={3}
@@ -368,21 +312,10 @@ export const WhatsAppConnectionCard: React.FC = () => {
               </div>
 
               <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsTestModalOpen(false)}
-                >
+                <Button type="button" variant="outline" size="sm" onClick={() => setIsTestModalOpen(false)}>
                   Cancelar
                 </Button>
-                <Button
-                  type="submit"
-                  size="sm"
-                  disabled={isSendingTest}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                  data-testid="submit-test-message-btn"
-                >
+                <Button type="submit" size="sm" disabled={isSendingTest} className="bg-emerald-600 hover:bg-emerald-700 text-white" data-testid="submit-test-message-btn">
                   {isSendingTest ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin mr-1.5" />

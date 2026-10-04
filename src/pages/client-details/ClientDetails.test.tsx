@@ -301,4 +301,3 @@ describe('ClientDetails', () => {
     expect(screen.getByText(/Histórico de Mensagens/i)).toBeInTheDocument()
   })
 })
-

@@ -57,18 +57,7 @@ export const ClientProfileHeader: React.FC<ClientProfileHeaderProps> = ({ client
             <div className="space-y-2">
               <div className="flex flex-col md:flex-row md:items-center gap-2">
                 <h1 className="text-3xl font-bold text-slate-900">{client.name}</h1>
-                <Badge
-                  variant={
-                    client.status === 'ACTIVE'
-                      ? 'success'
-                      : client.status === 'PAUSED'
-                      ? 'warning'
-                      : client.status === 'OVERDUE'
-                      ? 'error'
-                      : 'default'
-                  }
-                  className="w-fit"
-                >
+                <Badge variant={client.status === 'ACTIVE' ? 'success' : client.status === 'PAUSED' ? 'warning' : client.status === 'OVERDUE' ? 'error' : 'default'} className="w-fit">
                   {t(`status.${(client.status || 'ACTIVE').toLowerCase()}`, { ns: 'common' })}
                 </Badge>
               </div>

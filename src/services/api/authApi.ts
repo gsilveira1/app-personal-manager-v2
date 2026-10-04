@@ -69,4 +69,3 @@ export const resetPassword = async (token: string, pass: string) => {
     body: JSON.stringify({ token, password: pass }),
   })
 }
-

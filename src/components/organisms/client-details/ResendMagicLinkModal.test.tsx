@@ -116,9 +116,7 @@ describe('ResendMagicLinkModal Component', () => {
       link: '/#/p/portal?token=workout-token-123',
     })
 
-    const { rerender } = render(
-      <ResendMagicLinkModal isOpen={true} onClose={mockOnClose} client={mockClient} />
-    )
+    const { rerender } = render(<ResendMagicLinkModal isOpen={true} onClose={mockOnClose} client={mockClient} />)
 
     // Dispatch Workout Sheet
     fireEvent.click(screen.getByText('Ficha de Treino'))

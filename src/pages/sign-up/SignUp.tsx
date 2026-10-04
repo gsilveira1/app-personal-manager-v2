@@ -48,9 +48,7 @@ export const SignUp = () => {
           <Dumbbell className="h-4 w-4 text-indigo-600" />
           <span>{t('roleTrainer')}</span>
         </div>
-        <p className="text-slate-600 text-xs leading-relaxed">
-          {t('autoStudioNotice')}
-        </p>
+        <p className="text-slate-600 text-xs leading-relaxed">{t('autoStudioNotice')}</p>
         {name.trim() && (
           <div className="mt-2 pt-2 border-t border-indigo-200/50 flex items-center gap-1.5 text-indigo-700 font-medium">
             <Sparkles className="h-3.5 w-3.5" />
@@ -62,39 +60,18 @@ export const SignUp = () => {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="name">{t('fullName')}</Label>
-          <Input
-            id="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            placeholder={t('fullNamePlaceholder')}
-          />
+          <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required placeholder={t('fullNamePlaceholder')} />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="email">{t('email')}</Label>
-          <Input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            placeholder={t('emailPlaceholder')}
-          />
+          <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder={t('emailPlaceholder')} />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="password">{t('password')}</Label>
           <div className="relative">
-            <Input
-              id="password"
-              type={showPassword ? 'text' : 'password'}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              placeholder="••••••••"
-              className="pr-10"
-            />
+            <Input id="password" type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" className="pr-10" />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
@@ -123,4 +100,3 @@ export const SignUp = () => {
     </Card>
   )
 }
-

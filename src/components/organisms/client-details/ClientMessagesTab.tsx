@@ -101,9 +101,7 @@ export const ClientMessagesTab = ({ client, onOpenResendModal }: ClientMessagesT
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-base font-semibold text-slate-900">Histórico de Mensagens & Notificações</h3>
-          <p className="text-xs text-slate-500">
-            Comunicações automáticas e manuais enviadas via WhatsApp e E-mail para {client.name}.
-          </p>
+          <p className="text-xs text-slate-500">Comunicações automáticas e manuais enviadas via WhatsApp e E-mail para {client.name}.</p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={loadMessages} disabled={isLoading}>
@@ -121,9 +119,7 @@ export const ClientMessagesTab = ({ client, onOpenResendModal }: ClientMessagesT
 
       {feedback && (
         <div
-          className={`p-3 rounded-md text-xs font-medium ${
-            feedback.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'
-          }`}
+          className={`p-3 rounded-md text-xs font-medium ${feedback.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'}`}
         >
           {feedback.text}
         </div>
@@ -137,9 +133,7 @@ export const ClientMessagesTab = ({ client, onOpenResendModal }: ClientMessagesT
         <Card className="p-8 text-center text-slate-500 bg-slate-50 border-dashed">
           <MessageSquare className="h-10 w-10 mx-auto text-slate-400 mb-2 opacity-60" />
           <p className="text-sm font-medium text-slate-700">Nenhuma mensagem registrada ainda.</p>
-          <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-            Disparos automáticos de boas-vindas, fichas de treino ou alertas aparecerão aqui.
-          </p>
+          <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">Disparos automáticos de boas-vindas, fichas de treino ou alertas aparecerão aqui.</p>
           {onOpenResendModal && (
             <Button size="sm" variant="outline" onClick={onOpenResendModal} className="mt-4">
               <Send className="h-3.5 w-3.5 mr-1.5 text-emerald-600" />
@@ -169,13 +163,7 @@ export const ClientMessagesTab = ({ client, onOpenResendModal }: ClientMessagesT
                   <span className="text-xs text-slate-400">{new Date(msg.createdAt).toLocaleString('pt-BR')}</span>
 
                   {(msg.status === 'FAILED' || msg.status === 'QUEUED') && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleRetry(msg.id)}
-                      disabled={isRetryingId === msg.id}
-                      className="text-xs h-7 px-2"
-                    >
+                    <Button variant="outline" size="sm" onClick={() => handleRetry(msg.id)} disabled={isRetryingId === msg.id} className="text-xs h-7 px-2">
                       <RefreshCw className={`h-3 w-3 mr-1 ${isRetryingId === msg.id ? 'animate-spin' : ''}`} />
                       {msg.status === 'FAILED' ? 'Tentar Novamente' : 'Forçar Envio'}
                     </Button>

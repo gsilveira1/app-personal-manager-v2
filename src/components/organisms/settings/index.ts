@@ -8,4 +8,3 @@ export { AppFeaturesConfigSection } from './AppFeaturesConfigSection'
 export { AiInstructionsSection } from './AiInstructionsSection'
 export { PlansSection } from './PlansSection'
 export { WhatsAppQueueManager } from './WhatsAppQueueManager'
-

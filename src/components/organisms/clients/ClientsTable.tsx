@@ -92,11 +92,7 @@ export const ClientsTable: React.FC<ClientsTableProps> = ({ clients, plans, sear
     if (sortField !== field) {
       return <ArrowUpDown className="ml-1 h-3 w-3 text-slate-400 opacity-60 inline" />
     }
-    return sortDirection === 'asc' ? (
-      <ArrowUp className="ml-1 h-3 w-3 text-indigo-600 inline" />
-    ) : (
-      <ArrowDown className="ml-1 h-3 w-3 text-indigo-600 inline" />
-    )
+    return sortDirection === 'asc' ? <ArrowUp className="ml-1 h-3 w-3 text-indigo-600 inline" /> : <ArrowDown className="ml-1 h-3 w-3 text-indigo-600 inline" />
   }
 
   return (
@@ -146,15 +142,7 @@ export const ClientsTable: React.FC<ClientsTableProps> = ({ clients, plans, sear
           <tbody className="divide-y divide-slate-200">
             {paginatedItems.map((client) => {
               const clientPlan = plans.find((p) => p.id === client.planId)
-              const statusVariant =
-                client.status === ClientStatus.ACTIVE
-                  ? 'success'
-                  : client.status === ClientStatus.PAUSED
-                  ? 'warning'
-                  : client.status === ClientStatus.OVERDUE
-                  ? 'error'
-                  : 'default'
-
+              const statusVariant = client.status === ClientStatus.ACTIVE ? 'success' : client.status === ClientStatus.PAUSED ? 'warning' : client.status === ClientStatus.OVERDUE ? 'error' : 'default'
 
               return (
                 <tr key={client.id} data-testid={`client-row-${client.id}`} className="hover:bg-slate-50 transition-colors cursor-pointer" onClick={() => navigate(`/clients/${client.id}`)}>
@@ -175,9 +163,7 @@ export const ClientsTable: React.FC<ClientsTableProps> = ({ clients, plans, sear
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex flex-col gap-1 items-start">
-                      <Badge variant={statusVariant}>
-                        {t(`status.${(client.status || 'ACTIVE').toLowerCase()}`, { ns: 'common' })}
-                      </Badge>
+                      <Badge variant={statusVariant}>{t(`status.${(client.status || 'ACTIVE').toLowerCase()}`, { ns: 'common' })}</Badge>
                       {client.activeWorkoutSheet?.expiresAt && new Date(client.activeWorkoutSheet.expiresAt).getTime() - Date.now() < 5 * 24 * 3600 * 1000 && (
                         <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-800">Ficha Vencendo</span>
                       )}
@@ -201,9 +187,7 @@ export const ClientsTable: React.FC<ClientsTableProps> = ({ clients, plans, sear
                           <Globe className="h-3 w-3 mr-1 text-blue-600" /> {t('modalityOnline')}
                         </span>
                       ) : client.modality === 'HYBRID' ? (
-                        <span className="inline-flex items-center rounded-md bg-purple-100 px-2 py-0.5 text-xs font-semibold text-purple-800">
-                          {t('modalityHybrid')}
-                        </span>
+                        <span className="inline-flex items-center rounded-md bg-purple-100 px-2 py-0.5 text-xs font-semibold text-purple-800">{t('modalityHybrid')}</span>
                       ) : (
                         <span className="inline-flex items-center rounded-md bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-800">
                           <MapPin className="h-3 w-3 mr-1 text-emerald-600" /> {t('modalityPresencial')}

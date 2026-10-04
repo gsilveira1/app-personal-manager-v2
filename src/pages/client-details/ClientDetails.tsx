@@ -119,12 +119,7 @@ export const ClientDetails = () => {
             Pagamento Manual
           </Button>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleToggleStatus}
-            className={client.status === 'PAUSED' ? 'text-emerald-700 hover:bg-emerald-50' : 'text-amber-700 hover:bg-amber-50'}
-          >
+          <Button variant="outline" size="sm" onClick={handleToggleStatus} className={client.status === 'PAUSED' ? 'text-emerald-700 hover:bg-emerald-50' : 'text-amber-700 hover:bg-amber-50'}>
             {client.status === 'PAUSED' ? (
               <>
                 <PlayCircle className="mr-1.5 h-4 w-4" /> Ativar Aluno
@@ -230,9 +225,7 @@ export const ClientDetails = () => {
             />
           )}
 
-          {activeTab === 'messages' && (
-            <ClientMessagesTab client={client} onOpenResendModal={() => setIsResendModalOpen(true)} />
-          )}
+          {activeTab === 'messages' && <ClientMessagesTab client={client} onOpenResendModal={() => setIsResendModalOpen(true)} />}
         </div>
       </div>
 

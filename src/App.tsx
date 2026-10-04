@@ -143,7 +143,6 @@ function App() {
               <Route path="notifications" element={<Notifications />} />
               <Route path="settings" element={<Settings />} />
               <Route path="admin/tenants" element={<AdminTenants />} />
-
             </Route>
           </Route>
 
