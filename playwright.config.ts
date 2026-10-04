@@ -11,6 +11,9 @@ const envs = loadEnv('', process.cwd(), 'VITE_')
 // Injeta as variáveis VITE_ lidas diretamente no process.env global do Node.js
 Object.assign(process.env, envs)
 
+// Astro's dev server port (see `PORT` in .env.example); e2e/helpers/constants.ts uses the same default.
+const baseURL = process.env.VITE_BASE_URL ?? 'http://localhost:4321'
+
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
@@ -20,7 +23,7 @@ export default defineConfig({
   reporter: 'html',
   timeout: 30_000,
   use: {
-    baseURL: process.env.VITE_BASE_URL ?? 'http://localhost:5173',
+    baseURL,
     actionTimeout: 10_000,
     trace: 'on-first-retry',
   },
@@ -40,7 +43,7 @@ export default defineConfig({
   ],
   webServer: {
     command: 'npm run dev',
-    url: 'http://localhost:5173',
+    url: baseURL,
     reuseExistingServer: !process.env.CI,
   },
 })
