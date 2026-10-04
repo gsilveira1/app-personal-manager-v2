@@ -2,26 +2,26 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { SetupWizard } from './SetupWizard'
-import { useTenantStore } from '../../states/stores/tenant/tenantStore'
+import { useAccountStore } from '../../states/stores/account/accountStore'
 import { useAuthStore } from '../../states/stores/auth/authStore'
 
-vi.mock('../../states/stores/tenant/tenantStore')
+vi.mock('../../states/stores/account/accountStore')
 vi.mock('../../states/stores/auth/authStore')
 
 describe('SetupWizard', () => {
-  const mockFetchTenant = vi.fn()
+  const mockFetchAccount = vi.fn()
   const mockCheckAuthStatus = vi.fn()
 
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.mocked(useTenantStore).mockReturnValue({
-      tenant: {
+    vi.mocked(useAccountStore).mockReturnValue({
+      account: {
         id: 't-1',
         name: 'Vivi Studio',
         slug: 'vivi',
         setupCompleted: false,
       } as any,
-      fetchTenant: mockFetchTenant,
+      fetchAccount: mockFetchAccount,
       updateBranding: vi.fn(),
       uploadLogo: vi.fn(),
       setPrimaryColorPreview: vi.fn(),
@@ -56,6 +56,6 @@ describe('SetupWizard', () => {
 
     expect(screen.getByTestId('setup-wizard-page')).toBeInTheDocument()
     expect(screen.getByTestId('branding-step')).toBeInTheDocument()
-    expect(mockFetchTenant).toHaveBeenCalled()
+    expect(mockFetchAccount).toHaveBeenCalled()
   })
 })

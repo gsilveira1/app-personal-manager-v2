@@ -1,30 +1,85 @@
-export type WhatsappStatus = 'CONNECTED' | 'DISCONNECTED' | 'PENDING'
-export type TenantStatus = 'ACTIVE' | 'BLOCKED' | 'OVERDUE'
-
-export interface Tenant {
-  id: string
-  name: string
-  slug: string
-  status?: TenantStatus
-  primaryColor?: string
-  logoUrl?: string | null
-  whatsappInstanceName?: string | null
-  whatsappStatus?: WhatsappStatus
-  setupCompleted: boolean
-  createdAt?: string
-  updatedAt?: string
+/** Page envelope shared by every paginated list. */
+export interface Paginated<T> {
+  items: T[]
+  total: number
+  page: number
+  totalPages: number
 }
 
+export type WhatsappStatus = 'CONNECTED' | 'DISCONNECTED' | 'PENDING'
+export type AccountStatus = 'ACTIVE' | 'BLOCKED' | 'OVERDUE'
+export type UserRole = 'admin' | 'trainer'
+
+/** Do-not-disturb window applied to queued notifications (`User.settings.dnd`). */
+export interface DndConfig {
+  enabled: boolean
+  startHour: number // 0–23
+  endHour: number // 0–23
+  timezone: string
+}
+
+/** Account limits written by admins only (`User.settings.limits`). */
+export interface AccountLimits {
+  maxStudents: number
+  canUploadVideos: boolean
+  whatsappAlerts: boolean
+}
+
+/** `User.settings` as returned by the API, defaults already resolved. */
+export interface UserSettings {
+  aiInstructions?: string
+  language: 'pt-BR' | 'en' | 'es'
+  workHours: WorkHoursConfig
+  dnd: DndConfig
+  limits: AccountLimits
+}
+
+/**
+ * The authenticated trainer (`UserView`). Branding, the WhatsApp connection and the
+ * setup flag live here: there is no separate tenant entity.
+ */
 export interface User {
   id: string
   name: string
   email: string
-  role: string
+  role: UserRole
+  status: AccountStatus
+  avatar: string | null
+  phone: string | null
+  bio: string | null
+  slug: string
+  primaryColor: string | null
+  logoUrl: string | null
+  whatsappInstanceName: string | null
+  whatsappStatus: WhatsappStatus
+  setupCompleted: boolean
+  settings: UserSettings
+  createdAt: string
+  updatedAt: string
+}
+
+/** Body of `PATCH /users/profile`. Unknown properties are rejected by the API. */
+export interface UpdateProfileBody {
+  name?: string
+  email?: string
+  password?: string
   avatar?: string
   phone?: string
   bio?: string
-  tenantId?: string | null
-  tenant?: Tenant | null
+  slug?: string
+}
+
+/** Row of `GET /admin/users`. */
+export interface AdminUserView {
+  id: string
+  name: string
+  email: string
+  slug: string
+  role: string
+  status: AccountStatus
+  studentsCount: number
+  limits: AccountLimits
+  createdAt: string
 }
 
 export const ClientStatus = {
@@ -244,22 +299,6 @@ export interface ActivityHeatmapData {
   currentStreak: number
   lastWorkoutDate: string | null
   days: ActivityHeatmapDay[]
-}
-
-export interface AdminTenant {
-  id: string
-  name: string
-  slug: string
-  status: TenantStatus
-  studentsCount: number
-  features: {
-    maxStudents?: number
-    canUploadVideos?: boolean
-    whatsappAlerts?: boolean
-    isEnterprise?: boolean
-    [key: string]: any
-  }
-  createdAt: string
 }
 
 export interface Session {

@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { WhatsAppStep } from './WhatsAppStep'
-import { useTenantStore } from '../../../states/stores/tenant/tenantStore'
+import { useAccountStore } from '../../../states/stores/account/accountStore'
 
-vi.mock('../../../states/stores/tenant/tenantStore')
+vi.mock('../../../states/stores/account/accountStore')
 
 describe('WhatsAppStep', () => {
   const mockConnectWhatsapp = vi.fn()
@@ -22,8 +22,8 @@ describe('WhatsAppStep', () => {
       status: 'PENDING',
     })
 
-    vi.mocked(useTenantStore).mockReturnValue({
-      tenant: { id: 't-1' } as any,
+    vi.mocked(useAccountStore).mockReturnValue({
+      account: { id: 't-1' } as any,
       connectWhatsapp: mockConnectWhatsapp,
       checkWhatsappStatus: mockCheckWhatsappStatus,
       completeSetup: mockCompleteSetup,
@@ -31,7 +31,7 @@ describe('WhatsAppStep', () => {
       whatsappStatus: 'PENDING',
       isLoading: false,
       error: null,
-      fetchTenant: vi.fn(),
+      fetchAccount: vi.fn(),
       updateBranding: vi.fn(),
       uploadLogo: vi.fn(),
       setPrimaryColorPreview: vi.fn(),
@@ -47,8 +47,8 @@ describe('WhatsAppStep', () => {
   })
 
   it('displays connected badge when whatsappStatus is CONNECTED', () => {
-    vi.mocked(useTenantStore).mockReturnValue({
-      tenant: { id: 't-1' } as any,
+    vi.mocked(useAccountStore).mockReturnValue({
+      account: { id: 't-1' } as any,
       connectWhatsapp: mockConnectWhatsapp,
       checkWhatsappStatus: mockCheckWhatsappStatus,
       completeSetup: mockCompleteSetup,
@@ -56,7 +56,7 @@ describe('WhatsAppStep', () => {
       whatsappStatus: 'CONNECTED',
       isLoading: false,
       error: null,
-      fetchTenant: vi.fn(),
+      fetchAccount: vi.fn(),
       updateBranding: vi.fn(),
       uploadLogo: vi.fn(),
       setPrimaryColorPreview: vi.fn(),
@@ -69,8 +69,8 @@ describe('WhatsAppStep', () => {
 
   it('completes setup on finish button click', async () => {
     mockCompleteSetup.mockResolvedValue({})
-    vi.mocked(useTenantStore).mockReturnValue({
-      tenant: { id: 't-1' } as any,
+    vi.mocked(useAccountStore).mockReturnValue({
+      account: { id: 't-1' } as any,
       connectWhatsapp: mockConnectWhatsapp,
       checkWhatsappStatus: mockCheckWhatsappStatus,
       completeSetup: mockCompleteSetup,
@@ -78,7 +78,7 @@ describe('WhatsAppStep', () => {
       whatsappStatus: 'CONNECTED',
       isLoading: false,
       error: null,
-      fetchTenant: vi.fn(),
+      fetchAccount: vi.fn(),
       updateBranding: vi.fn(),
       uploadLogo: vi.fn(),
       setPrimaryColorPreview: vi.fn(),

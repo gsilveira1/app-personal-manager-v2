@@ -8,7 +8,7 @@ import { useAuthStore } from '../../states/stores/auth/authStore'
 import { Card, Button, Input, Label } from '../../components/ui'
 
 /**
- * SignUp page component allowing users to create a new account with ADR-004 auto-tenant provision awareness.
+ * SignUp page component allowing users to create a new account with ADR-004 single-account provision awareness.
  */
 export const SignUp = () => {
   const { t } = useTranslation('auth')

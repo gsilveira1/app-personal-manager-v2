@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { QrCode, RefreshCw, CheckCircle2, Smartphone, Loader2, AlertCircle } from 'lucide-react'
 import { Button, Card } from '../../../components/ui'
-import { useTenantStore } from '../../../states/stores/tenant/tenantStore'
+import { useAccountStore } from '../../../states/stores/account/accountStore'
 
 interface WhatsAppStepProps {
   onComplete: () => void
@@ -10,7 +10,7 @@ interface WhatsAppStepProps {
 
 export const WhatsAppStep: React.FC<WhatsAppStepProps> = ({ onComplete }) => {
   const { t } = useTranslation('setupWizard')
-  const { connectWhatsapp, checkWhatsappStatus, completeSetup, qrCode, whatsappStatus, isLoading } = useTenantStore()
+  const { connectWhatsapp, checkWhatsappStatus, completeSetup, qrCode, whatsappStatus, isLoading } = useAccountStore()
 
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [isFinishing, setIsFinishing] = useState(false)

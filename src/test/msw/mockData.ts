@@ -5,6 +5,33 @@ export const mockUser: User = {
   name: 'Trainer Test',
   email: 'trainer@test.com',
   role: 'trainer',
+  status: 'ACTIVE',
+  avatar: null,
+  phone: null,
+  bio: null,
+  slug: 'trainer-test',
+  primaryColor: null,
+  logoUrl: null,
+  whatsappInstanceName: null,
+  whatsappStatus: 'DISCONNECTED',
+  setupCompleted: true,
+  settings: {
+    language: 'pt-BR',
+    workHours: {
+      monday: { enabled: true, start: '07:00', end: '19:00' },
+      tuesday: { enabled: true, start: '07:00', end: '19:00' },
+      wednesday: { enabled: true, start: '07:00', end: '19:00' },
+      thursday: { enabled: true, start: '07:00', end: '19:00' },
+      friday: { enabled: true, start: '07:00', end: '19:00' },
+      saturday: { enabled: true, start: '07:00', end: '19:00' },
+      sunday: { enabled: false, start: '08:00', end: '12:00' },
+      slotDurationMinutes: 60,
+    },
+    dnd: { enabled: true, startHour: 22, endHour: 8, timezone: 'America/Sao_Paulo' },
+    limits: { maxStudents: 50, canUploadVideos: true, whatsappAlerts: true },
+  },
+  createdAt: '2025-01-01T00:00:00.000Z',
+  updatedAt: '2025-01-01T00:00:00.000Z',
 }
 
 export const mockClients: Client[] = [

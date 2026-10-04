@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { BrandingStep } from './BrandingStep'
-import { useTenantStore } from '../../../states/stores/tenant/tenantStore'
+import { useAccountStore } from '../../../states/stores/account/accountStore'
 
-vi.mock('../../../states/stores/tenant/tenantStore')
+vi.mock('../../../states/stores/account/accountStore')
 
 describe('BrandingStep', () => {
   const mockUpdateBranding = vi.fn()
@@ -13,8 +13,8 @@ describe('BrandingStep', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.mocked(useTenantStore).mockReturnValue({
-      tenant: {
+    vi.mocked(useAccountStore).mockReturnValue({
+      account: {
         id: 't-1',
         name: 'Vivi Studio',
         slug: 'vivi',
@@ -28,7 +28,7 @@ describe('BrandingStep', () => {
       error: null,
       qrCode: null,
       whatsappStatus: null,
-      fetchTenant: vi.fn(),
+      fetchAccount: vi.fn(),
       connectWhatsapp: vi.fn(),
       checkWhatsappStatus: vi.fn(),
       completeSetup: vi.fn(),

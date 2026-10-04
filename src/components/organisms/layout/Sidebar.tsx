@@ -28,8 +28,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     { to: '/settings', icon: Settings, label: t('settings') },
   ]
 
-  if (user?.role === 'admin' || user?.role === 'ADMIN') {
-    navItems.push({ to: '/admin/tenants', icon: Shield, label: 'Super Admin' })
+  if (user?.role === 'admin') {
+    navItems.push({ to: '/admin/users', icon: Shield, label: 'Super Admin' })
   }
 
   return (

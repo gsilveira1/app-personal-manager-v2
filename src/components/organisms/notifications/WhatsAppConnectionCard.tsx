@@ -2,11 +2,11 @@ import React, { useEffect, useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { QrCode, RefreshCw, CheckCircle2, Smartphone, Loader2, AlertCircle, LogOut, Send, X, Radio } from 'lucide-react'
 import { Button, Card, Input } from '../../atoms'
-import { useTenantStore } from '../../../states/stores/tenant/tenantStore'
+import { useAccountStore } from '../../../states/stores/account/accountStore'
 
 export const WhatsAppConnectionCard: React.FC = () => {
   const { t } = useTranslation('notifications')
-  const { tenant, fetchTenant, connectWhatsapp, checkWhatsappStatus, disconnectWhatsapp, sendTestWhatsappMessage, qrCode, whatsappStatus, isLoading } = useTenantStore()
+  const { account, fetchAccount, connectWhatsapp, checkWhatsappStatus, disconnectWhatsapp, sendTestWhatsappMessage, qrCode, whatsappStatus, isLoading } = useAccountStore()
 
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [isDisconnecting, setIsDisconnecting] = useState(false)
@@ -24,7 +24,7 @@ export const WhatsAppConnectionCard: React.FC = () => {
   const isConnected = whatsappStatus === 'CONNECTED'
 
   useEffect(() => {
-    fetchTenant()
+    fetchAccount()
     checkWhatsappStatus()
   }, [])
 
@@ -196,7 +196,7 @@ export const WhatsAppConnectionCard: React.FC = () => {
           <div className="space-y-4">
             <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
               <span className="text-xs font-medium text-slate-500 uppercase tracking-wider block">{t('connection.instanceName')}</span>
-              <span className="text-base font-semibold text-slate-900 mt-1 block">{tenant?.whatsappInstanceName || 'Instância padrão'}</span>
+              <span className="text-base font-semibold text-slate-900 mt-1 block">{account?.whatsappInstanceName || 'Instância padrão'}</span>
             </div>
 
             <div className="p-5 bg-slate-50/70 border border-slate-200 rounded-xl space-y-3">

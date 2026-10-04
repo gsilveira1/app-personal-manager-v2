@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Palette, MessageSquare, ShieldCheck } from 'lucide-react'
-import { useTenantStore } from '../../states/stores/tenant/tenantStore'
+import { useAccountStore } from '../../states/stores/account/accountStore'
 import { useAuthStore } from '../../states/stores/auth/authStore'
 import { BrandingStep } from './steps/BrandingStep'
 import { WhatsAppStep } from './steps/WhatsAppStep'
@@ -10,28 +10,28 @@ import { WhatsAppStep } from './steps/WhatsAppStep'
 export const SetupWizard: React.FC = () => {
   const { t } = useTranslation('setupWizard')
   const navigate = useNavigate()
-  const { fetchTenant, tenant } = useTenantStore()
+  const { fetchAccount, account } = useAccountStore()
   const { checkAuthStatus } = useAuthStore()
 
   const [currentStep, setCurrentStep] = useState<1 | 2>(1)
 
   useEffect(() => {
-    fetchTenant()
-  }, [fetchTenant])
+    fetchAccount()
+  }, [fetchAccount])
 
   // If already completed, redirect to dashboard
   useEffect(() => {
-    if (tenant?.setupCompleted) {
+    if (account?.setupCompleted) {
       navigate('/', { replace: true })
     }
-  }, [tenant?.setupCompleted, navigate])
+  }, [account?.setupCompleted, navigate])
 
   const handleStep1Complete = () => {
     setCurrentStep(2)
   }
 
   const handleStep2Complete = async () => {
-    // Refresh auth store so user.tenant.setupCompleted is updated in global state
+    // Refresh auth store so user.setupCompleted is updated in global state
     await checkAuthStatus()
     navigate('/', { replace: true })
   }

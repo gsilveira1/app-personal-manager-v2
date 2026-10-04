@@ -37,13 +37,18 @@ export const logout = async () => {
 }
 
 /**
+ * Reads the authenticated user (`GET /auth/me`). Throws on any failure.
+ */
+export const fetchCurrentUser = async () => apiClient<User>('/auth/me')
+
+/**
  * Gets details of the currently authenticated user.
  */
 export const getCurrentUser = async () => {
   const token = localStorage.getItem('token')
   if (!token) return null
   try {
-    return await apiClient<User>('/auth/me')
+    return await fetchCurrentUser()
   } catch (error) {
     console.error('Failed to get current user:', error)
     return null

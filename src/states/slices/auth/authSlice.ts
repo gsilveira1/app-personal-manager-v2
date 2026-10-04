@@ -1,6 +1,6 @@
 import { type StateCreator } from 'zustand'
 
-import { type User } from '../../../types'
+import { type UpdateProfileBody, type User } from '../../../types'
 import * as api from '../../../services/api/apiService'
 import { uploadFileToGcs } from '../../../utils/uploadToGcs'
 
@@ -59,7 +59,7 @@ export interface AuthSlice {
    * @param updates - Partial object containing updated profile fields
    * @returns A promise resolving when profile update completes
    */
-  updateProfile: (updates: Partial<User>) => Promise<void>
+  updateProfile: (updates: UpdateProfileBody) => Promise<void>
   /**
    * Uploads the user avatar photo file to GCS and updates profile state.
    *

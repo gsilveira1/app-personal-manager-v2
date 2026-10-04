@@ -1,7 +1,7 @@
 import { AlertOctagon, Phone } from 'lucide-react'
 import { Card } from '../../components/atoms'
 
-export const TenantBlocked = () => {
+export const AccountBlocked = () => {
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-950 p-4 text-white">
       <Card className="max-w-md w-full p-8 text-center bg-slate-900 border-slate-800 shadow-2xl space-y-6">

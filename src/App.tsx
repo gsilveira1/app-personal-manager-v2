@@ -10,6 +10,8 @@ import { useAuthStore } from './states/stores/auth/authStore'
 import { Layout } from './components/Layout'
 import { Button } from './components/ui'
 import { AuthLayout } from './components/AuthLayout'
+import { AdminRoute } from './components/AdminRoute'
+import { resolveAccountGate } from './utils/accountGate'
 import { Dashboard } from './pages/dashboards/Dashboard'
 import { Clients } from './pages/clients/Clients'
 import { ClientDetails } from './pages/client-details/ClientDetails'
@@ -27,8 +29,8 @@ import { SetupWizard } from './pages/setup-wizard/SetupWizard'
 
 import { AnamnesisForm } from './pages/anamnesis-form/AnamnesisForm'
 import { WorkoutPlayer } from './pages/workout-player/WorkoutPlayer'
-import { AdminTenants } from './pages/admin/AdminTenants'
-import { TenantBlocked } from './pages/blocked/TenantBlocked'
+import { AdminUsers } from './pages/admin/AdminUsers'
+import { AccountBlocked } from './pages/blocked/AccountBlocked'
 
 const FullScreenLoader = ({ message }: { message: string }) => (
   <div className="flex h-screen w-full flex-col items-center justify-center bg-slate-50 text-slate-500">
@@ -71,15 +73,10 @@ const ProtectedRoute = () => {
     return <Navigate to="/login" replace />
   }
 
-  // Feature 008 Guardrail: Blocked tenant redirection
-  if (user?.tenant && (user.tenant.status === 'BLOCKED' || user.tenant.status === 'OVERDUE')) {
-    return <Navigate to="/blocked" replace />
-  }
-
-  // Feature 001 Guardrail: Mandatory Setup Wizard redirection if setupCompleted is false
-  if (user?.tenant && user.tenant.setupCompleted === false) {
-    return <Navigate to="/setup-wizard" replace />
-  }
+  // Feature 008 / 001 guardrails: blocked or overdue account, then mandatory setup wizard
+  const gate = resolveAccountGate(user)
+  if (gate === 'blocked') return <Navigate to="/blocked" replace />
+  if (gate === 'setup') return <Navigate to="/setup-wizard" replace />
 
   if (appState === 'loading' || appState === 'idle') {
     return <FullScreenLoader message={i18n.t('appLoading')} />
@@ -118,7 +115,7 @@ function App() {
           <Route path="/anamnesis" element={<AnamnesisForm />} />
           <Route path="/p/:slug" element={<WorkoutPlayer />} />
           <Route path="/workout-player" element={<WorkoutPlayer />} />
-          <Route path="/blocked" element={<TenantBlocked />} />
+          <Route path="/blocked" element={<AccountBlocked />} />
 
           {/* Public Auth Routes */}
           <Route element={<AuthLayout />}>
@@ -142,7 +139,10 @@ function App() {
               <Route path="leads" element={<Leads />} />
               <Route path="notifications" element={<Notifications />} />
               <Route path="settings" element={<Settings />} />
-              <Route path="admin/tenants" element={<AdminTenants />} />
+              <Route element={<AdminRoute />}>
+                <Route path="admin/users" element={<AdminUsers />} />
+              </Route>
+              <Route path="admin/tenants" element={<Navigate to="/admin/users" replace />} />
             </Route>
           </Route>
 

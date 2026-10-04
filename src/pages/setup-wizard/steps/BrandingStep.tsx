@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Upload, Check, Image as ImageIcon, Loader2 } from 'lucide-react'
 import { Button, Input, Card, Badge } from '../../../components/ui'
-import { useTenantStore } from '../../../states/stores/tenant/tenantStore'
+import { useAccountStore } from '../../../states/stores/account/accountStore'
 
 const PRESET_COLORS = [
   { name: 'Emerald', hex: '#10B981' },
@@ -19,10 +19,10 @@ interface BrandingStepProps {
 
 export const BrandingStep: React.FC<BrandingStepProps> = ({ onComplete }) => {
   const { t } = useTranslation('setupWizard')
-  const { tenant, updateBranding, uploadLogo, setPrimaryColorPreview, isLoading } = useTenantStore()
+  const { account, updateBranding, uploadLogo, setPrimaryColorPreview, isLoading } = useAccountStore()
 
-  const [primaryColor, setPrimaryColor] = useState(tenant?.primaryColor || '#10B981')
-  const [logoUrl, setLogoUrl] = useState(tenant?.logoUrl || '')
+  const [primaryColor, setPrimaryColor] = useState(account?.primaryColor || '#10B981')
+  const [logoUrl, setLogoUrl] = useState(account?.logoUrl || '')
   const [isUploading, setIsUploading] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
@@ -178,7 +178,7 @@ export const BrandingStep: React.FC<BrandingStepProps> = ({ onComplete }) => {
                   {logoUrl ? <img src={logoUrl} alt="Logo" className="h-8 w-8 object-contain rounded" /> : 'VP'}
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-slate-900">{tenant?.name || 'Vivi Personal Studio'}</h4>
+                  <h4 className="text-sm font-bold text-slate-900">{account?.name || 'Vivi Personal Studio'}</h4>
                   <p className="text-xs text-slate-500">App do Aluno</p>
                 </div>
               </div>

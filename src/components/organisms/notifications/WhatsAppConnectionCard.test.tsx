@@ -3,10 +3,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { WhatsAppConnectionCard } from './WhatsAppConnectionCard'
-import { useTenantStore } from '../../../states/stores/tenant/tenantStore'
+import { useAccountStore } from '../../../states/stores/account/accountStore'
 
-vi.mock('../../../states/stores/tenant/tenantStore', () => ({
-  useTenantStore: vi.fn(),
+vi.mock('../../../states/stores/account/accountStore', () => ({
+  useAccountStore: vi.fn(),
 }))
 
 vi.mock('react-i18next', () => ({
@@ -45,15 +45,15 @@ vi.mock('react-i18next', () => ({
 }))
 
 describe('WhatsAppConnectionCard', () => {
-  const mockFetchTenant = vi.fn()
+  const mockFetchAccount = vi.fn()
   const mockConnectWhatsapp = vi.fn()
   const mockCheckWhatsappStatus = vi.fn()
   const mockDisconnectWhatsapp = vi.fn()
   const mockSendTestWhatsappMessage = vi.fn()
 
   const defaultStoreState = {
-    tenant: { id: 't-1', name: 'Studio', whatsappInstanceName: 'vivi-instance-1' },
-    fetchTenant: mockFetchTenant,
+    account: { id: 't-1', name: 'Studio', whatsappInstanceName: 'vivi-instance-1' },
+    fetchAccount: mockFetchAccount,
     connectWhatsapp: mockConnectWhatsapp,
     checkWhatsappStatus: mockCheckWhatsappStatus,
     disconnectWhatsapp: mockDisconnectWhatsapp,
@@ -65,7 +65,7 @@ describe('WhatsAppConnectionCard', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.mocked(useTenantStore).mockReturnValue(defaultStoreState as any)
+    vi.mocked(useAccountStore).mockReturnValue(defaultStoreState as any)
   })
 
   it('renders disconnected state with QR code container and refresh button', async () => {
@@ -78,7 +78,7 @@ describe('WhatsAppConnectionCard', () => {
   })
 
   it('renders connected state with test button and disconnect button', async () => {
-    vi.mocked(useTenantStore).mockReturnValue({
+    vi.mocked(useAccountStore).mockReturnValue({
       ...defaultStoreState,
       whatsappStatus: 'CONNECTED',
     } as any)
@@ -92,7 +92,7 @@ describe('WhatsAppConnectionCard', () => {
 
   it('handles disconnect action with confirmation', async () => {
     vi.spyOn(window, 'confirm').mockReturnValue(true)
-    vi.mocked(useTenantStore).mockReturnValue({
+    vi.mocked(useAccountStore).mockReturnValue({
       ...defaultStoreState,
       whatsappStatus: 'CONNECTED',
     } as any)
@@ -109,7 +109,7 @@ describe('WhatsAppConnectionCard', () => {
 
   it('opens test message modal and dispatches test message', async () => {
     mockSendTestWhatsappMessage.mockResolvedValue({ success: true, messageId: 'msg-999' })
-    vi.mocked(useTenantStore).mockReturnValue({
+    vi.mocked(useAccountStore).mockReturnValue({
       ...defaultStoreState,
       whatsappStatus: 'CONNECTED',
     } as any)
