@@ -100,8 +100,8 @@ npm run test:watch
 # Run coverage report
 npm run test:coverage
 
-# Run Playwright E2E tests
-npm run test:e2e
+# Browser E2E journeys live in the viviOps superproject (e2e/client) and run from its root:
+#   npm run test:e2e
 ```
 
 ### Production Build & Preview
