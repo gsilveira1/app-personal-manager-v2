@@ -25,7 +25,7 @@ function waitForTemplateCreated(page: Page) {
 
 test.describe('Workouts', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/#/workouts')
+    await page.goto('/workouts')
     await page.waitForLoadState('networkidle')
   })
 

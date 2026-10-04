@@ -3,7 +3,7 @@ import { createClient, getClients, getPlans, deleteClient } from './helpers/api-
 
 test.describe('Leads', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/#/leads')
+    await page.goto('/leads')
     await page.waitForLoadState('networkidle')
   })
 

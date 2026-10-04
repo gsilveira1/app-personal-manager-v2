@@ -13,7 +13,7 @@ test.beforeAll(async () => {
 test.describe('Client Details', () => {
   test.beforeEach(async ({ page }) => {
     test.skip(!testClientId, 'No active client in seed data')
-    await page.goto(`/#/clients/${testClientId}`)
+    await page.goto(`/clients/${testClientId}`)
     await page.waitForLoadState('networkidle')
   })
 
@@ -215,7 +215,7 @@ test.describe('Client Details', () => {
         .catch(() => false)
     ) {
       await backBtn.first().click()
-      await expect(page).toHaveURL(/\/#\/clients$/, { timeout: 5000 })
+      await expect(page).toHaveURL(/\/clients$/, { timeout: 5000 })
     }
   })
 })

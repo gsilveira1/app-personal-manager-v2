@@ -3,7 +3,7 @@ import { createClient, deleteClient } from './helpers/api-helpers'
 
 test.describe('Clients', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/#/clients')
+    await page.goto('/clients')
     await page.waitForLoadState('networkidle')
   })
 
@@ -82,7 +82,7 @@ test.describe('Clients', () => {
     const firstRow = page.locator('table tbody tr').first()
     await firstRow.click()
 
-    await expect(page).toHaveURL(/\/#\/clients\/[a-zA-Z0-9-]+/, { timeout: 5000 })
+    await expect(page).toHaveURL(/\/clients\/[a-zA-Z0-9-]+/, { timeout: 5000 })
   })
 
   test('client type badges display correctly', async ({ page }) => {
@@ -108,7 +108,7 @@ test.describe('Clients', () => {
     await expect(page.getByTestId('clients-table')).toBeVisible({ timeout: 10000 })
 
     // Navigate to client details
-    await page.goto(`/#/clients/${client.id}`)
+    await page.goto(`/clients/${client.id}`)
     await page.waitForLoadState('networkidle')
 
     // Look for delete action — cleanup via API as fallback
