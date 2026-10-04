@@ -23,6 +23,10 @@ vi.stubGlobal('localStorage', localStorageMock)
 import apiClient, { API_BASE_URL, ApiError } from './apiClient'
 
 describe('apiClient', () => {
+  it('defaults to the same-origin /api prefix when VITE_API_URL is not set', () => {
+    expect(API_BASE_URL).toBe('/api')
+  })
+
   const mockFetch = vi.fn()
 
   beforeEach(() => {

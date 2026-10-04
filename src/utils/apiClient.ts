@@ -9,7 +9,9 @@ export class ApiError extends Error {
   }
 }
 
-export const API_BASE_URL = import.meta.env.VITE_API_URL // This would be an environment variable in a real production app.
+// Same-origin by default: the Astro dev server and Nginx both proxy `/api` to the backend.
+// VITE_API_URL overrides it for setups that call the API on another origin.
+export const API_BASE_URL: string = import.meta.env.VITE_API_URL || '/api'
 
 /**
  * A wrapper around the Fetch API to make authenticated requests to the backend.
