@@ -2,7 +2,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('../../services/api/apiService', () => ({
-  getClients: vi.fn(),
+  getAllClients: vi.fn(),
   getEvaluations: vi.fn(),
   getPlans: vi.fn(),
   getSessions: vi.fn(),
@@ -17,7 +17,7 @@ vi.mock('../../services/api/apiService', () => ({
   deleteRecurringSeries: vi.fn(),
   upsertSessionException: vi.fn(),
   updateSession: vi.fn(),
-  updateSessionWithScope: vi.fn(),
+  deleteSession: vi.fn(),
   getSessionsForRange: vi.fn(),
   toggleSessionComplete: vi.fn(),
   createWorkout: vi.fn(),
@@ -33,10 +33,9 @@ vi.mock('../../services/api/apiService', () => ({
   updateLanguage: vi.fn(),
   getAiInstructions: vi.fn(),
   getLanguage: vi.fn(),
-  getActiveSystemFeatures: vi.fn(),
-  createSystemFeature: vi.fn(),
-  updateSystemFeature: vi.fn(),
-  deleteSystemFeature: vi.fn(),
+  getPlanFeatures: vi.fn(),
+  updateClientStatus: vi.fn(),
+  recordPayment: vi.fn(),
   login: vi.fn(),
   signup: vi.fn(),
   logout: vi.fn(),
@@ -64,6 +63,8 @@ vi.mock('../../i18n/index', () => ({
 }))
 
 import * as api from '../../services/api/apiService'
+import { ApiError } from '../../utils/apiClient'
+import { useAuthStore } from './auth/authStore'
 import { useStore } from './store'
 
 const mockApi = api as Record<string, ReturnType<typeof vi.fn>>
@@ -86,7 +87,7 @@ describe('store async actions', () => {
 
   describe('fetchInitialData', () => {
     it('should fetch all data and set appState to ready', async () => {
-      mockApi.getClients.mockResolvedValue([{ id: '1', name: 'Maria' }])
+      mockApi.getAllClients.mockResolvedValue([{ id: '1', name: 'Maria' }])
       mockApi.getEvaluations.mockResolvedValue([])
       mockApi.getPlans.mockResolvedValue([])
       mockApi.getSessions.mockResolvedValue([])
@@ -100,7 +101,7 @@ describe('store async actions', () => {
     })
 
     it('should set appState to error on failure', async () => {
-      mockApi.getClients.mockRejectedValue(new Error('Network error'))
+      mockApi.getAllClients.mockRejectedValue(new Error('Network error'))
       mockApi.getEvaluations.mockResolvedValue([])
       mockApi.getPlans.mockResolvedValue([])
       mockApi.getSessions.mockResolvedValue([])
@@ -110,6 +111,34 @@ describe('store async actions', () => {
 
       expect(useStore.getState().appState).toBe('error')
       expect(useStore.getState().errorMessage).toBe('Network error')
+    })
+
+    it('ends the session before going back to idle when the API answers 401', async () => {
+      // 'idle' with a live session makes ProtectedRoute load again: the session must be gone first
+      mockApi.getAllClients.mockRejectedValue(new ApiError('Unauthorized', 401))
+      mockApi.getEvaluations.mockResolvedValue([])
+      mockApi.getPlans.mockResolvedValue([])
+      mockApi.getSessions.mockResolvedValue([])
+      mockApi.getWorkouts.mockResolvedValue([])
+      vi.spyOn(console, 'error').mockImplementation(() => {})
+
+      let sessionEnded = false
+      const appStateWhileLoggingOut: string[] = []
+      const logout = vi.fn(async () => {
+        appStateWhileLoggingOut.push(useStore.getState().appState)
+        await new Promise((resolve) => setTimeout(resolve, 0))
+        appStateWhileLoggingOut.push(useStore.getState().appState)
+        sessionEnded = true
+      })
+      vi.mocked(useAuthStore.getState).mockReturnValue({ logout } as never)
+
+      await useStore.getState().fetchInitialData()
+
+      expect(logout).toHaveBeenCalledTimes(1)
+      expect(sessionEnded).toBe(true)
+      expect(appStateWhileLoggingOut).toEqual(['loading', 'loading'])
+      expect(useStore.getState().appState).toBe('idle')
+      expect(useStore.getState().errorMessage).toBeNull()
     })
   })
 
@@ -138,11 +167,12 @@ describe('store async actions', () => {
 
   describe('addClient', () => {
     it('should call createClient API and add to store', async () => {
-      const newClient = { id: 'new-1', name: 'João', email: 'joao@test.com', phone: '123', status: 'Active', type: 'In-Person' }
-      mockApi.createClient.mockResolvedValue(newClient)
+      const newClient = { id: 'new-1', name: 'João', email: 'joao@test.com', phone: '123', status: 'ACTIVE', modality: 'PRESENCIAL' }
+      mockApi.createClient.mockResolvedValue({ client: newClient, welcomeMessage: 'QUEUED' })
 
-      await useStore.getState().addClient({ name: 'João', email: 'joao@test.com', phone: '123', status: 'Active', type: 'In-Person' } as any)
+      const outcome = await useStore.getState().addClient({ name: 'João', email: 'joao@test.com', phone: '123', status: 'ACTIVE', modality: 'PRESENCIAL' } as any)
 
+      expect(outcome).toBe('QUEUED')
       expect(mockApi.createClient).toHaveBeenCalled()
       expect(useStore.getState().clients).toHaveLength(1)
       expect(useStore.getState().clients[0].id).toBe('new-1')
@@ -151,7 +181,7 @@ describe('store async actions', () => {
 
   describe('updateClient', () => {
     it('should call updateClient API and update in store', async () => {
-      const client = { id: '1', name: 'Maria', email: 'maria@test.com', phone: '123', status: 'Active', type: 'In-Person' }
+      const client = { id: '1', name: 'Maria', email: 'maria@test.com', phone: '123', status: 'ACTIVE', modality: 'PRESENCIAL' }
       useStore.setState({ clients: [client] as any })
 
       const updated = { ...client, name: 'Maria Santos' }
@@ -290,11 +320,11 @@ describe('store async actions', () => {
     it('should create plan first then client with planId', async () => {
       const plan = { id: 'p-new', name: 'Custom', type: 'PRESENCIAL', sessionsPerWeek: 3, price: 300 }
       mockApi.createPlan.mockResolvedValue(plan)
-      mockApi.createClient.mockResolvedValue({ id: 'c-new', name: 'Test', planId: 'p-new' })
+      mockApi.createClient.mockResolvedValue({ client: { id: 'c-new', name: 'Test', planId: 'p-new' }, welcomeMessage: 'SKIPPED' })
 
       await useStore
         .getState()
-        .addClient({ name: 'Test', email: 't@t.com', phone: '1', status: 'Active', type: 'In-Person' } as any, { name: 'Custom', type: 'PRESENCIAL', sessionsPerWeek: 3, price: 300 } as any)
+        .addClient({ name: 'Test', email: 't@t.com', phone: '1', status: 'ACTIVE', modality: 'PRESENCIAL' } as any, { name: 'Custom', type: 'PRESENCIAL', sessionsPerWeek: 3, price: 300 } as any)
 
       expect(mockApi.createPlan).toHaveBeenCalled()
       expect(mockApi.createClient).toHaveBeenCalled()
@@ -323,7 +353,7 @@ describe('store async actions', () => {
       await useStore.getState().addRecurringEvent({
         rrule: 'FREQ=WEEKLY',
         timezone: 'America/Sao_Paulo',
-        dtstart: '2025-01-01',
+        date: '2025-01-01T10:00:00.000Z',
         durationMinutes: 60,
         type: 'In-Person',
         category: 'Workout',
@@ -335,11 +365,11 @@ describe('store async actions', () => {
   })
 
   describe('deleteRecurringSeries', () => {
-    it('should remove sessions by recurringEventId or recurrenceId', async () => {
+    it('should remove every occurrence and exception of the series', async () => {
       useStore.setState({
         sessions: [
-          { id: 's1', recurringEventId: 're1' },
-          { id: 's2', recurrenceId: 're1' },
+          { id: 're1_2025-01-01T10:00:00.000Z', recurringEventId: 're1' },
+          { id: 'exception-uuid', recurrenceId: 're1' },
           { id: 's3', recurringEventId: 'other' },
         ] as any,
       })
@@ -347,41 +377,72 @@ describe('store async actions', () => {
 
       await useStore.getState().deleteRecurringSeries('re1')
 
-      expect(useStore.getState().sessions).toHaveLength(1)
-      expect(useStore.getState().sessions[0].id).toBe('s3')
+      expect(mockApi.deleteRecurringSeries).toHaveBeenCalledWith('re1')
+      expect(useStore.getState().sessions.map((s) => s.id)).toEqual(['s3'])
+    })
+  })
+
+  describe('deleteSession', () => {
+    it('should remove a one-off session', async () => {
+      useStore.setState({ sessions: [{ id: 's1' }, { id: 's2' }] as any })
+      mockApi.deleteSession.mockResolvedValue(undefined)
+
+      await useStore.getState().deleteSession('s1')
+
+      expect(mockApi.deleteSession).toHaveBeenCalledWith('s1')
+      expect(useStore.getState().sessions.map((s) => s.id)).toEqual(['s2'])
+    })
+
+    it('should remove only the cancelled occurrence when given an occurrence id', async () => {
+      useStore.setState({
+        sessions: [
+          { id: 're1_2025-01-01T10:00:00.000Z', recurringEventId: 're1' },
+          { id: 're1_2025-01-08T10:00:00.000Z', recurringEventId: 're1' },
+        ] as any,
+      })
+      mockApi.deleteSession.mockResolvedValue(undefined)
+
+      await useStore.getState().deleteSession('re1_2025-01-01T10:00:00.000Z')
+
+      expect(useStore.getState().sessions.map((s) => s.id)).toEqual(['re1_2025-01-08T10:00:00.000Z'])
+    })
+
+    it('should remove the whole series when given the series master id', async () => {
+      useStore.setState({ sessions: [{ id: 're1_2025-01-01T10:00:00.000Z', recurringEventId: 're1' }, { id: 's9' }] as any })
+      mockApi.deleteSession.mockResolvedValue(undefined)
+
+      await useStore.getState().deleteSession('re1')
+
+      expect(useStore.getState().sessions.map((s) => s.id)).toEqual(['s9'])
     })
   })
 
   describe('upsertSessionException', () => {
-    it('should remove cancelled session from store', async () => {
+    const first = '2025-01-01T10:00:00.000Z'
+    const second = '2025-01-08T10:00:00.000Z'
+
+    it('should remove cancelled occurrence from store', async () => {
       useStore.setState({
         sessions: [
-          { id: 's1', recurringEventId: 're1', originalStartTime: '2025-01-01' },
-          { id: 's2', recurringEventId: 're1', originalStartTime: '2025-01-08' },
+          { id: `re1_${first}`, recurringEventId: 're1', originalStartTime: first },
+          { id: `re1_${second}`, recurringEventId: 're1', originalStartTime: second },
         ] as any,
       })
-      mockApi.upsertSessionException.mockResolvedValue({ id: 'se1' })
+      mockApi.upsertSessionException.mockResolvedValue({ id: 'se1', cancelled: true })
 
-      await useStore.getState().upsertSessionException({
-        recurringEventId: 're1',
-        originalStartTime: '2025-01-01',
-        cancelled: true,
-      })
+      await useStore.getState().upsertSessionException({ recurringEventId: 're1', originalStartTime: first, cancelled: true })
 
-      expect(useStore.getState().sessions).toHaveLength(1)
-      expect(useStore.getState().sessions[0].id).toBe('s2')
+      expect(useStore.getState().sessions.map((s) => s.id)).toEqual([`re1_${second}`])
     })
 
-    it('should not filter sessions when not cancelled', async () => {
-      useStore.setState({ sessions: [{ id: 's1', recurringEventId: 're1', originalStartTime: '2025-01-01' }] as any })
-      mockApi.upsertSessionException.mockResolvedValue({ id: 'se1' })
+    it('should replace the occurrence with the stored exception when not cancelled', async () => {
+      useStore.setState({ sessions: [{ id: `re1_${first}`, recurringEventId: 're1', originalStartTime: first, notes: 'old' }] as any })
+      mockApi.upsertSessionException.mockResolvedValue({ id: 'se1', recurringEventId: 're1', originalStartTime: first, notes: 'new' })
 
-      await useStore.getState().upsertSessionException({
-        recurringEventId: 're1',
-        originalStartTime: '2025-01-01',
-      })
+      await useStore.getState().upsertSessionException({ recurringEventId: 're1', originalStartTime: first, notes: 'new' })
 
       expect(useStore.getState().sessions).toHaveLength(1)
+      expect(useStore.getState().sessions[0].notes).toBe('new')
     })
   })
 
@@ -394,26 +455,26 @@ describe('store async actions', () => {
 
       expect(useStore.getState().sessions[0].notes).toBe('new')
     })
-  })
 
-  describe('updateSessionWithScope', () => {
-    it('should delegate to updateSession for single scope', async () => {
-      useStore.setState({ sessions: [{ id: 's1', notes: 'old' }] as any })
-      mockApi.updateSession.mockResolvedValue({ id: 's1', notes: 'new' })
+    it('should replace an occurrence even when the API answers with the exception id', async () => {
+      const occurrence = 're1_2025-01-01T10:00:00.000Z'
+      useStore.setState({ sessions: [{ id: occurrence, recurringEventId: 're1', date: '2025-01-01T10:00:00.000Z' }] as any })
+      mockApi.updateSession.mockResolvedValue({ id: 'exception-uuid', recurringEventId: 're1', exceptionId: 'exception-uuid', date: '2025-01-01T12:00:00.000Z' })
 
-      await useStore.getState().updateSessionWithScope('s1', { notes: 'new' }, 'single')
+      await useStore.getState().updateSession(occurrence, { date: '2025-01-01T12:00:00.000Z' })
 
-      expect(mockApi.updateSession).toHaveBeenCalled()
+      expect(mockApi.updateSession).toHaveBeenCalledWith(occurrence, { date: '2025-01-01T12:00:00.000Z' })
+      expect(useStore.getState().sessions).toHaveLength(1)
+      expect(useStore.getState().sessions[0].date).toBe('2025-01-01T12:00:00.000Z')
     })
 
-    it('should call updateSessionWithScope API for future scope and refetch', async () => {
-      mockApi.updateSessionWithScope.mockResolvedValue(undefined)
-      mockApi.getSessionsForRange.mockResolvedValue([])
+    it('should drop a session the update cancelled', async () => {
+      useStore.setState({ sessions: [{ id: 's1' }] as any })
+      mockApi.updateSession.mockResolvedValue({ id: 's1', cancelled: true })
 
-      await useStore.getState().updateSessionWithScope('s1', { notes: 'new' }, 'future')
+      await useStore.getState().updateSession('s1', { cancelled: true })
 
-      expect(mockApi.updateSessionWithScope).toHaveBeenCalledWith('s1', { notes: 'new' }, 'future')
-      expect(mockApi.getSessionsForRange).toHaveBeenCalled()
+      expect(useStore.getState().sessions).toHaveLength(0)
     })
   })
 
@@ -483,47 +544,45 @@ describe('store async actions', () => {
     })
   })
 
-  describe('system feature actions', () => {
-    it('fetchSystemFeatures loads features', async () => {
-      mockApi.getActiveSystemFeatures.mockResolvedValue([{ id: 'sf1', key: 'feat' }])
+  describe('plan feature catalogue', () => {
+    it('fetchPlanFeatures loads the catalogue', async () => {
+      mockApi.getPlanFeatures.mockResolvedValue([{ key: 'automated_pix', name: 'PIX automático', description: '' }])
 
-      await useStore.getState().fetchSystemFeatures()
+      await useStore.getState().fetchPlanFeatures()
 
-      expect(useStore.getState().systemFeatures).toHaveLength(1)
+      expect(useStore.getState().planFeatures).toEqual([{ key: 'automated_pix', name: 'PIX automático', description: '' }])
+    })
+  })
+
+  describe('client status and payments', () => {
+    it('setClientStatus updates the client with the API answer', async () => {
+      useStore.setState({ clients: [{ id: 'c1', status: 'ACTIVE', activeWorkoutSheet: { id: 'sh1', name: 'Ficha' } }] as any })
+      mockApi.updateClientStatus.mockResolvedValue({ id: 'c1', status: 'PAUSED' })
+
+      await useStore.getState().setClientStatus('c1', 'PAUSED')
+
+      expect(mockApi.updateClientStatus).toHaveBeenCalledWith('c1', 'PAUSED')
+      expect(useStore.getState().clients[0].status).toBe('PAUSED')
+      // list-only fields survive an update that does not carry them
+      expect(useStore.getState().clients[0].activeWorkoutSheet).toEqual({ id: 'sh1', name: 'Ficha' })
     })
 
-    it('addSystemFeature creates and adds', async () => {
-      useStore.setState({ systemFeatures: [] })
-      mockApi.createSystemFeature.mockResolvedValue({ id: 'sf1', key: 'feat', name: 'Feature' })
+    it('recordClientPayment stores the client the API activated', async () => {
+      useStore.setState({ clients: [{ id: 'c1', status: 'OVERDUE' }] as any })
+      const payment = { amount: 150, method: 'PIX' as const, periodEnd: '2026-11-03T23:59:59.000Z' }
+      mockApi.recordPayment.mockResolvedValue({ message: 'ok', payment: { id: 'pay1' }, client: { id: 'c1', status: 'ACTIVE', currentPeriodEnd: payment.periodEnd, subscriptionStatus: 'ACTIVE' } })
 
-      await useStore.getState().addSystemFeature({ key: 'feat', name: 'Feature' })
+      await useStore.getState().recordClientPayment('c1', payment)
 
-      expect(useStore.getState().systemFeatures).toHaveLength(1)
-    })
-
-    it('updateSystemFeature updates existing', async () => {
-      useStore.setState({ systemFeatures: [{ id: 'sf1', key: 'old', name: 'Old' }] as any })
-      mockApi.updateSystemFeature.mockResolvedValue({ id: 'sf1', key: 'old', name: 'New' })
-
-      await useStore.getState().updateSystemFeature('sf1', { name: 'New' })
-
-      expect(useStore.getState().systemFeatures[0].name).toBe('New')
-    })
-
-    it('deleteSystemFeature removes feature', async () => {
-      useStore.setState({ systemFeatures: [{ id: 'sf1' }] as any })
-      mockApi.deleteSystemFeature.mockResolvedValue(undefined)
-
-      await useStore.getState().deleteSystemFeature('sf1')
-
-      expect(useStore.getState().systemFeatures).toHaveLength(0)
+      expect(mockApi.recordPayment).toHaveBeenCalledWith('c1', payment)
+      expect(useStore.getState().clients[0]).toMatchObject({ status: 'ACTIVE', currentPeriodEnd: payment.periodEnd, subscriptionStatus: 'ACTIVE' })
     })
   })
 
   describe('fetchInitialData with 401', () => {
     it('should logout on 401 error', async () => {
       const { ApiError } = await import('../../utils/apiClient')
-      mockApi.getClients.mockRejectedValue(new ApiError('Unauthorized', 401))
+      mockApi.getAllClients.mockRejectedValue(new ApiError('Unauthorized', 401))
       mockApi.getEvaluations.mockResolvedValue([])
       mockApi.getPlans.mockResolvedValue([])
       mockApi.getSessions.mockResolvedValue([])

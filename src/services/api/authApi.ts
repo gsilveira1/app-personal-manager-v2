@@ -31,9 +31,16 @@ export const signup = async (name: string, email: string, pass: string) => {
  * Logs out the current user, clearing stored credentials.
  */
 export const logout = async () => {
-  await apiClient('/auth/logout', { method: 'POST' })
-  localStorage.removeItem('token')
-  localStorage.removeItem('user')
+  try {
+    await apiClient('/auth/logout', { method: 'POST' })
+  } catch (error) {
+    // The API keeps no session: its answer only confirms. A refusal (401 for a token it
+    // no longer accepts) or a network failure must not keep the user signed in here.
+    console.error('API did not confirm the logout; the local session is cleared anyway:', error)
+  } finally {
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+  }
 }
 
 /**

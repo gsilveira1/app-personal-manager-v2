@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 vi.mock('../../utils/apiClient', () => ({ default: vi.fn(), API_BASE_URL: 'http://api.test/api' }))
 
@@ -50,5 +50,43 @@ describe('identity API layer (contract v2 §6.1, §6.6)', () => {
     for (const removed of ['getMyTenant', 'updateTenantBranding', 'connectTenantWhatsapp', 'completeTenantSetup', 'getAdminTenants', 'createAdminTenant', 'updateAdminTenant']) {
       expect(api).not.toHaveProperty(removed)
     }
+  })
+
+  describe('logout (contract v2 §8: the server keeps no session)', () => {
+    const storage = new Map<string, string>()
+
+    beforeEach(() => {
+      storage.clear()
+      storage.set('token', 'stale-token')
+      storage.set('user', '{"id":"u1"}')
+      vi.stubGlobal('localStorage', {
+        getItem: (key: string) => storage.get(key) ?? null,
+        setItem: (key: string, value: string) => void storage.set(key, value),
+        removeItem: (key: string) => void storage.delete(key),
+      })
+    })
+
+    afterEach(() => {
+      vi.unstubAllGlobals()
+      vi.restoreAllMocks()
+    })
+
+    it('asks the API to confirm and clears the stored session', async () => {
+      await api.logout()
+
+      expect(client).toHaveBeenCalledWith('/auth/logout', { method: 'POST' })
+      expect([...storage.keys()]).toEqual([])
+    })
+
+    it('still clears the stored session when the API refuses the token (401), and reports it', async () => {
+      const refusal = Object.assign(new Error('Unauthorized'), { status: 401 })
+      client.mockRejectedValue(refusal)
+      const logged = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+      await expect(api.logout()).resolves.toBeUndefined()
+
+      expect([...storage.keys()]).toEqual([])
+      expect(logged).toHaveBeenCalledWith(expect.stringContaining('logout'), refusal)
+    })
   })
 })

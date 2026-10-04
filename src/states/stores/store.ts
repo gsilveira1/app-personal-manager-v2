@@ -10,7 +10,7 @@ import { type WorkoutSlice, createWorkoutSlice } from '../slices/workout/workout
 import { type FinanceSlice, createFinanceSlice } from '../slices/finance/financeSlice'
 import { type EvaluationSlice, createEvaluationSlice } from '../slices/evaluation/evaluationSlice'
 import { type SettingsSlice, createSettingsSlice } from '../slices/settings/settingsSlice'
-import { type SystemFeatureSlice, createSystemFeatureSlice } from '../slices/systemFeature/systemFeatureSlice'
+import { type PlanFeatureSlice, createPlanFeatureSlice } from '../slices/planFeature/planFeatureSlice'
 import { type AvailabilitySlice, createAvailabilitySlice } from '../slices/availability/availabilitySlice'
 
 /** Domain actions (async API calls) — single source of truth */
@@ -20,7 +20,7 @@ import { type WorkoutActions, createWorkoutActions } from './workout/workoutStor
 import { type FinanceActions, createFinanceActions } from './finance/financeStore'
 import { type EvaluationActions, createEvaluationActions } from './evaluation/evaluationStore'
 import { type SettingsActions, createSettingsActions } from './settings/settingsStore'
-import { type SystemFeatureActions, createSystemFeatureActions } from './systemFeature/systemFeatureStore'
+import { type PlanFeatureActions, createPlanFeatureActions } from './planFeature/planFeatureStore'
 import { type AvailabilityActions, createAvailabilityActions } from './availability/availabilityStore'
 
 /**
@@ -41,8 +41,8 @@ export type AppState = ClientSlice &
   EvaluationActions &
   SettingsSlice &
   SettingsActions &
-  SystemFeatureSlice &
-  SystemFeatureActions &
+  PlanFeatureSlice &
+  PlanFeatureActions &
   AvailabilitySlice &
   AvailabilityActions & {
     /** General application lifecycle status flag ('idle' | 'loading' | 'ready' | 'error'). */
@@ -80,7 +80,7 @@ export const useStore = create<AppState>()((set, get) => ({
   ...createFinanceSlice(set, get, {} as any),
   ...createEvaluationSlice(set, get, {} as any),
   ...createSettingsSlice(set, get, {} as any),
-  ...createSystemFeatureSlice(set, get, {} as any),
+  ...createPlanFeatureSlice(set, get, {} as any),
   ...createAvailabilitySlice(set, get, {} as any),
 
   /** Domain actions: imported from domain stores — zero duplication */
@@ -90,7 +90,7 @@ export const useStore = create<AppState>()((set, get) => ({
   ...createFinanceActions(set, get, {} as any),
   ...createEvaluationActions(set, get, {} as any),
   ...createSettingsActions(set, get, {} as any),
-  ...createSystemFeatureActions(set, get, {} as any),
+  ...createPlanFeatureActions(set, get, {} as any),
   ...createAvailabilityActions(set, get, {} as any),
 
   /** Global lifecycle state */
@@ -101,7 +101,7 @@ export const useStore = create<AppState>()((set, get) => ({
   fetchInitialData: async () => {
     set({ appState: 'loading', errorMessage: null })
     try {
-      const [clients, evaluations, plans, sessions, workouts] = await Promise.all([api.getClients(), api.getEvaluations(), api.getPlans(), api.getSessions(), api.getWorkouts()])
+      const [clients, evaluations, plans, sessions, workouts] = await Promise.all([api.getAllClients(), api.getEvaluations(), api.getPlans(), api.getSessions(), api.getWorkouts()])
 
       get()._setClients(clients || [])
       get()._setSessions(sessions || [])
@@ -115,7 +115,9 @@ export const useStore = create<AppState>()((set, get) => ({
     } catch (error) {
       console.error('Failed to fetch initial data:', error)
       if (error instanceof ApiError && error.status === 401) {
-        useAuthStore.getState().logout()
+        // The session must be gone before the state is 'idle' again: ProtectedRoute
+        // starts a new load for an authenticated user in 'idle'.
+        await useAuthStore.getState().logout()
         set({ appState: 'idle' })
       } else {
         set({ appState: 'error', errorMessage: (error as Error).message })
@@ -131,7 +133,7 @@ export const useStore = create<AppState>()((set, get) => ({
       workouts: [],
       evaluations: [],
       plans: [],
-      systemFeatures: [],
+      planFeatures: [],
       availabilityBlocks: [],
       aiPromptInstructions: '',
       locale: '',
