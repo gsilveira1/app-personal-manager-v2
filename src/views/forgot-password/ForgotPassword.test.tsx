@@ -6,7 +6,9 @@ import { MemoryRouter } from 'react-router-dom'
 import { ForgotPassword } from './ForgotPassword'
 
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (key: string, opts?: Record<string, unknown>) => (opts?.email ? `${key} ${opts.email}` : key) }),
+  useTranslation: () => ({
+    t: (key: string, opts?: Record<string, unknown>) => (opts?.email ? `${key} ${opts.email}` : key),
+  }),
 }))
 
 const mockRequestPasswordReset = vi.fn()

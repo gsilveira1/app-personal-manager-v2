@@ -74,7 +74,10 @@ export const createScheduleSlice: StateCreator<ScheduleSlice, [], [], ScheduleSl
       sessions: state.sessions.map((s) => (s.id === id ? session : s)),
     })),
   _removeSession: (id) => set((state) => ({ sessions: state.sessions.filter((s) => s.id !== id) })),
-  _removeSeries: (seriesId) => set((state) => ({ sessions: state.sessions.filter((s) => s.id !== seriesId && seriesIdOf(s) !== seriesId) })),
+  _removeSeries: (seriesId) =>
+    set((state) => ({
+      sessions: state.sessions.filter((s) => s.id !== seriesId && seriesIdOf(s) !== seriesId),
+    })),
   _updateSessionSeries: (updatedSessions, recurrenceId) =>
     set((state) => ({
       sessions: [...state.sessions.filter((s) => s.recurrenceId !== recurrenceId), ...updatedSessions],

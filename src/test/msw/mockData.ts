@@ -131,7 +131,20 @@ export const mockWorkoutTemplates: WorkoutSheet[] = [
             type: 'REGULAR',
             orderIndex: 0,
             restTimeSeconds: 60,
-            exercises: [{ id: 'ex-1', exerciseId: null, exerciseName: 'Supino Reto', gifUrl: null, sets: 4, reps: '10-12', suggestedLoadKg: 60, executionNotes: null, isWarmup: false, orderIndex: 0 }],
+            exercises: [
+              {
+                id: 'ex-1',
+                exerciseId: null,
+                exerciseName: 'Supino Reto',
+                gifUrl: null,
+                sets: 4,
+                reps: '10-12',
+                suggestedLoadKg: 60,
+                executionNotes: null,
+                isWarmup: false,
+                orderIndex: 0,
+              },
+            ],
           },
           {
             id: 'block-2',
@@ -139,7 +152,18 @@ export const mockWorkoutTemplates: WorkoutSheet[] = [
             orderIndex: 1,
             restTimeSeconds: 60,
             exercises: [
-              { id: 'ex-2', exerciseId: null, exerciseName: 'Tríceps Pulley', gifUrl: null, sets: 3, reps: '12-15', suggestedLoadKg: null, executionNotes: null, isWarmup: false, orderIndex: 0 },
+              {
+                id: 'ex-2',
+                exerciseId: null,
+                exerciseName: 'Tríceps Pulley',
+                gifUrl: null,
+                sets: 3,
+                reps: '12-15',
+                suggestedLoadKg: null,
+                executionNotes: null,
+                isWarmup: false,
+                orderIndex: 0,
+              },
             ],
           },
         ],
@@ -156,8 +180,21 @@ export const mockWorkouts: WorkoutPlan[] = [
     id: 'workout-1',
     title: 'Treino A - Peito/Tríceps',
     exercises: [
-      { name: 'Supino Reto', sets: 4, reps: '10-12', weight: '60kg', isWarmup: false, ref: { id: 'ex-1', itemId: 'item-a', blockId: 'block-1' } },
-      { name: 'Tríceps Pulley', sets: 3, reps: '12-15', isWarmup: false, ref: { id: 'ex-2', itemId: 'item-a', blockId: 'block-2' } },
+      {
+        name: 'Supino Reto',
+        sets: 4,
+        reps: '10-12',
+        weight: '60kg',
+        isWarmup: false,
+        ref: { id: 'ex-1', itemId: 'item-a', blockId: 'block-1' },
+      },
+      {
+        name: 'Tríceps Pulley',
+        sets: 3,
+        reps: '12-15',
+        isWarmup: false,
+        ref: { id: 'ex-2', itemId: 'item-a', blockId: 'block-2' },
+      },
     ],
     tags: ['chest', 'triceps'],
     createdAt: '2025-01-01T00:00:00.000Z',
@@ -177,6 +214,10 @@ export const mockEvaluations: Evaluation[] = [
 ]
 
 export const mockPlanFeatures: PlanFeatureDescriptor[] = [
-  { key: 'ai_whatsapp_bot', name: 'Bot de WhatsApp com IA', description: 'Atendimento automático por WhatsApp' },
+  {
+    key: 'ai_whatsapp_bot',
+    name: 'Bot de WhatsApp com IA',
+    description: 'Atendimento automático por WhatsApp',
+  },
   { key: 'automated_pix', name: 'PIX automático', description: 'Cobrança recorrente por PIX' },
 ]

@@ -203,7 +203,13 @@ describe('ClientsTable', () => {
 
   it('sorts clients by email, modality, and status on header clicks', () => {
     const sortableClients = [
-      makeClient({ id: 'c1', name: 'Client 1', email: 'b@test.com', modality: 'PRESENCIAL', status: 'ACTIVE' }),
+      makeClient({
+        id: 'c1',
+        name: 'Client 1',
+        email: 'b@test.com',
+        modality: 'PRESENCIAL',
+        status: 'ACTIVE',
+      }),
       makeClient({ id: 'c2', name: 'Client 2', email: 'a@test.com', modality: 'ONLINE', status: 'PAUSED' }),
     ]
 
@@ -406,7 +412,14 @@ describe('formatPlanLabel', () => {
   })
 
   it('formats plan with sessions per month and price', () => {
-    const plan = { id: 'p1', name: 'Gold', type: 'PRESENCIAL' as const, sessionsPerWeek: 3, durationMinutes: 60, price: 500 }
+    const plan = {
+      id: 'p1',
+      name: 'Gold',
+      type: 'PRESENCIAL' as const,
+      sessionsPerWeek: 3,
+      durationMinutes: 60,
+      price: 500,
+    }
     const result = formatPlanLabel(plan, '/mo')
 
     expect(result).toBe('Gold \u2014 12x/mo 60min \u00B7 R$ 500.00')

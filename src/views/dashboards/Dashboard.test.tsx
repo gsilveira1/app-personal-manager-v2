@@ -27,9 +27,30 @@ vi.mock('../utils/dateLocale', () => ({
 const today = new Date().toISOString().split('T')[0]
 
 const mockClients = [
-  { id: 'c1', name: 'Maria Silva', email: 'maria@test.com', phone: '123', status: 'Active', type: 'In-Person' as const },
-  { id: 'c2', name: 'João Santos', email: 'joao@test.com', phone: '456', status: 'Active', type: 'Online' as const },
-  { id: 'c3', name: 'Ana Lead', email: 'ana@test.com', phone: '789', status: 'Lead', type: 'In-Person' as const },
+  {
+    id: 'c1',
+    name: 'Maria Silva',
+    email: 'maria@test.com',
+    phone: '123',
+    status: 'Active',
+    type: 'In-Person' as const,
+  },
+  {
+    id: 'c2',
+    name: 'João Santos',
+    email: 'joao@test.com',
+    phone: '456',
+    status: 'Active',
+    type: 'Online' as const,
+  },
+  {
+    id: 'c3',
+    name: 'Ana Lead',
+    email: 'ana@test.com',
+    phone: '789',
+    status: 'Lead',
+    type: 'In-Person' as const,
+  },
 ]
 
 const mockSessions = [

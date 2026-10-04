@@ -72,7 +72,11 @@ describe('WhatsAppQueueManager', () => {
   })
 
   it('offers no manual retry: failed deliveries are retried by the queue', async () => {
-    vi.mocked(messagingApi.getMessageLogs).mockResolvedValue(logPage([logItem({ status: 'FAILED', error: 'WHATSAPP_TRANSIENT (HTTP 503): upstream unavailable' })], { totalFailed: 1 }))
+    vi.mocked(messagingApi.getMessageLogs).mockResolvedValue(
+      logPage([logItem({ status: 'FAILED', error: 'WHATSAPP_TRANSIENT (HTTP 503): upstream unavailable' })], {
+        totalFailed: 1,
+      })
+    )
 
     render(<WhatsAppQueueManager />)
 
@@ -85,7 +89,10 @@ describe('WhatsAppQueueManager', () => {
   it('lists pending jobs and cancels one by its job id', async () => {
     vi.spyOn(window, 'confirm').mockReturnValue(true)
     vi.mocked(messagingApi.getPendingMessages).mockResolvedValue([pendingJob()])
-    vi.mocked(messagingApi.cancelPendingMessage).mockResolvedValue({ message: 'ok', notification: logItem({ status: 'CANCELLED', jobId: 'job-1' }) })
+    vi.mocked(messagingApi.cancelPendingMessage).mockResolvedValue({
+      message: 'ok',
+      notification: logItem({ status: 'CANCELLED', jobId: 'job-1' }),
+    })
 
     const user = userEvent.setup()
     render(<WhatsAppQueueManager />)
@@ -114,7 +121,10 @@ describe('WhatsAppQueueManager', () => {
   it('flushes the delayed jobs and reports how many were promoted', async () => {
     vi.spyOn(window, 'confirm').mockReturnValue(true)
     vi.mocked(messagingApi.getPendingMessages).mockResolvedValue([pendingJob()])
-    vi.mocked(messagingApi.flushPendingMessages).mockResolvedValue({ promotedCount: 1, message: 'Mensagens liberadas.' })
+    vi.mocked(messagingApi.flushPendingMessages).mockResolvedValue({
+      promotedCount: 1,
+      message: 'Mensagens liberadas.',
+    })
 
     const user = userEvent.setup()
     render(<WhatsAppQueueManager />)

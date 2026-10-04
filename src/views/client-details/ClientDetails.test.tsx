@@ -57,11 +57,40 @@ vi.mock('../../states/stores/store', () => ({
   }),
 }))
 
-const mockSession = { id: 's1', clientId: 'c1', date: '2024-01-15T10:00:00.000Z', durationMinutes: 60, type: 'In-Person', category: 'Workout', completed: true, notes: 'Great session' }
-const mockSessionIncomplete = { id: 's2', clientId: 'c1', date: '2024-01-14T10:00:00.000Z', durationMinutes: 45, type: 'Online', category: 'Check-in', completed: false }
+const mockSession = {
+  id: 's1',
+  clientId: 'c1',
+  date: '2024-01-15T10:00:00.000Z',
+  durationMinutes: 60,
+  type: 'In-Person',
+  category: 'Workout',
+  completed: true,
+  notes: 'Great session',
+}
+const mockSessionIncomplete = {
+  id: 's2',
+  clientId: 'c1',
+  date: '2024-01-14T10:00:00.000Z',
+  durationMinutes: 45,
+  type: 'Online',
+  category: 'Check-in',
+  completed: false,
+}
 
-const mockEvaluation = { id: 'e1', clientId: 'c1', date: '2024-01-10T00:00:00.000Z', weight: 75, bodyFatPercentage: 15 }
-const mockEvaluation2 = { id: 'e2', clientId: 'c1', date: '2024-01-20T00:00:00.000Z', weight: 73, bodyFatPercentage: 14 }
+const mockEvaluation = {
+  id: 'e1',
+  clientId: 'c1',
+  date: '2024-01-10T00:00:00.000Z',
+  weight: 75,
+  bodyFatPercentage: 15,
+}
+const mockEvaluation2 = {
+  id: 'e2',
+  clientId: 'c1',
+  date: '2024-01-20T00:00:00.000Z',
+  weight: 73,
+  bodyFatPercentage: 14,
+}
 
 let mockHookReturn: any = {
   clientSessions: [],

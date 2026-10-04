@@ -17,9 +17,32 @@ const mockUpdateClient = vi.fn().mockResolvedValue(undefined)
 const mockConvertLead = vi.fn().mockResolvedValue(undefined)
 
 let mockClients: any[] = [
-  { id: 'l1', name: 'Lead A', email: 'a@test.com', phone: '123', status: 'LEAD', modality: 'PRESENCIAL', notes: null },
-  { id: 'l2', name: 'Lead B', email: 'b@test.com', phone: '456', status: 'LEAD', modality: 'ONLINE', notes: JSON.stringify({ __stage: 'Contacted', __userNotes: '' }) },
-  { id: 'c1', name: 'Active Client', email: 'c@test.com', phone: '789', status: 'ACTIVE', modality: 'PRESENCIAL' },
+  {
+    id: 'l1',
+    name: 'Lead A',
+    email: 'a@test.com',
+    phone: '123',
+    status: 'LEAD',
+    modality: 'PRESENCIAL',
+    notes: null,
+  },
+  {
+    id: 'l2',
+    name: 'Lead B',
+    email: 'b@test.com',
+    phone: '456',
+    status: 'LEAD',
+    modality: 'ONLINE',
+    notes: JSON.stringify({ __stage: 'Contacted', __userNotes: '' }),
+  },
+  {
+    id: 'c1',
+    name: 'Active Client',
+    email: 'c@test.com',
+    phone: '789',
+    status: 'ACTIVE',
+    modality: 'PRESENCIAL',
+  },
 ]
 
 vi.mock('../../states/stores/store', () => ({
@@ -70,9 +93,32 @@ describe('Leads', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockClients = [
-      { id: 'l1', name: 'Lead A', email: 'a@test.com', phone: '123', status: 'LEAD', modality: 'PRESENCIAL', notes: null },
-      { id: 'l2', name: 'Lead B', email: 'b@test.com', phone: '456', status: 'LEAD', modality: 'ONLINE', notes: JSON.stringify({ __stage: 'Contacted', __userNotes: '' }) },
-      { id: 'c1', name: 'Active Client', email: 'c@test.com', phone: '789', status: 'ACTIVE', modality: 'PRESENCIAL' },
+      {
+        id: 'l1',
+        name: 'Lead A',
+        email: 'a@test.com',
+        phone: '123',
+        status: 'LEAD',
+        modality: 'PRESENCIAL',
+        notes: null,
+      },
+      {
+        id: 'l2',
+        name: 'Lead B',
+        email: 'b@test.com',
+        phone: '456',
+        status: 'LEAD',
+        modality: 'ONLINE',
+        notes: JSON.stringify({ __stage: 'Contacted', __userNotes: '' }),
+      },
+      {
+        id: 'c1',
+        name: 'Active Client',
+        email: 'c@test.com',
+        phone: '789',
+        status: 'ACTIVE',
+        modality: 'PRESENCIAL',
+      },
     ]
   })
 
@@ -162,7 +208,16 @@ describe('Leads', () => {
   })
 
   it('shows empty state when no leads exist', () => {
-    mockClients = [{ id: 'c1', name: 'Active Client', email: 'c@test.com', phone: '789', status: 'ACTIVE', modality: 'PRESENCIAL' }]
+    mockClients = [
+      {
+        id: 'c1',
+        name: 'Active Client',
+        email: 'c@test.com',
+        phone: '789',
+        status: 'ACTIVE',
+        modality: 'PRESENCIAL',
+      },
+    ]
     renderPage()
     expect(screen.getByText('noLeads')).toBeInTheDocument()
   })

@@ -27,17 +27,41 @@ describe('scheduleStore', () => {
   })
 
   it('should manage schedule state correctly (sync)', () => {
-    const session = { id: '1', clientId: 'c1', clientName: 'Maria', date: '2026-03-20', time: '10:00', durationMinutes: 60, status: 'Scheduled' as const, type: 'In-Person' as const, completed: false }
+    const session = {
+      id: '1',
+      clientId: 'c1',
+      clientName: 'Maria',
+      date: '2026-03-20',
+      time: '10:00',
+      durationMinutes: 60,
+      status: 'Scheduled' as const,
+      type: 'In-Person' as const,
+      completed: false,
+    }
     useScheduleStore.getState()._addSession(session)
     expect(useScheduleStore.getState().sessions).toEqual([session])
   })
 
   describe('addSession', () => {
     it('should call createSession API and add to store', async () => {
-      const session = { id: 'sess-1', clientId: 'c1', date: '2025-02-01', durationMinutes: 60, type: 'In-Person', category: 'Workout', completed: false }
+      const session = {
+        id: 'sess-1',
+        clientId: 'c1',
+        date: '2025-02-01',
+        durationMinutes: 60,
+        type: 'In-Person',
+        category: 'Workout',
+        completed: false,
+      }
       mockApi.createSession.mockResolvedValue(session)
 
-      await useScheduleStore.getState().addSession({ clientId: 'c1', date: '2025-02-01', durationMinutes: 60, type: 'In-Person', category: 'Workout' } as any)
+      await useScheduleStore.getState().addSession({
+        clientId: 'c1',
+        date: '2025-02-01',
+        durationMinutes: 60,
+        type: 'In-Person',
+        category: 'Workout',
+      } as any)
 
       expect(useScheduleStore.getState().sessions).toHaveLength(1)
     })

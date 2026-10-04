@@ -19,16 +19,44 @@ describe('clientSlice', () => {
 
   it('_setClients should replace entire array', () => {
     const clients = [
-      { id: '1', name: 'Maria', email: 'maria@test.com', phone: '123', status: 'Active' as const, type: 'In-Person' as const },
-      { id: '2', name: 'João', email: 'joao@test.com', phone: '456', status: 'Active' as const, type: 'Online' as const },
+      {
+        id: '1',
+        name: 'Maria',
+        email: 'maria@test.com',
+        phone: '123',
+        status: 'Active' as const,
+        type: 'In-Person' as const,
+      },
+      {
+        id: '2',
+        name: 'João',
+        email: 'joao@test.com',
+        phone: '456',
+        status: 'Active' as const,
+        type: 'Online' as const,
+      },
     ]
     store.getState()._setClients(clients)
     expect(store.getState().clients).toEqual(clients)
   })
 
   it('_addClient should append to array', () => {
-    const client1 = { id: '1', name: 'Maria', email: 'maria@test.com', phone: '123', status: 'Active' as const, type: 'In-Person' as const }
-    const client2 = { id: '2', name: 'João', email: 'joao@test.com', phone: '456', status: 'Active' as const, type: 'Online' as const }
+    const client1 = {
+      id: '1',
+      name: 'Maria',
+      email: 'maria@test.com',
+      phone: '123',
+      status: 'Active' as const,
+      type: 'In-Person' as const,
+    }
+    const client2 = {
+      id: '2',
+      name: 'João',
+      email: 'joao@test.com',
+      phone: '456',
+      status: 'Active' as const,
+      type: 'Online' as const,
+    }
 
     store.getState()._addClient(client1)
     expect(store.getState().clients).toHaveLength(1)
@@ -39,7 +67,14 @@ describe('clientSlice', () => {
   })
 
   it('_updateClient should replace matching client by id', () => {
-    const client = { id: '1', name: 'Maria', email: 'maria@test.com', phone: '123', status: 'Active' as const, type: 'In-Person' as const }
+    const client = {
+      id: '1',
+      name: 'Maria',
+      email: 'maria@test.com',
+      phone: '123',
+      status: 'Active' as const,
+      type: 'In-Person' as const,
+    }
     store.getState()._setClients([client])
 
     const updated = { ...client, name: 'Maria Santos' }
@@ -50,8 +85,22 @@ describe('clientSlice', () => {
 
   it('_removeClient should filter out by id', () => {
     const clients = [
-      { id: '1', name: 'Maria', email: 'maria@test.com', phone: '123', status: 'Active' as const, type: 'In-Person' as const },
-      { id: '2', name: 'João', email: 'joao@test.com', phone: '456', status: 'Active' as const, type: 'Online' as const },
+      {
+        id: '1',
+        name: 'Maria',
+        email: 'maria@test.com',
+        phone: '123',
+        status: 'Active' as const,
+        type: 'In-Person' as const,
+      },
+      {
+        id: '2',
+        name: 'João',
+        email: 'joao@test.com',
+        phone: '456',
+        status: 'Active' as const,
+        type: 'Online' as const,
+      },
     ]
     store.getState()._setClients(clients)
 

@@ -30,7 +30,14 @@ describe('clientStore', () => {
   })
 
   it('should manage clients state correctly (sync)', () => {
-    const client = { id: '1', name: 'Maria', email: 'maria@test.com', phone: '123', status: 'ACTIVE' as const, modality: 'PRESENCIAL' as const }
+    const client = {
+      id: '1',
+      name: 'Maria',
+      email: 'maria@test.com',
+      phone: '123',
+      status: 'ACTIVE' as const,
+      modality: 'PRESENCIAL' as const,
+    }
     useClientStore.getState()._addClient(client)
     expect(useClientStore.getState().clients).toEqual([client])
 
@@ -43,10 +50,23 @@ describe('clientStore', () => {
 
   describe('addClient', () => {
     it('should call createClient API and add to store', async () => {
-      const newClient = { id: 'c-1', name: 'João', email: 'joao@test.com', phone: '123', status: 'ACTIVE', modality: 'PRESENCIAL' }
+      const newClient = {
+        id: 'c-1',
+        name: 'João',
+        email: 'joao@test.com',
+        phone: '123',
+        status: 'ACTIVE',
+        modality: 'PRESENCIAL',
+      }
       mockApi.createClient.mockResolvedValue({ client: newClient, welcomeMessage: 'FAILED' })
 
-      const outcome = await useClientStore.getState().addClient({ name: 'João', email: 'joao@test.com', phone: '123', status: 'ACTIVE', modality: 'PRESENCIAL' } as any)
+      const outcome = await useClientStore.getState().addClient({
+        name: 'João',
+        email: 'joao@test.com',
+        phone: '123',
+        status: 'ACTIVE',
+        modality: 'PRESENCIAL',
+      } as any)
 
       // the welcome-message outcome reaches the caller so a failure can be shown
       expect(outcome).toBe('FAILED')
@@ -59,7 +79,10 @@ describe('clientStore', () => {
     it('should create a custom plan first when customPlanData is provided', async () => {
       const plan = { id: 'p-new', name: 'Custom', type: 'PRESENCIAL', sessionsPerWeek: 3, price: 300 }
       mockApi.createPlan.mockResolvedValue(plan)
-      mockApi.createClient.mockResolvedValue({ client: { id: 'c-new', name: 'Test', planId: 'p-new' }, welcomeMessage: 'SKIPPED' })
+      mockApi.createClient.mockResolvedValue({
+        client: { id: 'c-new', name: 'Test', planId: 'p-new' },
+        welcomeMessage: 'SKIPPED',
+      })
 
       await useClientStore
         .getState()
@@ -73,7 +96,14 @@ describe('clientStore', () => {
 
   describe('updateClient', () => {
     it('should call updateClient API and update in store', async () => {
-      const client = { id: '1', name: 'Maria', email: 'maria@test.com', phone: '123', status: 'ACTIVE', modality: 'PRESENCIAL' }
+      const client = {
+        id: '1',
+        name: 'Maria',
+        email: 'maria@test.com',
+        phone: '123',
+        status: 'ACTIVE',
+        modality: 'PRESENCIAL',
+      }
       useClientStore.setState({ clients: [client] as any })
 
       const updated = { ...client, name: 'Maria Santos' }
@@ -113,7 +143,10 @@ describe('clientStore', () => {
   describe('uploadClientAvatar', () => {
     it('should get upload URL, upload file, and update client avatar', async () => {
       useClientStore.setState({ clients: [{ id: 'c1', name: 'Test' }] as any })
-      mockApi.getAvatarUploadUrl.mockResolvedValue({ uploadUrl: 'https://upload.url', publicUrl: 'https://public.url' })
+      mockApi.getAvatarUploadUrl.mockResolvedValue({
+        uploadUrl: 'https://upload.url',
+        publicUrl: 'https://public.url',
+      })
       mockApi.updateClient.mockResolvedValue({ id: 'c1', name: 'Test', avatar: 'https://public.url' })
 
       const file = new File(['img'], 'avatar.jpg', { type: 'image/jpeg' })

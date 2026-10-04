@@ -14,7 +14,12 @@ interface ResendMagicLinkModalProps {
 export const ResendMagicLinkModal = ({ isOpen, onClose, client }: ResendMagicLinkModalProps) => {
   const [selectedType, setSelectedType] = useState<'WORKOUT_SHEET' | 'ANAMNESIS'>('WORKOUT_SHEET')
   const [isLoading, setIsLoading] = useState(false)
-  const [result, setResult] = useState<{ status: string; message: string; channel: string; link: string } | null>(null)
+  const [result, setResult] = useState<{
+    status: string
+    message: string
+    channel: string
+    link: string
+  } | null>(null)
   const [copied, setCopied] = useState(false)
 
   // Reset modal state whenever it is opened

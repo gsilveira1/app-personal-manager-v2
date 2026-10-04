@@ -1,0 +1,37 @@
+---
+import '../index.css'
+import PWABadge from '../PWABadge'
+
+interface Props {
+  title?: string
+  description?: string
+}
+
+const {
+  title = 'Personal Manager',
+  description = 'A comprehensive management tool for personal trainers to handle clients, workouts, schedules, and finances with AI-powered insights.',
+} = Astro.props
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#4f46e5" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="robots" content="noindex, nofollow" />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    <title>{title ? `${title} | Personal Manager` : 'Personal Manager'}</title>
+  </head>
+  <body class="min-h-screen bg-slate-50 text-slate-900 antialiased font-sans">
+    <slot />
+    <PWABadge client:idle />
+  </body>
+</html>

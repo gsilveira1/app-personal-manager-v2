@@ -167,10 +167,23 @@ describe('store async actions', () => {
 
   describe('addClient', () => {
     it('should call createClient API and add to store', async () => {
-      const newClient = { id: 'new-1', name: 'João', email: 'joao@test.com', phone: '123', status: 'ACTIVE', modality: 'PRESENCIAL' }
+      const newClient = {
+        id: 'new-1',
+        name: 'João',
+        email: 'joao@test.com',
+        phone: '123',
+        status: 'ACTIVE',
+        modality: 'PRESENCIAL',
+      }
       mockApi.createClient.mockResolvedValue({ client: newClient, welcomeMessage: 'QUEUED' })
 
-      const outcome = await useStore.getState().addClient({ name: 'João', email: 'joao@test.com', phone: '123', status: 'ACTIVE', modality: 'PRESENCIAL' } as any)
+      const outcome = await useStore.getState().addClient({
+        name: 'João',
+        email: 'joao@test.com',
+        phone: '123',
+        status: 'ACTIVE',
+        modality: 'PRESENCIAL',
+      } as any)
 
       expect(outcome).toBe('QUEUED')
       expect(mockApi.createClient).toHaveBeenCalled()
@@ -181,7 +194,14 @@ describe('store async actions', () => {
 
   describe('updateClient', () => {
     it('should call updateClient API and update in store', async () => {
-      const client = { id: '1', name: 'Maria', email: 'maria@test.com', phone: '123', status: 'ACTIVE', modality: 'PRESENCIAL' }
+      const client = {
+        id: '1',
+        name: 'Maria',
+        email: 'maria@test.com',
+        phone: '123',
+        status: 'ACTIVE',
+        modality: 'PRESENCIAL',
+      }
       useStore.setState({ clients: [client] as any })
 
       const updated = { ...client, name: 'Maria Santos' }
@@ -220,10 +240,24 @@ describe('store async actions', () => {
 
   describe('addSession', () => {
     it('should call createSession API and add to store', async () => {
-      const session = { id: 'sess-1', clientId: 'c1', date: '2025-02-01', durationMinutes: 60, type: 'In-Person', category: 'Workout', completed: false }
+      const session = {
+        id: 'sess-1',
+        clientId: 'c1',
+        date: '2025-02-01',
+        durationMinutes: 60,
+        type: 'In-Person',
+        category: 'Workout',
+        completed: false,
+      }
       mockApi.createSession.mockResolvedValue(session)
 
-      await useStore.getState().addSession({ clientId: 'c1', date: '2025-02-01', durationMinutes: 60, type: 'In-Person', category: 'Workout' } as any)
+      await useStore.getState().addSession({
+        clientId: 'c1',
+        date: '2025-02-01',
+        durationMinutes: 60,
+        type: 'In-Person',
+        category: 'Workout',
+      } as any)
 
       expect(useStore.getState().sessions).toHaveLength(1)
     })
@@ -320,7 +354,10 @@ describe('store async actions', () => {
     it('should create plan first then client with planId', async () => {
       const plan = { id: 'p-new', name: 'Custom', type: 'PRESENCIAL', sessionsPerWeek: 3, price: 300 }
       mockApi.createPlan.mockResolvedValue(plan)
-      mockApi.createClient.mockResolvedValue({ client: { id: 'c-new', name: 'Test', planId: 'p-new' }, welcomeMessage: 'SKIPPED' })
+      mockApi.createClient.mockResolvedValue({
+        client: { id: 'c-new', name: 'Test', planId: 'p-new' },
+        welcomeMessage: 'SKIPPED',
+      })
 
       await useStore
         .getState()
@@ -335,7 +372,10 @@ describe('store async actions', () => {
   describe('uploadClientAvatar', () => {
     it('should get upload URL, upload file, and update client', async () => {
       useStore.setState({ clients: [{ id: 'c1', name: 'Test' }] as any })
-      mockApi.getAvatarUploadUrl.mockResolvedValue({ uploadUrl: 'https://upload.url', publicUrl: 'https://public.url' })
+      mockApi.getAvatarUploadUrl.mockResolvedValue({
+        uploadUrl: 'https://upload.url',
+        publicUrl: 'https://public.url',
+      })
       mockApi.updateClient.mockResolvedValue({ id: 'c1', name: 'Test', avatar: 'https://public.url' })
 
       const file = new File(['img'], 'avatar.jpg', { type: 'image/jpeg' })
@@ -408,7 +448,9 @@ describe('store async actions', () => {
     })
 
     it('should remove the whole series when given the series master id', async () => {
-      useStore.setState({ sessions: [{ id: 're1_2025-01-01T10:00:00.000Z', recurringEventId: 're1' }, { id: 's9' }] as any })
+      useStore.setState({
+        sessions: [{ id: 're1_2025-01-01T10:00:00.000Z', recurringEventId: 're1' }, { id: 's9' }] as any,
+      })
       mockApi.deleteSession.mockResolvedValue(undefined)
 
       await useStore.getState().deleteSession('re1')
@@ -436,8 +478,15 @@ describe('store async actions', () => {
     })
 
     it('should replace the occurrence with the stored exception when not cancelled', async () => {
-      useStore.setState({ sessions: [{ id: `re1_${first}`, recurringEventId: 're1', originalStartTime: first, notes: 'old' }] as any })
-      mockApi.upsertSessionException.mockResolvedValue({ id: 'se1', recurringEventId: 're1', originalStartTime: first, notes: 'new' })
+      useStore.setState({
+        sessions: [{ id: `re1_${first}`, recurringEventId: 're1', originalStartTime: first, notes: 'old' }] as any,
+      })
+      mockApi.upsertSessionException.mockResolvedValue({
+        id: 'se1',
+        recurringEventId: 're1',
+        originalStartTime: first,
+        notes: 'new',
+      })
 
       await useStore.getState().upsertSessionException({ recurringEventId: 're1', originalStartTime: first, notes: 'new' })
 
@@ -458,8 +507,15 @@ describe('store async actions', () => {
 
     it('should replace an occurrence even when the API answers with the exception id', async () => {
       const occurrence = 're1_2025-01-01T10:00:00.000Z'
-      useStore.setState({ sessions: [{ id: occurrence, recurringEventId: 're1', date: '2025-01-01T10:00:00.000Z' }] as any })
-      mockApi.updateSession.mockResolvedValue({ id: 'exception-uuid', recurringEventId: 're1', exceptionId: 'exception-uuid', date: '2025-01-01T12:00:00.000Z' })
+      useStore.setState({
+        sessions: [{ id: occurrence, recurringEventId: 're1', date: '2025-01-01T10:00:00.000Z' }] as any,
+      })
+      mockApi.updateSession.mockResolvedValue({
+        id: 'exception-uuid',
+        recurringEventId: 're1',
+        exceptionId: 'exception-uuid',
+        date: '2025-01-01T12:00:00.000Z',
+      })
 
       await useStore.getState().updateSession(occurrence, { date: '2025-01-01T12:00:00.000Z' })
 
@@ -556,7 +612,9 @@ describe('store async actions', () => {
 
   describe('client status and payments', () => {
     it('setClientStatus updates the client with the API answer', async () => {
-      useStore.setState({ clients: [{ id: 'c1', status: 'ACTIVE', activeWorkoutSheet: { id: 'sh1', name: 'Ficha' } }] as any })
+      useStore.setState({
+        clients: [{ id: 'c1', status: 'ACTIVE', activeWorkoutSheet: { id: 'sh1', name: 'Ficha' } }] as any,
+      })
       mockApi.updateClientStatus.mockResolvedValue({ id: 'c1', status: 'PAUSED' })
 
       await useStore.getState().setClientStatus('c1', 'PAUSED')
@@ -570,12 +628,25 @@ describe('store async actions', () => {
     it('recordClientPayment stores the client the API activated', async () => {
       useStore.setState({ clients: [{ id: 'c1', status: 'OVERDUE' }] as any })
       const payment = { amount: 150, method: 'PIX' as const, periodEnd: '2026-11-03T23:59:59.000Z' }
-      mockApi.recordPayment.mockResolvedValue({ message: 'ok', payment: { id: 'pay1' }, client: { id: 'c1', status: 'ACTIVE', currentPeriodEnd: payment.periodEnd, subscriptionStatus: 'ACTIVE' } })
+      mockApi.recordPayment.mockResolvedValue({
+        message: 'ok',
+        payment: { id: 'pay1' },
+        client: {
+          id: 'c1',
+          status: 'ACTIVE',
+          currentPeriodEnd: payment.periodEnd,
+          subscriptionStatus: 'ACTIVE',
+        },
+      })
 
       await useStore.getState().recordClientPayment('c1', payment)
 
       expect(mockApi.recordPayment).toHaveBeenCalledWith('c1', payment)
-      expect(useStore.getState().clients[0]).toMatchObject({ status: 'ACTIVE', currentPeriodEnd: payment.periodEnd, subscriptionStatus: 'ACTIVE' })
+      expect(useStore.getState().clients[0]).toMatchObject({
+        status: 'ACTIVE',
+        currentPeriodEnd: payment.periodEnd,
+        subscriptionStatus: 'ACTIVE',
+      })
     })
   })
 

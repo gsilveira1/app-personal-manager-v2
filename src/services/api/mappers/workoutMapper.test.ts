@@ -33,7 +33,20 @@ const template = (): WorkoutSheet => ({
           type: 'REGULAR',
           orderIndex: 0,
           restTimeSeconds: 45,
-          exercises: [{ id: 'ex-4', exerciseId: null, exerciseName: 'Remada', gifUrl: null, sets: 4, reps: '10', suggestedLoadKg: null, executionNotes: null, isWarmup: false, orderIndex: 0 }],
+          exercises: [
+            {
+              id: 'ex-4',
+              exerciseId: null,
+              exerciseName: 'Remada',
+              gifUrl: null,
+              sets: 4,
+              reps: '10',
+              suggestedLoadKg: null,
+              executionNotes: null,
+              isWarmup: false,
+              orderIndex: 0,
+            },
+          ],
         },
       ],
     },
@@ -61,7 +74,18 @@ const template = (): WorkoutSheet => ({
               isWarmup: false,
               orderIndex: 1,
             },
-            { id: 'ex-2', exerciseId: null, exerciseName: 'Flexão', gifUrl: null, sets: 3, reps: '15', suggestedLoadKg: null, executionNotes: null, isWarmup: false, orderIndex: 0 },
+            {
+              id: 'ex-2',
+              exerciseId: null,
+              exerciseName: 'Flexão',
+              gifUrl: null,
+              sets: 3,
+              reps: '15',
+              suggestedLoadKg: null,
+              executionNotes: null,
+              isWarmup: false,
+              orderIndex: 0,
+            },
           ],
         },
         {
@@ -69,7 +93,20 @@ const template = (): WorkoutSheet => ({
           type: 'REGULAR',
           orderIndex: 0,
           restTimeSeconds: 60,
-          exercises: [{ id: 'ex-1', exerciseId: null, exerciseName: 'Supino', gifUrl: null, sets: 4, reps: '8-10', suggestedLoadKg: 40, executionNotes: null, isWarmup: true, orderIndex: 0 }],
+          exercises: [
+            {
+              id: 'ex-1',
+              exerciseId: null,
+              exerciseName: 'Supino',
+              gifUrl: null,
+              sets: 4,
+              reps: '8-10',
+              suggestedLoadKg: 40,
+              executionNotes: null,
+              isWarmup: true,
+              orderIndex: 0,
+            },
+          ],
         },
       ],
     },
@@ -83,8 +120,16 @@ describe('buildStructure (the `workouts` document of a sheet write)', () => {
         letter: 'A',
         name: 'Peito',
         blocks: [
-          { type: 'REGULAR', restTimeSeconds: 60, exercises: [{ exerciseName: 'Supino', sets: 4, reps: '8-10', suggestedLoadKg: 40 }] },
-          { type: 'REGULAR', restTimeSeconds: 60, exercises: [{ exerciseName: 'Crucifixo', sets: 3, reps: '12' }] },
+          {
+            type: 'REGULAR',
+            restTimeSeconds: 60,
+            exercises: [{ exerciseName: 'Supino', sets: 4, reps: '8-10', suggestedLoadKg: 40 }],
+          },
+          {
+            type: 'REGULAR',
+            restTimeSeconds: 60,
+            exercises: [{ exerciseName: 'Crucifixo', sets: 3, reps: '12' }],
+          },
         ],
       },
     ])
@@ -123,13 +168,25 @@ describe('buildStructure (the `workouts` document of a sheet write)', () => {
       {
         letter: 'A',
         name: 'Peito',
-        blocks: [{ type: 'REGULAR', restTimeSeconds: 60, exercises: [{ exerciseName: 'Supino', sets: 4, reps: '8', lastLoadKg: 30, workoutExerciseId: 'x' } as never] }],
+        blocks: [
+          {
+            type: 'REGULAR',
+            restTimeSeconds: 60,
+            exercises: [{ exerciseName: 'Supino', sets: 4, reps: '8', lastLoadKg: 30, workoutExerciseId: 'x' } as never],
+          },
+        ],
       },
     ])
 
     const exercise = item.blocks[0].exercises[0]
     expect(Object.keys(exercise).sort()).toEqual(['executionNotes', 'exerciseId', 'exerciseName', 'gifUrl', 'id', 'isWarmup', 'orderIndex', 'reps', 'sets', 'suggestedLoadKg'])
-    expect(exercise).toMatchObject({ exerciseId: null, gifUrl: null, suggestedLoadKg: null, executionNotes: null, isWarmup: false })
+    expect(exercise).toMatchObject({
+      exerciseId: null,
+      gifUrl: null,
+      suggestedLoadKg: null,
+      executionNotes: null,
+      isWarmup: false,
+    })
   })
 
   it('downgrades a block that no longer has enough exercises for its type, and removes an empty one', () => {
@@ -153,7 +210,12 @@ describe('buildStructure (the `workouts` document of a sheet write)', () => {
 
 describe('toSheetBody', () => {
   it('sends name, structure and only the optional keys that have a value', () => {
-    const body = toSheetBody({ name: 'Ficha', workouts: [], description: '', expiresAt: '2026-11-01T00:00:00.000Z' })
+    const body = toSheetBody({
+      name: 'Ficha',
+      workouts: [],
+      description: '',
+      expiresAt: '2026-11-01T00:00:00.000Z',
+    })
 
     expect(body).toEqual({ name: 'Ficha', workouts: [], expiresAt: '2026-11-01T00:00:00.000Z' })
   })
@@ -186,11 +248,30 @@ describe('toWorkoutPlan (template → flat library entry)', () => {
   it('reads the structure document into the flat view in orderIndex order', () => {
     const plan = toWorkoutPlan(template())
 
-    expect(plan).toMatchObject({ id: 'tpl-1', title: 'ABC Hipertrofia', description: 'Intermediário', tags: ['hipertrofia'], createdAt: '2026-09-01T00:00:00.000Z', itemId: 'item-a' })
+    expect(plan).toMatchObject({
+      id: 'tpl-1',
+      title: 'ABC Hipertrofia',
+      description: 'Intermediário',
+      tags: ['hipertrofia'],
+      createdAt: '2026-09-01T00:00:00.000Z',
+      itemId: 'item-a',
+    })
     expect(plan.clientId).toBeUndefined()
     expect(plan.exercises.map((e) => e.name)).toEqual(['Supino', 'Flexão', 'Crucifixo', 'Remada'])
-    expect(plan.exercises[0]).toEqual({ name: 'Supino', sets: 4, reps: '8-10', weight: '40kg', notes: undefined, isWarmup: true, ref: { id: 'ex-1', itemId: 'item-a', blockId: 'blk-1' } })
-    expect(plan.exercises[2]).toMatchObject({ weight: '12.5kg', notes: 'Lento', ref: { id: 'ex-3', itemId: 'item-a', blockId: 'blk-2' } })
+    expect(plan.exercises[0]).toEqual({
+      name: 'Supino',
+      sets: 4,
+      reps: '8-10',
+      weight: '40kg',
+      notes: undefined,
+      isWarmup: true,
+      ref: { id: 'ex-1', itemId: 'item-a', blockId: 'blk-1' },
+    })
+    expect(plan.exercises[2]).toMatchObject({
+      weight: '12.5kg',
+      notes: 'Lento',
+      ref: { id: 'ex-3', itemId: 'item-a', blockId: 'blk-2' },
+    })
     expect(plan.exercises[3].weight).toBeUndefined()
   })
 })
@@ -214,8 +295,20 @@ describe('flat plan → structure', () => {
       ['REGULAR', 0, 60, 1],
       ['REGULAR', 1, 60, 1],
     ])
-    expect(body.workouts[0].blocks[0].exercises[0]).toMatchObject({ exerciseName: 'Agachamento', sets: 3, reps: '8-10', suggestedLoadKg: 60, executionNotes: 'Profundo', isWarmup: false })
-    expect(body.workouts[0].blocks[1].exercises[0]).toMatchObject({ exerciseName: 'Prancha', suggestedLoadKg: null, executionNotes: null, isWarmup: true })
+    expect(body.workouts[0].blocks[0].exercises[0]).toMatchObject({
+      exerciseName: 'Agachamento',
+      sets: 3,
+      reps: '8-10',
+      suggestedLoadKg: 60,
+      executionNotes: 'Profundo',
+      isWarmup: false,
+    })
+    expect(body.workouts[0].blocks[1].exercises[0]).toMatchObject({
+      exerciseName: 'Prancha',
+      suggestedLoadKg: null,
+      executionNotes: null,
+      isWarmup: true,
+    })
     for (const id of allIds(body.workouts)) expect(id).toMatch(ID)
   })
 
@@ -249,7 +342,11 @@ describe('flat plan → structure', () => {
     expect(['blk-1', 'blk-2', 'blk-3']).not.toContain(itemA.blocks[2].id)
     expect(itemB.blocks[0].exercises[0].id).toBe('ex-4')
     // catalogue data the flat editor never shows is carried over
-    expect(toTemplatePatch(plan).workouts![0].blocks[1].exercises[1]).toMatchObject({ id: 'ex-3', exerciseId: 'cat-9', gifUrl: 'https://cdn/c.gif' })
+    expect(toTemplatePatch(plan).workouts![0].blocks[1].exercises[1]).toMatchObject({
+      id: 'ex-3',
+      exerciseId: 'cat-9',
+      gifUrl: 'https://cdn/c.gif',
+    })
   })
 
   it('does not send the structure when the update leaves the exercises alone', () => {

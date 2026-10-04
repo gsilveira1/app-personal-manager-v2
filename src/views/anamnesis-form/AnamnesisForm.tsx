@@ -205,8 +205,14 @@ export const AnamnesisForm = () => {
               {[
                 { key: 'q1', text: 'Algum médico já disse que você possui algum problema cardíaco?' },
                 { key: 'q2', text: 'Você sente dores no peito durante a prática de atividade física?' },
-                { key: 'q3', text: 'Você costuma perder o equilíbrio por tonturas ou já perdeu a consciência?' },
-                { key: 'q4', text: 'Você tem algum problema ósseo ou articular que piora com atividade física?' },
+                {
+                  key: 'q3',
+                  text: 'Você costuma perder o equilíbrio por tonturas ou já perdeu a consciência?',
+                },
+                {
+                  key: 'q4',
+                  text: 'Você tem algum problema ósseo ou articular que piora com atividade física?',
+                },
                 { key: 'q5', text: 'Você toma medicamentos para pressão arterial ou problemas cardíacos?' },
               ].map((q) => (
                 <div key={q.key} className="flex items-center justify-between p-2 rounded bg-slate-50 text-xs">

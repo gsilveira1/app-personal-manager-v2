@@ -15,7 +15,12 @@ describe('downloadClientsCsv', () => {
   })
 
   it('fetches /clients/export/csv with the bearer token and returns the file', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(new Response('name,email\nMaria,maria@test.com', { status: 200, headers: { 'Content-Type': 'text/csv' } }))
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response('name,email\nMaria,maria@test.com', {
+        status: 200,
+        headers: { 'Content-Type': 'text/csv' },
+      })
+    )
     vi.stubGlobal('fetch', fetchMock)
 
     const blob = await downloadClientsCsv()

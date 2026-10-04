@@ -19,28 +19,78 @@ describe('scheduleSlice', () => {
 
   it('_setSessions should replace entire array', () => {
     const sessions = [
-      { id: '1', clientId: 'c1', clientName: 'Maria', date: '2026-03-20', time: '10:00', durationMinutes: 60, status: 'Scheduled' as const, type: 'In-Person' as const, completed: false },
+      {
+        id: '1',
+        clientId: 'c1',
+        clientName: 'Maria',
+        date: '2026-03-20',
+        time: '10:00',
+        durationMinutes: 60,
+        status: 'Scheduled' as const,
+        type: 'In-Person' as const,
+        completed: false,
+      },
     ]
     store.getState()._setSessions(sessions)
     expect(store.getState().sessions).toEqual(sessions)
   })
 
   it('_addSession should append to array', () => {
-    const session = { id: '1', clientId: 'c1', clientName: 'Maria', date: '2026-03-20', time: '10:00', durationMinutes: 60, status: 'Scheduled' as const, type: 'In-Person' as const, completed: false }
+    const session = {
+      id: '1',
+      clientId: 'c1',
+      clientName: 'Maria',
+      date: '2026-03-20',
+      time: '10:00',
+      durationMinutes: 60,
+      status: 'Scheduled' as const,
+      type: 'In-Person' as const,
+      completed: false,
+    }
     store.getState()._addSession(session)
     expect(store.getState().sessions).toHaveLength(1)
   })
 
   it('_addSessions should append multiple sessions', () => {
-    const s1 = { id: '1', clientId: 'c1', clientName: 'Maria', date: '2026-03-20', time: '10:00', durationMinutes: 60, status: 'Scheduled' as const, type: 'In-Person' as const, completed: false }
-    const s2 = { id: '2', clientId: 'c2', clientName: 'João', date: '2026-03-21', time: '11:00', durationMinutes: 60, status: 'Scheduled' as const, type: 'Online' as const, completed: false }
+    const s1 = {
+      id: '1',
+      clientId: 'c1',
+      clientName: 'Maria',
+      date: '2026-03-20',
+      time: '10:00',
+      durationMinutes: 60,
+      status: 'Scheduled' as const,
+      type: 'In-Person' as const,
+      completed: false,
+    }
+    const s2 = {
+      id: '2',
+      clientId: 'c2',
+      clientName: 'João',
+      date: '2026-03-21',
+      time: '11:00',
+      durationMinutes: 60,
+      status: 'Scheduled' as const,
+      type: 'Online' as const,
+      completed: false,
+    }
 
     store.getState()._addSessions([s1, s2])
     expect(store.getState().sessions).toHaveLength(2)
   })
 
   it('_updateSession should update matching session', () => {
-    const session = { id: '1', clientId: 'c1', clientName: 'Maria', date: '2026-03-20', time: '10:00', durationMinutes: 60, status: 'Scheduled' as const, type: 'In-Person' as const, completed: false }
+    const session = {
+      id: '1',
+      clientId: 'c1',
+      clientName: 'Maria',
+      date: '2026-03-20',
+      time: '10:00',
+      durationMinutes: 60,
+      status: 'Scheduled' as const,
+      type: 'In-Person' as const,
+      completed: false,
+    }
     store.getState()._setSessions([session])
 
     const updated = { ...session, completed: true }

@@ -64,7 +64,12 @@ const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurringEvent, 
     const conflictingSession = isTimeSlotTaken(sessions, combinedDate, Number(formData.durationMinutes), sessionToEdit?.id)
     if (conflictingSession) {
       const conflictClientName = clients.find((c: any) => c.id === conflictingSession.clientId)?.name || t('aClient')
-      setError(t('timeConflict', { clientName: conflictClientName, time: formatLocalized(parseISO(conflictingSession.date), 'h:mm a') }))
+      setError(
+        t('timeConflict', {
+          clientName: conflictClientName,
+          time: formatLocalized(parseISO(conflictingSession.date), 'h:mm a'),
+        })
+      )
       return
     }
 
@@ -87,7 +92,11 @@ const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurringEvent, 
     if (sessionToEdit) {
       // An occurrence of a series is edited on its own (its id addresses that occurrence);
       // the API has no "this and following" edit. The client of a session cannot be changed.
-      onUpdate(sessionToEdit.id, { date: baseSession.date, durationMinutes: baseSession.durationMinutes, notes: baseSession.notes })
+      onUpdate(sessionToEdit.id, {
+        date: baseSession.date,
+        durationMinutes: baseSession.durationMinutes,
+        notes: baseSession.notes,
+      })
       onClose()
     } else {
       if (isRecurring) {

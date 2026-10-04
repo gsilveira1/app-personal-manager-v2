@@ -24,13 +24,27 @@ describe('evaluationSlice', () => {
   })
 
   it('_addEvaluation should prepends to array', () => {
-    const e1 = { id: '1', clientId: 'c1', date: '2026-03-20', weightKg: 75, heightCm: 175, bodyFatPercentage: 15 }
+    const e1 = {
+      id: '1',
+      clientId: 'c1',
+      date: '2026-03-20',
+      weightKg: 75,
+      heightCm: 175,
+      bodyFatPercentage: 15,
+    }
     store.getState()._addEvaluation(e1)
     expect(store.getState().evaluations).toHaveLength(1)
   })
 
   it('_updateEvaluation should update matching evaluation', () => {
-    const e1 = { id: '1', clientId: 'c1', date: '2026-03-20', weightKg: 75, heightCm: 175, bodyFatPercentage: 15 }
+    const e1 = {
+      id: '1',
+      clientId: 'c1',
+      date: '2026-03-20',
+      weightKg: 75,
+      heightCm: 175,
+      bodyFatPercentage: 15,
+    }
     store.getState()._setEvaluations([e1])
 
     const updated = { ...e1, weightKg: 74 }
@@ -39,7 +53,14 @@ describe('evaluationSlice', () => {
   })
 
   it('_removeEvaluation should filter out by id', () => {
-    const e1 = { id: '1', clientId: 'c1', date: '2026-03-20', weightKg: 75, heightCm: 175, bodyFatPercentage: 15 }
+    const e1 = {
+      id: '1',
+      clientId: 'c1',
+      date: '2026-03-20',
+      weightKg: 75,
+      heightCm: 175,
+      bodyFatPercentage: 15,
+    }
     store.getState()._setEvaluations([e1])
 
     store.getState()._removeEvaluation('1')

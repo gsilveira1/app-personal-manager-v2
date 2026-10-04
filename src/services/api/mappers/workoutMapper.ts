@@ -91,7 +91,10 @@ export const toWorkoutSheet = (wire: WorkoutSheet): WorkoutSheet => ({
   tags: wire.tags ?? [],
   workouts: byOrder(wire.workouts ?? []).map((item) => ({
     ...item,
-    blocks: byOrder(item.blocks ?? []).map((block) => ({ ...block, exercises: byOrder(block.exercises ?? []) })),
+    blocks: byOrder(item.blocks ?? []).map((block) => ({
+      ...block,
+      exercises: byOrder(block.exercises ?? []),
+    })),
   })),
 })
 

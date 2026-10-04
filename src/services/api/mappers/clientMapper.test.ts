@@ -33,7 +33,14 @@ describe('toClient', () => {
   it('maps ClientView to the view model, nulls becoming absent values', () => {
     const client = toClient(wire())
 
-    expect(client).toMatchObject({ id: 'client-1', modality: 'ONLINE', checkInFrequency: 'Weekly', planId: 'plan-1', subscriptionStatus: 'ACTIVE', currentPeriodEnd: '2026-11-01T00:00:00.000Z' })
+    expect(client).toMatchObject({
+      id: 'client-1',
+      modality: 'ONLINE',
+      checkInFrequency: 'Weekly',
+      planId: 'plan-1',
+      subscriptionStatus: 'ACTIVE',
+      currentPeriodEnd: '2026-11-01T00:00:00.000Z',
+    })
     expect(client.goal).toBeUndefined()
     expect(client.avatar).toBeUndefined()
     expect(client).not.toHaveProperty('type')
@@ -65,7 +72,12 @@ describe('toClientBody', () => {
   })
 
   it('never sends the billing status or the removed aliases', () => {
-    const body = toClientBody({ status: 'PAUSED', subscriptionStatus: 'CANCELED', type: 'Online', whatsapp: '1' } as never)
+    const body = toClientBody({
+      status: 'PAUSED',
+      subscriptionStatus: 'CANCELED',
+      type: 'Online',
+      whatsapp: '1',
+    } as never)
 
     expect(body).toEqual({ status: 'PAUSED' })
   })
@@ -89,7 +101,13 @@ describe('toPayment', () => {
       updatedAt: '2026-10-03T00:00:00.000Z',
     })
 
-    expect(payment).toMatchObject({ provider: 'MANUAL', status: 'PAID', amount: 150, method: 'PIX', periodEnd: '2026-11-03T23:59:59.000Z' })
+    expect(payment).toMatchObject({
+      provider: 'MANUAL',
+      status: 'PAID',
+      amount: 150,
+      method: 'PIX',
+      periodEnd: '2026-11-03T23:59:59.000Z',
+    })
     expect(payment.externalId).toBeUndefined()
     expect(payment.notes).toBeUndefined()
   })

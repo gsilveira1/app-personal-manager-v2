@@ -67,7 +67,11 @@ describe('accountSlice', () => {
   })
 
   it('should connect whatsapp and store qrCode and status', async () => {
-    vi.mocked(api.connectWhatsapp).mockResolvedValue({ instanceName: 'user-1234abcd', qrcodeBase64: 'data:image/png;base64,mockqr', status: 'PENDING' })
+    vi.mocked(api.connectWhatsapp).mockResolvedValue({
+      instanceName: 'user-1234abcd',
+      qrcodeBase64: 'data:image/png;base64,mockqr',
+      status: 'PENDING',
+    })
 
     await store.getState().connectWhatsapp()
 
@@ -97,7 +101,11 @@ describe('accountSlice', () => {
 
   it('keeps the last known status and records the error when the status check fails', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {})
-    vi.mocked(api.connectWhatsapp).mockResolvedValue({ instanceName: 'user-1234abcd', qrcodeBase64: 'qr', status: 'PENDING' })
+    vi.mocked(api.connectWhatsapp).mockResolvedValue({
+      instanceName: 'user-1234abcd',
+      qrcodeBase64: 'qr',
+      status: 'PENDING',
+    })
     await store.getState().connectWhatsapp()
     vi.mocked(api.getWhatsappStatus).mockRejectedValue(new Error('A network error occurred.'))
 
@@ -107,7 +115,10 @@ describe('accountSlice', () => {
   })
 
   it('stores the user returned by setup completion', async () => {
-    vi.mocked(api.completeSetup).mockResolvedValue({ success: true, user: { ...account, setupCompleted: true } as any })
+    vi.mocked(api.completeSetup).mockResolvedValue({
+      success: true,
+      user: { ...account, setupCompleted: true } as any,
+    })
 
     await store.getState().completeSetup()
 

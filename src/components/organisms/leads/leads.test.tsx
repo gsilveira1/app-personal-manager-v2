@@ -111,9 +111,24 @@ describe('LeadCard', () => {
 // ===========================================================================
 describe('LeadKanban', () => {
   const stages = [
-    { id: 'New' as LeadStage, labelKey: 'newLead', color: 'bg-slate-100 text-slate-600', dot: 'bg-slate-400' },
-    { id: 'Contacted' as LeadStage, labelKey: 'contacted', color: 'bg-blue-100 text-blue-700', dot: 'bg-blue-500' },
-    { id: 'Interested' as LeadStage, labelKey: 'interested', color: 'bg-amber-100 text-amber-700', dot: 'bg-amber-500' },
+    {
+      id: 'New' as LeadStage,
+      labelKey: 'newLead',
+      color: 'bg-slate-100 text-slate-600',
+      dot: 'bg-slate-400',
+    },
+    {
+      id: 'Contacted' as LeadStage,
+      labelKey: 'contacted',
+      color: 'bg-blue-100 text-blue-700',
+      dot: 'bg-blue-500',
+    },
+    {
+      id: 'Interested' as LeadStage,
+      labelKey: 'interested',
+      color: 'bg-amber-100 text-amber-700',
+      dot: 'bg-amber-500',
+    },
   ]
 
   const byStage: Record<LeadStage, Client[]> = {

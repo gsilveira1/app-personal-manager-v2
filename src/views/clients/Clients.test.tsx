@@ -18,11 +18,41 @@ vi.mock('react-router', () => ({
 
 const mockAddClient = vi.fn()
 const mockClients = [
-  { id: '1', name: 'Maria Silva', email: 'maria@test.com', phone: '123', status: 'ACTIVE' as const, modality: 'PRESENCIAL' as const },
-  { id: '2', name: 'João Santos', email: 'joao@test.com', phone: '456', status: 'ACTIVE' as const, modality: 'ONLINE' as const },
-  { id: '3', name: 'Ana Lead', email: 'ana@test.com', phone: '789', status: 'LEAD' as const, modality: 'PRESENCIAL' as const },
+  {
+    id: '1',
+    name: 'Maria Silva',
+    email: 'maria@test.com',
+    phone: '123',
+    status: 'ACTIVE' as const,
+    modality: 'PRESENCIAL' as const,
+  },
+  {
+    id: '2',
+    name: 'João Santos',
+    email: 'joao@test.com',
+    phone: '456',
+    status: 'ACTIVE' as const,
+    modality: 'ONLINE' as const,
+  },
+  {
+    id: '3',
+    name: 'Ana Lead',
+    email: 'ana@test.com',
+    phone: '789',
+    status: 'LEAD' as const,
+    modality: 'PRESENCIAL' as const,
+  },
 ]
-const mockPlans = [{ id: 'plan-1', type: 'PRESENCIAL' as const, name: 'Plano Básico', sessionsPerWeek: 3, durationMinutes: 60, price: 300 }]
+const mockPlans = [
+  {
+    id: 'plan-1',
+    type: 'PRESENCIAL' as const,
+    name: 'Plano Básico',
+    sessionsPerWeek: 3,
+    durationMinutes: 60,
+    price: 300,
+  },
+]
 
 vi.mock('../../states/stores/store', () => ({
   useStore: () => ({

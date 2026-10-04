@@ -1,13 +1,14 @@
 {
-  "name": "vite-project",
+  "name": "app-personal-manager-client",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite  --host",
-    "build": "tsc -b && vite build",
+    "dev": "astro dev --host",
+    "build": "astro build",
+    "check": "astro check",
+    "preview": "astro preview",
     "lint": "eslint .",
-    "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
@@ -15,8 +16,11 @@
     "test:e2e:headed": "playwright test --headed"
   },
   "dependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@astrojs/react": "^7.0.0",
     "@google/genai": "^1.32.0",
     "@tailwindcss/vite": "^4.1.18",
+    "astro": "^7.3.5",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "i18next": "^25.8.13",

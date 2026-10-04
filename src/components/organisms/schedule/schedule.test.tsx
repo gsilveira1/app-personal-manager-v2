@@ -420,7 +420,11 @@ describe('SessionDetailsModal', () => {
     fireEvent.change(screen.getByRole('combobox'), { target: { value: 'tpl-1' } })
     fireEvent.click(screen.getByText('saveSession'))
 
-    expect(onUpdate).toHaveBeenCalledWith('s1', { notes: 'Great session', workoutSheetId: 'tpl-1', workoutSegmentId: 'item-a' })
+    expect(onUpdate).toHaveBeenCalledWith('s1', {
+      notes: 'Great session',
+      workoutSheetId: 'tpl-1',
+      workoutSegmentId: 'item-a',
+    })
   })
 
   it('unlinks the workout when the selection is cleared', () => {
@@ -432,7 +436,11 @@ describe('SessionDetailsModal', () => {
     fireEvent.change(screen.getByRole('combobox'), { target: { value: '' } })
     fireEvent.click(screen.getByText('saveSession'))
 
-    expect(onUpdate).toHaveBeenCalledWith('s1', { notes: 'Great session', workoutSheetId: null, workoutSegmentId: null })
+    expect(onUpdate).toHaveBeenCalledWith('s1', {
+      notes: 'Great session',
+      workoutSheetId: null,
+      workoutSegmentId: null,
+    })
   })
 
   it('calls onEdit and onClose when edit button is clicked', () => {

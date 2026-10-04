@@ -86,7 +86,10 @@ describe('authStore', () => {
   describe('logout', () => {
     it('should clear user and isAuthenticated', async () => {
       // First set user as logged in
-      useAuthStore.setState({ user: { id: '1', name: 'João', email: 'joao@test.com' }, isAuthenticated: true })
+      useAuthStore.setState({
+        user: { id: '1', name: 'João', email: 'joao@test.com' },
+        isAuthenticated: true,
+      })
       mockApi.logout.mockResolvedValue(undefined)
 
       await useAuthStore.getState().logout()

@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react'
 import { MessageSquare, Mail, RefreshCw, AlertCircle, CheckCircle2, Clock, XCircle, Search, RotateCcw, Ban } from 'lucide-react'
 
-const PENDING_STATE_LABEL: Record<PendingNotification['state'], string> = { waiting: 'Aguardando envio', delayed: 'Agendada', active: 'Enviando' }
+const PENDING_STATE_LABEL: Record<PendingNotification['state'], string> = {
+  waiting: 'Aguardando envio',
+  delayed: 'Agendada',
+  active: 'Enviando',
+}
 
 const errorText = (err: unknown, fallback: string) => (err instanceof Error && err.message ? err.message : fallback)
 import { Card, Button, Input, Select, Spinner } from '../../../components/atoms'
@@ -138,7 +142,10 @@ export const WhatsAppQueueManager = () => {
     try {
       const res = await messagingApi.flushPendingMessages()
       await loadQueue()
-      setFeedback({ type: 'success', text: `${res.promotedCount} mensagem(ns) liberada(s) para envio. ${res.message || ''}`.trim() })
+      setFeedback({
+        type: 'success',
+        text: `${res.promotedCount} mensagem(ns) liberada(s) para envio. ${res.message || ''}`.trim(),
+      })
     } catch (err: any) {
       setFeedback({ type: 'error', text: err.message || 'Erro ao forçar processamento da fila.' })
     } finally {

@@ -35,7 +35,14 @@ describe('toSession', () => {
   it('turns the nulls of a one-off session into absent values', () => {
     const session = toSession(wire())
 
-    expect(session).toMatchObject({ id: 'evt-1', clientId: 'client-1', status: 'SCHEDULED', completed: false, cancelled: false, isVirtual: false })
+    expect(session).toMatchObject({
+      id: 'evt-1',
+      clientId: 'client-1',
+      status: 'SCHEDULED',
+      completed: false,
+      cancelled: false,
+      isVirtual: false,
+    })
     for (const key of ['notes', 'workoutSheetId', 'workoutSegmentId', 'workout', 'recurringEventId', 'recurrenceId', 'originalStartTime', 'exceptionId', 'rrule'] as const) {
       expect(session[key]).toBeUndefined()
     }
@@ -84,7 +91,13 @@ describe('toSessionCreateBody', () => {
       recurrenceId: 'old',
     } as never)
 
-    expect(body).toEqual({ clientId: 'client-1', date: '2026-10-05T13:00:00.000Z', durationMinutes: 60, type: 'In-Person', category: 'Workout' })
+    expect(body).toEqual({
+      clientId: 'client-1',
+      date: '2026-10-05T13:00:00.000Z',
+      durationMinutes: 60,
+      type: 'In-Person',
+      category: 'Workout',
+    })
   })
 
   it('sends a series as the same body plus rrule and timezone, starting at `date`', () => {
@@ -100,26 +113,52 @@ describe('toSessionCreateBody', () => {
       workoutSegmentId: 'item-a',
     })
 
-    expect(body).toMatchObject({ date: '2026-10-05T13:00:00.000Z', rrule: 'FREQ=WEEKLY;BYDAY=MO;COUNT=12', timezone: 'America/Sao_Paulo', workoutSheetId: 'sheet-1', workoutSegmentId: 'item-a' })
+    expect(body).toMatchObject({
+      date: '2026-10-05T13:00:00.000Z',
+      rrule: 'FREQ=WEEKLY;BYDAY=MO;COUNT=12',
+      timezone: 'America/Sao_Paulo',
+      workoutSheetId: 'sheet-1',
+      workoutSegmentId: 'item-a',
+    })
     expect(body).not.toHaveProperty('dtstart')
   })
 })
 
 describe('toSessionUpdateBody', () => {
   it('drops the client and every read-only field: PATCH rejects unknown properties', () => {
-    const body = toSessionUpdateBody({ ...toSession(wire({ notes: 'ok' })), date: '2026-10-06T13:00:00.000Z' } as never)
+    const body = toSessionUpdateBody({
+      ...toSession(wire({ notes: 'ok' })),
+      date: '2026-10-06T13:00:00.000Z',
+    } as never)
 
-    expect(body).toEqual({ date: '2026-10-06T13:00:00.000Z', durationMinutes: 60, type: 'In-Person', category: 'Workout', notes: 'ok', completed: false, cancelled: false })
+    expect(body).toEqual({
+      date: '2026-10-06T13:00:00.000Z',
+      durationMinutes: 60,
+      type: 'In-Person',
+      category: 'Workout',
+      notes: 'ok',
+      completed: false,
+      cancelled: false,
+    })
   })
 
   it('sends null to unlink a workout and leaves the link out when it is not part of the update', () => {
     expect(toSessionUpdateBody({ notes: 'x' })).toEqual({ notes: 'x' })
-    expect(toSessionUpdateBody({ workoutSheetId: null, workoutSegmentId: null })).toEqual({ workoutSheetId: null, workoutSegmentId: null })
-    expect(toSessionUpdateBody({ workoutSheetId: 'sheet-1', workoutSegmentId: 'item-a' })).toEqual({ workoutSheetId: 'sheet-1', workoutSegmentId: 'item-a' })
+    expect(toSessionUpdateBody({ workoutSheetId: null, workoutSegmentId: null })).toEqual({
+      workoutSheetId: null,
+      workoutSegmentId: null,
+    })
+    expect(toSessionUpdateBody({ workoutSheetId: 'sheet-1', workoutSegmentId: 'item-a' })).toEqual({
+      workoutSheetId: 'sheet-1',
+      workoutSegmentId: 'item-a',
+    })
   })
 
   it('carries the exception fields: move, complete, cancel', () => {
-    expect(toSessionUpdateBody({ date: '2026-10-07T10:00:00.000Z', completed: true })).toEqual({ date: '2026-10-07T10:00:00.000Z', completed: true })
+    expect(toSessionUpdateBody({ date: '2026-10-07T10:00:00.000Z', completed: true })).toEqual({
+      date: '2026-10-07T10:00:00.000Z',
+      completed: true,
+    })
     expect(toSessionUpdateBody({ cancelled: true })).toEqual({ cancelled: true })
   })
 })
@@ -131,7 +170,10 @@ describe('occurrence ids (event exceptions)', () => {
   })
 
   it('parses an occurrence id back and rejects a plain UUID', () => {
-    expect(parseOccurrenceId(`${SERIES}_2026-10-05T13:00:00.000Z`)).toEqual({ seriesId: SERIES, originalStartTime: '2026-10-05T13:00:00.000Z' })
+    expect(parseOccurrenceId(`${SERIES}_2026-10-05T13:00:00.000Z`)).toEqual({
+      seriesId: SERIES,
+      originalStartTime: '2026-10-05T13:00:00.000Z',
+    })
     expect(parseOccurrenceId(SERIES)).toBeNull()
     expect(parseOccurrenceId('abc_not-a-date')).toBeNull()
   })

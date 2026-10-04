@@ -39,8 +39,20 @@ export const sendWorkoutMagicLink = async (clientId: string): Promise<SendLinkRe
 export const resendStudentLink = async (clientId: string, type: StudentLinkType): Promise<StudentLinkDispatch> => {
   if (type === 'ANAMNESIS') {
     const res = await requestReassessment(clientId)
-    return { status: res.notification.status, message: res.message, channel: 'WHATSAPP', scheduledDelayMs: res.notification.scheduledDelayMs, link: res.link }
+    return {
+      status: res.notification.status,
+      message: res.message,
+      channel: 'WHATSAPP',
+      scheduledDelayMs: res.notification.scheduledDelayMs,
+      link: res.link,
+    }
   }
   const res = await sendWorkoutMagicLink(clientId)
-  return { status: res.status, message: res.message, channel: res.channel, scheduledDelayMs: res.scheduledDelayMs, link: res.link }
+  return {
+    status: res.status,
+    message: res.message,
+    channel: res.channel,
+    scheduledDelayMs: res.scheduledDelayMs,
+    link: res.link,
+  }
 }

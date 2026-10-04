@@ -189,7 +189,11 @@ describe('SessionEditorModal', () => {
 
     expect(mockOnUpdate).toHaveBeenCalledTimes(1)
     // Only what `PATCH /sessions/:id` accepts: no clientId, no scope.
-    expect(mockOnUpdate).toHaveBeenCalledWith('s1', { date: sessionToEdit.date, durationMinutes: 60, notes: '' })
+    expect(mockOnUpdate).toHaveBeenCalledWith('s1', {
+      date: sessionToEdit.date,
+      durationMinutes: 60,
+      notes: '',
+    })
     expect(mockOnClose).toHaveBeenCalledTimes(1)
   })
 
@@ -372,7 +376,9 @@ describe('SessionEditorModal', () => {
 
     render(<SessionEditorModal {...defaultProps} sessionToEdit={sessionToEdit} />)
 
-    fireEvent.change(screen.getByDisplayValue('2026-03-15'), { target: { value: '2026-03-20', name: 'date' } })
+    fireEvent.change(screen.getByDisplayValue('2026-03-15'), {
+      target: { value: '2026-03-20', name: 'date' },
+    })
     fireEvent.submit(screen.getByText('common.save').closest('form')!)
 
     // "This and following" is gone with PATCH /sessions/:id/scope: the occurrence id edits that occurrence only.
@@ -383,7 +389,15 @@ describe('SessionEditorModal', () => {
   })
 
   it('locks the client when editing, since a session cannot change client', () => {
-    const sessionToEdit = { id: 's1', clientId: 'c1', date: new Date(2026, 2, 15, 10, 0).toISOString(), durationMinutes: 60, type: 'In-Person', category: 'Workout', completed: false }
+    const sessionToEdit = {
+      id: 's1',
+      clientId: 'c1',
+      date: new Date(2026, 2, 15, 10, 0).toISOString(),
+      durationMinutes: 60,
+      type: 'In-Person',
+      category: 'Workout',
+      completed: false,
+    }
 
     render(<SessionEditorModal {...defaultProps} sessionToEdit={sessionToEdit} />)
 

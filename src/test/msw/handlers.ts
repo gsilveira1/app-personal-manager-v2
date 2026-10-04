@@ -12,7 +12,13 @@ export const handlers = [
   http.post(`${API}/auth/login`, async ({ request }) => {
     const body = (await request.json()) as { email: string; password: string }
     if (body.email === 'trainer@test.com' && body.password === 'password123') {
-      return HttpResponse.json({ access_token: 'mock-jwt-token', accessToken: 'mock-jwt-token', tokenType: 'Bearer', expiresIn: 86400, user: mockUser })
+      return HttpResponse.json({
+        access_token: 'mock-jwt-token',
+        accessToken: 'mock-jwt-token',
+        tokenType: 'Bearer',
+        expiresIn: 86400,
+        user: mockUser,
+      })
     }
     return HttpResponse.json({ message: 'Invalid credentials' }, { status: 401 })
   }),

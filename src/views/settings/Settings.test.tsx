@@ -15,7 +15,14 @@ const mockUpdateAiPromptInstructions = vi.fn()
 const mockFetchPlanFeatures = vi.fn().mockResolvedValue(undefined)
 
 const mockPlans = [
-  { id: 'p1', type: 'PRESENCIAL' as const, name: 'Plano A', sessionsPerWeek: 3, durationMinutes: 60, price: 300 },
+  {
+    id: 'p1',
+    type: 'PRESENCIAL' as const,
+    name: 'Plano A',
+    sessionsPerWeek: 3,
+    durationMinutes: 60,
+    price: 300,
+  },
   { id: 'p2', type: 'CONSULTORIA' as const, name: 'Plano B', sessionsPerWeek: 2, price: 200 },
 ]
 
@@ -146,7 +153,12 @@ describe('Settings', () => {
     expect(screen.getByTestId('plan-modal')).toBeInTheDocument()
 
     await user.click(screen.getByText('save'))
-    expect(mockAddPlan).toHaveBeenCalledWith({ name: 'New Plan', type: 'PRESENCIAL', sessionsPerWeek: 2, price: 150 })
+    expect(mockAddPlan).toHaveBeenCalledWith({
+      name: 'New Plan',
+      type: 'PRESENCIAL',
+      sessionsPerWeek: 2,
+      price: 150,
+    })
     expect(screen.queryByTestId('plan-modal')).not.toBeInTheDocument()
   })
 
@@ -158,7 +170,12 @@ describe('Settings', () => {
     expect(screen.getByTestId('plan-modal')).toBeInTheDocument()
 
     await user.click(screen.getByText('save'))
-    expect(mockUpdatePlan).toHaveBeenCalledWith('p1', { name: 'New Plan', type: 'PRESENCIAL', sessionsPerWeek: 2, price: 150 })
+    expect(mockUpdatePlan).toHaveBeenCalledWith('p1', {
+      name: 'New Plan',
+      type: 'PRESENCIAL',
+      sessionsPerWeek: 2,
+      price: 150,
+    })
     expect(screen.queryByTestId('plan-modal')).not.toBeInTheDocument()
   })
 

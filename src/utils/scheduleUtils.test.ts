@@ -23,7 +23,15 @@ describe('isTimeSlotTaken', () => {
   })
 
   it('should ignore a cancelled session: it does not hold its slot', () => {
-    const cancelled = [makeSession({ id: '9', date: '2025-01-10T10:00:00.000Z', durationMinutes: 60, cancelled: true, status: 'CANCELLED' })]
+    const cancelled = [
+      makeSession({
+        id: '9',
+        date: '2025-01-10T10:00:00.000Z',
+        durationMinutes: 60,
+        cancelled: true,
+        status: 'CANCELLED',
+      }),
+    ]
     expect(isTimeSlotTaken(cancelled, new Date('2025-01-10T10:00:00.000Z'), 60)).toBeNull()
   })
 
