@@ -31,6 +31,7 @@ import { AnamnesisForm } from './views/anamnesis-form/AnamnesisForm'
 import { WorkoutPlayer } from './views/workout-player/WorkoutPlayer'
 import { AdminUsers } from './views/admin/AdminUsers'
 import { AccountBlocked } from './views/blocked/AccountBlocked'
+import { legacyHashPath } from './utils/spaFallback'
 
 const FullScreenLoader = ({ message }: { message: string }) => (
   <div className="flex h-screen w-full flex-col items-center justify-center bg-slate-50 text-slate-500">
@@ -89,7 +90,15 @@ const ProtectedRoute = () => {
   return <Outlet />
 }
 
+// Links sent before the move to BrowserRouter (`/#/p/slug?token=…`) must keep working.
+function adoptLegacyHashLink() {
+  if (typeof window === 'undefined') return
+  const path = legacyHashPath(window.location.hash)
+  if (path) window.history.replaceState(null, '', path)
+}
+
 function App() {
+  adoptLegacyHashLink()
   const { checkAuthStatus, isLoading, isAuthenticated } = useAuthStore()
   const locale = useStore((s) => s.locale)
 
