@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useStore } from '../../../states/stores/store'
 import { useAuthStore } from '../../../states/stores/auth/authStore'
-import { LayoutDashboard, Users, Calendar, Dumbbell, X, Settings, UserPlus, Shield, MessageSquare, Bell } from 'lucide-react'
+import { LayoutDashboard, Users, Calendar, Dumbbell, X, Settings, UserPlus, Shield, MessageSquare, Bell, Bot } from 'lucide-react'
 
 interface SidebarProps {
   isOpen: boolean
@@ -25,6 +25,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     { to: '/workouts', icon: Dumbbell, label: t('workouts') },
     { to: '/leads', icon: UserPlus, label: t('leads'), badge: leadCount > 0 ? leadCount : undefined },
     { to: '/notifications', icon: Bell, label: t('notifications') },
+    { to: '/ai', icon: Bot, label: t('ai') },
     { to: '/settings', icon: Settings, label: t('settings') },
   ]
 

@@ -1,0 +1,9 @@
+{
+  "title": "Artificial Intelligence",
+  "subtitle": "Configure how the AI works for you.",
+  "instructions": {
+    "title": "AI Instructions",
+    "placeholder": "Enter custom instructions for the AI assistant...",
+    "autoSave": "Changes are saved automatically."
+  }
+}

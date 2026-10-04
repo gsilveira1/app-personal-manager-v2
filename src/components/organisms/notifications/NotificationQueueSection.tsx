@@ -1,6 +1,6 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { WhatsAppQueueManager } from '../settings/WhatsAppQueueManager'
+import { WhatsAppQueueManager } from './WhatsAppQueueManager'
 
 export const NotificationQueueSection: React.FC = () => {
   const { t } = useTranslation('notifications')

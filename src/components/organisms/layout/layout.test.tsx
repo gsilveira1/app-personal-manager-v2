@@ -101,7 +101,16 @@ describe('Sidebar', () => {
     expect(screen.getByText('schedule')).toBeInTheDocument()
     expect(screen.getByText('workouts')).toBeInTheDocument()
     expect(screen.getByText('leads')).toBeInTheDocument()
+    expect(screen.getByText('notifications')).toBeInTheDocument()
     expect(screen.getByText('settings')).toBeInTheDocument()
+  })
+
+  it('links to the AI page between notifications and settings', () => {
+    render(<Sidebar isOpen={true} onClose={vi.fn()} />)
+    const hrefs = screen.getAllByRole('link').map((link) => link.getAttribute('href'))
+    expect(screen.getByText('ai').closest('a')).toHaveAttribute('href', '/ai')
+    expect(hrefs.indexOf('/ai')).toBe(hrefs.indexOf('/notifications') + 1)
+    expect(hrefs.indexOf('/settings')).toBe(hrefs.indexOf('/ai') + 1)
   })
 
   it('shows lead badge with count when there are leads', () => {

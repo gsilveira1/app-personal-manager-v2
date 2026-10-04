@@ -2,9 +2,10 @@
   "title": "Notifications & WhatsApp Hub",
   "subtitle": "Manage your Evolution API WhatsApp instance, configure automated messages, and monitor delivery queue.",
   "tabs": {
-    "connection": "WhatsApp Connection",
-    "automations": "Automations & Templates",
-    "queue": "Dispatch Queue"
+    "queue": "Dispatch Queue",
+    "whatsapp": "WhatsApp Connection",
+    "automations": "Automations",
+    "ariaLabel": "Notification sections"
   },
   "connection": {
     "title": "Evolution API Instance (WhatsApp)",

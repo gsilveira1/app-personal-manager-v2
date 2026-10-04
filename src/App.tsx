@@ -19,6 +19,7 @@ import { Schedule } from './views/schedules/Schedule'
 import { Workouts } from './views/workouts/Workouts'
 import { Settings } from './views/settings/Settings'
 import { Notifications } from './views/notifications/Notifications'
+import { AiSettings } from './views/ai/AiSettings'
 import { Leads } from './views/leads/Leads'
 import { Login } from './views/login/Login'
 
@@ -175,6 +176,7 @@ function App() {
               <Route path="workouts" element={<Workouts />} />
               <Route path="leads" element={<Leads />} />
               <Route path="notifications" element={<Notifications />} />
+              <Route path="ai" element={<AiSettings />} />
               <Route path="settings" element={<Settings />} />
               <Route element={<AdminRoute />}>
                 <Route path="admin/users" element={<AdminUsers />} />

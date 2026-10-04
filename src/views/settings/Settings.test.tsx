@@ -11,7 +11,6 @@ vi.mock('react-i18next', () => ({
 const mockAddPlan = vi.fn()
 const mockUpdatePlan = vi.fn()
 const mockDeletePlan = vi.fn()
-const mockUpdateAiPromptInstructions = vi.fn()
 const mockFetchPlanFeatures = vi.fn().mockResolvedValue(undefined)
 
 const mockPlans = [
@@ -32,8 +31,6 @@ vi.mock('../../states/stores/store', () => ({
     addPlan: mockAddPlan,
     updatePlan: mockUpdatePlan,
     deletePlan: mockDeletePlan,
-    aiPromptInstructions: 'test instructions',
-    updateAiPromptInstructions: mockUpdateAiPromptInstructions,
     planFeatures: [],
     fetchPlanFeatures: mockFetchPlanFeatures,
     workHours: {
@@ -81,11 +78,6 @@ vi.mock('../../components/organisms/settings/WorkHoursEditor', () => ({
   WorkHoursEditor: () => <div data-testid="work-hours-editor" />,
 }))
 
-vi.mock('../../components/organisms/notifications', () => ({
-  WhatsAppConnectionCard: () => <div data-testid="whatsapp-connection-card" />,
-  NotificationAutomationsSection: () => <div data-testid="notification-automations-section" />,
-}))
-
 describe('Settings', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -103,10 +95,28 @@ describe('Settings', () => {
     expect(screen.getByText('title')).toBeInTheDocument()
   })
 
-  it('renders AI instructions section', () => {
+  it('keeps the profile and work hours sections', () => {
     renderPage()
-    expect(screen.getAllByText('aiInstructions').length).toBeGreaterThanOrEqual(1)
-    expect(screen.getByDisplayValue('test instructions')).toBeInTheDocument()
+    expect(screen.getByTestId('profile-edit-section')).toBeInTheDocument()
+    expect(screen.getByTestId('work-hours-editor')).toBeInTheDocument()
+  })
+
+  it('no longer hosts the WhatsApp connection or the notification automations', () => {
+    renderPage()
+    expect(screen.queryByTestId('whatsapp-connection-card')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('notification-automations-section')).not.toBeInTheDocument()
+  })
+
+  it('no longer hosts the AI instructions', () => {
+    renderPage()
+    expect(screen.queryByLabelText('aiInstructions')).not.toBeInTheDocument()
+    expect(document.getElementById('ai-instructions')).not.toBeInTheDocument()
+  })
+
+  it('no longer renders the app features configuration card', () => {
+    renderPage()
+    expect(screen.queryByTestId('app-features-config-section')).not.toBeInTheDocument()
+    expect(screen.queryByText('appFeaturesConfig')).not.toBeInTheDocument()
   })
 
   it('renders presencial and consultoria plan cards', () => {
@@ -133,16 +143,6 @@ describe('Settings', () => {
     mockFetchPlanFeatures.mockRejectedValueOnce(new Error('boom'))
     renderPage()
     expect(await screen.findByRole('alert')).toHaveTextContent('planFeaturesLoadError')
-  })
-
-  it('calls updateAiPromptInstructions when textarea changes', async () => {
-    const user = userEvent.setup()
-    renderPage()
-
-    const textarea = screen.getByDisplayValue('test instructions')
-    await user.clear(textarea)
-    await user.type(textarea, 'new instructions')
-    expect(mockUpdateAiPromptInstructions).toHaveBeenCalled()
   })
 
   it('calls addPlan via handleSave when creating a new plan', async () => {

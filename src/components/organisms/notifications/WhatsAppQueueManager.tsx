@@ -8,7 +8,7 @@ const PENDING_STATE_LABEL: Record<PendingNotification['state'], string> = {
 }
 
 const errorText = (err: unknown, fallback: string) => (err instanceof Error && err.message ? err.message : fallback)
-import { Card, Button, Input, Select, Spinner } from '../../../components/atoms'
+import { Card, Button, Input, Select, Spinner } from '../../atoms'
 import * as messagingApi from '../../../services/api/messagingApi'
 import type { MessageLogSummary, NotificationLogItem, PendingNotification } from '../../../services/api/messagingApi'
 

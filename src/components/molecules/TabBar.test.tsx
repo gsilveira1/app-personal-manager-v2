@@ -25,4 +25,16 @@ describe('TabBar', () => {
     fireEvent.click(screen.getByText('AI Generator'))
     expect(onChange).toHaveBeenCalledWith('ai')
   })
+
+  it('exposes tab semantics with the active tab selected', () => {
+    render(<TabBar tabs={tabs} activeTab="ai" onChange={vi.fn()} ariaLabel="Sections" />)
+    expect(screen.getByRole('tablist', { name: 'Sections' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'AI Generator' })).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByRole('tab', { name: 'Library' })).toHaveAttribute('aria-selected', 'false')
+  })
+
+  it('renders tabs that never submit a surrounding form', () => {
+    render(<TabBar tabs={tabs} activeTab="library" onChange={vi.fn()} />)
+    screen.getAllByRole('tab').forEach((tab) => expect(tab).toHaveAttribute('type', 'button'))
+  })
 })

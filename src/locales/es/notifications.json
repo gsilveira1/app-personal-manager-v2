@@ -2,9 +2,10 @@
   "title": "Centro de Notificaciones & WhatsApp",
   "subtitle": "Administra tu instancia Evolution API de WhatsApp, configura automatizaciones de mensajes y monitorea la cola de envíos.",
   "tabs": {
-    "connection": "Conexión WhatsApp",
-    "automations": "Automatizaciones & Plantillas",
-    "queue": "Cola de Envíos"
+    "queue": "Cola de Envíos",
+    "whatsapp": "Conexión WhatsApp",
+    "automations": "Automatizaciones",
+    "ariaLabel": "Secciones de notificaciones"
   },
   "connection": {
     "title": "Instancia Evolution API (WhatsApp)",

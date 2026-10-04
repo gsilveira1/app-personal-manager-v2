@@ -3,12 +3,11 @@ import { useTranslation } from 'react-i18next'
 
 import { useStore } from '../../states/stores/store'
 import { type Plan } from '../../types'
-import { ProfileEditSection, WorkHoursEditor, AppFeaturesConfigSection, AiInstructionsSection, PlansSection, PlanEditorModal } from '../../components/organisms/settings'
-import { WhatsAppConnectionCard, NotificationAutomationsSection } from '../../components/organisms/notifications'
+import { ProfileEditSection, WorkHoursEditor, PlansSection, PlanEditorModal } from '../../components/organisms/settings'
 
 export const Settings = () => {
   const { t } = useTranslation('settings')
-  const { plans, addPlan, updatePlan, deletePlan, aiPromptInstructions, updateAiPromptInstructions, planFeatures, fetchPlanFeatures } = useStore()
+  const { plans, addPlan, updatePlan, deletePlan, planFeatures, fetchPlanFeatures } = useStore()
   const [featuresError, setFeaturesError] = useState(false)
 
   useEffect(() => {
@@ -45,14 +44,6 @@ export const Settings = () => {
       <ProfileEditSection />
 
       <WorkHoursEditor />
-
-      <WhatsAppConnectionCard />
-
-      <NotificationAutomationsSection />
-
-      <AppFeaturesConfigSection />
-
-      <AiInstructionsSection value={aiPromptInstructions} onChange={updateAiPromptInstructions} />
 
       {featuresError && (
         <p role="alert" className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">

@@ -2,9 +2,10 @@
   "title": "Central de Notificações & WhatsApp",
   "subtitle": "Gerencie a conexão da sua instância Evolution API, configure automações de mensagens e acompanhe a fila de disparos.",
   "tabs": {
-    "connection": "Conexão WhatsApp",
-    "automations": "Automações & Modelos",
-    "queue": "Fila de Envios"
+    "queue": "Fila de Disparos",
+    "whatsapp": "Conexão WhatsApp",
+    "automations": "Automações",
+    "ariaLabel": "Seções de notificações"
   },
   "connection": {
     "title": "Instância Evolution API (WhatsApp)",

@@ -1,0 +1,9 @@
+{
+  "title": "Inteligência Artificial",
+  "subtitle": "Configure como a IA trabalha para você.",
+  "instructions": {
+    "title": "Instruções de IA",
+    "placeholder": "Insira instruções personalizadas para o assistente de IA...",
+    "autoSave": "As alterações são salvas automaticamente."
+  }
+}

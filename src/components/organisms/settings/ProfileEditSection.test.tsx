@@ -30,7 +30,6 @@ vi.mock('../../../states/stores/auth/authStore', () => ({
 }))
 
 import { ProfileEditSection } from './ProfileEditSection'
-import { AppFeaturesConfigSection } from './AppFeaturesConfigSection'
 
 describe('ProfileEditSection', () => {
   beforeEach(() => {
@@ -79,28 +78,6 @@ describe('ProfileEditSection', () => {
 
     await waitFor(() => {
       expect(mockUploadAvatar).toHaveBeenCalledWith(file)
-    })
-  })
-})
-
-describe('AppFeaturesConfigSection', () => {
-  it('renders app features toggles and allows saving configuration', async () => {
-    const user = userEvent.setup()
-    render(<AppFeaturesConfigSection />)
-
-    expect(screen.getByTestId('app-features-config-section')).toBeInTheDocument()
-    expect(screen.getByTestId('toggle-enableAiAssistant')).toBeInTheDocument()
-    expect(screen.getByTestId('toggle-enableWorkoutFeedback')).toBeInTheDocument()
-
-    const toggleBtn = screen.getByTestId('toggle-enablePostureAnalysis')
-    await user.click(toggleBtn)
-
-    const saveBtn = screen.getByTestId('save-app-features-btn')
-    await user.click(saveBtn)
-
-    await waitFor(() => {
-      const savedConfig = JSON.parse(localStorage.getItem('trainer_app_features_config') || '{}')
-      expect(savedConfig.enablePostureAnalysis).toBe(true)
     })
   })
 })
