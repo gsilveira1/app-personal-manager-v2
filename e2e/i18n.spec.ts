@@ -67,7 +67,7 @@ test.describe('i18n — Language Switcher', () => {
       },
       { accessToken: session.access_token, user: session.user }
     )
-    await page.goto('/#/')
+    await page.goto('/')
     await page.waitForLoadState('networkidle')
     await expect(page.getByTestId('nav-dashboard')).toBeVisible()
   })
@@ -117,13 +117,13 @@ test.describe('i18n — Language Switcher', () => {
     // Logout
     await page.getByTestId('user-menu-toggle').click()
     await page.getByTestId('user-menu-logout').click()
-    await expect(page).toHaveURL(/\/#\/login/, { timeout: 5000 })
+    await expect(page).toHaveURL(/\/login/, { timeout: 5000 })
 
     // Login again
     await page.getByLabel(/email/i).fill(SETTINGS_TEST_EMAIL)
     await page.getByLabel(/^(senha|password|contraseña)$/i).fill(SETTINGS_TEST_PASSWORD)
     await page.getByRole('button', { name: /entrar|login|sign in/i }).click()
-    await expect(page).toHaveURL(/\/#\/$/, { timeout: 15000 })
+    await expect(page).toHaveURL(/\/$/, { timeout: 15000 })
     await page.waitForLoadState('networkidle')
 
     // UI should render in English (restored from DB)

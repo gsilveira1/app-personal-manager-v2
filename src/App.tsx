@@ -32,6 +32,7 @@ import { WorkoutPlayer } from './views/workout-player/WorkoutPlayer'
 import { AdminUsers } from './views/admin/AdminUsers'
 import { AccountBlocked } from './views/blocked/AccountBlocked'
 import { legacyHashPath } from './utils/spaFallback'
+import { useI18nBoot } from './hooks/useI18nBoot'
 
 const FullScreenLoader = ({ message }: { message: string }) => (
   <div className="flex h-screen w-full flex-col items-center justify-center bg-slate-50 text-slate-500">
@@ -40,19 +41,33 @@ const FullScreenLoader = ({ message }: { message: string }) => (
   </div>
 )
 
-const FullScreenError = ({ message, onRetry }: { message: string | null; onRetry: () => void }) => (
+interface FullScreenErrorProps {
+  message: string | null
+  onRetry: () => void
+  /** Fixed texts for failures that happen before the translations are available. */
+  texts?: { title: string; message: string; retry: string }
+}
+
+const FullScreenError = ({ message, onRetry, texts }: FullScreenErrorProps) => (
   <div className="flex h-screen w-full flex-col items-center justify-center bg-slate-50 p-4">
     <div className="flex flex-col items-center text-center max-w-md">
       <AlertTriangle className="h-12 w-12 text-red-500 mb-4" />
-      <h1 className="text-xl font-bold text-slate-800">{i18n.t('appError.title')}</h1>
-      <p className="mt-2 text-slate-600">{i18n.t('appError.message')}</p>
+      <h1 className="text-xl font-bold text-slate-800">{texts?.title ?? i18n.t('appError.title')}</h1>
+      <p className="mt-2 text-slate-600">{texts?.message ?? i18n.t('appError.message')}</p>
       {message && <p className="mt-4 text-sm text-red-700 bg-red-100 p-3 rounded-md">{message}</p>}
       <Button onClick={onRetry} className="mt-6">
-        {i18n.t('appError.retry')}
+        {texts?.retry ?? i18n.t('appError.retry')}
       </Button>
     </div>
   </div>
 )
+
+// The translations themselves failed to load, so this one screen cannot be translated.
+const I18N_BOOT_ERROR_TEXTS = {
+  title: 'Não foi possível iniciar o aplicativo',
+  message: 'Ocorreu um erro ao carregar os textos da interface.',
+  retry: 'Tentar novamente',
+}
 
 const ProtectedRoute = () => {
   const { isAuthenticated, user } = useAuthStore()
@@ -99,6 +114,7 @@ function adoptLegacyHashLink() {
 
 function App() {
   adoptLegacyHashLink()
+  const { boot, retry } = useI18nBoot()
   const { checkAuthStatus, isLoading, isAuthenticated } = useAuthStore()
   const locale = useStore((s) => s.locale)
 
@@ -111,6 +127,14 @@ function App() {
       i18n.changeLanguage(locale)
     }
   }, [locale])
+
+  if (boot.status === 'failed') {
+    return <FullScreenError message={boot.message} onRetry={retry} texts={I18N_BOOT_ERROR_TEXTS} />
+  }
+
+  if (boot.status === 'pending') {
+    return <FullScreenLoader message="" />
+  }
 
   if (isLoading) {
     return <FullScreenLoader message={i18n.t('checkingSession')} />

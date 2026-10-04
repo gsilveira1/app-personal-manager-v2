@@ -47,8 +47,8 @@ function createSlotSession(clientId: string, time: string) {
 
 /** (Re)loads the schedule: a `goto` to the URL the page is already on would not reload the app's data. */
 async function openSchedule(page: Page) {
-  if (page.url().endsWith('/#/schedule')) await page.reload()
-  else await page.goto('/#/schedule')
+  if (page.url().endsWith('/schedule')) await page.reload()
+  else await page.goto('/schedule')
   await page.waitForLoadState('networkidle')
   await expect(page.getByTestId('week-view')).toBeVisible({ timeout: 10000 })
 }

@@ -3,7 +3,7 @@ import { createPlan, deletePlan } from './helpers/api-helpers'
 
 test.describe('Settings', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/#/settings')
+    await page.goto('/settings')
     await page.waitForLoadState('networkidle')
   })
 

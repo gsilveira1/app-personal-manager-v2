@@ -30,7 +30,7 @@ detector.addDetector(localeDetector)
 
 export const i18n = i18next.createInstance()
 
-export async function initI18n(): Promise<void> {
+async function configure(): Promise<void> {
   await i18n
     .use(detector)
     .use(initReactI18next)
@@ -49,4 +49,21 @@ export async function initI18n(): Promise<void> {
         escapeValue: false,
       },
     })
+}
+
+let initialisation: Promise<void> | null = null
+
+/**
+ * Initialises the shared i18n instance. Safe to call from every island: the work runs once,
+ * and a failed attempt is forgotten so the next call retries.
+ *
+ * @example
+ * await initI18n()
+ */
+export function initI18n(): Promise<void> {
+  initialisation ??= configure().catch((error: unknown) => {
+    initialisation = null
+    throw error
+  })
+  return initialisation
 }

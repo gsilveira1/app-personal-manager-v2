@@ -18,7 +18,7 @@ setup('authenticate', async ({ page }) => {
   expect(language.ok()).toBeTruthy()
 
   // 2. Navigate to the app so we can set localStorage on the correct origin
-  await page.goto(`${BASE_URL}/#/login`)
+  await page.goto(`${BASE_URL}/login`)
 
   // 3. Inject token + user into localStorage (this is how the app authenticates)
   await page.evaluate(

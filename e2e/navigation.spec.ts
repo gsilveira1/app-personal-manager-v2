@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 
 test.describe('Navigation', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/#/')
+    await page.goto('/')
     await page.waitForLoadState('networkidle')
   })
 
@@ -20,12 +20,12 @@ test.describe('Navigation', () => {
 
   test('clicking each nav link navigates to correct page', async ({ page }) => {
     const routes = [
-      { testId: 'nav-clients', url: /\/#\/clients/ },
-      { testId: 'nav-schedule', url: /\/#\/schedule/ },
-      { testId: 'nav-workouts', url: /\/#\/workouts/ },
-      { testId: 'nav-leads', url: /\/#\/leads/ },
-      { testId: 'nav-settings', url: /\/#\/settings/ },
-      { testId: 'nav-dashboard', url: /\/#\/$/ },
+      { testId: 'nav-clients', url: /\/clients/ },
+      { testId: 'nav-schedule', url: /\/schedule/ },
+      { testId: 'nav-workouts', url: /\/workouts/ },
+      { testId: 'nav-leads', url: /\/leads/ },
+      { testId: 'nav-settings', url: /\/settings/ },
+      { testId: 'nav-dashboard', url: /\/$/ },
     ]
 
     for (const { testId, url } of routes) {
@@ -36,7 +36,7 @@ test.describe('Navigation', () => {
 
   test('active link is highlighted in sidebar', async ({ page }) => {
     await page.getByTestId('nav-clients').click()
-    await expect(page).toHaveURL(/\/#\/clients/)
+    await expect(page).toHaveURL(/\/clients/)
 
     // The active NavLink gets the 'bg-indigo-600' class
     const clientsLink = page.getByTestId('nav-clients')
@@ -55,7 +55,7 @@ test.describe('Navigation', () => {
   test('mobile sidebar toggles on hamburger click', async ({ page }) => {
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 })
-    await page.goto('/#/')
+    await page.goto('/')
     await page.waitForLoadState('networkidle')
 
     // Sidebar should be hidden (translated off-screen) on mobile

@@ -1,5 +1,4 @@
 import { test, expect } from '@playwright/test'
-import { API_URL } from './helpers/constants'
 
 test.describe('Error States & Resilience', () => {
   const errorTitle = /algo deu errado|something went wrong|algo salió mal/i
@@ -11,7 +10,7 @@ test.describe('Error States & Resilience', () => {
       route.abort('timedout')
     })
 
-    await page.goto('/#/')
+    await page.goto('/')
 
     // Should show the error state (FullScreenError component)
     await expect(page.getByRole('heading', { name: errorTitle })).toBeVisible({ timeout: 10000 })
@@ -30,7 +29,7 @@ test.describe('Error States & Resilience', () => {
       return route.continue()
     })
 
-    await page.goto('/#/')
+    await page.goto('/')
 
     const retryBtn = page.getByRole('button', { name: retryButton })
     await expect(retryBtn).toBeVisible({ timeout: 10000 })
@@ -45,7 +44,7 @@ test.describe('Error States & Resilience', () => {
 
   test('cleared session redirects to login', async ({ page }) => {
     // First load the app normally
-    await page.goto('/#/')
+    await page.goto('/')
     await page.waitForLoadState('networkidle')
     await expect(page.getByTestId('sidebar')).toBeVisible()
 
@@ -56,20 +55,21 @@ test.describe('Error States & Resilience', () => {
     })
 
     // Open a protected route again (a hash change alone does not reload the app)
-    await page.goto('/#/clients')
+    await page.goto('/clients')
     await page.reload()
 
-    await expect(page).toHaveURL(/\/#\/login/)
+    await expect(page).toHaveURL(/\/login/)
   })
 
   test('401 response redirects to login', async ({ page }) => {
     // The stored token is no longer accepted (expired, password changed, account blocked):
     // the API answers 401 to every authenticated request
-    await page.route(`${API_URL}/**`, (route) => route.fulfill({ status: 401, contentType: 'application/json', body: JSON.stringify({ statusCode: 401, message: 'Unauthorized' }) }))
+    // (the client calls the API same-origin, through the dev server's `/api` proxy)
+    await page.route(/^https?:\/\/[^/]+\/api\//, (route) => route.fulfill({ status: 401, contentType: 'application/json', body: JSON.stringify({ statusCode: 401, message: 'Unauthorized' }) }))
 
-    await page.goto('/#/clients')
+    await page.goto('/clients')
 
-    await expect(page).toHaveURL(/\/#\/login/)
+    await expect(page).toHaveURL(/\/login/)
     await expect(page.getByRole('button', { name: /entrar|login|sign in/i })).toBeVisible()
   })
 
@@ -82,9 +82,9 @@ test.describe('Error States & Resilience', () => {
       return route.fulfill({ status: 401, contentType: 'application/json', body: JSON.stringify({ statusCode: 401, message: 'Unauthorized' }) })
     })
 
-    await page.goto('/#/clients')
+    await page.goto('/clients')
 
-    await expect(page).toHaveURL(/\/#\/login/)
+    await expect(page).toHaveURL(/\/login/)
     await expect(page.getByRole('button', { name: /entrar|login|sign in/i })).toBeVisible()
     expect(await page.evaluate(() => localStorage.getItem('token'))).toBeNull()
 
@@ -95,7 +95,7 @@ test.describe('Error States & Resilience', () => {
   })
 
   test('network error on form submit shows error toast', async ({ page }) => {
-    await page.goto('/#/clients')
+    await page.goto('/clients')
     await page.waitForLoadState('networkidle')
 
     // Intercept client creation
@@ -131,7 +131,7 @@ test.describe('Error States & Resilience', () => {
       await page.waitForTimeout(2000)
 
       // The error toast or the modal should still be visible (form not cleared)
-      const toastOrError = page.locator('[role="status"], [class*="toast"], [class*="error"], [role="alert"]')
+      const toastOrError = page.locator('[role="status"], [class*="toast"], [class*="error"], [role="alert"]:not(.PWABadge)')
       const modalStillOpen = await modal.isVisible()
 
       // Either an error is shown OR the modal remains open (both are acceptable)

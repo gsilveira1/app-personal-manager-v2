@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 
 test.describe('Dashboard', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/#/')
+    await page.goto('/')
     await page.waitForLoadState('networkidle')
   })
 
@@ -54,7 +54,7 @@ test.describe('Dashboard', () => {
     const newSessionLink = page.getByRole('link', { name: /nova sessão|new session|agenda/i }).or(page.locator('a[href*="schedule"]').first())
     if (await newSessionLink.isVisible({ timeout: 3000 }).catch(() => false)) {
       await newSessionLink.click()
-      await expect(page).toHaveURL(/\/#\/schedule/)
+      await expect(page).toHaveURL(/\/schedule/)
     }
   })
 })
