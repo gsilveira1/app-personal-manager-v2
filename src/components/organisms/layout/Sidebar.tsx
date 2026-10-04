@@ -2,8 +2,7 @@ import React from 'react'
 import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useStore } from '../../../states/stores/store'
-import { useAuthStore } from '../../../states/stores/auth/authStore'
-import { LayoutDashboard, Users, Calendar, Dumbbell, X, Settings, UserPlus, Shield, MessageSquare, Bell, Bot } from 'lucide-react'
+import { LayoutDashboard, Users, Calendar, Dumbbell, X, Settings, UserPlus, MessageSquare, Bell, Bot } from 'lucide-react'
 
 interface SidebarProps {
   isOpen: boolean
@@ -12,7 +11,6 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const { clients } = useStore()
-  const { user } = useAuthStore()
   const { t } = useTranslation('navigation')
   const leadCount = clients.filter((c) => c.status === 'LEAD' || (c.status as string) === 'Lead').length
 
@@ -28,10 +26,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     { to: '/ai', icon: Bot, label: t('ai') },
     { to: '/settings', icon: Settings, label: t('settings') },
   ]
-
-  if (user?.role === 'admin') {
-    navItems.push({ to: '/admin/users', icon: Shield, label: 'Super Admin' })
-  }
 
   return (
     <aside

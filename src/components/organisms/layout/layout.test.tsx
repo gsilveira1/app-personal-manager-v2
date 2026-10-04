@@ -113,6 +113,17 @@ describe('Sidebar', () => {
     expect(hrefs.indexOf('/settings')).toBe(hrefs.indexOf('/ai') + 1)
   })
 
+  it('never links to the admin area, not even for an admin: that entry lives in the user menu', () => {
+    mockUser.role = 'admin'
+    try {
+      render(<Sidebar isOpen={true} onClose={vi.fn()} />)
+      const hrefs = screen.getAllByRole('link').map((link) => link.getAttribute('href'))
+      expect(hrefs.filter((href) => href?.startsWith('/admin'))).toEqual([])
+    } finally {
+      mockUser.role = 'trainer'
+    }
+  })
+
   it('shows lead badge with count when there are leads', () => {
     mockClients = [
       { id: '1', name: 'Lead 1', status: 'Lead' },
@@ -182,6 +193,32 @@ describe('UserMenu', () => {
     expect(screen.getByText('john@example.com')).toBeInTheDocument()
     // Logout button should be visible
     expect(screen.getByText('logout')).toBeInTheDocument()
+  })
+
+  it('does not offer the admin area to a trainer', async () => {
+    const user = userEvent.setup()
+    render(<UserMenu />)
+
+    await user.click(screen.getByTestId('user-menu-toggle'))
+
+    expect(screen.getByTestId('user-menu-profile')).toBeInTheDocument()
+    expect(screen.queryByTestId('user-menu-admin')).not.toBeInTheDocument()
+  })
+
+  it('takes an admin to the admin area and closes the menu', async () => {
+    mockUser.role = 'admin'
+    try {
+      const user = userEvent.setup()
+      render(<UserMenu />)
+
+      await user.click(screen.getByTestId('user-menu-toggle'))
+      await user.click(screen.getByTestId('user-menu-admin'))
+
+      expect(mockNavigate).toHaveBeenCalledWith('/admin/users')
+      expect(screen.queryByTestId('user-menu-admin')).not.toBeInTheDocument()
+    } finally {
+      mockUser.role = 'trainer'
+    }
   })
 
   it('calls logout, clearDataOnLogout, and navigates to /login on logout click', async () => {

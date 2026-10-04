@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router'
-import { LogOut, User as UserIcon } from 'lucide-react'
+import { LogOut, Shield, User as UserIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { useAuthStore } from '../../../states/stores/auth/authStore'
@@ -24,6 +24,11 @@ export const UserMenu: React.FC = () => {
     navigate('/settings')
   }
 
+  const handleGoToAdmin = () => {
+    setIsOpen(false)
+    navigate('/admin/users')
+  }
+
   const avatarSrc = user?.avatar || `https://i.pravatar.cc/150?u=${encodeURIComponent(user?.email || 'trainer')}`
 
   return (
@@ -44,6 +49,13 @@ export const UserMenu: React.FC = () => {
             <UserIcon className="mr-2 h-4 w-4 text-indigo-600" />
             {t('profile')}
           </button>
+
+          {user?.role === 'admin' && (
+            <button data-testid="user-menu-admin" onClick={handleGoToAdmin} className="w-full text-left flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">
+              <Shield className="mr-2 h-4 w-4 text-indigo-600" />
+              {t('adminArea')}
+            </button>
+          )}
 
           <button
             data-testid="user-menu-logout"
