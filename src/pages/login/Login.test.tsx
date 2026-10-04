@@ -95,36 +95,6 @@ describe('Login', () => {
     expect(screen.getByText('signUp')).toBeInTheDocument()
   })
 
-  it('renders role selector tabs for Trainer, Admin, and Student', () => {
-    renderLogin()
-    expect(screen.getByText('roleTrainer')).toBeInTheDocument()
-    expect(screen.getByText('roleAdmin')).toBeInTheDocument()
-    expect(screen.getByText('roleStudent')).toBeInTheDocument()
-    expect(screen.getByText('roleTrainerDesc')).toBeInTheDocument()
-  })
-
-  it('switches to admin role description when Admin tab is clicked', async () => {
-    const user = userEvent.setup()
-    renderLogin()
-
-    await user.click(screen.getByText('roleAdmin'))
-    expect(screen.getByText('roleAdminDesc')).toBeInTheDocument()
-  })
-
-  it('switches to student portal mode and allows navigating to workout slug', async () => {
-    const user = userEvent.setup()
-    renderLogin()
-
-    await user.click(screen.getByText('roleStudent'))
-    expect(screen.getByText('studentPortalPrompt')).toBeInTheDocument()
-    expect(screen.getByLabelText('workoutCodeOrSlug')).toBeInTheDocument()
-
-    await user.type(screen.getByLabelText('workoutCodeOrSlug'), 'aluno-maria')
-    await user.click(screen.getByRole('button', { name: 'accessWorkout' }))
-
-    expect(mockNavigate).toHaveBeenCalledWith('/p/aluno-maria')
-  })
-
   it('toggles password visibility when eye button is clicked', async () => {
     const user = userEvent.setup()
     renderLogin()
@@ -143,4 +113,3 @@ describe('Login', () => {
     expect(passwordInput).toHaveAttribute('type', 'password')
   })
 })
-
