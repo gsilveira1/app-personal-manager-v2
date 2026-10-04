@@ -6,7 +6,7 @@ import tseslint from 'typescript-eslint'
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended'
 
 export default tseslint.config(
-  { ignores: ['dist', 'e2e', '.astro', 'coverage', 'playwright-report', 'test-results'] },
+  { ignores: ['dist', 'e2e', '.astro', '.claude', 'coverage', 'playwright-report', 'test-results'] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ['**/*.{ts,tsx}'],
