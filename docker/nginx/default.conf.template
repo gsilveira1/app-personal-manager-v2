@@ -1,0 +1,66 @@
+# Rendered by envsubst at container start. Only ${API_UPSTREAM} is substituted.
+map $http_x_forwarded_proto $forwarded_proto {
+  default $http_x_forwarded_proto;
+  ''      $scheme;
+}
+
+server {
+  listen 8080;
+  server_name _;
+  root /usr/share/nginx/html;
+
+  absolute_redirect off;
+  client_max_body_size 128k;
+
+  location = /healthz {
+    access_log off;
+    default_type text/plain;
+    return 200 "ok\n";
+  }
+
+  # Proxy API calls directly to the upstream backend
+  location /api/ {
+    proxy_pass ${API_UPSTREAM};
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $forwarded_proto;
+    proxy_connect_timeout 5s;
+    proxy_send_timeout 30s;
+    proxy_read_timeout 30s;
+    include /etc/nginx/snippets/security-headers.conf;
+  }
+
+  # PWA Service Worker, Manifest, and Favicon: never cache or revalidate immediately
+  location ~* ^/(sw\.js|service-worker\.js|workbox-.*\.js|manifest\.webmanifest|site\.webmanifest|favicon\.ico|robots\.txt)$ {
+    try_files $uri =404;
+    include /etc/nginx/snippets/security-headers.conf;
+    add_header Cache-Control "no-cache, no-store, must-revalidate" always;
+    add_header Pragma "no-cache" always;
+    add_header Expires "0" always;
+  }
+
+  # Fingerprinted build output: safe to cache forever
+  location /_astro/ {
+    try_files $uri =404;
+    include /etc/nginx/snippets/security-headers.conf;
+    add_header Cache-Control "public, max-age=31536000, immutable" always;
+  }
+
+  # Astro MPA static pages: always revalidate
+  location / {
+    try_files $uri $uri/index.html $uri.html =404;
+    include /etc/nginx/snippets/security-headers.conf;
+    add_header Cache-Control "no-cache, must-revalidate" always;
+  }
+
+  error_page 404 /404.html;
+  location = /404.html {
+    internal;
+    include /etc/nginx/snippets/security-headers.conf;
+    add_header Cache-Control "no-cache" always;
+  }
+
+  error_page 405 =200 $uri;
+}

@@ -1,17 +1,9 @@
-FROM node:22-alpine AS builder
+# syntax=docker/dockerfile:1
+
+# ---- Stage 1: Build static Astro MPA & PWA -------------------------------------
+FROM node:22-alpine AS build
 WORKDIR /app
-
-ARG VITE_API_URL
-ARG VITE_API_GMKEY
-ARG VITE_BASE_URL
-ARG VITE_TEST_EMAIL
-ARG VITE_TEST_PASSWORD
-
-ENV VITE_API_URL=$VITE_API_URL
-ENV VITE_API_GMKEY=$VITE_API_GMKEY
-ENV VITE_BASE_URL=$VITE_BASE_URL
-ENV VITE_TEST_EMAIL=$VITE_TEST_EMAIL
-ENV VITE_TEST_PASSWORD=$VITE_TEST_PASSWORD
+ENV ASTRO_TELEMETRY_DISABLED=1 CI=true
 
 COPY package*.json ./
 RUN npm ci
@@ -19,20 +11,23 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-# Estágio 2: Servidor de produção
-FROM nginx:alpine
-# Copia os arquivos estáticos gerados pelo Vite para o diretório do Nginx
-COPY --from=builder /app/dist /usr/share/nginx/html
+# ---- Stage 2: Hardened Unprivileged Nginx Runtime ------------------------------
+FROM nginxinc/nginx-unprivileged:stable-alpine AS runtime
 
-# Configuração simples para SPA (Single Page Application) não dar 404 ao atualizar rotas
-RUN echo 'server { \
-    listen 8080; \
-    location / { \
-        root /usr/share/nginx/html; \
-        index index.html index.htm; \
-        try_files $uri $uri/ /index.html; \
-    } \
-}' > /etc/nginx/conf.d/default.conf
+# The entrypoint renders /etc/nginx/templates/*.template with envsubst to /tmp
+ENV NGINX_ENVSUBST_OUTPUT_DIR=/tmp
+
+USER root
+RUN rm -f /etc/nginx/conf.d/default.conf
+COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY docker/nginx/snippets /etc/nginx/snippets
+COPY docker/nginx/default.conf.template /etc/nginx/templates/default.conf.template
+COPY --chmod=0555 docker/entrypoint/05-require-env.sh /docker-entrypoint.d/05-require-env.sh
+COPY --from=build /app/dist /usr/share/nginx/html
+USER 101
 
 EXPOSE 8080
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD wget -q -O /dev/null http://127.0.0.1:8080/healthz || exit 1
+
 CMD ["nginx", "-g", "daemon off;"]
