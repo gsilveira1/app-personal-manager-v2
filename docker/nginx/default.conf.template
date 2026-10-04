@@ -48,9 +48,9 @@ server {
     add_header Cache-Control "public, max-age=31536000, immutable" always;
   }
 
-  # Astro MPA static pages: always revalidate
+  # Astro MPA static pages with SPA fallback for dynamic routes
   location / {
-    try_files $uri $uri/index.html $uri.html =404;
+    try_files $uri $uri/index.html $uri.html /index.html;
     include /etc/nginx/snippets/security-headers.conf;
     add_header Cache-Control "no-cache, must-revalidate" always;
   }

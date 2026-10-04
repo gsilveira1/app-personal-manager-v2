@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { Routes, Route, Navigate, Outlet } from 'react-router'
-import { HashRouter } from 'react-router-dom'
+import { BrowserRouter } from 'react-router-dom'
 import { I18nextProvider } from 'react-i18next'
 import { Loader2, AlertTriangle } from 'lucide-react'
 import { i18n } from './i18n/index'
@@ -109,7 +109,7 @@ function App() {
 
   return (
     <I18nextProvider i18n={i18n}>
-      <HashRouter>
+      <BrowserRouter>
         <Routes>
           {/* Public Student Magic Link Routes */}
           <Route path="/anamnesis" element={<AnamnesisForm />} />
@@ -121,6 +121,7 @@ function App() {
           <Route element={<AuthLayout />}>
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
+            <Route path="/sign-up" element={<SignUp />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
           </Route>
@@ -132,15 +133,19 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route element={<Layout />}>
               <Route path="/" element={<Dashboard />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/dashboards" element={<Dashboard />} />
               <Route path="clients" element={<Clients />} />
               <Route path="clients/:id" element={<ClientDetails />} />
               <Route path="schedule" element={<Schedule />} />
+              <Route path="schedules" element={<Schedule />} />
               <Route path="workouts" element={<Workouts />} />
               <Route path="leads" element={<Leads />} />
               <Route path="notifications" element={<Notifications />} />
               <Route path="settings" element={<Settings />} />
               <Route element={<AdminRoute />}>
                 <Route path="admin/users" element={<AdminUsers />} />
+                <Route path="admin" element={<AdminUsers />} />
               </Route>
               <Route path="admin/tenants" element={<Navigate to="/admin/users" replace />} />
             </Route>
@@ -148,7 +153,7 @@ function App() {
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-      </HashRouter>
+      </BrowserRouter>
     </I18nextProvider>
   )
 }
