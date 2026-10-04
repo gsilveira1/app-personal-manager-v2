@@ -30,7 +30,7 @@ describe('clientStore', () => {
   })
 
   it('should manage clients state correctly (sync)', () => {
-    const client = { id: '1', name: 'Maria', email: 'maria@test.com', phone: '123', status: 'Active' as const, type: 'In-Person' as const }
+    const client = { id: '1', name: 'Maria', email: 'maria@test.com', phone: '123', status: 'ACTIVE' as const, modality: 'PRESENCIAL' as const }
     useClientStore.getState()._addClient(client)
     expect(useClientStore.getState().clients).toEqual([client])
 
@@ -43,10 +43,13 @@ describe('clientStore', () => {
 
   describe('addClient', () => {
     it('should call createClient API and add to store', async () => {
-      const newClient = { id: 'c-1', name: 'João', email: 'joao@test.com', phone: '123', status: 'Active', type: 'In-Person' }
-      mockApi.createClient.mockResolvedValue(newClient)
+      const newClient = { id: 'c-1', name: 'João', email: 'joao@test.com', phone: '123', status: 'ACTIVE', modality: 'PRESENCIAL' }
+      mockApi.createClient.mockResolvedValue({ client: newClient, welcomeMessage: 'FAILED' })
 
-      await useClientStore.getState().addClient({ name: 'João', email: 'joao@test.com', phone: '123', status: 'Active', type: 'In-Person' } as any)
+      const outcome = await useClientStore.getState().addClient({ name: 'João', email: 'joao@test.com', phone: '123', status: 'ACTIVE', modality: 'PRESENCIAL' } as any)
+
+      // the welcome-message outcome reaches the caller so a failure can be shown
+      expect(outcome).toBe('FAILED')
 
       expect(mockApi.createClient).toHaveBeenCalled()
       expect(useClientStore.getState().clients).toHaveLength(1)
@@ -56,11 +59,11 @@ describe('clientStore', () => {
     it('should create a custom plan first when customPlanData is provided', async () => {
       const plan = { id: 'p-new', name: 'Custom', type: 'PRESENCIAL', sessionsPerWeek: 3, price: 300 }
       mockApi.createPlan.mockResolvedValue(plan)
-      mockApi.createClient.mockResolvedValue({ id: 'c-new', name: 'Test', planId: 'p-new' })
+      mockApi.createClient.mockResolvedValue({ client: { id: 'c-new', name: 'Test', planId: 'p-new' }, welcomeMessage: 'SKIPPED' })
 
       await useClientStore
         .getState()
-        .addClient({ name: 'Test', email: 't@t.com', phone: '1', status: 'Active', type: 'In-Person' } as any, { name: 'Custom', type: 'PRESENCIAL', sessionsPerWeek: 3, price: 300 } as any)
+        .addClient({ name: 'Test', email: 't@t.com', phone: '1', status: 'ACTIVE', modality: 'PRESENCIAL' } as any, { name: 'Custom', type: 'PRESENCIAL', sessionsPerWeek: 3, price: 300 } as any)
 
       expect(mockApi.createPlan).toHaveBeenCalled()
       expect(mockApi.createClient).toHaveBeenCalled()
@@ -70,7 +73,7 @@ describe('clientStore', () => {
 
   describe('updateClient', () => {
     it('should call updateClient API and update in store', async () => {
-      const client = { id: '1', name: 'Maria', email: 'maria@test.com', phone: '123', status: 'Active', type: 'In-Person' }
+      const client = { id: '1', name: 'Maria', email: 'maria@test.com', phone: '123', status: 'ACTIVE', modality: 'PRESENCIAL' }
       useClientStore.setState({ clients: [client] as any })
 
       const updated = { ...client, name: 'Maria Santos' }

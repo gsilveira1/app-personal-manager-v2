@@ -31,19 +31,6 @@
   "includedFeatures": "Included Features",
   "noFeaturesAvailable": "No features available. An admin needs to create system features first.",
   "features": "Features",
-  "systemFeatures": "System Features",
-  "systemFeaturesSubtitle": "Manage platform features available to plans.",
-  "newFeature": "New Feature",
-  "featureKey": "Key (snake_case)",
-  "featureKeyPlaceholder": "e.g. ai_whatsapp_bot",
-  "featureName": "Name",
-  "featureNamePlaceholder": "e.g. AI WhatsApp Bot",
-  "featureDescription": "Description",
-  "featureDescriptionPlaceholder": "Describe the feature...",
-  "editFeature": "Edit Feature",
-  "deleteFeatureConfirm": "Delete this feature? It will be removed from all plans.",
-  "noFeaturesCreated": "No features created yet.",
-  "plansUsingFeature": "plans using",
   "active": "Active",
   "inactive": "Inactive",
   "perWeek": "/wk",
@@ -69,5 +56,6 @@
   "enablePostureAnalysis": "Posture Photo Analysis",
   "enablePostureAnalysisDesc": "Experimental computer vision feature for posture evaluation support.",
   "saveProfile": "Save Profile",
-  "saveAppFeatures": "Save App Settings"
+  "saveAppFeatures": "Save App Settings",
+  "planFeaturesLoadError": "Could not load the features available for plans."
 }

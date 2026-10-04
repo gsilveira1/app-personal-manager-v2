@@ -104,10 +104,54 @@ export const clients: Client[] = [
 // --- Sessions ---
 export const sessions: Session[] = [
   // Eleanor (client1)
-  { id: 'sess1', clientId: 'client1', date: formatISO(subDays(today, 15)), durationMinutes: 60, type: 'In-Person', category: 'Workout', completed: true, recurrenceId: 'rec1' },
-  { id: 'sess2', clientId: 'client1', date: formatISO(subDays(today, 8)), durationMinutes: 60, type: 'In-Person', category: 'Workout', completed: true, recurrenceId: 'rec1' },
-  { id: 'sess3', clientId: 'client1', date: formatISO(subDays(today, 1)), durationMinutes: 60, type: 'In-Person', category: 'Workout', completed: true, recurrenceId: 'rec1' },
-  { id: 'sess4', clientId: 'client1', date: formatISO(addDays(today, 6)), durationMinutes: 60, type: 'In-Person', category: 'Workout', completed: false, recurrenceId: 'rec1' },
+  {
+    id: 'sess1',
+    clientId: 'client1',
+    date: formatISO(subDays(today, 15)),
+    durationMinutes: 60,
+    type: 'In-Person',
+    category: 'Workout',
+    completed: true,
+    recurringEventId: 'rec1',
+    recurrenceId: 'rec1',
+    isVirtual: true,
+  },
+  {
+    id: 'sess2',
+    clientId: 'client1',
+    date: formatISO(subDays(today, 8)),
+    durationMinutes: 60,
+    type: 'In-Person',
+    category: 'Workout',
+    completed: true,
+    recurringEventId: 'rec1',
+    recurrenceId: 'rec1',
+    isVirtual: true,
+  },
+  {
+    id: 'sess3',
+    clientId: 'client1',
+    date: formatISO(subDays(today, 1)),
+    durationMinutes: 60,
+    type: 'In-Person',
+    category: 'Workout',
+    completed: true,
+    recurringEventId: 'rec1',
+    recurrenceId: 'rec1',
+    isVirtual: true,
+  },
+  {
+    id: 'sess4',
+    clientId: 'client1',
+    date: formatISO(addDays(today, 6)),
+    durationMinutes: 60,
+    type: 'In-Person',
+    category: 'Workout',
+    completed: false,
+    recurringEventId: 'rec1',
+    recurrenceId: 'rec1',
+    isVirtual: true,
+  },
   { id: 'sess5', clientId: 'client1', date: new Date(today.setHours(10, 0, 0, 0)).toISOString(), durationMinutes: 60, type: 'In-Person', category: 'Workout', completed: false },
 
   // Marcus (client2)
@@ -121,6 +165,8 @@ export const sessions: Session[] = [
 ]
 
 // --- Workouts ---
+// The library is the trainer's template list, shown as flat plans (see services/api/mappers/workoutMapper).
+// A client's own prescription is a workout sheet, not a library entry.
 export const workouts: WorkoutPlan[] = [
   {
     id: 'workout1',
@@ -147,8 +193,7 @@ export const workouts: WorkoutPlan[] = [
   },
   {
     id: 'workout3',
-    clientId: 'client1',
-    title: "Eleanor's Phase 1: Foundation",
+    title: 'Phase 1: Foundation',
     description: 'Focus on building a solid strength base, respecting shoulder health.',
     exercises: [
       { name: 'Goblet Squat', sets: 3, reps: '12' },
@@ -156,7 +201,6 @@ export const workouts: WorkoutPlan[] = [
     ],
     tags: ['Strength', 'Foundation'],
     createdAt: formatISO(subDays(today, 25)),
-    status: 'Active',
   },
 ]
 

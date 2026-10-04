@@ -2,7 +2,7 @@ import { Plus, Tag } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Card, Button } from '../../atoms'
 import { PlanCard } from './PlanCard'
-import { type Plan } from '../../../types'
+import { type Plan, type PlanFeatureDescriptor } from '../../../types'
 
 /**
  * Props for the PlansSection component.
@@ -10,6 +10,8 @@ import { type Plan } from '../../../types'
 interface PlansSectionProps {
   /** List of all service plans. */
   plans: Plan[]
+  /** Plan feature catalogue, used to show feature names on the cards. */
+  featureCatalog?: PlanFeatureDescriptor[]
   /** Callback to initiate creating a new plan. */
   onCreate: () => void
   /** Callback to initiate editing an existing plan. */
@@ -25,7 +27,7 @@ interface PlansSectionProps {
  * @param props - The component props.
  * @returns The rendered service plans section.
  */
-export const PlansSection = ({ plans, onCreate, onEdit, onDelete }: PlansSectionProps) => {
+export const PlansSection = ({ plans, featureCatalog, onCreate, onEdit, onDelete }: PlansSectionProps) => {
   const { t } = useTranslation('settings')
 
   const presencialPlans = plans.filter((p) => p.type === 'PRESENCIAL')
@@ -48,7 +50,7 @@ export const PlansSection = ({ plans, onCreate, onEdit, onDelete }: PlansSection
             <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">{t('inPersonSection')}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {presencialPlans.map((plan) => (
-                <PlanCard key={plan.id} plan={plan} onEdit={() => onEdit(plan)} onDelete={() => onDelete(plan.id)} />
+                <PlanCard key={plan.id} plan={plan} featureCatalog={featureCatalog} onEdit={() => onEdit(plan)} onDelete={() => onDelete(plan.id)} />
               ))}
             </div>
           </div>
@@ -58,7 +60,7 @@ export const PlansSection = ({ plans, onCreate, onEdit, onDelete }: PlansSection
             <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">{t('onlineConsultingSection')}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {consultoriaPlans.map((plan) => (
-                <PlanCard key={plan.id} plan={plan} onEdit={() => onEdit(plan)} onDelete={() => onDelete(plan.id)} />
+                <PlanCard key={plan.id} plan={plan} featureCatalog={featureCatalog} onEdit={() => onEdit(plan)} onDelete={() => onDelete(plan.id)} />
               ))}
             </div>
           </div>

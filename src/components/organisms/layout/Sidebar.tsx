@@ -54,7 +54,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             <NavLink
               key={item.to}
               to={item.to}
-              data-testid={`nav-${item.to === '/' ? 'dashboard' : item.to.replace(/\//g, '-')}`}
+              data-testid={`nav-${item.to === '/' ? 'dashboard' : item.to.slice(1).replace(/\//g, '-')}`}
               onClick={() => window.innerWidth < 768 && onClose()}
               className={({ isActive }) =>
                 `flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors group ${isActive ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`

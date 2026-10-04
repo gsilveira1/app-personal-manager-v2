@@ -40,8 +40,8 @@ export const LeadCard: React.FC<LeadCardProps> = ({ client, stage, onClick }) =>
           {t(stageInfo.labelKey)}
         </span>
         <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">
-          {client.modality === 'ONLINE' || client.type === 'Online' ? <Globe className="h-3 w-3" /> : <MapPin className="h-3 w-3" />}
-          {interestLabel(client.modality || client.type, tc)}
+          {client.modality === 'ONLINE' ? <Globe className="h-3 w-3" /> : <MapPin className="h-3 w-3" />}
+          {interestLabel(client.modality, tc)}
         </span>
       </div>
 

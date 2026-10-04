@@ -21,7 +21,9 @@ export interface ClientSlice {
    */
   _addClient: (client: Client) => void
   /**
-   * Updates an existing client record in state by matching ID.
+   * Updates an existing client record in state by matching ID. The given record is
+   * merged over the stored one, so list-only fields (e.g. the active workout sheet)
+   * survive an update that does not carry them.
    *
    * @param client - The updated Client entity
    */
@@ -48,7 +50,7 @@ export const createClientSlice: StateCreator<ClientSlice, [], [], ClientSlice> =
   _addClient: (client) => set((state) => ({ clients: [...state.clients, client] })),
   _updateClient: (client) =>
     set((state) => ({
-      clients: state.clients.map((c) => (c.id === client.id ? client : c)),
+      clients: state.clients.map((c) => (c.id === client.id ? { ...c, ...client } : c)),
     })),
   _removeClient: (clientId) =>
     set((state) => ({

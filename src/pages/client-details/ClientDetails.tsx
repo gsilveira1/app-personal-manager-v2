@@ -16,15 +16,13 @@ import { WorkoutSheetsTab } from '../../components/organisms/client-details/Work
 import { ConsistencyHeatmap } from '../../components/organisms/client-details/ConsistencyHeatmap'
 import { ResendMagicLinkModal } from '../../components/organisms/client-details/ResendMagicLinkModal'
 import { ClientMessagesTab } from '../../components/organisms/client-details/ClientMessagesTab'
-import * as api from '../../services/api/apiService'
-
-import type { MedicalHistory } from '../../types'
+import type { MedicalHistory, RecordPaymentBody } from '../../types'
 
 export const ClientDetails = () => {
   const { t } = useTranslation('clients')
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { clients, sessions, evaluations, plans, updateClient, uploadClientAvatar } = useStore()
+  const { clients, sessions, evaluations, plans, updateClient, uploadClientAvatar, setClientStatus, recordClientPayment } = useStore()
 
   const [activeTab, setActiveTab] = useState<'history' | 'sheets' | 'anamnesis' | 'evaluations' | 'messages'>('history')
   const [isEditingNotes, setIsEditingNotes] = useState(false)
@@ -33,6 +31,7 @@ export const ClientDetails = () => {
   const [medicalHistoryBuffer, setMedicalHistoryBuffer] = useState<MedicalHistory>({ objective: [''], injuries: '', surgeries: '', medications: '' })
   const [selectedMetric, setSelectedMetric] = useState<string>('weight')
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
+  const [statusError, setStatusError] = useState<string | null>(null)
   const avatarInputRef = useRef<HTMLInputElement>(null)
 
   // Modals for Features 002, 007
@@ -77,20 +76,16 @@ export const ClientDetails = () => {
     }
   }
 
-  const handleSaveManualPayment = async (paymentData: { paymentType: string; validUntil: string; notes?: string; amount?: number }) => {
-    await api.recordManualPayment(client.id, paymentData)
-    await updateClient(client.id, {
-      status: 'ACTIVE',
-      currentPeriodEnd: paymentData.validUntil,
-    })
-  }
+  const handleSaveManualPayment = (payment: RecordPaymentBody) => recordClientPayment(client.id, payment)
 
   const handleToggleStatus = async () => {
-    const newStatus = client.status === 'PAUSED' ? 'ACTIVE' : 'PAUSED'
-    await api.updateStudentStatus(client.id, newStatus)
-    await updateClient(client.id, {
-      status: newStatus,
-    })
+    setStatusError(null)
+    try {
+      await setClientStatus(client.id, client.status === 'PAUSED' ? 'ACTIVE' : 'PAUSED')
+    } catch (error) {
+      console.error('Client status change failed:', { clientId: client.id, error })
+      setStatusError(error instanceof Error && error.message ? error.message : t('statusChangeError'))
+    }
   }
 
   const tabItems = [
@@ -132,6 +127,12 @@ export const ClientDetails = () => {
           </Button>
         </div>
       </div>
+
+      {statusError && (
+        <p role="alert" className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          {statusError}
+        </p>
+      )}
 
       <ClientProfileHeader client={client} clientPlan={clientPlan} isUploadingAvatar={isUploadingAvatar} avatarInputRef={avatarInputRef} onAvatarChange={handleAvatarChange} />
 

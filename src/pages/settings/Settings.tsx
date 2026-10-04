@@ -2,20 +2,21 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useStore } from '../../states/stores/store'
-import { useAuthStore } from '../../states/stores/auth/authStore'
 import { type Plan } from '../../types'
-import { ProfileEditSection, WorkHoursEditor, AppFeaturesConfigSection, AiInstructionsSection, PlansSection, SystemFeaturesSection, PlanEditorModal } from '../../components/organisms/settings'
+import { ProfileEditSection, WorkHoursEditor, AppFeaturesConfigSection, AiInstructionsSection, PlansSection, PlanEditorModal } from '../../components/organisms/settings'
 import { WhatsAppConnectionCard, NotificationAutomationsSection } from '../../components/organisms/notifications'
 
 export const Settings = () => {
   const { t } = useTranslation('settings')
-  const { user } = useAuthStore()
-  const { plans, addPlan, updatePlan, deletePlan, aiPromptInstructions, updateAiPromptInstructions, systemFeatures, fetchSystemFeatures } = useStore()
-  const isAdmin = user?.role === 'admin'
+  const { plans, addPlan, updatePlan, deletePlan, aiPromptInstructions, updateAiPromptInstructions, planFeatures, fetchPlanFeatures } = useStore()
+  const [featuresError, setFeaturesError] = useState(false)
 
   useEffect(() => {
-    fetchSystemFeatures()
-  }, [fetchSystemFeatures])
+    fetchPlanFeatures().catch((error) => {
+      console.error('Plan feature catalogue failed to load:', error)
+      setFeaturesError(true)
+    })
+  }, [fetchPlanFeatures])
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingPlan, setEditingPlan] = useState<Plan | null>(null)
@@ -53,10 +54,15 @@ export const Settings = () => {
 
       <AiInstructionsSection value={aiPromptInstructions} onChange={updateAiPromptInstructions} />
 
-      <PlansSection plans={plans} onCreate={handleCreate} onEdit={handleEdit} onDelete={handleDelete} />
+      {featuresError && (
+        <p role="alert" className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+          {t('planFeaturesLoadError')}
+        </p>
+      )}
 
-      {isAdmin && <SystemFeaturesSection />}
-      {isModalOpen && <PlanEditorModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSave={handleSave} initialData={editingPlan} availableFeatures={systemFeatures} />}
+      <PlansSection plans={plans} featureCatalog={planFeatures} onCreate={handleCreate} onEdit={handleEdit} onDelete={handleDelete} />
+
+      {isModalOpen && <PlanEditorModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSave={handleSave} initialData={editingPlan} availableFeatures={planFeatures} />}
     </div>
   )
 }

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Zap } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { type Plan, type SystemFeature } from '../../../types'
+import { type Plan, type PlanFeatureDescriptor, type PlanFeatureKey } from '../../../types'
 import { Button, Input, Label, Select } from '../../atoms'
 import { ModalShell } from '../../molecules'
 
@@ -14,7 +14,7 @@ interface PlanEditorModalProps {
   onClose: () => void
   onSave: (p: Omit<Plan, 'id'>) => void
   initialData: Plan | null
-  availableFeatures: SystemFeature[]
+  availableFeatures: PlanFeatureDescriptor[]
 }
 
 export const PlanEditorModal: React.FC<PlanEditorModalProps> = ({ isOpen, onClose, onSave, initialData, availableFeatures }) => {
@@ -22,22 +22,22 @@ export const PlanEditorModal: React.FC<PlanEditorModalProps> = ({ isOpen, onClos
   const { t: tc } = useTranslation('common')
   const [planType, setPlanType] = useState<'PRESENCIAL' | 'CONSULTORIA'>(initialData?.type ?? 'PRESENCIAL')
   const [plan, setPlan] = useState<Omit<Plan, 'id'>>(initialData ?? defaultPresencial)
-  const [selectedFeatureIds, setSelectedFeatureIds] = useState<string[]>(() => initialData?.features?.map((pf) => pf.featureId) ?? [])
+  const [selectedFeatures, setSelectedFeatures] = useState<PlanFeatureKey[]>(() => initialData?.features ?? [])
 
   useEffect(() => {
     if (initialData) {
       setPlan(initialData)
       setPlanType(initialData.type)
-      setSelectedFeatureIds(initialData.features?.map((pf) => pf.featureId) ?? [])
+      setSelectedFeatures(initialData.features ?? [])
     } else {
       setPlanType('PRESENCIAL')
       setPlan(defaultPresencial)
-      setSelectedFeatureIds([])
+      setSelectedFeatures([])
     }
   }, [initialData])
 
-  const toggleFeature = (featureId: string) => {
-    setSelectedFeatureIds((prev) => (prev.includes(featureId) ? prev.filter((id) => id !== featureId) : [...prev, featureId]))
+  const toggleFeature = (key: PlanFeatureKey) => {
+    setSelectedFeatures((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]))
   }
 
   const handleTypeChange = (newType: 'PRESENCIAL' | 'CONSULTORIA') => {
@@ -55,7 +55,7 @@ export const PlanEditorModal: React.FC<PlanEditorModalProps> = ({ isOpen, onClos
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    onSave({ ...plan, type: planType, featureIds: selectedFeatureIds })
+    onSave({ ...plan, type: planType, features: selectedFeatures })
   }
 
   if (!isOpen) return null
@@ -143,11 +143,11 @@ export const PlanEditorModal: React.FC<PlanEditorModalProps> = ({ isOpen, onClos
             <Label>{t('includedFeatures')}</Label>
             <div className="space-y-2 max-h-40 overflow-y-auto border border-slate-200 rounded-lg p-3">
               {availableFeatures.map((feature) => (
-                <label key={feature.id} className="flex items-center gap-2 cursor-pointer text-sm">
+                <label key={feature.key} className="flex items-center gap-2 cursor-pointer text-sm">
                   <input
                     type="checkbox"
-                    checked={selectedFeatureIds.includes(feature.id)}
-                    onChange={() => toggleFeature(feature.id)}
+                    checked={selectedFeatures.includes(feature.key)}
+                    onChange={() => toggleFeature(feature.key)}
                     className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
                   />
                   <Zap className="h-3.5 w-3.5 text-indigo-400" />

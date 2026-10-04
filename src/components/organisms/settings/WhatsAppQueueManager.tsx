@@ -1,13 +1,18 @@
 import { useEffect, useState } from 'react'
 import { MessageSquare, Mail, RefreshCw, AlertCircle, CheckCircle2, Clock, XCircle, Search, RotateCcw, Ban } from 'lucide-react'
+
+const PENDING_STATE_LABEL: Record<PendingNotification['state'], string> = { waiting: 'Aguardando envio', delayed: 'Agendada', active: 'Enviando' }
+
+const errorText = (err: unknown, fallback: string) => (err instanceof Error && err.message ? err.message : fallback)
 import { Card, Button, Input, Select, Spinner } from '../../../components/atoms'
 import * as messagingApi from '../../../services/api/messagingApi'
-import type { NotificationLogItem, QueueSummary } from '../../../services/api/messagingApi'
+import type { MessageLogSummary, NotificationLogItem, PendingNotification } from '../../../services/api/messagingApi'
 
 export const WhatsAppQueueManager = () => {
   const [items, setItems] = useState<NotificationLogItem[]>([])
-  const [summary, setSummary] = useState<QueueSummary>({
-    totalQueued: 0,
+  const [pending, setPending] = useState<PendingNotification[]>([])
+  const [summary, setSummary] = useState<MessageLogSummary>({
+    totalPending: 0,
     totalSent: 0,
     totalFailed: 0,
     totalCancelled: 0,
@@ -22,11 +27,12 @@ export const WhatsAppQueueManager = () => {
   const [actionInProgressId, setActionInProgressId] = useState<string | null>(null)
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
-  const loadQueue = async () => {
-    setIsLoading(true)
+  // The audit log and the live queue are separate reads: the queue can be down (503)
+  // while the history is still available, so each failure is reported on its own.
+  const loadLogs = async () => {
     try {
-      const data = await messagingApi.getTenantQueue({
-        status: statusFilter,
+      const data = await messagingApi.getMessageLogs({
+        status: statusFilter as 'ALL' | 'SENT' | 'FAILED' | 'CANCELLED',
         channel: channelFilter,
         search: searchQuery,
         page,
@@ -36,11 +42,25 @@ export const WhatsAppQueueManager = () => {
       setSummary(data.summary)
       setTotal(data.total)
       setTotalPages(data.totalPages)
-    } catch (err: any) {
-      console.error('Error loading WhatsApp queue:', err)
-    } finally {
-      setIsLoading(false)
+    } catch (err) {
+      console.error('Error loading notification log:', err)
+      setFeedback({ type: 'error', text: errorText(err, 'Erro ao carregar o histórico de disparos.') })
     }
+  }
+
+  const loadPending = async () => {
+    try {
+      setPending(await messagingApi.getPendingMessages())
+    } catch (err) {
+      console.error('Error loading pending notifications:', err)
+      setFeedback({ type: 'error', text: errorText(err, 'Erro ao carregar a fila de disparos pendentes.') })
+    }
+  }
+
+  const loadQueue = async () => {
+    setIsLoading(true)
+    await Promise.all([loadLogs(), loadPending()])
+    setIsLoading(false)
   }
 
   useEffect(() => {
@@ -53,28 +73,14 @@ export const WhatsAppQueueManager = () => {
     loadQueue()
   }
 
-  const handleRetry = async (logId: string) => {
-    setActionInProgressId(logId)
-    setFeedback(null)
-    try {
-      await messagingApi.retryMessage(logId)
-      setFeedback({ type: 'success', text: 'Disparo reprocessado com sucesso!' })
-      await loadQueue()
-    } catch (err: any) {
-      setFeedback({ type: 'error', text: err.message || 'Erro ao reenviar mensagem.' })
-    } finally {
-      setActionInProgressId(null)
-    }
-  }
-
-  const handleCancel = async (logId: string) => {
+  const handleCancel = async (jobId: string) => {
     if (!confirm('Deseja realmente cancelar este disparo pendente na fila?')) return
-    setActionInProgressId(logId)
+    setActionInProgressId(jobId)
     setFeedback(null)
     try {
-      await messagingApi.cancelMessage(logId)
-      setFeedback({ type: 'success', text: 'Disparo cancelado com sucesso!' })
+      await messagingApi.cancelPendingMessage(jobId)
       await loadQueue()
+      setFeedback({ type: 'success', text: 'Disparo cancelado com sucesso!' })
     } catch (err: any) {
       setFeedback({ type: 'error', text: err.message || 'Erro ao cancelar disparo.' })
     } finally {
@@ -104,13 +110,6 @@ export const WhatsAppQueueManager = () => {
             Enviado
           </span>
         )
-      case 'QUEUED':
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
-            <Clock className="h-3 w-3" />
-            Na Fila
-          </span>
-        )
       case 'FAILED':
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-700 border border-red-200">
@@ -133,16 +132,13 @@ export const WhatsAppQueueManager = () => {
   const [isProcessingQueue, setIsProcessingQueue] = useState(false)
 
   const handleForceDispatch = async () => {
-    if (!confirm('Deseja forçar o envio imediato de todas as mensagens pendentes na fila?')) return
+    if (!confirm('Deseja enviar agora as mensagens agendadas, ignorando o horário de não perturbe?')) return
     setIsProcessingQueue(true)
     setFeedback(null)
     try {
-      const res = await messagingApi.processPendingQueue(true)
-      setFeedback({
-        type: 'success',
-        text: `Fila processada: ${res.successCount} enviada(s), ${res.failedCount} falha(s). ${res.message || ''}`,
-      })
+      const res = await messagingApi.flushPendingMessages()
       await loadQueue()
+      setFeedback({ type: 'success', text: `${res.promotedCount} mensagem(ns) liberada(s) para envio. ${res.message || ''}`.trim() })
     } catch (err: any) {
       setFeedback({ type: 'error', text: err.message || 'Erro ao forçar processamento da fila.' })
     } finally {
@@ -159,13 +155,13 @@ export const WhatsAppQueueManager = () => {
             <MessageSquare className="h-5 w-5 text-emerald-600" />
             Fila & Gestão de Disparos WhatsApp
           </h2>
-          <p className="text-xs text-slate-500">Monitore, reenvie ou cancele notificações automáticas da sua consultoria.</p>
+          <p className="text-xs text-slate-500">Monitore as notificações automáticas da sua consultoria e cancele as que ainda não saíram. Falhas temporárias são reenviadas automaticamente.</p>
         </div>
         <div className="flex items-center gap-2">
           <Button
             size="sm"
             onClick={handleForceDispatch}
-            disabled={isProcessingQueue || isLoading || summary.totalQueued === 0}
+            disabled={isProcessingQueue || isLoading || !pending.some((p) => p.state === 'delayed')}
             className="bg-emerald-600 hover:bg-emerald-700 text-white"
             data-testid="force-dispatch-btn"
           >
@@ -194,7 +190,7 @@ export const WhatsAppQueueManager = () => {
             <span className="text-xs font-medium text-amber-800">Na Fila</span>
             <Clock className="h-4 w-4 text-amber-600" />
           </div>
-          <p className="text-2xl font-bold text-amber-900 mt-1">{summary.totalQueued}</p>
+          <p className="text-2xl font-bold text-amber-900 mt-1">{summary.totalPending}</p>
         </Card>
 
         <Card className="p-3.5 bg-emerald-50/50 border-emerald-200/70">
@@ -222,6 +218,39 @@ export const WhatsAppQueueManager = () => {
         </Card>
       </div>
 
+      {/* Pending queue */}
+      {pending.length > 0 && (
+        <Card className="overflow-hidden" data-testid="pending-notifications">
+          <div className="px-4 py-3 border-b border-slate-100 text-xs font-semibold uppercase tracking-wider text-slate-600">Na fila ({pending.length})</div>
+          <ul className="divide-y divide-slate-100 text-xs">
+            {pending.map((job) => (
+              <li key={job.jobId} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
+                <div>
+                  <span className="font-mono font-medium text-slate-900">{job.recipientPhone}</span>
+                  <span className="ml-2 font-medium text-slate-700">{getTemplateLabel(job.templateType)}</span>
+                  <p className="text-slate-500">
+                    {PENDING_STATE_LABEL[job.state]}
+                    {job.scheduledFor && ` para ${new Date(job.scheduledFor).toLocaleString('pt-BR')}`}
+                    {job.attemptsMade > 0 && ` • ${job.attemptsMade} tentativa(s)`}
+                  </p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleCancel(job.jobId)}
+                  disabled={actionInProgressId === job.jobId || job.state === 'active'}
+                  className="h-7 px-2 text-xs text-red-600 hover:bg-red-50 border-red-200"
+                  title="Cancelar Disparo da Fila"
+                >
+                  <Ban className="h-3 w-3 mr-1" />
+                  Cancelar
+                </Button>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
+
       {/* Filters & Search */}
       <Card className="p-4">
         <form onSubmit={handleSearchSubmit} className="flex flex-wrap gap-3 items-center">
@@ -240,7 +269,6 @@ export const WhatsAppQueueManager = () => {
               className="text-xs"
             >
               <option value="ALL">Status: Todos</option>
-              <option value="QUEUED">Na Fila</option>
               <option value="SENT">Enviadas</option>
               <option value="FAILED">Falhas</option>
               <option value="CANCELLED">Canceladas</option>
@@ -290,7 +318,6 @@ export const WhatsAppQueueManager = () => {
                   <th className="py-3 px-4">Canal</th>
                   <th className="py-3 px-4">Status</th>
                   <th className="py-3 px-4">Detalhes</th>
-                  <th className="py-3 px-4 text-right">Ações</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -308,29 +335,6 @@ export const WhatsAppQueueManager = () => {
                     <td className="py-3 px-4 whitespace-nowrap">{renderStatusBadge(item.status)}</td>
                     <td className="py-3 px-4 text-slate-500 max-w-xs truncate" title={item.error || 'Nenhum erro registrado'}>
                       {item.error || '—'}
-                    </td>
-                    <td className="py-3 px-4 text-right whitespace-nowrap">
-                      <div className="flex items-center justify-end gap-1.5">
-                        {(item.status === 'FAILED' || item.status === 'QUEUED') && (
-                          <Button variant="outline" size="sm" onClick={() => handleRetry(item.id)} disabled={actionInProgressId === item.id} className="h-7 px-2 text-xs" title="Reprocessar Disparo">
-                            <RotateCcw className={`h-3 w-3 mr-1 ${actionInProgressId === item.id ? 'animate-spin' : ''}`} />
-                            Reenviar
-                          </Button>
-                        )}
-                        {item.status === 'QUEUED' && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleCancel(item.id)}
-                            disabled={actionInProgressId === item.id}
-                            className="h-7 px-2 text-xs text-red-600 hover:bg-red-50 border-red-200"
-                            title="Cancelar Disparo da Fila"
-                          >
-                            <Ban className="h-3 w-3 mr-1" />
-                            Cancelar
-                          </Button>
-                        )}
-                      </div>
                     </td>
                   </tr>
                 ))}

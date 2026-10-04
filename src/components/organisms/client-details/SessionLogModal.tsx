@@ -3,12 +3,12 @@ import { X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { Card, Button, Label, Input, Select } from '../../atoms'
-import type { Session } from '../../../types'
+import type { NewSession } from '../../../types'
 
 interface SessionLogModalProps {
   clientId: string
   onClose: () => void
-  onSave: (s: Omit<Session, 'id' | 'completed' | 'recurrenceId'>) => Promise<void>
+  onSave: (s: NewSession) => Promise<void>
 }
 
 export const SessionLogModal: React.FC<SessionLogModalProps> = ({ clientId, onClose, onSave }) => {

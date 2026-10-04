@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { type StateCreator } from 'zustand'
 
-import { type Client, type Plan } from '../../../types'
+import { type Client, type Plan, type RecordPaymentBody, type WelcomeMessageOutcome } from '../../../types'
 import * as api from '../../../services/api/apiService'
 import { uploadFileToGcs } from '../../../utils/uploadToGcs'
 import { createClientSlice, type ClientSlice } from '../../slices/clients/clientSlice'
@@ -16,9 +16,9 @@ export interface ClientActions {
    *
    * @param clientData - Client fields excluding generated ID and avatar
    * @param customPlanData - Optional plan details to create for client
-   * @returns A promise resolving when client is created and added to state
+   * @returns The outcome of the welcome/anamnesis message (QUEUED, SKIPPED or FAILED)
    */
-  addClient: (clientData: Omit<Client, 'id' | 'avatar'>, customPlanData?: Omit<Plan, 'id'>) => Promise<void>
+  addClient: (clientData: Omit<Client, 'id' | 'avatar'>, customPlanData?: Omit<Plan, 'id'>) => Promise<WelcomeMessageOutcome>
   /**
    * Updates an existing client entity on backend and state.
    *
@@ -27,6 +27,20 @@ export interface ClientActions {
    * @returns A promise resolving when client update completes
    */
   updateClient: (id: string, updates: Partial<Client>) => Promise<void>
+  /**
+   * Changes a client's status (pause / reactivate) on backend and state.
+   *
+   * @param id - Unique identifier of client
+   * @param status - New client status
+   */
+  setClientStatus: (id: string, status: Client['status']) => Promise<void>
+  /**
+   * Records a manual payment; the server activates the client and moves its period end.
+   *
+   * @param id - Unique identifier of client
+   * @param payment - Amount, method, new period end and optional notes
+   */
+  recordClientPayment: (id: string, payment: RecordPaymentBody) => Promise<void>
   /**
    * Uploads client avatar image file to GCS and updates profile.
    *
@@ -71,13 +85,24 @@ export const createClientActions: StateCreator<ClientStoreState, [], [], ClientA
       get()._addPlan(newPlan)
       finalClientData.planId = newPlan.id
     }
-    const newClient = await api.createClient(finalClientData)
-    get()._addClient(newClient)
+    const { client, welcomeMessage } = await api.createClient(finalClientData)
+    get()._addClient(client)
+    return welcomeMessage
   },
 
   updateClient: async (id, updates) => {
     const updatedClient = await api.updateClient(id, updates)
     get()._updateClient(updatedClient)
+  },
+
+  setClientStatus: async (id, status) => {
+    const updatedClient = await api.updateClientStatus(id, status)
+    get()._updateClient(updatedClient)
+  },
+
+  recordClientPayment: async (id, payment) => {
+    const { client } = await api.recordPayment(id, payment)
+    get()._updateClient(client)
   },
 
   uploadClientAvatar: async (clientId, file) => {

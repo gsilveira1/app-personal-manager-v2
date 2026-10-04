@@ -25,8 +25,19 @@ export const getStudentAnamneses = async (clientId: string): Promise<AnamnesisRe
   return apiClient<AnamnesisRecord[]>(`/anamnesis/student/${clientId}`)
 }
 
-export const requestReassessment = async (clientId: string): Promise<{ message: string; token: string; link: string }> => {
-  return apiClient<{ message: string; token: string; link: string }>(`/anamnesis/student/${clientId}/request-reassessment`, {
+export interface ReassessmentRequestResult {
+  message: string
+  token: string
+  link: string
+  notification: { status: 'QUEUED'; jobId: string; scheduledDelayMs: number }
+}
+
+/**
+ * Creates a pending anamnesis for the client and queues the WhatsApp message with its link.
+ * Answers 503 when the notification queue is down.
+ */
+export const requestReassessment = async (clientId: string): Promise<ReassessmentRequestResult> => {
+  return apiClient<ReassessmentRequestResult>(`/anamnesis/student/${clientId}/request-reassessment`, {
     method: 'POST',
   })
 }

@@ -8,6 +8,7 @@ import { ClientsTable } from '../../components/organisms/clients/ClientsTable'
 import { AddClientModal } from '../../components/organisms/clients/AddClientModal'
 import { ClientProfileEditorModal } from '../../components/organisms/client-details/ClientProfileEditorModal'
 import * as api from '../../services/api/apiService'
+import { saveBlob } from '../../utils/saveBlob'
 import type { Client } from '../../types'
 
 export const Clients = () => {
@@ -22,8 +23,26 @@ export const Clients = () => {
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'PAUSED' | 'OVERDUE' | 'LEAD'>('ALL')
   const [onlyExpiringSheets, setOnlyExpiringSheets] = useState(false)
 
-  const handleExportCsv = () => {
-    window.open(api.getExportCsvUrl(), '_blank')
+  const [notice, setNotice] = useState<string | null>(null)
+
+  const handleExportCsv = async () => {
+    setNotice(null)
+    try {
+      saveBlob(await api.downloadClientsCsv(), 'clients.csv')
+    } catch (error) {
+      console.error('Clients CSV export failed:', error)
+      setNotice(t('exportCsvError'))
+    }
+  }
+
+  const handleAddClient = async (...args: Parameters<typeof addClient>) => {
+    setNotice(null)
+    try {
+      if ((await addClient(...args)) === 'FAILED') setNotice(t('welcomeMessageFailed'))
+    } catch (error) {
+      console.error('Client creation failed:', error)
+      setNotice(error instanceof Error && error.message ? error.message : t('addClientError'))
+    }
   }
 
   const filteredClients = clients.filter((c) => {
@@ -67,6 +86,12 @@ export const Clients = () => {
           </Button>
         </div>
       </div>
+
+      {notice && (
+        <p role="alert" className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+          {notice}
+        </p>
+      )}
 
       {/* Filter Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs">
@@ -115,7 +140,7 @@ export const Clients = () => {
 
       <ClientsTable clients={filteredClients} plans={plans} searchTerm={searchTerm} onSearchChange={setSearchTerm} onEditClient={setEditingClient} />
 
-      {isModalOpen && <AddClientModal onClose={() => setIsModalOpen(false)} onSave={addClient} />}
+      {isModalOpen && <AddClientModal onClose={() => setIsModalOpen(false)} onSave={handleAddClient} />}
 
       {editingClient && <ClientProfileEditorModal isOpen={true} onClose={() => setEditingClient(null)} client={editingClient} />}
     </div>

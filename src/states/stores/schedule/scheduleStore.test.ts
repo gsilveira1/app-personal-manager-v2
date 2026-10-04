@@ -7,7 +7,6 @@ vi.mock('../../../services/api/apiService', () => ({
   deleteRecurringSeries: vi.fn(),
   upsertSessionException: vi.fn(),
   updateSession: vi.fn(),
-  updateSessionWithScope: vi.fn(),
   getSessionsForRange: vi.fn(),
   toggleSessionComplete: vi.fn(),
 }))

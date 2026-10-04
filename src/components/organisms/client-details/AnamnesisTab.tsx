@@ -9,6 +9,14 @@ interface AnamnesisTabProps {
   client: Client
 }
 
+/** Label of one entry of the anamnesis history: the current one, a submitted one, or a request still open/expired. */
+const anamnesisLabel = (record: AnamnesisRecord, position: number, t: (key: string, options?: Record<string, unknown>) => string): string => {
+  const day = new Date(record.date || record.createdAt).toLocaleDateString()
+  if (record.status === 'PENDING') return t('anamnesis.pendingLabel', { date: day })
+  if (record.status === 'EXPIRED') return t('anamnesis.expiredLabel', { date: day })
+  return record.isCurrent ? `Vigente (${day})` : `Avaliação #${position} (${day})`
+}
+
 export const AnamnesisTab = ({ client }: AnamnesisTabProps) => {
   const { t } = useTranslation('clients')
   const [anamneses, setAnamneses] = useState<AnamnesisRecord[]>([])
@@ -17,17 +25,20 @@ export const AnamnesisTab = ({ client }: AnamnesisTabProps) => {
   const [isRequesting, setIsRequesting] = useState(false)
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null)
   const [lightboxPhoto, setLightboxPhoto] = useState<string | null>(null)
+  const [loadError, setLoadError] = useState<string | null>(null)
 
   const loadAnamneses = async () => {
     setIsLoading(true)
+    setLoadError(null)
     try {
       const data = await api.getStudentAnamneses(client.id)
       setAnamneses(data || [])
       if (data && data.length > 0) {
-        setSelectedAnamnesis(data.find((a) => a.isCurrent) || data[0])
+        setSelectedAnamnesis(data.find((a) => a.isCurrent) || data.find((a) => a.status === 'SUBMITTED') || data[0])
       }
     } catch (err) {
-      console.error('Error loading anamnesis history:', err)
+      console.error('Error loading anamnesis history:', { clientId: client.id, err })
+      setLoadError(err instanceof Error && err.message ? err.message : t('anamnesis.loadError'))
     } finally {
       setIsLoading(false)
     }
@@ -105,10 +116,22 @@ export const AnamnesisTab = ({ client }: AnamnesisTabProps) => {
               }`}
             >
               <Calendar className="mr-1 inline h-3.5 w-3.5" />
-              {a.isCurrent ? `Vigente (${new Date(a.createdAt).toLocaleDateString()})` : `Avaliação #${anamneses.length - idx} (${new Date(a.createdAt).toLocaleDateString()})`}
+              {anamnesisLabel(a, anamneses.length - idx, t)}
             </button>
           ))}
         </div>
+      )}
+
+      {loadError && (
+        <p role="alert" className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          {loadError}
+        </p>
+      )}
+
+      {selectedAnamnesis && selectedAnamnesis.status !== 'SUBMITTED' && (
+        <p className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+          {selectedAnamnesis.status === 'EXPIRED' ? t('anamnesis.expiredNotice') : t('anamnesis.pendingNotice')}
+        </p>
       )}
 
       {selectedAnamnesis ? (

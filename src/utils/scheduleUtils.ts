@@ -17,6 +17,9 @@ export const isTimeSlotTaken = (sessions: Session[], newSessionStart: Date, newS
     if (existingSession.id === excludeSessionId) {
       continue // Skip checking against itself when editing
     }
+    if (existingSession.cancelled) {
+      continue // A cancelled session does not hold its slot
+    }
 
     const existingSessionStart = parseISO(existingSession.date)
     const existingSessionEnd = addMinutes(existingSessionStart, existingSession.durationMinutes)

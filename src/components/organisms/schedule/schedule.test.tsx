@@ -407,8 +407,32 @@ describe('SessionDetailsModal', () => {
     render(<SessionDetailsModal session={session} clients={clients} workouts={workouts} onClose={onClose} onUpdate={onUpdate} onEdit={vi.fn()} />)
 
     fireEvent.click(screen.getByText('saveSession'))
-    expect(onUpdate).toHaveBeenCalledWith('s1', { notes: 'Great session', linkedWorkoutId: undefined })
+    // the workout link is untouched, so it is not part of the update
+    expect(onUpdate).toHaveBeenCalledWith('s1', { notes: 'Great session' })
     expect(onClose).toHaveBeenCalled()
+  })
+
+  it('links the selected library workout by sheet id and segment id', () => {
+    const onUpdate = vi.fn()
+    const library = [{ id: 'tpl-1', title: 'Treino A', exercises: [], tags: [], createdAt: '', itemId: 'item-a' }]
+    render(<SessionDetailsModal session={session} clients={clients} workouts={library} onClose={vi.fn()} onUpdate={onUpdate} onEdit={vi.fn()} />)
+
+    fireEvent.change(screen.getByRole('combobox'), { target: { value: 'tpl-1' } })
+    fireEvent.click(screen.getByText('saveSession'))
+
+    expect(onUpdate).toHaveBeenCalledWith('s1', { notes: 'Great session', workoutSheetId: 'tpl-1', workoutSegmentId: 'item-a' })
+  })
+
+  it('unlinks the workout when the selection is cleared', () => {
+    const onUpdate = vi.fn()
+    const library = [{ id: 'tpl-1', title: 'Treino A', exercises: [], tags: [], createdAt: '', itemId: 'item-a' }]
+    const linked = { ...session, workoutSheetId: 'tpl-1', workoutSegmentId: 'item-a' }
+    render(<SessionDetailsModal session={linked} clients={clients} workouts={library} onClose={vi.fn()} onUpdate={onUpdate} onEdit={vi.fn()} />)
+
+    fireEvent.change(screen.getByRole('combobox'), { target: { value: '' } })
+    fireEvent.click(screen.getByText('saveSession'))
+
+    expect(onUpdate).toHaveBeenCalledWith('s1', { notes: 'Great session', workoutSheetId: null, workoutSegmentId: null })
   })
 
   it('calls onEdit and onClose when edit button is clicked', () => {

@@ -125,16 +125,23 @@
     "subtitle": "Access renewal for",
     "method": "Payment Method",
     "validUntil": "New Expiration Date",
-    "amount": "Amount Paid (Optional)",
+    "amount": "Amount Paid",
     "notes": "Notes",
-    "confirm": "Confirm Payment"
+    "confirm": "Confirm Payment",
+    "amountRequired": "Enter the amount paid.",
+    "saveError": "Could not record the payment."
   },
   "anamnesis": {
     "title": "Anamnesis & Health History",
     "subtitle": "Track health questionnaire answers and physique progress",
     "print": "Print (Ctrl+P)",
     "requestReassessment": "Request Reassessment",
-    "photos": "Physique Photos"
+    "photos": "Physique Photos",
+    "loadError": "Could not load the anamnesis history.",
+    "pendingLabel": "Awaiting answer ({{date}})",
+    "expiredLabel": "Link expired ({{date}})",
+    "pendingNotice": "The client has not answered this request yet.",
+    "expiredNotice": "The link of this request expired unanswered. Request a new reassessment."
   },
   "modality": "Modality",
   "modalityOnline": "Online",
@@ -153,5 +160,9 @@
   "smoker": "Smoker",
   "drinker": "Consumes alcohol",
   "healthObservations": "Health Observations",
-  "healthObservationsPlaceholder": "Allergies, specific joint discomfort, etc."
+  "healthObservationsPlaceholder": "Allergies, specific joint discomfort, etc.",
+  "exportCsvError": "Could not export the CSV. Please try again.",
+  "welcomeMessageFailed": "Client created, but the welcome message could not be sent. Resend the link from the client profile.",
+  "addClientError": "Could not create the client.",
+  "statusChangeError": "Could not change the client status."
 }

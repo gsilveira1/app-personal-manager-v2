@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { MessageSquare, Mail, RefreshCw, AlertCircle, CheckCircle2, Clock, XCircle, Send } from 'lucide-react'
+import { MessageSquare, Mail, RefreshCw, AlertCircle, CheckCircle2, XCircle, Send } from 'lucide-react'
 import { Card, Button, Badge, Spinner } from '../../../components/atoms'
 
 import * as messagingApi from '../../../services/api/messagingApi'
@@ -15,16 +15,17 @@ export const ClientMessagesTab = ({ client, onOpenResendModal }: ClientMessagesT
   const [messages, setMessages] = useState<NotificationLogItem[]>([])
 
   const [isLoading, setIsLoading] = useState(true)
-  const [isRetryingId, setIsRetryingId] = useState<string | null>(null)
-  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [loadError, setLoadError] = useState<string | null>(null)
 
   const loadMessages = async () => {
     setIsLoading(true)
+    setLoadError(null)
     try {
       const data = await messagingApi.getClientMessageHistory(client.id)
       setMessages(data)
-    } catch (err: any) {
-      console.error('Error loading message history:', err)
+    } catch (err) {
+      console.error('Error loading message history:', { clientId: client.id, err })
+      setLoadError(err instanceof Error && err.message ? err.message : 'Não foi possível carregar o histórico de mensagens.')
     } finally {
       setIsLoading(false)
     }
@@ -33,20 +34,6 @@ export const ClientMessagesTab = ({ client, onOpenResendModal }: ClientMessagesT
   useEffect(() => {
     loadMessages()
   }, [client.id])
-
-  const handleRetry = async (logId: string) => {
-    setIsRetryingId(logId)
-    setFeedback(null)
-    try {
-      await messagingApi.retryMessage(logId)
-      setFeedback({ type: 'success', text: 'Disparo reprocessado com sucesso!' })
-      await loadMessages()
-    } catch (err: any) {
-      setFeedback({ type: 'error', text: err.message || 'Erro ao reenviar mensagem.' })
-    } finally {
-      setIsRetryingId(null)
-    }
-  }
 
   const getTemplateLabel = (templateType: string) => {
     switch (templateType) {
@@ -68,13 +55,6 @@ export const ClientMessagesTab = ({ client, onOpenResendModal }: ClientMessagesT
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
             <CheckCircle2 className="h-3 w-3" />
             Enviado
-          </span>
-        )
-      case 'QUEUED':
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
-            <Clock className="h-3 w-3" />
-            Na Fila
           </span>
         )
       case 'FAILED':
@@ -117,11 +97,9 @@ export const ClientMessagesTab = ({ client, onOpenResendModal }: ClientMessagesT
         </div>
       </div>
 
-      {feedback && (
-        <div
-          className={`p-3 rounded-md text-xs font-medium ${feedback.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'}`}
-        >
-          {feedback.text}
+      {loadError && (
+        <div role="alert" className="p-3 rounded-md text-xs font-medium bg-red-50 text-red-700 border border-red-200">
+          {loadError}
         </div>
       )}
 
@@ -162,10 +140,11 @@ export const ClientMessagesTab = ({ client, onOpenResendModal }: ClientMessagesT
                   {renderStatusBadge(msg.status)}
                   <span className="text-xs text-slate-400">{new Date(msg.createdAt).toLocaleString('pt-BR')}</span>
 
-                  {(msg.status === 'FAILED' || msg.status === 'QUEUED') && (
-                    <Button variant="outline" size="sm" onClick={() => handleRetry(msg.id)} disabled={isRetryingId === msg.id} className="text-xs h-7 px-2">
-                      <RefreshCw className={`h-3 w-3 mr-1 ${isRetryingId === msg.id ? 'animate-spin' : ''}`} />
-                      {msg.status === 'FAILED' ? 'Tentar Novamente' : 'Forçar Envio'}
+                  {/* Delivery retries are automatic. After a final failure the link is sent again, which issues a fresh one. */}
+                  {msg.status === 'FAILED' && onOpenResendModal && (
+                    <Button variant="outline" size="sm" onClick={onOpenResendModal} className="text-xs h-7 px-2">
+                      <Send className="h-3 w-3 mr-1" />
+                      Enviar Novo Link
                     </Button>
                   )}
                 </div>

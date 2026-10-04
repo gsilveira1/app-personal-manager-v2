@@ -5,7 +5,7 @@ import { format, parseISO, add } from 'date-fns'
 import { Card, Button, Label, Select, Input } from '../../atoms'
 import { isTimeSlotTaken, isTimeSlotBlocked } from '../../../utils/scheduleUtils'
 import { formatLocalized } from '../../../utils/dateLocale'
-import { type Client, type Session } from '../../../types'
+import { type Client } from '../../../types'
 import { WEEKDAYS, buildRrule, rruleHumanText } from '../../../utils/rruleHelpers'
 
 const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurringEvent, onUpdate, sessionToEdit, clients, sessions, blocks, initialDate }: any) => {
@@ -17,7 +17,6 @@ const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurringEvent, 
     time: format(initialDate, 'HH:mm'),
     durationMinutes: 60,
     notes: '',
-    linkedWorkoutId: '',
   })
   const [isRecurring, setIsRecurring] = useState(false)
 
@@ -33,8 +32,6 @@ const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurringEvent, 
   const [rruleUntil, setRruleUntil] = useState(format(add(initialDate, { months: 3 }), 'yyyy-MM-dd'))
   const [rruleCount, setRruleCount] = useState(12)
 
-  const [isRecurrencePromptOpen, setIsRecurrencePromptOpen] = useState(false)
-  const [pendingUpdate, setPendingUpdate] = useState<Partial<Session> | null>(null)
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -46,17 +43,16 @@ const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurringEvent, 
         time: format(d, 'HH:mm'),
         durationMinutes: sessionToEdit.durationMinutes,
         notes: sessionToEdit.notes || '',
-        linkedWorkoutId: sessionToEdit.linkedWorkoutId || '',
       })
-      setIsRecurring(!!sessionToEdit.recurrenceId)
+      setIsRecurring(!!(sessionToEdit.recurringEventId || sessionToEdit.recurrenceId))
     }
   }, [sessionToEdit])
 
   const toggleDay = (day: string) => setRruleDays((prev) => (prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]))
 
   const client = clients.find((c: Client) => c.id === formData.clientId)
-  const sessionType: 'Online' | 'In-Person' = client?.type === 'Online' ? 'Online' : 'In-Person'
-  const sessionCategory: 'Check-in' | 'Workout' = client?.type === 'Online' ? 'Check-in' : 'Workout'
+  const sessionType: 'Online' | 'In-Person' = client?.modality === 'ONLINE' ? 'Online' : 'In-Person'
+  const sessionCategory: 'Check-in' | 'Workout' = client?.modality === 'ONLINE' ? 'Check-in' : 'Workout'
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setFormData({ ...formData, [e.target.name]: e.target.value })
 
@@ -86,32 +82,22 @@ const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurringEvent, 
       type: sessionType,
       category: sessionCategory,
       notes: formData.notes,
-      linkedWorkoutId: formData.linkedWorkoutId,
     }
 
     if (sessionToEdit) {
-      const dateChanged = combinedDate.toISOString() !== sessionToEdit.date
-      if ((sessionToEdit.recurrenceId || sessionToEdit.recurringEventId) && dateChanged) {
-        setPendingUpdate(baseSession)
-        setIsRecurrencePromptOpen(true)
-      } else {
-        onUpdate(sessionToEdit.id, baseSession, 'single')
-        onClose()
-      }
+      // An occurrence of a series is edited on its own (its id addresses that occurrence);
+      // the API has no "this and following" edit. The client of a session cannot be changed.
+      onUpdate(sessionToEdit.id, { date: baseSession.date, durationMinutes: baseSession.durationMinutes, notes: baseSession.notes })
+      onClose()
     } else {
       if (isRecurring) {
         // Use RRULE-based recurring event
         const rrule = buildRrule(rruleFreq, rruleInterval, rruleDays, rruleEndType, rruleUntil, rruleCount)
         onSaveRecurringEvent({
+          ...baseSession,
+          notes: formData.notes || undefined,
           rrule,
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-          dtstart: combinedDate.toISOString(),
-          durationMinutes: Number(formData.durationMinutes),
-          type: sessionType,
-          category: sessionCategory,
-          clientId: formData.clientId,
-          linkedWorkoutId: formData.linkedWorkoutId || undefined,
-          notes: formData.notes || undefined,
         })
       } else {
         onSaveNew(baseSession)
@@ -133,12 +119,12 @@ const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurringEvent, 
           <form onSubmit={handleSubmit} className="p-6 space-y-4">
             <div className="space-y-2">
               <Label>{t('client')}</Label>
-              <Select name="clientId" value={formData.clientId} onChange={handleChange}>
+              <Select name="clientId" value={formData.clientId} onChange={handleChange} disabled={!!sessionToEdit}>
                 {clients
                   .filter((c: Client) => c.status === 'ACTIVE' || (c.status as string) === 'Active')
                   .map((c: Client) => (
                     <option key={c.id} value={c.id}>
-                      {c.name} ({c.type})
+                      {c.name} ({c.modality})
                     </option>
                   ))}
               </Select>
@@ -263,42 +249,8 @@ const SessionEditorModal = ({ isOpen, onClose, onSaveNew, onSaveRecurringEvent, 
           </form>
         </Card>
       </div>
-      {isRecurrencePromptOpen && (
-        <RecurrenceUpdateModal
-          onConfirm={(scope: any) => {
-            onUpdate(sessionToEdit.id, pendingUpdate, scope)
-            onClose()
-          }}
-          onCancel={() => setIsRecurrencePromptOpen(false)}
-        />
-      )}
     </>
   )
 }
 
-const RecurrenceUpdateModal = ({ onConfirm, onCancel }: any) => {
-  const { t } = useTranslation('schedule')
-  const { t: tco } = useTranslation('common')
-  return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <Card className="w-full max-w-sm p-6 text-center shadow-2xl animate-in zoom-in-90">
-        <div className="mx-auto bg-amber-100 h-12 w-12 rounded-full flex items-center justify-center">
-          <AlertTriangle className="h-6 w-6 text-amber-600" />
-        </div>
-        <h3 className="text-lg font-bold mt-4 text-slate-900">{t('editRecurring')}</h3>
-        <p className="text-sm text-slate-500 mt-2">{t('recurrenceUpdateMessage')}</p>
-        <div className="mt-6 flex flex-col gap-3">
-          <Button onClick={() => onConfirm('future')}>{t('thisAndFuture')}</Button>
-          <Button variant="secondary" onClick={() => onConfirm('single')}>
-            {t('onlyThis')}
-          </Button>
-          <Button variant="ghost" onClick={onCancel}>
-            {tco('cancel')}
-          </Button>
-        </div>
-      </Card>
-    </div>
-  )
-}
-
-export { SessionEditorModal, RecurrenceUpdateModal }
+export { SessionEditorModal }

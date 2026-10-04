@@ -1,4 +1,4 @@
-import type { Client, Session, Plan, WorkoutPlan, Evaluation, User, SystemFeature } from '../../types'
+import type { Client, Session, Plan, WorkoutPlan, WorkoutSheet, Evaluation, User, PlanFeatureDescriptor } from '../../types'
 
 export const mockUser: User = {
   id: 'user-1',
@@ -95,6 +95,7 @@ export const mockPlans: Plan[] = [
     durationMinutes: 60,
     price: 300,
     active: true,
+    features: ['ai_whatsapp_bot'],
   },
   {
     id: 'plan-2',
@@ -106,18 +107,61 @@ export const mockPlans: Plan[] = [
   },
 ]
 
+/** A library template as `GET /workout-templates` sends it (`WorkoutSheetView`). */
+export const mockWorkoutTemplates: WorkoutSheet[] = [
+  {
+    id: 'workout-1',
+    name: 'Treino A - Peito/Tríceps',
+    expiresAt: null,
+    active: true,
+    isTemplate: true,
+    clientId: null,
+    userId: 'user-1',
+    description: null,
+    tags: ['chest', 'triceps'],
+    workouts: [
+      {
+        id: 'item-a',
+        letter: 'A',
+        name: 'Treino A - Peito/Tríceps',
+        orderIndex: 0,
+        blocks: [
+          {
+            id: 'block-1',
+            type: 'REGULAR',
+            orderIndex: 0,
+            restTimeSeconds: 60,
+            exercises: [{ id: 'ex-1', exerciseId: null, exerciseName: 'Supino Reto', gifUrl: null, sets: 4, reps: '10-12', suggestedLoadKg: 60, executionNotes: null, isWarmup: false, orderIndex: 0 }],
+          },
+          {
+            id: 'block-2',
+            type: 'REGULAR',
+            orderIndex: 1,
+            restTimeSeconds: 60,
+            exercises: [
+              { id: 'ex-2', exerciseId: null, exerciseName: 'Tríceps Pulley', gifUrl: null, sets: 3, reps: '12-15', suggestedLoadKg: null, executionNotes: null, isWarmup: false, orderIndex: 0 },
+            ],
+          },
+        ],
+      },
+    ],
+    createdAt: '2025-01-01T00:00:00.000Z',
+    updatedAt: '2025-01-01T00:00:00.000Z',
+  },
+]
+
+/** The same template as the flat view model the library works with. */
 export const mockWorkouts: WorkoutPlan[] = [
   {
     id: 'workout-1',
-    clientId: 'client-1',
     title: 'Treino A - Peito/Tríceps',
-    status: 'Active',
     exercises: [
-      { name: 'Supino Reto', sets: 4, reps: '10-12', weight: '60kg' },
-      { name: 'Tríceps Pulley', sets: 3, reps: '12-15' },
+      { name: 'Supino Reto', sets: 4, reps: '10-12', weight: '60kg', isWarmup: false, ref: { id: 'ex-1', itemId: 'item-a', blockId: 'block-1' } },
+      { name: 'Tríceps Pulley', sets: 3, reps: '12-15', isWarmup: false, ref: { id: 'ex-2', itemId: 'item-a', blockId: 'block-2' } },
     ],
     tags: ['chest', 'triceps'],
     createdAt: '2025-01-01T00:00:00.000Z',
+    itemId: 'item-a',
   },
 ]
 
@@ -132,19 +176,7 @@ export const mockEvaluations: Evaluation[] = [
   },
 ]
 
-export const mockSystemFeatures: SystemFeature[] = [
-  {
-    id: 'feat-1',
-    key: 'ai_workout',
-    name: 'AI Workout Generator',
-    description: 'Generate workouts with AI',
-    isActive: true,
-  },
-  {
-    id: 'feat-2',
-    key: 'pix_payments',
-    name: 'PIX Payments',
-    description: 'Accept PIX payments',
-    isActive: false,
-  },
+export const mockPlanFeatures: PlanFeatureDescriptor[] = [
+  { key: 'ai_whatsapp_bot', name: 'Bot de WhatsApp com IA', description: 'Atendimento automático por WhatsApp' },
+  { key: 'automated_pix', name: 'PIX automático', description: 'Cobrança recorrente por PIX' },
 ]

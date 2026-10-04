@@ -19,7 +19,6 @@ vi.mock('../../states/stores/store', () => ({
     addSession: vi.fn(),
     addRecurringEvent: vi.fn(),
     fetchSessionsForRange: vi.fn().mockResolvedValue(undefined),
-    updateSessionWithScope: vi.fn(),
     updateSession: vi.fn(),
     workouts: [],
     availabilityBlocks: [],

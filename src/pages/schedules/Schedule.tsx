@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 
 import { useTranslation } from 'react-i18next'
 
-import { type Session, type MaterializedBlock, type AvailabilityBlock } from '../../types'
+import { type Session, type NewSession, type MaterializedBlock, type AvailabilityBlock } from '../../types'
 import { useStore } from '../../states/stores/store'
 import { useScheduleNavigation } from '../../hooks/useScheduleNavigation'
 import { useScheduleDragDrop } from '../../hooks/useScheduleDragDrop'
@@ -26,7 +26,6 @@ export const Schedule = () => {
     addSession,
     addRecurringEvent,
     fetchSessionsForRange,
-    updateSessionWithScope,
     updateSession,
     workouts,
     availabilityBlocks,
@@ -53,6 +52,12 @@ export const Schedule = () => {
       fetchAvailabilityBlocks(nav.rangeStart, nav.rangeEnd)
     }
   }, [nav.rangeStart, nav.rangeEnd, fetchAvailabilityBlocks])
+
+  // A series has no stored occurrences: they only show up after the range is fetched again.
+  const handleSaveSeries = async (series: NewSession & { rrule: string }) => {
+    await addRecurringEvent(series)
+    await fetchSessionsForRange(nav.rangeStart, nav.rangeEnd)
+  }
 
   const handleEditSession = (session: Session) => {
     setEditingSession(session)
@@ -144,8 +149,8 @@ export const Schedule = () => {
           isOpen={sessionEditorOpen}
           onClose={() => setSessionEditorOpen(false)}
           onSaveNew={addSession}
-          onSaveRecurringEvent={addRecurringEvent}
-          onUpdate={updateSessionWithScope}
+          onSaveRecurringEvent={handleSaveSeries}
+          onUpdate={updateSession}
           sessionToEdit={editingSession}
           clients={clients}
           sessions={sessions}

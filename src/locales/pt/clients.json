@@ -125,16 +125,23 @@
     "subtitle": "Renovação de acesso para",
     "method": "Forma de Pagamento",
     "validUntil": "Novo Vencimento",
-    "amount": "Valor Pago (R$) (Opcional)",
+    "amount": "Valor Pago (R$)",
     "notes": "Observações",
-    "confirm": "Confirmar Baixa"
+    "confirm": "Confirmar Baixa",
+    "amountRequired": "Informe o valor pago.",
+    "saveError": "Não foi possível registrar o pagamento."
   },
   "anamnesis": {
     "title": "Anamnese e Histórico de Saúde",
     "subtitle": "Acompanhe respostas do formulário e evolução estética",
     "print": "Imprimir (Ctrl+P)",
     "requestReassessment": "Solicitar Reavaliação",
-    "photos": "Fotos Corporais"
+    "photos": "Fotos Corporais",
+    "loadError": "Não foi possível carregar as anamneses.",
+    "pendingLabel": "Aguardando resposta ({{date}})",
+    "expiredLabel": "Link expirado ({{date}})",
+    "pendingNotice": "O aluno ainda não respondeu a esta solicitação.",
+    "expiredNotice": "O link desta solicitação expirou sem resposta. Solicite uma nova reavaliação."
   },
   "modality": "Modalidade",
   "modalityOnline": "Online",
@@ -153,5 +160,9 @@
   "smoker": "Fumante",
   "drinker": "Consome bebidas alcoólicas",
   "healthObservations": "Observações de saúde",
-  "healthObservationsPlaceholder": "Alergias, dores articulares específicas, etc."
+  "healthObservationsPlaceholder": "Alergias, dores articulares específicas, etc.",
+  "exportCsvError": "Não foi possível exportar o CSV. Tente novamente.",
+  "welcomeMessageFailed": "Aluno cadastrado, mas a mensagem de boas-vindas não pôde ser enviada. Reenvie o link pelo perfil do aluno.",
+  "addClientError": "Não foi possível cadastrar o aluno.",
+  "statusChangeError": "Não foi possível alterar o status do aluno."
 }

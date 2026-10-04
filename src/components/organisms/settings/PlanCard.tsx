@@ -2,16 +2,18 @@ import React from 'react'
 import { Trash2, Edit2, Repeat, Clock, Zap } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { type Plan } from '../../../types'
+import { type Plan, type PlanFeatureDescriptor } from '../../../types'
 import { Card, Button } from '../../atoms'
 
 interface PlanCardProps {
   plan: Plan
+  /** Catalogue used to show feature names; a key without an entry is shown as is. */
+  featureCatalog?: PlanFeatureDescriptor[]
   onEdit: () => void
   onDelete: () => void
 }
 
-export const PlanCard: React.FC<PlanCardProps> = ({ plan, onEdit, onDelete }) => {
+export const PlanCard: React.FC<PlanCardProps> = ({ plan, featureCatalog = [], onEdit, onDelete }) => {
   const { t } = useTranslation('settings')
   const { t: tc } = useTranslation('common')
   return (
@@ -57,10 +59,10 @@ export const PlanCard: React.FC<PlanCardProps> = ({ plan, onEdit, onDelete }) =>
           <div className="mt-3 pt-3 border-t border-slate-100">
             <p className="text-xs font-medium text-slate-400 mb-2">{t('features')}</p>
             <div className="flex flex-wrap gap-1">
-              {plan.features.map((pf) => (
-                <span key={pf.featureId} className="inline-flex items-center text-xs bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full">
+              {plan.features.map((key) => (
+                <span key={key} className="inline-flex items-center text-xs bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full">
                   <Zap className="h-3 w-3 mr-1" />
-                  {pf.feature.name}
+                  {featureCatalog.find((f) => f.key === key)?.name ?? key}
                 </span>
               ))}
             </div>

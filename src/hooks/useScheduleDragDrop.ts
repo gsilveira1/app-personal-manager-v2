@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { parseISO } from 'date-fns'
-import type { Session } from '../types'
+import type { Session, SessionUpdate } from '../types'
 
-export function useScheduleDragDrop(sessions: Session[], updateSession: (id: string, data: Partial<Session>) => void) {
+export function useScheduleDragDrop(sessions: Session[], updateSession: (id: string, data: SessionUpdate) => void) {
   const [draggedItemId, setDraggedItemId] = useState<string | null>(null)
   const [dragOverId, setDragOverId] = useState<string | null>(null)
 

@@ -109,7 +109,7 @@ const OverviewModal = ({ isOpen, onClose, sessions, clients, headerText, workout
 const SessionDetailView = ({ session, clients, workouts }: any) => {
   const { t } = useTranslation('schedule')
   const client = clients.find((c: Client) => c.id === session.clientId)
-  const workout = workouts.find((w: WorkoutPlan) => w.id === session.linkedWorkoutId)
+  const workout = workouts.find((w: WorkoutPlan) => w.id === session.workoutSheetId)
   return (
     <div className="p-6 space-y-4">
       <div className="flex items-center space-x-4">

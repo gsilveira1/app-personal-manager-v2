@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Send, CheckCircle2, MessageCircle, AlertCircle, Copy, Check, RefreshCw } from 'lucide-react'
 import { Card, Button } from '../../atoms'
+import { toAbsoluteLink } from '../../../utils/links'
 import * as api from '../../../services/api/apiService'
 import type { Client } from '../../../types'
 
@@ -60,7 +61,7 @@ export const ResendMagicLinkModal = ({ isOpen, onClose, client }: ResendMagicLin
 
   const handleCopyLink = () => {
     if (result?.link) {
-      const fullUrl = `${window.location.origin}${result.link}`
+      const fullUrl = toAbsoluteLink(result.link)
       navigator.clipboard.writeText(fullUrl)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
@@ -161,7 +162,7 @@ export const ResendMagicLinkModal = ({ isOpen, onClose, client }: ResendMagicLin
                 <div>
                   <span className="block text-xs font-semibold text-slate-600 mb-1">Link Direto:</span>
                   <div className="flex items-center gap-2">
-                    <input readOnly value={`${window.location.origin}${result.link}`} className="w-full text-xs p-2 bg-slate-50 border border-slate-200 rounded font-mono select-all" />
+                    <input readOnly value={toAbsoluteLink(result.link)} className="w-full text-xs p-2 bg-slate-50 border border-slate-200 rounded font-mono select-all" />
                     <Button size="sm" variant="outline" onClick={handleCopyLink}>
                       {copied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
                     </Button>

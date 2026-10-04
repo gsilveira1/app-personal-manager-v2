@@ -2,18 +2,18 @@ import { useState } from 'react'
 import { DollarSign, Calendar, FileText, Check } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Card, Button, Input, Label } from '../../atoms'
-import type { Client } from '../../../types'
+import type { Client, PaymentMethod, RecordPaymentBody } from '../../../types'
 
 interface ManualPaymentModalProps {
   isOpen: boolean
   onClose: () => void
   client: Client
-  onSave: (paymentData: { paymentType: string; validUntil: string; notes?: string; amount?: number }) => Promise<void>
+  onSave: (paymentData: RecordPaymentBody) => Promise<void>
 }
 
 export const ManualPaymentModal = ({ isOpen, onClose, client, onSave }: ManualPaymentModalProps) => {
   const { t } = useTranslation('clients')
-  const [paymentType, setPaymentType] = useState<'MANUAL_PIX' | 'MANUAL_CASH' | 'MANUAL_CARD'>('MANUAL_PIX')
+  const [method, setMethod] = useState<PaymentMethod>('PIX')
   const [validUntil, setValidUntil] = useState(() => {
     const d = new Date()
     d.setMonth(d.getMonth() + 1)
@@ -22,22 +22,30 @@ export const ManualPaymentModal = ({ isOpen, onClose, client, onSave }: ManualPa
   const [amount, setAmount] = useState<string>('')
   const [notes, setNotes] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   if (!isOpen) return null
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    const parsedAmount = parseFloat(amount)
+    if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+      setError(t('manualPayment.amountRequired'))
+      return
+    }
+    setError(null)
     setIsLoading(true)
     try {
       await onSave({
-        paymentType,
-        validUntil: new Date(`${validUntil}T23:59:59.000Z`).toISOString(),
+        amount: parsedAmount,
+        method,
+        periodEnd: new Date(`${validUntil}T23:59:59.000Z`).toISOString(),
         notes: notes || undefined,
-        amount: amount ? parseFloat(amount) : undefined,
       })
       onClose()
-    } catch (error) {
-      console.error('Error saving manual payment:', error)
+    } catch (err) {
+      console.error('Error saving manual payment:', { clientId: client.id, err })
+      setError(err instanceof Error && err.message ? err.message : t('manualPayment.saveError'))
     } finally {
       setIsLoading(false)
     }
@@ -60,17 +68,19 @@ export const ManualPaymentModal = ({ isOpen, onClose, client, onSave }: ManualPa
           <div>
             <Label className="mb-1 block text-xs font-semibold text-slate-700">{t('manualPayment.method', 'Forma de Pagamento')}</Label>
             <div className="grid grid-cols-3 gap-2">
-              {[
-                { id: 'MANUAL_PIX', label: 'Pix' },
-                { id: 'MANUAL_CASH', label: 'Dinheiro' },
-                { id: 'MANUAL_CARD', label: 'Cartão' },
-              ].map((m) => (
+              {(
+                [
+                  { id: 'PIX', label: 'Pix' },
+                  { id: 'CASH', label: 'Dinheiro' },
+                  { id: 'CARD', label: 'Cartão' },
+                ] as const
+              ).map((m) => (
                 <button
                   type="button"
                   key={m.id}
-                  onClick={() => setPaymentType(m.id as any)}
+                  onClick={() => setMethod(m.id)}
                   className={`rounded-lg border px-3 py-2 text-xs font-medium transition-all ${
-                    paymentType === m.id ? 'border-emerald-600 bg-emerald-50 text-emerald-700 shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                    method === m.id ? 'border-emerald-600 bg-emerald-50 text-emerald-700 shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
                   }`}
                 >
                   {m.label}
@@ -89,9 +99,9 @@ export const ManualPaymentModal = ({ isOpen, onClose, client, onSave }: ManualPa
 
           <div>
             <Label htmlFor="amount" className="mb-1 block text-xs font-semibold text-slate-700">
-              {t('manualPayment.amount', 'Valor Pago (R$) (Opcional)')}
+              {t('manualPayment.amount', 'Valor Pago (R$)')}
             </Label>
-            <Input id="amount" type="number" step="0.01" placeholder="150.00" value={amount} onChange={(e) => setAmount(e.target.value)} className="w-full text-sm" />
+            <Input id="amount" type="number" step="0.01" min="0.01" required placeholder="150.00" value={amount} onChange={(e) => setAmount(e.target.value)} className="w-full text-sm" />
           </div>
 
           <div>
@@ -101,6 +111,12 @@ export const ManualPaymentModal = ({ isOpen, onClose, client, onSave }: ManualPa
             </Label>
             <Input id="notes" placeholder="Ex: Pago adiantado em dinheiro" value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full text-sm" />
           </div>
+
+          {error && (
+            <p role="alert" className="rounded-md border border-red-200 bg-red-50 p-3 text-xs text-red-700">
+              {error}
+            </p>
+          )}
 
           <div className="mt-6 flex justify-end gap-3 border-t border-slate-100 pt-4">
             <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>

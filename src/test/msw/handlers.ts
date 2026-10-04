@@ -1,5 +1,5 @@
 import { http, HttpResponse } from 'msw'
-import { mockUser, mockClients, mockSessions, mockPlans, mockWorkouts, mockEvaluations, mockSystemFeatures } from './mockData'
+import { mockUser, mockClients, mockSessions, mockPlans, mockWorkoutTemplates, mockEvaluations, mockPlanFeatures } from './mockData'
 
 const API = 'http://localhost:9090/api'
 
@@ -12,19 +12,20 @@ export const handlers = [
   http.post(`${API}/auth/login`, async ({ request }) => {
     const body = (await request.json()) as { email: string; password: string }
     if (body.email === 'trainer@test.com' && body.password === 'password123') {
-      return HttpResponse.json({ access_token: 'mock-jwt-token', user: mockUser })
+      return HttpResponse.json({ access_token: 'mock-jwt-token', accessToken: 'mock-jwt-token', tokenType: 'Bearer', expiresIn: 86400, user: mockUser })
     }
     return HttpResponse.json({ message: 'Invalid credentials' }, { status: 401 })
   }),
 
   // Clients
+  // `GET /clients` is paginated (`Paginated<ClientListItem>`)
   http.get(`${API}/clients`, () => {
-    return HttpResponse.json(mockClients)
+    return HttpResponse.json({ items: mockClients, total: mockClients.length, page: 1, totalPages: 1 })
   }),
 
   http.post(`${API}/clients`, async ({ request }) => {
     const body = (await request.json()) as Record<string, unknown>
-    return HttpResponse.json({ id: 'client-new', ...body }, { status: 201 })
+    return HttpResponse.json({ id: 'client-new', ...body, welcomeMessage: 'QUEUED' }, { status: 201 })
   }),
 
   // Sessions
@@ -37,9 +38,9 @@ export const handlers = [
     return HttpResponse.json(mockPlans)
   }),
 
-  // Workouts
-  http.get(`${API}/workouts`, () => {
-    return HttpResponse.json(mockWorkouts)
+  // Workout library = the trainer's templates
+  http.get(`${API}/workout-templates`, () => {
+    return HttpResponse.json(mockWorkoutTemplates)
   }),
 
   // Evaluations
@@ -47,9 +48,9 @@ export const handlers = [
     return HttpResponse.json(mockEvaluations)
   }),
 
-  // System Features
-  http.get(`${API}/system-features`, () => {
-    return HttpResponse.json(mockSystemFeatures)
+  // Plan feature catalogue
+  http.get(`${API}/plan-features`, () => {
+    return HttpResponse.json(mockPlanFeatures)
   }),
 ]
 

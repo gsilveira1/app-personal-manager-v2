@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Dumbbell, Plus, Bookmark, Clock, ChevronRight } from 'lucide-react'
 import { Card, Button, Input, Label } from '../../atoms'
 import * as api from '../../../services/api/apiService'
+import { withoutIds } from '../../../services/api/mappers/workoutMapper'
 import type { Client, WorkoutSheet, WorkoutTemplate, WorkoutSheetItem } from '../../../types'
 
 interface WorkoutSheetsTabProps {
@@ -16,6 +17,7 @@ export const WorkoutSheetsTab = ({ client }: WorkoutSheetsTabProps) => {
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false)
   const [templateName, setTemplateName] = useState('')
   const [isLoading, setIsLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
 
   // Builder State
   const [sheetName, setSheetName] = useState('Ficha de Treino')
@@ -48,6 +50,7 @@ export const WorkoutSheetsTab = ({ client }: WorkoutSheetsTabProps) => {
 
   const loadSheets = async () => {
     setIsLoading(true)
+    setLoadError(null)
     try {
       const [sheetsData, templatesData] = await Promise.all([api.getWorkoutSheets(client.id), api.getWorkoutTemplates()])
       setSheets(sheetsData || [])
@@ -56,7 +59,8 @@ export const WorkoutSheetsTab = ({ client }: WorkoutSheetsTabProps) => {
         setActiveSheet(sheetsData.find((s) => s.active) || sheetsData[0])
       }
     } catch (err) {
-      console.error('Error loading workout sheets:', err)
+      console.error('Error loading workout sheets:', { clientId: client.id, err })
+      setLoadError(err instanceof Error && err.message ? err.message : 'Não foi possível carregar as fichas de treino.')
     } finally {
       setIsLoading(false)
     }
@@ -140,8 +144,9 @@ export const WorkoutSheetsTab = ({ client }: WorkoutSheetsTabProps) => {
   }
 
   const handleImportTemplate = (template: WorkoutTemplate) => {
-    if (template.structure?.workouts) {
-      setBuilderWorkouts(template.structure.workouts)
+    if (template.workouts.length > 0) {
+      // The new sheet is its own document: it starts from the template's content, not its ids.
+      setBuilderWorkouts(withoutIds(template.workouts))
       setSheetName(template.name)
     }
   }
@@ -174,6 +179,12 @@ export const WorkoutSheetsTab = ({ client }: WorkoutSheetsTabProps) => {
           </Button>
         </div>
       </div>
+
+      {loadError && (
+        <p role="alert" className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          {loadError}
+        </p>
+      )}
 
       {/* Active Sheet View */}
       {activeSheet ? (

@@ -5,16 +5,25 @@ import { Calendar as CalendarIcon, Clock, User, ArrowUpRight, Save, X, Edit2 } f
 import { parseISO } from 'date-fns'
 import { Card, Button, Label, Select } from '../../atoms'
 import { formatLocalized } from '../../../utils/dateLocale'
-import { type Client, type WorkoutPlan } from '../../../types'
+import { type Client, type SessionUpdate, type WorkoutPlan } from '../../../types'
 
 const SessionDetailsModal = ({ session, clients, workouts, onClose, onUpdate, onEdit }: any) => {
   const { t } = useTranslation('schedule')
   const { t: tc } = useTranslation('common')
   const client = clients.find((c: Client) => c.id === session.clientId)
   const [notes, setNotes] = useState(session.notes || '')
-  const [linkedWorkoutId, setLinkedWorkoutId] = useState(session.linkedWorkoutId || '')
+  const [linkedWorkoutId, setLinkedWorkoutId] = useState(session.workoutSheetId || '')
   const handleSave = () => {
-    onUpdate(session.id, { notes, linkedWorkoutId: linkedWorkoutId || undefined })
+    const updates: SessionUpdate = { notes }
+    // The link is only sent when the selection changed, so a workout that is not in
+    // the library (a client's own sheet) is never unlinked by saving the notes.
+    if (linkedWorkoutId !== (session.workoutSheetId || '')) {
+      const linked = workouts.find((w: WorkoutPlan) => w.id === linkedWorkoutId)
+      // A blank selection unlinks the workout; a template links its first item.
+      updates.workoutSheetId = linked?.id ?? null
+      updates.workoutSegmentId = linked?.itemId ?? null
+    }
+    onUpdate(session.id, updates)
     onClose()
   }
   return (

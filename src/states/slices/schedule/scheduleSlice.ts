@@ -1,6 +1,7 @@
 import { type StateCreator } from 'zustand'
 
 import { type Session } from '../../../types'
+import { seriesIdOf } from '../../../services/api/mappers/sessionMapper'
 
 /**
  * Slice managing schedule sessions state and synchronous mutations.
@@ -31,7 +32,19 @@ export interface ScheduleSlice {
    *
    * @param session - The updated Session entity
    */
-  _updateSession: (session: Session) => void
+  _updateSession: (session: Session, id?: string) => void
+  /**
+   * Removes one session from state by its id.
+   *
+   * @param id - Session id (UUID or occurrence id)
+   */
+  _removeSession: (id: string) => void
+  /**
+   * Removes every occurrence and exception of a recurring series from state.
+   *
+   * @param seriesId - Id of the series master
+   */
+  _removeSeries: (seriesId: string) => void
   /**
    * Updates a series of recurring sessions by recurrence ID.
    *
@@ -54,10 +67,14 @@ export const createScheduleSlice: StateCreator<ScheduleSlice, [], [], ScheduleSl
   _setSessions: (sessions) => set({ sessions }),
   _addSession: (session) => set((state) => ({ sessions: [...state.sessions, session] })),
   _addSessions: (sessions) => set((state) => ({ sessions: [...state.sessions, ...sessions] })),
-  _updateSession: (session) =>
+  // `id` is the id the session had before the change: patching an occurrence of a
+  // series can answer with the stored exception, whose id differs.
+  _updateSession: (session, id = session.id) =>
     set((state) => ({
-      sessions: state.sessions.map((s) => (s.id === session.id ? session : s)),
+      sessions: state.sessions.map((s) => (s.id === id ? session : s)),
     })),
+  _removeSession: (id) => set((state) => ({ sessions: state.sessions.filter((s) => s.id !== id) })),
+  _removeSeries: (seriesId) => set((state) => ({ sessions: state.sessions.filter((s) => s.id !== seriesId && seriesIdOf(s) !== seriesId) })),
   _updateSessionSeries: (updatedSessions, recurrenceId) =>
     set((state) => ({
       sessions: [...state.sessions.filter((s) => s.recurrenceId !== recurrenceId), ...updatedSessions],

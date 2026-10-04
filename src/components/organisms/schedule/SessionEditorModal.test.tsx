@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 vi.mock('react-i18next', () => ({
@@ -36,8 +36,8 @@ const makeClient = (overrides: Record<string, unknown> = {}) => ({
   name: 'John Doe',
   email: 'john@test.com',
   phone: '555-1234',
-  status: 'Active',
-  type: 'In-Person',
+  status: 'ACTIVE',
+  modality: 'PRESENCIAL',
   avatar: null,
   ...overrides,
 })
@@ -54,7 +54,7 @@ const defaultProps = {
   onSaveRecurringEvent: mockOnSaveRecurringEvent,
   onUpdate: mockOnUpdate,
   sessionToEdit: null,
-  clients: [makeClient(), makeClient({ id: 'c2', name: 'Jane Smith', type: 'Online' })],
+  clients: [makeClient(), makeClient({ id: 'c2', name: 'Jane Smith', modality: 'ONLINE' })],
   sessions: [],
   blocks: [],
   initialDate: new Date(2026, 2, 15, 10, 0), // March 15, 2026 at 10:00
@@ -79,8 +79,8 @@ describe('SessionEditorModal', () => {
     render(<SessionEditorModal {...defaultProps} />)
     expect(screen.getByText('client')).toBeInTheDocument()
     // Both clients should appear in the select
-    expect(screen.getByText('John Doe (In-Person)')).toBeInTheDocument()
-    expect(screen.getByText('Jane Smith (Online)')).toBeInTheDocument()
+    expect(screen.getByText('John Doe (PRESENCIAL)')).toBeInTheDocument()
+    expect(screen.getByText('Jane Smith (ONLINE)')).toBeInTheDocument()
   })
 
   it('renders date and time inputs', () => {
@@ -133,7 +133,6 @@ describe('SessionEditorModal', () => {
       category: 'Check-in',
       completed: false,
       notes: 'Focus on form',
-      linkedWorkoutId: '',
     }
 
     render(<SessionEditorModal {...defaultProps} sessionToEdit={sessionToEdit} />)
@@ -165,7 +164,6 @@ describe('SessionEditorModal', () => {
       category: 'Workout',
       completed: false,
       notes: '',
-      linkedWorkoutId: '',
     }
 
     render(<SessionEditorModal {...defaultProps} sessionToEdit={sessionToEdit} />)
@@ -182,7 +180,6 @@ describe('SessionEditorModal', () => {
       category: 'Workout',
       completed: false,
       notes: '',
-      linkedWorkoutId: '',
     }
 
     render(<SessionEditorModal {...defaultProps} sessionToEdit={sessionToEdit} />)
@@ -191,7 +188,8 @@ describe('SessionEditorModal', () => {
     fireEvent.submit(form!)
 
     expect(mockOnUpdate).toHaveBeenCalledTimes(1)
-    expect(mockOnUpdate).toHaveBeenCalledWith('s1', expect.objectContaining({ clientId: 'c1' }), 'single')
+    // Only what `PATCH /sessions/:id` accepts: no clientId, no scope.
+    expect(mockOnUpdate).toHaveBeenCalledWith('s1', { date: sessionToEdit.date, durationMinutes: 60, notes: '' })
     expect(mockOnClose).toHaveBeenCalledTimes(1)
   })
 
@@ -236,6 +234,8 @@ describe('SessionEditorModal', () => {
     expect(mockOnSaveRecurringEvent).toHaveBeenCalledWith(
       expect.objectContaining({
         rrule: 'FREQ=WEEKLY;INTERVAL=1;BYDAY=MO;COUNT=12',
+        date: new Date(2026, 2, 15, 10, 0).toISOString(),
+        timezone: expect.any(String),
         clientId: 'c1',
         type: 'In-Person',
         category: 'Workout',
@@ -355,10 +355,10 @@ describe('SessionEditorModal', () => {
     mockedIsTimeSlotBlocked.mockReturnValue(null)
   })
 
-  it('shows RecurrenceUpdateModal when editing a recurring session with date change', async () => {
-    const user = userEvent.setup()
+  it('moves one occurrence of a series without asking for a scope', () => {
+    const occurrenceId = 'series-1_2026-03-15T13:00:00.000Z'
     const sessionToEdit = {
-      id: 's1',
+      id: occurrenceId,
       clientId: 'c1',
       date: new Date(2026, 2, 15, 10, 0).toISOString(),
       durationMinutes: 60,
@@ -366,116 +366,28 @@ describe('SessionEditorModal', () => {
       category: 'Workout',
       completed: false,
       notes: '',
-      linkedWorkoutId: '',
-      recurrenceId: 'rec-1',
+      isVirtual: true,
+      recurringEventId: 'series-1',
     }
 
     render(<SessionEditorModal {...defaultProps} sessionToEdit={sessionToEdit} />)
 
-    // Change the date to trigger recurrence prompt
-    const dateInput = screen.getByDisplayValue('2026-03-15')
-    fireEvent.change(dateInput, { target: { value: '2026-03-20', name: 'date' } })
-
-    // Submit the form
-    const form = screen.getByText('common.save').closest('form')
-    fireEvent.submit(form!)
-
-    // RecurrenceUpdateModal should now be visible
-    expect(screen.getByText('editRecurring')).toBeInTheDocument()
-    expect(screen.getByText('recurrenceUpdateMessage')).toBeInTheDocument()
-    expect(screen.getByText('thisAndFuture')).toBeInTheDocument()
-    expect(screen.getByText('onlyThis')).toBeInTheDocument()
-  })
-
-  it('RecurrenceUpdateModal confirms with "future" scope', async () => {
-    const user = userEvent.setup()
-    const sessionToEdit = {
-      id: 's1',
-      clientId: 'c1',
-      date: new Date(2026, 2, 15, 10, 0).toISOString(),
-      durationMinutes: 60,
-      type: 'In-Person',
-      category: 'Workout',
-      completed: false,
-      notes: '',
-      linkedWorkoutId: '',
-      recurringEventId: 'rev-1',
-    }
-
-    render(<SessionEditorModal {...defaultProps} sessionToEdit={sessionToEdit} />)
-
-    // Change date
-    fireEvent.change(screen.getByDisplayValue('2026-03-15'), { target: { value: '2026-03-22', name: 'date' } })
-
-    // Submit
+    fireEvent.change(screen.getByDisplayValue('2026-03-15'), { target: { value: '2026-03-20', name: 'date' } })
     fireEvent.submit(screen.getByText('common.save').closest('form')!)
 
-    // Click "this and future"
-    await user.click(screen.getByText('thisAndFuture'))
-
-    expect(mockOnUpdate).toHaveBeenCalledWith('s1', expect.objectContaining({ clientId: 'c1' }), 'future')
-    expect(mockOnClose).toHaveBeenCalled()
+    // "This and following" is gone with PATCH /sessions/:id/scope: the occurrence id edits that occurrence only.
+    expect(screen.queryByText('thisAndFuture')).not.toBeInTheDocument()
+    expect(mockOnUpdate).toHaveBeenCalledTimes(1)
+    expect(mockOnUpdate).toHaveBeenCalledWith(occurrenceId, expect.objectContaining({ date: new Date(2026, 2, 20, 10, 0).toISOString() }))
+    expect(mockOnClose).toHaveBeenCalledTimes(1)
   })
 
-  it('RecurrenceUpdateModal confirms with "single" scope', async () => {
-    const user = userEvent.setup()
-    const sessionToEdit = {
-      id: 's1',
-      clientId: 'c1',
-      date: new Date(2026, 2, 15, 10, 0).toISOString(),
-      durationMinutes: 60,
-      type: 'In-Person',
-      category: 'Workout',
-      completed: false,
-      notes: '',
-      linkedWorkoutId: '',
-      recurrenceId: 'rec-1',
-    }
+  it('locks the client when editing, since a session cannot change client', () => {
+    const sessionToEdit = { id: 's1', clientId: 'c1', date: new Date(2026, 2, 15, 10, 0).toISOString(), durationMinutes: 60, type: 'In-Person', category: 'Workout', completed: false }
 
     render(<SessionEditorModal {...defaultProps} sessionToEdit={sessionToEdit} />)
 
-    fireEvent.change(screen.getByDisplayValue('2026-03-15'), { target: { value: '2026-03-22', name: 'date' } })
-    fireEvent.submit(screen.getByText('common.save').closest('form')!)
-
-    await user.click(screen.getByText('onlyThis'))
-
-    expect(mockOnUpdate).toHaveBeenCalledWith('s1', expect.objectContaining({ clientId: 'c1' }), 'single')
-    expect(mockOnClose).toHaveBeenCalled()
-  })
-
-  it('RecurrenceUpdateModal cancel closes the prompt', async () => {
-    const user = userEvent.setup()
-    const sessionToEdit = {
-      id: 's1',
-      clientId: 'c1',
-      date: new Date(2026, 2, 15, 10, 0).toISOString(),
-      durationMinutes: 60,
-      type: 'In-Person',
-      category: 'Workout',
-      completed: false,
-      notes: '',
-      linkedWorkoutId: '',
-      recurrenceId: 'rec-1',
-    }
-
-    render(<SessionEditorModal {...defaultProps} sessionToEdit={sessionToEdit} />)
-
-    fireEvent.change(screen.getByDisplayValue('2026-03-15'), { target: { value: '2026-03-22', name: 'date' } })
-    fireEvent.submit(screen.getByText('common.save').closest('form')!)
-
-    // RecurrenceUpdateModal should be visible
-    expect(screen.getByText('editRecurring')).toBeInTheDocument()
-
-    // Click cancel in RecurrenceUpdateModal (its cancel button renders as just 'cancel')
-    const cancelBtn = screen.getByText('cancel')
-    await user.click(cancelBtn)
-
-    // The recurrence prompt should be closed
-    await waitFor(() => {
-      expect(screen.queryByText('editRecurring')).not.toBeInTheDocument()
-    })
-    // onUpdate should NOT have been called
-    expect(mockOnUpdate).not.toHaveBeenCalled()
+    expect(screen.getAllByRole('combobox')[0]).toBeDisabled()
   })
 
   it('changes interval value in RRULE builder', async () => {
@@ -501,7 +413,7 @@ describe('SessionEditorModal', () => {
   })
 
   it('sets Online type and Check-in category for Online client', () => {
-    const onlineClients = [makeClient({ id: 'c2', name: 'Jane Smith', type: 'Online', status: 'Active' })]
+    const onlineClients = [makeClient({ id: 'c2', name: 'Jane Smith', modality: 'ONLINE', status: 'ACTIVE' })]
     render(<SessionEditorModal {...defaultProps} clients={onlineClients} />)
 
     const form = screen.getByText('common.save').closest('form')

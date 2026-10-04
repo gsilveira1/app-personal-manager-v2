@@ -125,16 +125,23 @@
     "subtitle": "Renovación de acceso para",
     "method": "Método de Pago",
     "validUntil": "Nuevo Vencimiento",
-    "amount": "Monto Pagado (Opcional)",
+    "amount": "Monto Pagado",
     "notes": "Notas",
-    "confirm": "Confirmar Pago"
+    "confirm": "Confirmar Pago",
+    "amountRequired": "Informa el valor pagado.",
+    "saveError": "No se pudo registrar el pago."
   },
   "anamnesis": {
     "title": "Anamnesis e Historial de Salud",
     "subtitle": "Siga las respuestas del cuestionario y evolución estética",
     "print": "Imprimir (Ctrl+P)",
     "requestReassessment": "Solicitar Reevaluación",
-    "photos": "Fotos Corporales"
+    "photos": "Fotos Corporales",
+    "loadError": "No se pudo cargar el historial de anamnesis.",
+    "pendingLabel": "Esperando respuesta ({{date}})",
+    "expiredLabel": "Enlace vencido ({{date}})",
+    "pendingNotice": "El alumno aún no respondió esta solicitud.",
+    "expiredNotice": "El enlace de esta solicitud venció sin respuesta. Solicita una nueva reevaluación."
   },
   "modality": "Modalidad",
   "modalityOnline": "En línea",
@@ -153,5 +160,9 @@
   "smoker": "Fumador",
   "drinker": "Consume alcohol",
   "healthObservations": "Observaciones de salud",
-  "healthObservationsPlaceholder": "Alergias, molestias articulares específicas, etc."
+  "healthObservationsPlaceholder": "Alergias, molestias articulares específicas, etc.",
+  "exportCsvError": "No se pudo exportar el CSV. Inténtalo de nuevo.",
+  "welcomeMessageFailed": "Alumno registrado, pero no se pudo enviar el mensaje de bienvenida. Reenvía el enlace desde el perfil del alumno.",
+  "addClientError": "No se pudo registrar al alumno.",
+  "statusChangeError": "No se pudo cambiar el estado del alumno."
 }

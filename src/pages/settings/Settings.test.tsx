@@ -12,7 +12,7 @@ const mockAddPlan = vi.fn()
 const mockUpdatePlan = vi.fn()
 const mockDeletePlan = vi.fn()
 const mockUpdateAiPromptInstructions = vi.fn()
-const mockFetchSystemFeatures = vi.fn()
+const mockFetchPlanFeatures = vi.fn().mockResolvedValue(undefined)
 
 const mockPlans = [
   { id: 'p1', type: 'PRESENCIAL' as const, name: 'Plano A', sessionsPerWeek: 3, durationMinutes: 60, price: 300 },
@@ -27,8 +27,8 @@ vi.mock('../../states/stores/store', () => ({
     deletePlan: mockDeletePlan,
     aiPromptInstructions: 'test instructions',
     updateAiPromptInstructions: mockUpdateAiPromptInstructions,
-    systemFeatures: [],
-    fetchSystemFeatures: mockFetchSystemFeatures,
+    planFeatures: [],
+    fetchPlanFeatures: mockFetchPlanFeatures,
     workHours: {
       monday: { enabled: true, start: '07:00', end: '19:00' },
       tuesday: { enabled: true, start: '07:00', end: '19:00' },
@@ -68,10 +68,6 @@ vi.mock('../../components/organisms/settings/PlanEditorModal', () => ({
         <button onClick={() => onSave({ name: 'New Plan', type: 'PRESENCIAL', sessionsPerWeek: 2, price: 150 })}>save</button>
       </div>
     ) : null,
-}))
-
-vi.mock('../../components/organisms/settings/SystemFeaturesSection', () => ({
-  SystemFeaturesSection: () => <div data-testid="system-features" />,
 }))
 
 vi.mock('../../components/organisms/settings/WorkHoursEditor', () => ({
@@ -120,14 +116,16 @@ describe('Settings', () => {
     expect(screen.getByTestId('plan-modal')).toBeInTheDocument()
   })
 
-  it('calls fetchSystemFeatures on mount', () => {
+  it('loads the plan feature catalogue on mount', () => {
     renderPage()
-    expect(mockFetchSystemFeatures).toHaveBeenCalled()
+    expect(mockFetchPlanFeatures).toHaveBeenCalled()
   })
 
-  it('does not render SystemFeaturesSection for non-admin', () => {
+  it('tells the trainer when the plan feature catalogue cannot be loaded', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    mockFetchPlanFeatures.mockRejectedValueOnce(new Error('boom'))
     renderPage()
-    expect(screen.queryByTestId('system-features')).not.toBeInTheDocument()
+    expect(await screen.findByRole('alert')).toHaveTextContent('planFeaturesLoadError')
   })
 
   it('calls updateAiPromptInstructions when textarea changes', async () => {
@@ -177,6 +175,7 @@ describe('Settings', () => {
 describe('Settings (admin)', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockFetchPlanFeatures.mockResolvedValue(undefined)
     mockUserRole = 'admin'
   })
 
@@ -184,12 +183,13 @@ describe('Settings (admin)', () => {
     mockUserRole = 'trainer'
   })
 
-  it('renders SystemFeaturesSection for admin user', () => {
+  it('has no feature administration: the catalogue is defined by the API', () => {
     render(
       <MemoryRouter>
         <Settings />
       </MemoryRouter>
     )
-    expect(screen.getByTestId('system-features')).toBeInTheDocument()
+    expect(screen.queryByText('systemFeatures')).not.toBeInTheDocument()
+    expect(screen.queryByText('newFeature')).not.toBeInTheDocument()
   })
 })

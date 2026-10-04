@@ -16,10 +16,10 @@ export interface PortalWorkoutSheetResponse {
       exercises: Array<{
         workoutExerciseId: string
         exerciseName: string
-        gifUrl: string
+        gifUrl: string | null
         sets: number
         reps: string
-        executionNotes?: string
+        executionNotes?: string | null
         lastLoadKg: number | null
       }>
     }>
@@ -36,7 +36,7 @@ export const recordPortalSession = async (
     workoutId: string
     durationSeconds: number
     completedAt?: string
-    loads?: Array<{ workoutExerciseId: string; loadKg: number }>
+    loads?: Array<{ workoutExerciseId: string; loadKg?: number; completed?: boolean }>
   }
 ): Promise<{ message: string; sessionId: string; durationSeconds: number }> => {
   return apiClient<{ message: string; sessionId: string; durationSeconds: number }>(`/student/sessions?token=${encodeURIComponent(token)}`, {

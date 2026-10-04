@@ -1,88 +1,74 @@
-import { type Session } from '../../types'
+import { type NewSession, type SessionUpdate } from '../../types'
 import apiClient from '../../utils/apiClient'
+import { occurrenceId, toSession, toSessionCreateBody, toSessionUpdateBody, type SessionWire } from './mappers/sessionMapper'
 
 /**
- * Retrieves all sessions.
+ * Retrieves the one-off sessions (no range: recurring series are not expanded).
  */
-export const getSessions = async () => apiClient<Session[]>('/sessions')
+export const getSessions = async () => (await apiClient<SessionWire[]>('/sessions')).map(toSession)
 
 /**
- * Retrieves sessions for a specific date range.
+ * Retrieves sessions for a date range: one-off sessions, the occurrences of every
+ * recurring series, and their non-cancelled exceptions.
  */
-export const getSessionsForRange = async (start: Date, end: Date) => apiClient<Session[]>(`/sessions?start=${start.toISOString()}&end=${end.toISOString()}`)
+export const getSessionsForRange = async (start: Date, end: Date) =>
+  (await apiClient<SessionWire[]>(`/sessions?start=${encodeURIComponent(start.toISOString())}&end=${encodeURIComponent(end.toISOString())}`)).map(toSession)
 
 /**
- * Creates a single session.
+ * Creates a session. With `rrule` it creates a recurring series and the answer is
+ * the series master; without it, a one-off session (409 when the slot is taken or blocked).
  */
-export const createSession = async (session: Omit<Session, 'id' | 'completed'>) =>
-  apiClient<Session>('/sessions', {
-    method: 'POST',
-    body: JSON.stringify(session),
-  })
+export const createSession = async (session: NewSession) =>
+  toSession(
+    await apiClient<SessionWire>('/sessions', {
+      method: 'POST',
+      body: JSON.stringify(toSessionCreateBody(session)),
+    })
+  )
 
 /**
- * Creates a recurring event series in the schedule.
+ * Creates a recurring series: a session whose `rrule` is set, starting at `date`.
  */
-export const createRecurringEvent = async (dto: {
-  rrule: string
-  timezone: string
-  dtstart: string
-  durationMinutes: number
-  type: string
-  category: string
-  clientId: string
-  linkedWorkoutId?: string
-  notes?: string
-}) =>
-  apiClient<{ id: string }>('/sessions/recurring-event', {
-    method: 'POST',
-    body: JSON.stringify(dto),
-  })
+export const createRecurringEvent = async (series: NewSession & { rrule: string }) => createSession(series)
 
 /**
- * Deletes a recurring series of sessions.
+ * Updates a session. `id` is the UUID of a one-off session or the occurrence id of
+ * a series (`<seriesId>_<ISO start>`), in which case only that occurrence changes.
+ * A whole series cannot be edited (400): delete it and create it again.
  */
-export const deleteRecurringSeries = async (id: string) => apiClient<void>(`/sessions/recurring-event/${id}`, { method: 'DELETE' })
+export const updateSession = async (id: string, updates: SessionUpdate) =>
+  toSession(
+    await apiClient<SessionWire>(`/sessions/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      body: JSON.stringify(toSessionUpdateBody(updates)),
+    })
+  )
 
 /**
- * Creates or updates an exception in a recurring series.
+ * Creates or updates the exception of one occurrence of a recurring series.
  */
-export const upsertSessionException = async (dto: {
-  recurringEventId: string
-  originalStartTime: string
-  cancelled?: boolean
-  newStartTime?: string
-  durationMinutes?: number
-  notes?: string
-  completed?: boolean
-}) =>
-  apiClient<{ id: string }>('/sessions/exception', {
-    method: 'PATCH',
-    body: JSON.stringify(dto),
-  })
+export const upsertSessionException = async (dto: { recurringEventId: string; originalStartTime: string } & SessionUpdate) => {
+  const { recurringEventId, originalStartTime, ...updates } = dto
+  return updateSession(occurrenceId(recurringEventId, originalStartTime), updates)
+}
 
 /**
- * Updates a single session.
+ * Deletes a session. A one-off UUID removes the session, a series master UUID
+ * removes the whole series, and an occurrence id cancels that occurrence only.
  */
-export const updateSession = async (id: string, updates: Partial<Session>) =>
-  apiClient<Session>(`/sessions/${id}`, {
-    method: 'PATCH',
-    body: JSON.stringify(updates),
-  })
+export const deleteSession = async (id: string) => apiClient<void>(`/sessions/${encodeURIComponent(id)}`, { method: 'DELETE' })
 
 /**
- * Updates a session with a target scope (single or future).
+ * Deletes a recurring series of sessions (its exceptions go with it).
  */
-export const updateSessionWithScope = async (id: string, updates: Partial<Session>, scope: 'single' | 'future') =>
-  apiClient<Session>(`/sessions/${id}/scope`, {
-    method: 'PATCH',
-    body: JSON.stringify({ ...updates, scope }),
-  })
+export const deleteRecurringSeries = async (seriesId: string) => deleteSession(seriesId)
 
 /**
- * Toggles the completion status of a session.
+ * Toggles the completion status of a session or of one occurrence of a series.
  */
 export const toggleSessionComplete = async (id: string) =>
-  apiClient<Session>(`/sessions/${id}/toggle-complete`, {
-    method: 'POST',
-  })
+  toSession(
+    await apiClient<SessionWire>(`/sessions/${encodeURIComponent(id)}/toggle-complete`, {
+      method: 'POST',
+    })
+  )

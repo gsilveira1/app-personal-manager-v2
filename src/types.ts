@@ -101,25 +101,20 @@ export const ClientModality = {
 } as const
 export type ClientModality = 'PRESENCIAL' | 'ONLINE' | 'HYBRID'
 
-export type ClientType = 'In-Person' | 'Online'
-export type StudentModality = ClientModality
-export type StudentSubscriptionStatus = ClientStatus
+/** Billing state of a client's subscription; not the client status. */
+export type BillingStatus = 'ACTIVE' | 'CANCELED' | 'PAST_DUE' | 'INCOMPLETE'
+/** Outcome of the welcome/anamnesis message triggered by creating a client. */
+export type WelcomeMessageOutcome = 'QUEUED' | 'SKIPPED' | 'FAILED'
 export type CheckInFrequency = 'Weekly' | 'Bi-weekly' | 'Monthly'
 
-export interface SystemFeature {
-  id: string
-  key: string
-  name: string
-  description?: string
-  isActive: boolean
-  createdAt?: string
-  _count?: { plans: number }
-}
+/** Keys a plan can enable (`PlanFeatureKey`). The catalogue lives in the API code. */
+export type PlanFeatureKey = 'ai_whatsapp_bot' | 'video_exercise_upload' | 'automated_pix' | 'posture_correction' | 'advanced_metrics'
 
-export interface PlanFeature {
-  planId: string
-  featureId: string
-  feature: SystemFeature
+/** Row of `GET /plan-features`: display data of one plan feature key. */
+export interface PlanFeatureDescriptor {
+  key: PlanFeatureKey
+  name: string
+  description: string
 }
 
 export interface Plan {
@@ -130,9 +125,13 @@ export interface Plan {
   durationMinutes?: number // 30, 45, 60, 90 — null for CONSULTORIA
   price: number
   active?: boolean
+  /** Feature keys enabled for the plan. */
+  features?: PlanFeatureKey[]
+  userId?: string
   createdAt?: string
-  features?: PlanFeature[]
-  featureIds?: string[]
+  updatedAt?: string
+  /** Live clients on the plan. */
+  _count?: { clients: number }
 }
 
 // New detailed types for Evaluation
@@ -189,30 +188,51 @@ export interface Client {
   avatar?: string
   planId?: string // Links to a Plan
   plan?: Plan | { id?: string; name?: string }
-  activeWorkoutSheet?: { id: string; name: string; expiresAt?: string } | null
+  activeWorkoutSheet?: { id: string; name: string; expiresAt?: string | null } | null
   notificationEnabled?: boolean
-  // Optional legacy fields for component graceful degradation
-  whatsapp?: string
-  type?: ClientType
-  subscriptionStatus?: ClientStatus
+  /** Billing status of the subscription (ACTIVE / CANCELED / …). Read-only. */
+  subscriptionStatus?: BillingStatus
+  userId?: string
+  createdAt?: string
+  updatedAt?: string
 }
 
-export interface ManualPayment {
+export type PaymentMethod = 'PIX' | 'CASH' | 'CARD'
+
+/** A recorded payment (`PaymentView`). */
+export interface Payment {
   id: string
   clientId: string
-  paymentType: 'MANUAL_PIX' | 'MANUAL_CASH' | 'MANUAL_CARD'
-  validUntil: string
+  userId: string
+  provider: 'MANUAL' | 'STRIPE' | 'ASAAS' | 'MERCADOPAGO'
+  status: 'PENDING' | 'PAID' | 'FAILED' | 'REFUNDED'
+  amount: number
+  method?: PaymentMethod
+  externalId?: string
+  date: string
+  periodEnd?: string
   notes?: string
-  amount?: number
   createdAt: string
+  updatedAt: string
 }
 
+/** Body of `POST /clients/:id/payments`. `amount` is required. */
+export interface RecordPaymentBody {
+  amount: number
+  method: PaymentMethod
+  periodEnd: string
+  notes?: string
+}
+
+/** `AnamnesisView`: a pending request or a submitted anamnesis, flattened. */
 export interface AnamnesisRecord {
   id: string
   clientId: string
+  status: 'PENDING' | 'EXPIRED' | 'SUBMITTED'
+  /** True for the submitted record with the latest date. */
   isCurrent: boolean
-  token?: string
-  tokenUsed?: boolean
+  tokenUsed: boolean
+  date: string
   medicalHistory?: string
   injuriesAndPain?: string
   routineAndSchedule?: string
@@ -231,30 +251,36 @@ export interface ExerciseCatalogItem {
   id: string
   name: string
   bodyPart: string
-  targetMuscle?: string
+  targetMuscle?: string | null
   equipment: string
-  gifUrl?: string
-  videoUrl?: string
+  gifUrl?: string | null
+  videoUrl?: string | null
   isCustom: boolean
 }
 
+/**
+ * One exercise of a workout sheet (`WorkoutExerciseEntry`). `id` is stable: sessions
+ * and execution logs point at it, so an edit sends it back unchanged. It is absent
+ * only on an entry the builder has not saved yet.
+ */
 export interface WorkoutSheetExercise {
   id?: string
-  workoutExerciseId?: string
-  exerciseId?: string
+  exerciseId?: string | null
   exerciseName: string
-  gifUrl?: string
+  gifUrl?: string | null
   sets: number
   reps: string
   suggestedLoadKg?: number | null
-  executionNotes?: string
-  lastLoadKg?: number | null
+  executionNotes?: string | null
+  isWarmup?: boolean
   orderIndex?: number
 }
 
+export type WorkoutBlockType = 'REGULAR' | 'BISET' | 'TRISET'
+
 export interface WorkoutSheetBlock {
   id?: string
-  type: 'REGULAR' | 'BISET' | 'TRISET'
+  type: WorkoutBlockType
   orderIndex?: number
   restTimeSeconds: number
   exercises: WorkoutSheetExercise[]
@@ -268,22 +294,41 @@ export interface WorkoutSheetItem {
   blocks: WorkoutSheetBlock[]
 }
 
+/**
+ * `WorkoutSheetView`: a client's sheet, or a template when `isTemplate` is true
+ * (then `clientId` is null).
+ */
 export interface WorkoutSheet {
   id: string
   name: string
   expiresAt?: string | null
   active: boolean
-  clientId: string
+  isTemplate: boolean
+  clientId: string | null
+  userId?: string
+  description?: string | null
+  tags: string[]
   workouts: WorkoutSheetItem[]
   createdAt?: string
+  updatedAt?: string
 }
 
-export interface WorkoutTemplate {
-  id: string
+/** A template is a workout sheet with `isTemplate` set. */
+export type WorkoutTemplate = WorkoutSheet
+
+/** Body of the sheet and template writes (`SheetBody`). */
+export interface WorkoutSheetBody {
   name: string
+  expiresAt?: string
+  workouts: WorkoutSheetItem[]
   description?: string
-  structure: any
-  createdAt: string
+  tags?: string[]
+}
+
+/** Row of `GET /workout-sheets/expiring`. */
+export interface ExpiringSheet {
+  client: { id: string; name: string; avatar: string | null; phone: string }
+  sheet: { id: string; name: string; expiresAt: string }
 }
 
 export interface ActivityHeatmapDay {
@@ -301,17 +346,80 @@ export interface ActivityHeatmapData {
   days: ActivityHeatmapDay[]
 }
 
+export type SessionStatus = 'SCHEDULED' | 'COMPLETED' | 'CANCELLED'
+
+/**
+ * `SessionView`. `id` is a UUID for a stored session, or
+ * `<seriesId>_<ISO originalStartTime>` for an occurrence of a recurring series.
+ */
 export interface Session {
   id: string
   clientId: string
   date: string // ISO string
   durationMinutes: number
   type: 'In-Person' | 'Online'
-  category: 'Workout' | 'Check-in'
+  /** 'Workout' | 'Check-in' | 'Evaluation' */
+  category: string
   completed: boolean
   notes?: string
-  linkedWorkoutId?: string
+  status?: SessionStatus
+  cancelled?: boolean
+  /** Workout sheet (or template) linked to the session, and the item of it to run. */
+  workoutSheetId?: string
+  workoutSegmentId?: string
+  /** The resolved segment, when the pointer still resolves. */
+  workout?: { id: string; name: string; letter: string }
+  client?: { name: string; avatar: string | null }
+  timezone?: string
+  /** True for every occurrence of a series. */
+  isVirtual?: boolean
+  /** Series master id (`recurrenceId` carries the same value). */
+  recurringEventId?: string
   recurrenceId?: string
+  originalStartTime?: string
+  /** Id of the stored exception of this occurrence, if any. */
+  exceptionId?: string
+  /** The series rule, on occurrences. */
+  rrule?: string
+  userId?: string
+}
+
+/** What the schedule sends to create a session; `rrule` turns it into a series. */
+export interface NewSession {
+  clientId: string
+  date: string
+  durationMinutes: number
+  type: 'In-Person' | 'Online'
+  category: string
+  notes?: string
+  completed?: boolean
+  workoutSheetId?: string
+  workoutSegmentId?: string
+  rrule?: string
+  timezone?: string
+}
+
+/** Fields `PATCH /sessions/:id` accepts (`UpdateSessionBody`). The client cannot be changed. */
+export interface SessionUpdate {
+  date?: string
+  durationMinutes?: number
+  type?: 'In-Person' | 'Online'
+  category?: string
+  notes?: string
+  completed?: boolean
+  cancelled?: boolean
+  workoutSheetId?: string | null
+  workoutSegmentId?: string | null
+}
+
+/**
+ * Where a flat exercise sits in the template it was read from. Kept so that saving
+ * the flat editor sends the structure ids back unchanged.
+ */
+export interface WorkoutExerciseRef {
+  id: string
+  itemId: string
+  blockId: string
 }
 
 export interface WorkoutExercise {
@@ -321,8 +429,13 @@ export interface WorkoutExercise {
   weight?: string
   notes?: string
   isWarmup?: boolean
+  ref?: WorkoutExerciseRef
 }
 
+/**
+ * Flat view of a workout template for the library and the simple editor. The API
+ * stores a structured sheet; `source` keeps its items so an edit can rebuild it.
+ */
 export interface WorkoutPlan {
   id: string
   clientId?: string
@@ -332,6 +445,9 @@ export interface WorkoutPlan {
   exercises: WorkoutExercise[]
   tags: string[]
   createdAt: string
+  /** First item of the stored structure: the segment a session links to. */
+  itemId?: string
+  source?: WorkoutSheetItem[]
 }
 
 export type ProtocolType = 'POLLOCK_3' | 'POLLOCK_7' | 'PETROSKI_4' | 'DURNIN_WOMERSLEY_4'
@@ -354,6 +470,9 @@ export interface Evaluation {
   notes?: string
   skinfolds?: Skinfolds
   perimeters?: Perimeters
+  client?: { name: string; avatar: string | null }
+  createdAt?: string
+  updatedAt?: string
 }
 
 // --- Availability / Work Hours ---
@@ -383,6 +502,9 @@ export interface AvailabilityBlock {
   dtstart: string
   dtend: string
   notes?: string | null
+  userId?: string
+  createdAt?: string
+  updatedAt?: string
 }
 
 export interface MaterializedBlock {
