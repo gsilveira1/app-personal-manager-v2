@@ -25,20 +25,5 @@ export default tseslint.config(
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrors: 'none', ignoreRestSiblings: true }],
     },
   },
-  eslintPluginPrettierRecommended,
-  {
-    rules: {
-      'prettier/prettier': [
-        'error',
-        {
-          printWidth: 200,
-          singleQuote: true,
-          semi: false,
-          trailingComma: 'es5',
-          tabWidth: 2,
-          useTabs: false,
-        },
-      ],
-    },
-  }
+  eslintPluginPrettierRecommended
 )

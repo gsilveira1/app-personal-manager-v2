@@ -22,5 +22,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["vite.config.ts"]
+  "include": ["astro.config.mjs", "vitest.config.ts", "pwa-assets.config.ts"]
 }
