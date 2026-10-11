@@ -1,19 +1,37 @@
+# Dependencies & caches
 node_modules
-dist
 .astro
+
+# Source code & tooling (not needed in release runtime)
+src
+package*.json
+tsconfig*.json
+astro.config.*
+vitest.config.*
+eslint.config.*
+.prettierrc*
+pwa-assets.config.*
+
+# Sensitive files & environments
+.env*
+
+# Git, IDEs, and Agent metadata
 .git
 .github
 .vscode
 .agent
 .claude
-.env*
-!.env.example
+
+# Testing & reports
 coverage
 playwright-report
 test-results
+tests
+
+# Logs & documentation
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-README.md
+*.md

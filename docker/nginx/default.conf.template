@@ -33,7 +33,7 @@ server {
   }
 
   # PWA Service Worker, Manifest, and Favicon: never cache or revalidate immediately
-  location ~* ^/(sw\.js|service-worker\.js|workbox-.*\.js|manifest\.webmanifest|site\.webmanifest|favicon\.ico|robots\.txt)$ {
+  location ~* ^/(sw\.js|workbox-.*\.js|manifest\.webmanifest|site\.webmanifest|favicon\.ico|robots\.txt)$ {
     try_files $uri =404;
     include /etc/nginx/snippets/security-headers.conf;
     add_header Cache-Control "no-cache, no-store, must-revalidate" always;
