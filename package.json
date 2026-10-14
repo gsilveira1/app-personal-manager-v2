@@ -10,6 +10,7 @@
     "dev": "astro dev --host",
     "build": "astro build",
     "check": "astro check",
+    "typecheck": "astro check",
     "preview": "astro preview",
     "lint": "eslint .",
     "test": "vitest run",
