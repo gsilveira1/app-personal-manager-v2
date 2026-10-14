@@ -1,7 +1,7 @@
-import { Outlet } from 'react-router'
+import type { ReactNode } from 'react'
 import { Dumbbell } from 'lucide-react'
 
-export const AuthPageLayout = () => {
+export const AuthPageLayout = ({ children }: { children?: ReactNode }) => {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
       <div className="flex items-center space-x-2 mb-8">
@@ -10,9 +10,7 @@ export const AuthPageLayout = () => {
         </div>
         <span className="text-2xl font-bold tracking-tight text-slate-800">PersonalMgr</span>
       </div>
-      <div className="w-full max-w-sm">
-        <Outlet />
-      </div>
+      <div className="w-full max-w-sm">{children}</div>
     </div>
   )
 }

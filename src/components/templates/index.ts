@@ -1,2 +1,7 @@
 export { DashboardLayout } from './DashboardLayout'
 export { AuthPageLayout } from './AuthPageLayout'
+export { AppShell } from './AppShell'
+export { ProtectedPage } from './ProtectedPage'
+export { SetupWizardPage } from './SetupWizardPage'
+export { AuthPage } from './AuthPage'
+export { PublicPage } from './PublicPage'

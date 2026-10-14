@@ -1,9 +1,8 @@
-import { useState } from 'react'
-import { Outlet } from 'react-router'
+import { useState, type ReactNode } from 'react'
 import { Sidebar } from '../organisms/layout/Sidebar'
 import { AppHeader } from '../organisms/layout/AppHeader'
 
-export const DashboardLayout = ({ children }: { children?: React.ReactNode }) => {
+export const DashboardLayout = ({ children }: { children?: ReactNode }) => {
   const [isSidebarOpen, setSidebarOpen] = useState(false)
 
   return (
@@ -14,7 +13,7 @@ export const DashboardLayout = ({ children }: { children?: React.ReactNode }) =>
         <AppHeader onToggleSidebar={() => setSidebarOpen(true)} />
 
         <main className="flex-1 p-4 md:p-8 overflow-auto">
-          <div className="max-w-7xl mx-auto w-full">{children ?? <Outlet />}</div>
+          <div className="max-w-7xl mx-auto w-full">{children}</div>
         </main>
       </div>
 

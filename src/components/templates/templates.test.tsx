@@ -1,11 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 
-// Mock react-router Outlet
-vi.mock('react-router', () => ({
-  Outlet: () => <div data-testid="outlet">Outlet Content</div>,
-}))
-
 // Mock Sidebar and AppHeader organisms
 vi.mock('../organisms/layout/Sidebar', () => ({
   Sidebar: ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => (
@@ -28,8 +23,20 @@ vi.mock('lucide-react', () => ({
   Dumbbell: ({ className }: { className?: string }) => <svg data-testid="dumbbell-icon" className={className} />,
 }))
 
-import { DashboardLayout } from './DashboardLayout'
-import { AuthPageLayout } from './AuthPageLayout'
+import { DashboardLayout as BareDashboardLayout } from './DashboardLayout'
+import { AuthPageLayout as BareAuthPageLayout } from './AuthPageLayout'
+
+const Content = () => <div data-testid="outlet">Outlet Content</div>
+const DashboardLayout = () => (
+  <BareDashboardLayout>
+    <Content />
+  </BareDashboardLayout>
+)
+const AuthPageLayout = () => (
+  <BareAuthPageLayout>
+    <Content />
+  </BareAuthPageLayout>
+)
 
 describe('DashboardLayout', () => {
   it('renders the Sidebar component', () => {
@@ -42,7 +49,7 @@ describe('DashboardLayout', () => {
     expect(screen.getByTestId('app-header')).toBeInTheDocument()
   })
 
-  it('renders the Outlet for nested routes', () => {
+  it('renders the page content', () => {
     render(<DashboardLayout />)
     expect(screen.getByTestId('outlet')).toBeInTheDocument()
     expect(screen.getByText('Outlet Content')).toBeInTheDocument()
@@ -118,7 +125,7 @@ describe('AuthPageLayout', () => {
     expect(screen.getByTestId('dumbbell-icon')).toBeInTheDocument()
   })
 
-  it('renders the Outlet for nested auth routes', () => {
+  it('renders the page content', () => {
     render(<AuthPageLayout />)
     expect(screen.getByTestId('outlet')).toBeInTheDocument()
     expect(screen.getByText('Outlet Content')).toBeInTheDocument()
@@ -130,7 +137,7 @@ describe('AuthPageLayout', () => {
     expect(brand).toHaveClass('text-2xl', 'font-bold')
   })
 
-  it('wraps outlet in a max-width container', () => {
+  it('wraps the content in a max-width container', () => {
     render(<AuthPageLayout />)
     const outlet = screen.getByTestId('outlet')
     expect(outlet.parentElement).toHaveClass('max-w-sm')
