@@ -20,7 +20,9 @@ export const ForgotPassword = () => {
       await api.requestPasswordReset(email)
       setIsSubmitted(true)
     } catch (err) {
-      // In a real app, you might show an error, but here we'll just succeed.
+      // The visitor always sees success so the form cannot be used to enumerate accounts,
+      // but the failure (HTTP status included in the ApiError) is logged for monitoring.
+      console.error('[ForgotPassword] Password reset request failed:', err)
       setIsSubmitted(true)
     } finally {
       setIsLoading(false)
