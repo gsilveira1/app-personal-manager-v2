@@ -9,7 +9,7 @@ import { spaFallbackPath } from './src/utils/spaFallback.ts'
 const env = loadEnv(process.env.NODE_ENV ?? 'development', process.cwd(), '')
 const apiProxyTarget = process.env.API_PROXY_TARGET ?? env.API_PROXY_TARGET ?? 'http://localhost:9090'
 
-// Dev-only twin of the Nginx SPA fallback: router-only paths get the page that mounts the router.
+// Dev-only twin of the nginx rewrites: paths with a dynamic segment get the page that reads it.
 const spaFallback = {
   name: 'spa-fallback',
   hooks: {
@@ -27,6 +27,11 @@ const spaFallback = {
 export default defineConfig({
   output: 'static',
   integrations: [react(), spaFallback],
+  // Aliases kept from the client-side router; a static redirect page is emitted for each.
+  redirects: {
+    '/dashboard': '/',
+    '/admin/tenants': '/admin/users',
+  },
   markdown: { syntaxHighlight: false },
   vite: {
     plugins: [
@@ -42,6 +47,9 @@ export default defineConfig({
         manifest: false,
         workbox: {
           globPatterns: ['**/*.{js,css,html,svg,png,ico,webmanifest}'],
+          // Multi-page app: every page is precached under its own URL. The default fallback
+          // would answer every navigation with index.html (the dashboard) once the worker is installed.
+          navigateFallback: null,
           cleanupOutdatedCaches: true,
           clientsClaim: true,
         },

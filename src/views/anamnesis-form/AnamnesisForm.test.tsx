@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter } from 'react-router-dom'
 import { AnamnesisForm } from './AnamnesisForm'
 import * as api from '../../services/api/apiService'
 
@@ -10,17 +9,18 @@ vi.mock('../../services/api/apiService', () => ({
   submitAnamnesis: vi.fn(),
 }))
 
+const renderAt = (url: string) => {
+  window.history.replaceState(null, '', url)
+  return render(<AnamnesisForm />)
+}
+
 describe('AnamnesisForm', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
   it('renders error when token is missing', async () => {
-    render(
-      <MemoryRouter initialEntries={['/anamnesis']}>
-        <AnamnesisForm />
-      </MemoryRouter>
-    )
+    renderAt('/anamnesis')
 
     expect(await screen.findByText('Token de anamnese não informado.')).toBeInTheDocument()
   })
@@ -32,11 +32,7 @@ describe('AnamnesisForm', () => {
       theme: { primaryColor: '#10B981', logoUrl: null },
     })
 
-    render(
-      <MemoryRouter initialEntries={['/anamnesis?token=valid-jwt']}>
-        <AnamnesisForm />
-      </MemoryRouter>
-    )
+    renderAt('/anamnesis?token=valid-jwt')
 
     expect(await screen.findByText(/Mariana Souza/)).toBeInTheDocument()
     expect(screen.getByText(/Viviana Personal/)).toBeInTheDocument()
@@ -54,11 +50,7 @@ describe('AnamnesisForm', () => {
       id: 'anam-1',
     })
 
-    render(
-      <MemoryRouter initialEntries={['/anamnesis?token=valid-jwt']}>
-        <AnamnesisForm />
-      </MemoryRouter>
-    )
+    renderAt('/anamnesis?token=valid-jwt')
 
     const goalsInput = await screen.findByPlaceholderText(/Ex: Hipertrofia, emagrecimento/i)
     await user.type(goalsInput, 'Hipertrofia e condicionamento')

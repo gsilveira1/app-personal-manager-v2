@@ -13,14 +13,6 @@ vi.mock('../../../utils/dateLocale', () => ({
   formatLocalized: (_date: unknown, fmt: string) => `formatted-${fmt}`,
 }))
 
-vi.mock('react-router-dom', () => ({
-  Link: ({ children, to, ...rest }: any) => (
-    <a href={to} {...rest}>
-      {children}
-    </a>
-  ),
-}))
-
 // ---- Test data factories ----
 
 const makeSession = (overrides: Record<string, unknown> = {}) => ({

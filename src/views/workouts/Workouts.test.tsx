@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter } from 'react-router-dom'
 import { Workouts } from './Workouts'
 
 vi.mock('react-i18next', () => ({
@@ -76,12 +75,7 @@ describe('Workouts', () => {
     vi.clearAllMocks()
   })
 
-  const renderPage = () =>
-    render(
-      <MemoryRouter>
-        <Workouts />
-      </MemoryRouter>
-    )
+  const renderPage = () => render(<Workouts />)
 
   it('renders page title and tab bar', () => {
     renderPage()

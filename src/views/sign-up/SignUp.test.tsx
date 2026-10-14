@@ -1,12 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter } from 'react-router-dom'
 import { SignUp } from './SignUp'
 
-const mockNavigate = vi.fn()
-vi.mock('react-router', () => ({
-  useNavigate: () => mockNavigate,
+const mockNavigateTo = vi.fn()
+vi.mock('../../utils/navigation', () => ({
+  navigateTo: (...args: unknown[]) => mockNavigateTo(...args),
 }))
 
 vi.mock('react-i18next', () => ({
@@ -23,12 +22,7 @@ describe('SignUp', () => {
     vi.clearAllMocks()
   })
 
-  const renderSignUp = () =>
-    render(
-      <MemoryRouter>
-        <SignUp />
-      </MemoryRouter>
-    )
+  const renderSignUp = () => render(<SignUp />)
 
   it('renders name, email, and password fields', () => {
     renderSignUp()
@@ -49,7 +43,7 @@ describe('SignUp', () => {
 
     await waitFor(() => {
       expect(mockSignup).toHaveBeenCalledWith('Test User', 'test@test.com', 'password123')
-      expect(mockNavigate).toHaveBeenCalledWith('/login')
+      expect(mockNavigateTo).toHaveBeenCalledWith('/login')
     })
   })
 
@@ -66,11 +60,12 @@ describe('SignUp', () => {
     await waitFor(() => {
       expect(screen.getByText('Email taken')).toBeInTheDocument()
     })
+    expect(mockNavigateTo).not.toHaveBeenCalled()
   })
 
   it('renders sign in link', () => {
     renderSignUp()
-    expect(screen.getByText('signIn')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'signIn' })).toHaveAttribute('href', '/login')
   })
 
   it('renders role badge and auto-provision notice', () => {

@@ -1,8 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
-import App from '../App'
+import ScheduleIsland from '../islands/ScheduleIsland'
 ---
 
 <BaseLayout title="Agenda">
-  <App client:only="react" />
+  <ScheduleIsland client:only="react" />
 </BaseLayout>

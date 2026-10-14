@@ -1,8 +1,7 @@
 import '@testing-library/jest-dom'
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter, useLocation } from 'react-router-dom'
 import { Notifications } from './Notifications'
 
 vi.mock('../../components/organisms/notifications', () => ({
@@ -26,15 +25,17 @@ vi.mock('react-i18next', () => ({
   }),
 }))
 
-const LocationProbe = () => <output data-testid="location-search">{useLocation().search}</output>
+/** Renders the view at the URL its Astro page would be served from. */
+const renderAt = (entry = '/notifications') => {
+  window.history.replaceState(null, '', entry)
+  return render(<Notifications />)
+}
 
-const renderAt = (entry = '/notifications') =>
-  render(
-    <MemoryRouter initialEntries={[entry]}>
-      <Notifications />
-      <LocationProbe />
-    </MemoryRouter>
-  )
+/** Simulates the browser's back button landing on `entry`. */
+const goBackTo = (entry: string) => {
+  window.history.replaceState(null, '', entry)
+  act(() => window.dispatchEvent(new PopStateEvent('popstate')))
+}
 
 const expectOnlyMounted = (testId: string) => {
   for (const id of ['mock-queue-section', 'mock-whatsapp-card', 'mock-automations-section']) {
@@ -74,7 +75,7 @@ describe('Notifications Page', () => {
 
     expect(screen.getByRole('tab', { name: 'Conexão WhatsApp' })).toHaveAttribute('aria-selected', 'true')
     expectOnlyMounted('mock-whatsapp-card')
-    expect(screen.getByTestId('location-search')).toHaveTextContent('?tab=whatsapp')
+    expect(window.location.search).toBe('?tab=whatsapp')
   })
 
   it('switches to the automations tab', async () => {
@@ -84,7 +85,7 @@ describe('Notifications Page', () => {
     await user.click(screen.getByRole('tab', { name: 'Automações' }))
 
     expectOnlyMounted('mock-automations-section')
-    expect(screen.getByTestId('location-search')).toHaveTextContent('?tab=automations')
+    expect(window.location.search).toBe('?tab=automations')
   })
 
   it('drops the tab parameter when returning to the default tab', async () => {
@@ -94,7 +95,20 @@ describe('Notifications Page', () => {
     await user.click(screen.getByRole('tab', { name: 'Fila de Disparos' }))
 
     expectOnlyMounted('mock-queue-section')
-    expect(screen.getByTestId('location-search')).toBeEmptyDOMElement()
+    expect(window.location.search).toBe('')
+  })
+
+  it('follows the browser back button to the previous tab', async () => {
+    const user = userEvent.setup()
+    renderAt()
+
+    await user.click(screen.getByRole('tab', { name: 'Conexão WhatsApp' }))
+    expectOnlyMounted('mock-whatsapp-card')
+
+    goBackTo('/notifications?tab=queue')
+
+    expect(screen.getByRole('tab', { name: 'Fila de Disparos' })).toHaveAttribute('aria-selected', 'true')
+    expectOnlyMounted('mock-queue-section')
   })
 
   it.each([

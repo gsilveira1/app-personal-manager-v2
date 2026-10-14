@@ -2,7 +2,6 @@ import '@testing-library/jest-dom'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter } from 'react-router-dom'
 import { ResetPassword } from './ResetPassword'
 
 vi.mock('react-i18next', () => ({
@@ -21,12 +20,7 @@ describe('ResetPassword', () => {
     window.location.search = ''
   })
 
-  const renderPage = () =>
-    render(
-      <MemoryRouter>
-        <ResetPassword />
-      </MemoryRouter>
-    )
+  const renderPage = () => render(<ResetPassword />)
 
   it('renders invalid token message when no token is present in URL', () => {
     window.location.hash = '#/reset-password'
@@ -37,6 +31,8 @@ describe('ResetPassword', () => {
     expect(screen.getByText('invalidTokenTitle')).toBeInTheDocument()
     expect(screen.getByText('invalidTokenSubtitle')).toBeInTheDocument()
     expect(screen.getByText('requestNewLink')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'requestNewLink' })).toHaveAttribute('href', '/forgot-password')
+    expect(screen.getByRole('link', { name: 'signIn' })).toHaveAttribute('href', '/login')
   })
 
   it('renders password and confirm password fields when token is present', () => {
@@ -86,6 +82,7 @@ describe('ResetPassword', () => {
       expect(screen.getByText('passwordResetSuccessTitle')).toBeInTheDocument()
       expect(screen.getByText('goToLogin')).toBeInTheDocument()
     })
+    expect(screen.getByRole('link', { name: 'goToLogin' })).toHaveAttribute('href', '/login')
   })
 
   it('shows error message if API fails with error', async () => {

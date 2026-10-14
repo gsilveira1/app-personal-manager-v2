@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Calendar as CalendarIcon, Clock, User, ArrowUpRight, Save, X, Edit2 } from 'lucide-react'
 import { parseISO } from 'date-fns'
@@ -35,10 +34,10 @@ const SessionDetailsModal = ({ session, clients, workouts, onClose, onUpdate, on
               {client?.avatar ? <img src={client.avatar} alt={client.name} className="h-full w-full object-cover" /> : <User className="h-6 w-6 text-slate-400" />}
             </div>
             <div className="min-w-0">
-              <Link to={`/clients/${client?.id}`} className="group flex items-center gap-2">
+              <a href={`/clients/${client?.id}`} className="group flex items-center gap-2">
                 <h2 className="text-lg sm:text-xl font-bold text-slate-900 group-hover:text-indigo-600 truncate">{client?.name || '...'}</h2>
                 <ArrowUpRight className="h-4 w-4 text-slate-400 group-hover:text-indigo-600" />
-              </Link>
+              </a>
               <div className="flex flex-wrap items-center text-slate-500 text-sm gap-x-3">
                 <span className="flex items-center">
                   <CalendarIcon className="h-3 w-3 mr-1" /> {formatLocalized(parseISO(session.date), 'MMM d, yyyy')}

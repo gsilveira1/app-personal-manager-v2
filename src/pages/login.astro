@@ -1,8 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
-import App from '../App'
+import LoginIsland from '../islands/LoginIsland'
 ---
 
 <BaseLayout title="Login">
-  <App client:only="react" />
+  <LoginIsland client:only="react" />
 </BaseLayout>

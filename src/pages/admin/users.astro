@@ -1,8 +1,8 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro'
-import App from '../../App'
+import AdminUsersIsland from '../../islands/AdminUsersIsland'
 ---
 
 <BaseLayout title="Super Admin">
-  <App client:only="react" />
+  <AdminUsersIsland client:only="react" />
 </BaseLayout>

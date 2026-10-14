@@ -2,12 +2,11 @@ import '@testing-library/jest-dom'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter } from 'react-router-dom'
 import { Login } from './Login'
 
-const mockNavigate = vi.fn()
-vi.mock('react-router', () => ({
-  useNavigate: () => mockNavigate,
+const mockNavigateTo = vi.fn()
+vi.mock('../../utils/navigation', () => ({
+  navigateTo: (...args: unknown[]) => mockNavigateTo(...args),
 }))
 
 vi.mock('react-i18next', () => ({
@@ -28,12 +27,7 @@ describe('Login', () => {
     vi.clearAllMocks()
   })
 
-  const renderLogin = () =>
-    render(
-      <MemoryRouter>
-        <Login />
-      </MemoryRouter>
-    )
+  const renderLogin = () => render(<Login />)
 
   it('renders email and password fields', () => {
     renderLogin()
@@ -57,7 +51,7 @@ describe('Login', () => {
 
     await waitFor(() => {
       expect(mockLogin).toHaveBeenCalledWith('trainer@test.com', 'password123')
-      expect(mockNavigate).toHaveBeenCalledWith('/')
+      expect(mockNavigateTo).toHaveBeenCalledWith('/')
     })
   })
 
@@ -91,8 +85,21 @@ describe('Login', () => {
 
   it('renders forgot password and sign up links', () => {
     renderLogin()
-    expect(screen.getByText('forgotPassword')).toBeInTheDocument()
-    expect(screen.getByText('signUp')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'forgotPassword' })).toHaveAttribute('href', '/forgot-password')
+    expect(screen.getByRole('link', { name: 'signUp' })).toHaveAttribute('href', '/signup')
+  })
+
+  it('does not navigate when login fails', async () => {
+    mockLogin.mockRejectedValue(new Error('Invalid credentials'))
+    const user = userEvent.setup()
+    renderLogin()
+
+    await user.type(screen.getByLabelText('email'), 'bad@test.com')
+    await user.type(screen.getByLabelText('password'), 'wrong')
+    await user.click(screen.getByRole('button', { name: 'signIn' }))
+
+    await screen.findByText('Invalid credentials')
+    expect(mockNavigateTo).not.toHaveBeenCalled()
   })
 
   it('toggles password visibility when eye button is clicked', async () => {

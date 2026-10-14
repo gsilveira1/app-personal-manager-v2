@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
 import { CheckCircle2, Upload, AlertTriangle, ShieldCheck } from 'lucide-react'
 import { Card, Button, Input, Label } from '../../components/atoms'
 import * as api from '../../services/api/apiService'
+import { useUrlSearchParams } from '../../hooks/useUrlSearchParams'
 
 export const AnamnesisForm = () => {
-  const [searchParams] = useSearchParams()
-  const token = searchParams.get('token') || (typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('token') : null)
+  const [searchParams] = useUrlSearchParams()
+  const token = searchParams.get('token')
 
   const [metadata, setMetadata] = useState<api.AnamnesisFormMetadata | null>(null)
   const [isLoading, setIsLoading] = useState(true)

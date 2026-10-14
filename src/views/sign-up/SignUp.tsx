@@ -1,10 +1,9 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router'
-import { Link } from 'react-router-dom'
 import { Dumbbell, Eye, EyeOff, Loader2, Sparkles } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { useAuthStore } from '../../states/stores/auth/authStore'
+import { navigateTo } from '../../utils/navigation'
 import { Card, Button, Input, Label } from '../../components/ui'
 
 /**
@@ -18,7 +17,6 @@ export const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const navigate = useNavigate()
   const { signup } = useAuthStore()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -27,7 +25,7 @@ export const SignUp = () => {
     setIsLoading(true)
     try {
       await signup(name, email, password)
-      navigate('/login')
+      navigateTo('/login')
     } catch (err: any) {
       setError(err.message || t('failedSignup'))
     } finally {
@@ -93,9 +91,9 @@ export const SignUp = () => {
 
       <p className="text-center text-sm text-slate-500 mt-6">
         {t('alreadyHaveAccount')}{' '}
-        <Link to="/login" className="font-medium text-indigo-600 hover:underline">
+        <a href="/login" className="font-medium text-indigo-600 hover:underline">
           {t('signIn')}
-        </Link>
+        </a>
       </p>
     </Card>
   )

@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import * as api from '../../services/api/apiService'
 import { Card, Button, Input, Label } from '../../components/ui'
@@ -56,9 +55,9 @@ export const ForgotPassword = () => {
       )}
       <p className="text-center text-sm text-slate-500 mt-6">
         {t('rememberedPassword')}{' '}
-        <Link to="/login" className="font-medium text-indigo-600 hover:underline">
+        <a href="/login" className="font-medium text-indigo-600 hover:underline">
           {t('signIn')}
-        </Link>
+        </a>
       </p>
     </Card>
   )

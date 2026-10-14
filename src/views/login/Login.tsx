@@ -1,10 +1,9 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router'
-import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Eye, EyeOff, Loader2 } from 'lucide-react'
 
 import { useAuthStore } from '../../states/stores/auth/authStore'
+import { navigateTo } from '../../utils/navigation'
 import { Card, Button, Input, Label } from '../../components/ui'
 
 /**
@@ -17,7 +16,6 @@ export const Login = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const navigate = useNavigate()
   const { login } = useAuthStore()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -26,7 +24,7 @@ export const Login = () => {
     setIsLoading(true)
     try {
       await login(email.trim(), password)
-      navigate('/')
+      navigateTo('/')
     } catch (err: any) {
       setError(err.message || t('failedLogin'))
     } finally {
@@ -50,9 +48,9 @@ export const Login = () => {
         <div className="space-y-2">
           <div className="flex justify-between items-center">
             <Label htmlFor="password">{t('password')}</Label>
-            <Link to="/forgot-password" className="text-xs text-indigo-600 hover:underline">
+            <a href="/forgot-password" className="text-xs text-indigo-600 hover:underline">
               {t('forgotPassword')}
-            </Link>
+            </a>
           </div>
           <div className="relative">
             <Input id="password" type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" className="pr-10" />
@@ -77,9 +75,9 @@ export const Login = () => {
 
       <p className="text-center text-sm text-slate-500 mt-6">
         {t('noAccount')}{' '}
-        <Link to="/signup" className="font-medium text-indigo-600 hover:underline">
+        <a href="/signup" className="font-medium text-indigo-600 hover:underline">
           {t('signUp')}
-        </Link>
+        </a>
       </p>
     </Card>
   )

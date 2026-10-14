@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { Sparkles, Users, Dumbbell, CalendarDays, Activity } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
 
 import { useStore } from '../../states/stores/store'
+import { navigateTo } from '../../utils/navigation'
 import { type WorkoutPlan, type Client, ClientStatus } from '../../types'
 import { TabBar } from '../../components/molecules/TabBar'
 import { ClientAvatar } from '../../components/molecules/ClientAvatar'
@@ -17,7 +17,6 @@ import { Card, Button } from '../../components/atoms'
 export const Workouts = () => {
   const { t } = useTranslation('workouts')
   const { t: tc } = useTranslation('clients')
-  const navigate = useNavigate()
   const { workouts, addWorkout, updateWorkout, deleteWorkout, clients, addSession, addEvaluation } = useStore()
   const [activeTab, setActiveTab] = useState<'clients' | 'library' | 'ai'>('clients')
 
@@ -84,7 +83,7 @@ export const Workouts = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {activeClients.map((client) => (
             <Card key={client.id} className="p-4 flex flex-col space-y-4 hover:shadow-md transition-shadow">
-              <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigate(`/clients/${client.id}`)}>
+              <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigateTo(`/clients/${client.id}`)}>
                 <ClientAvatar name={client.name} avatar={client.avatar} size="lg" />
                 <div>
                   <h3 className="font-medium text-slate-900">{client.name}</h3>

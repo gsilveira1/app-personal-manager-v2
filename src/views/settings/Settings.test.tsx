@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter } from 'react-router-dom'
 import { Settings } from './Settings'
 
 vi.mock('react-i18next', () => ({
@@ -83,12 +82,7 @@ describe('Settings', () => {
     vi.clearAllMocks()
   })
 
-  const renderPage = () =>
-    render(
-      <MemoryRouter>
-        <Settings />
-      </MemoryRouter>
-    )
+  const renderPage = () => render(<Settings />)
 
   it('renders page title', () => {
     renderPage()
@@ -201,11 +195,7 @@ describe('Settings (admin)', () => {
   })
 
   it('has no feature administration: the catalogue is defined by the API', () => {
-    render(
-      <MemoryRouter>
-        <Settings />
-      </MemoryRouter>
-    )
+    render(<Settings />)
     expect(screen.queryByText('systemFeatures')).not.toBeInTheDocument()
     expect(screen.queryByText('newFeature')).not.toBeInTheDocument()
   })

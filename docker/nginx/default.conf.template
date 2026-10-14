@@ -48,9 +48,23 @@ server {
     add_header Cache-Control "public, max-age=31536000, immutable" always;
   }
 
-  # Astro MPA static pages with SPA fallback for dynamic routes
+  # Pages with a dynamic segment: the island reads the id from the pathname.
+  # Keep in sync with DYNAMIC_ROUTES in src/utils/spaFallback.ts (guarded by its test).
+  location ~ ^/clients/[^/]+/?$ {
+    try_files /client-details/index.html =404;
+    include /etc/nginx/snippets/security-headers.conf;
+    add_header Cache-Control "no-cache, must-revalidate" always;
+  }
+
+  location ~ ^/p/[^/.]+/?$ {
+    try_files /workout-player/index.html =404;
+    include /etc/nginx/snippets/security-headers.conf;
+    add_header Cache-Control "no-cache, must-revalidate" always;
+  }
+
+  # Astro MPA static pages; anything else is a real 404
   location / {
-    try_files $uri $uri/index.html $uri.html /index.html;
+    try_files $uri $uri/index.html $uri.html =404;
     include /etc/nginx/snippets/security-headers.conf;
     add_header Cache-Control "no-cache, must-revalidate" always;
   }

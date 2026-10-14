@@ -1,6 +1,5 @@
 import React from 'react'
 import { AlertTriangle } from 'lucide-react'
-import { useNavigate } from 'react-router'
 import { parseISO } from 'date-fns'
 import { useTranslation } from 'react-i18next'
 
@@ -8,6 +7,7 @@ import { useStore } from '../../../states/stores/store'
 import { type Session } from '../../../types'
 import { Card, Button } from '../../atoms'
 import { formatLocalized } from '../../../utils/dateLocale'
+import { navigateTo } from '../../../utils/navigation'
 
 interface ConflictsCardProps {
   conflicts: Session[][]
@@ -16,7 +16,6 @@ interface ConflictsCardProps {
 export const ConflictsCard: React.FC<ConflictsCardProps> = ({ conflicts }) => {
   const { clients } = useStore()
   const { t } = useTranslation('schedule')
-  const navigate = useNavigate()
 
   return (
     <Card data-testid="conflicts-card" className="col-span-full bg-red-50 border-red-200 animate-in fade-in">
@@ -48,7 +47,7 @@ export const ConflictsCard: React.FC<ConflictsCardProps> = ({ conflicts }) => {
             </div>
           ))}
         </div>
-        <Button variant="danger" className="mt-4 w-full" onClick={() => navigate('/schedule')}>
+        <Button variant="danger" className="mt-4 w-full" onClick={() => navigateTo('/schedule')}>
           {t('resolveConflicts')}
         </Button>
       </div>

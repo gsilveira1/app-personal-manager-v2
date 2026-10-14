@@ -1,9 +1,9 @@
 import { useState, useMemo } from 'react'
-import { useNavigate } from 'react-router'
 import { UserPlus, Clock, TrendingUp } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { useStore } from '../../states/stores/store'
+import { navigateTo } from '../../utils/navigation'
 import { ClientStatus } from '../../types'
 import { StatCard } from '../../components/molecules/StatCard'
 import { EmptyState } from '../../components/molecules/EmptyState'
@@ -17,7 +17,6 @@ import type { Client } from '../../types'
  */
 export const Leads = () => {
   const { t } = useTranslation('leads')
-  const navigate = useNavigate()
   const { clients, plans, updateClient, convertLead } = useStore()
   const [selectedLead, setSelectedLead] = useState<Client | null>(null)
 
@@ -50,7 +49,7 @@ export const Leads = () => {
   const handleConvert = async (id: string, planId?: string) => {
     await convertLead(id, planId)
     setSelectedLead(null)
-    navigate(`/clients/${id}`)
+    navigateTo(`/clients/${id}`)
   }
 
   const handleMarkLost = async (id: string) => {

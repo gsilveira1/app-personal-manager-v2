@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
 import { SetupWizard } from './SetupWizard'
 import { useAccountStore } from '../../states/stores/account/accountStore'
 import { useAuthStore } from '../../states/stores/auth/authStore'
@@ -8,31 +7,38 @@ import { useAuthStore } from '../../states/stores/auth/authStore'
 vi.mock('../../states/stores/account/accountStore')
 vi.mock('../../states/stores/auth/authStore')
 
+const mockNavigateTo = vi.fn()
+vi.mock('../../utils/navigation', () => ({
+  navigateTo: (...args: unknown[]) => mockNavigateTo(...args),
+}))
+
 describe('SetupWizard', () => {
   const mockFetchAccount = vi.fn()
   const mockCheckAuthStatus = vi.fn()
 
+  const accountState = (setupCompleted: boolean): ReturnType<typeof useAccountStore> => ({
+    account: {
+      id: 't-1',
+      name: 'Vivi Studio',
+      slug: 'vivi',
+      setupCompleted,
+    } as any,
+    fetchAccount: mockFetchAccount,
+    updateBranding: vi.fn(),
+    uploadLogo: vi.fn(),
+    setPrimaryColorPreview: vi.fn(),
+    connectWhatsapp: vi.fn(),
+    checkWhatsappStatus: vi.fn(),
+    completeSetup: vi.fn(),
+    isLoading: false,
+    error: null,
+    qrCode: null,
+    whatsappStatus: null,
+  })
+
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.mocked(useAccountStore).mockReturnValue({
-      account: {
-        id: 't-1',
-        name: 'Vivi Studio',
-        slug: 'vivi',
-        setupCompleted: false,
-      } as any,
-      fetchAccount: mockFetchAccount,
-      updateBranding: vi.fn(),
-      uploadLogo: vi.fn(),
-      setPrimaryColorPreview: vi.fn(),
-      connectWhatsapp: vi.fn(),
-      checkWhatsappStatus: vi.fn(),
-      completeSetup: vi.fn(),
-      isLoading: false,
-      error: null,
-      qrCode: null,
-      whatsappStatus: null,
-    })
+    vi.mocked(useAccountStore).mockReturnValue(accountState(false))
 
     vi.mocked(useAuthStore).mockReturnValue({
       user: { id: 'u-1', name: 'Trainer' } as any,
@@ -48,14 +54,19 @@ describe('SetupWizard', () => {
   })
 
   it('renders setup wizard and step 1 by default', () => {
-    render(
-      <MemoryRouter>
-        <SetupWizard />
-      </MemoryRouter>
-    )
+    render(<SetupWizard />)
 
     expect(screen.getByTestId('setup-wizard-page')).toBeInTheDocument()
     expect(screen.getByTestId('branding-step')).toBeInTheDocument()
     expect(mockFetchAccount).toHaveBeenCalled()
+    expect(mockNavigateTo).not.toHaveBeenCalled()
+  })
+
+  it('redirects to the dashboard (replacing history) when setup is already completed', () => {
+    vi.mocked(useAccountStore).mockReturnValue(accountState(true))
+
+    render(<SetupWizard />)
+
+    expect(mockNavigateTo).toHaveBeenCalledWith('/', { replace: true })
   })
 })

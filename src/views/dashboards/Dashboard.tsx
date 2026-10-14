@@ -1,5 +1,4 @@
 import { Calendar, UserPlus, AlertCircle, Activity } from 'lucide-react'
-import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '../../components/atoms'
@@ -27,9 +26,9 @@ export const Dashboard = () => {
           <h1 className="text-2xl font-bold text-slate-900">{t('dashboard')}</h1>
           <p className="text-slate-500">{t('welcomeSubtitle')}</p>
         </div>
-        <Link to="/schedule">
+        <a href="/schedule">
           <Button>+ {ts('newSession')}</Button>
-        </Link>
+        </a>
       </div>
 
       {conflicts.length > 0 && <ConflictsCard conflicts={conflicts} />}

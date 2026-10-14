@@ -2,7 +2,6 @@ import '@testing-library/jest-dom'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter } from 'react-router-dom'
 import { Schedule } from './Schedule'
 
 vi.mock('react-i18next', () => ({
@@ -126,12 +125,7 @@ describe('Schedule', () => {
     vi.clearAllMocks()
   })
 
-  const renderPage = () =>
-    render(
-      <MemoryRouter>
-        <Schedule />
-      </MemoryRouter>
-    )
+  const renderPage = () => render(<Schedule />)
 
   it('renders page title', () => {
     renderPage()

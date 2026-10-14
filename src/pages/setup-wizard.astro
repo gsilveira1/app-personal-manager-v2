@@ -1,8 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
-import App from '../App'
+import SetupWizardIsland from '../islands/SetupWizardIsland'
 ---
 
 <BaseLayout title="Configuração Inicial">
-  <App client:only="react" />
+  <SetupWizardIsland client:only="react" />
 </BaseLayout>

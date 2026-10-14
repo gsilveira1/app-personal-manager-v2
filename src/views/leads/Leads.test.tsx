@@ -1,16 +1,16 @@
 import '@testing-library/jest-dom'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
 import { Leads } from './Leads'
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }))
 
-const mockNavigate = vi.fn()
-vi.mock('react-router', () => ({
-  useNavigate: () => mockNavigate,
+const mockNavigateTo = vi.fn()
+vi.mock('../../utils/navigation', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../utils/navigation')>()),
+  navigateTo: (...args: unknown[]) => mockNavigateTo(...args),
 }))
 
 const mockUpdateClient = vi.fn().mockResolvedValue(undefined)
@@ -122,12 +122,7 @@ describe('Leads', () => {
     ]
   })
 
-  const renderPage = () =>
-    render(
-      <MemoryRouter>
-        <Leads />
-      </MemoryRouter>
-    )
+  const renderPage = () => render(<Leads />)
 
   it('renders page title', () => {
     renderPage()
@@ -185,7 +180,7 @@ describe('Leads', () => {
     fireEvent.click(screen.getByText('convert'))
     await waitFor(() => {
       expect(mockConvertLead).toHaveBeenCalledWith('l1', 'p1')
-      expect(mockNavigate).toHaveBeenCalledWith('/clients/l1')
+      expect(mockNavigateTo).toHaveBeenCalledWith('/clients/l1')
     })
   })
 

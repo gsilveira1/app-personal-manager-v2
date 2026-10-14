@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useMemo } from 'react'
-import { useNavigate } from 'react-router'
 import { Phone, Mail, Globe, MapPin, Eye, Pencil, Wallet, User, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
@@ -8,6 +7,7 @@ import type { Client, Plan } from '../../../types'
 import { Card, Button, Badge } from '../../atoms'
 import { SearchBar, Pagination } from '../../molecules'
 import { usePagination } from '../../../hooks/usePagination'
+import { navigateTo } from '../../../utils/navigation'
 
 export type ClientSortField = 'name' | 'status' | 'plan' | 'modality' | 'email'
 export type SortDirection = 'asc' | 'desc'
@@ -37,7 +37,6 @@ export interface ClientsTableProps {
 export const ClientsTable: React.FC<ClientsTableProps> = ({ clients, plans, searchTerm, onSearchChange, onEditClient, initialItemsPerPage = 10 }) => {
   const { t } = useTranslation('clients')
   const { t: tco } = useTranslation('common')
-  const navigate = useNavigate()
 
   const [sortField, setSortField] = useState<ClientSortField | null>(null)
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
@@ -145,7 +144,7 @@ export const ClientsTable: React.FC<ClientsTableProps> = ({ clients, plans, sear
               const statusVariant = client.status === ClientStatus.ACTIVE ? 'success' : client.status === ClientStatus.PAUSED ? 'warning' : client.status === ClientStatus.OVERDUE ? 'error' : 'default'
 
               return (
-                <tr key={client.id} data-testid={`client-row-${client.id}`} className="hover:bg-slate-50 transition-colors cursor-pointer" onClick={() => navigate(`/clients/${client.id}`)}>
+                <tr key={client.id} data-testid={`client-row-${client.id}`} className="hover:bg-slate-50 transition-colors cursor-pointer" onClick={() => navigateTo(`/clients/${client.id}`)}>
                   <td className="px-6 py-4">
                     <div className="flex items-center space-x-3">
                       {client.avatar ? (
@@ -233,7 +232,7 @@ export const ClientsTable: React.FC<ClientsTableProps> = ({ clients, plans, sear
                         title={tco('view')}
                         onClick={(e) => {
                           e.stopPropagation()
-                          navigate(`/clients/${client.id}`)
+                          navigateTo(`/clients/${client.id}`)
                         }}
                       >
                         <Eye className="h-4 w-4 text-slate-400 hover:text-indigo-600" />

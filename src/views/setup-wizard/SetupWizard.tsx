@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Palette, MessageSquare, ShieldCheck } from 'lucide-react'
 import { useAccountStore } from '../../states/stores/account/accountStore'
 import { useAuthStore } from '../../states/stores/auth/authStore'
+import { navigateTo } from '../../utils/navigation'
 import { BrandingStep } from './steps/BrandingStep'
 import { WhatsAppStep } from './steps/WhatsAppStep'
 
 export const SetupWizard: React.FC = () => {
   const { t } = useTranslation('setupWizard')
-  const navigate = useNavigate()
   const { fetchAccount, account } = useAccountStore()
   const { checkAuthStatus } = useAuthStore()
 
@@ -22,9 +21,9 @@ export const SetupWizard: React.FC = () => {
   // If already completed, redirect to dashboard
   useEffect(() => {
     if (account?.setupCompleted) {
-      navigate('/', { replace: true })
+      navigateTo('/', { replace: true })
     }
-  }, [account?.setupCompleted, navigate])
+  }, [account?.setupCompleted])
 
   const handleStep1Complete = () => {
     setCurrentStep(2)
@@ -33,7 +32,7 @@ export const SetupWizard: React.FC = () => {
   const handleStep2Complete = async () => {
     // Refresh auth store so user.setupCompleted is updated in global state
     await checkAuthStatus()
-    navigate('/', { replace: true })
+    navigateTo('/', { replace: true })
   }
 
   return (

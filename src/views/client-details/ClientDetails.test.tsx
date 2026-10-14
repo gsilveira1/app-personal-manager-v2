@@ -1,17 +1,16 @@
 import '@testing-library/jest-dom'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
-import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { ClientDetails } from './ClientDetails'
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }))
 
-const mockNavigate = vi.fn()
-vi.mock('react-router', () => ({
-  useParams: () => ({ id: 'c1' }),
-  useNavigate: () => mockNavigate,
+const mockNavigateTo = vi.fn()
+vi.mock('../../utils/navigation', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../utils/navigation')>()),
+  navigateTo: (...args: unknown[]) => mockNavigateTo(...args),
 }))
 
 vi.mock('../../utils/dateLocale', () => ({
@@ -202,14 +201,11 @@ describe('ClientDetails', () => {
     }
   })
 
-  const renderPage = () =>
-    render(
-      <MemoryRouter initialEntries={['/clients/c1']}>
-        <Routes>
-          <Route path="/clients/:id" element={<ClientDetails />} />
-        </Routes>
-      </MemoryRouter>
-    )
+  /** Renders the view at the URL its Astro page would be served from, so it reads the id from the pathname. */
+  const renderPage = () => {
+    window.history.replaceState(null, '', '/clients/c1')
+    return render(<ClientDetails />)
+  }
 
   it('renders client profile header with name', () => {
     renderPage()
@@ -251,7 +247,7 @@ describe('ClientDetails', () => {
     mockStoreClients = []
     renderPage()
     fireEvent.click(screen.getByText('backToClients'))
-    expect(mockNavigate).toHaveBeenCalledWith('/clients')
+    expect(mockNavigateTo).toHaveBeenCalledWith('/clients')
   })
 
   it('navigates to /clients when back arrow button is clicked', () => {
@@ -259,7 +255,7 @@ describe('ClientDetails', () => {
     // The first backToClients text is the back button
     const backButtons = screen.getAllByText('backToClients')
     fireEvent.click(backButtons[0])
-    expect(mockNavigate).toHaveBeenCalledWith('/clients')
+    expect(mockNavigateTo).toHaveBeenCalledWith('/clients')
   })
 
   it('shows heatmap and empty session history on initial history tab', () => {

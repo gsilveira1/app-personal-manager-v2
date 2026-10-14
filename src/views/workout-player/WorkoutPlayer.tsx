@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from 'react'
-import { useSearchParams } from 'react-router-dom'
 import { Play, Check, Clock, MessageSquare, AlertTriangle, Trophy, Sparkles } from 'lucide-react'
 import { Card, Button, Input } from '../../components/atoms'
 import * as api from '../../services/api/apiService'
+import { useUrlSearchParams } from '../../hooks/useUrlSearchParams'
 
 export const WorkoutPlayer = () => {
-  const [searchParams] = useSearchParams()
-  const token = searchParams.get('token') || (typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('token') : null)
+  const [searchParams] = useUrlSearchParams()
+  const token = searchParams.get('token')
 
   const [data, setData] = useState<api.PortalWorkoutSheetResponse | null>(null)
   const [activeWorkoutIdx, setActiveWorkoutIdx] = useState(0)

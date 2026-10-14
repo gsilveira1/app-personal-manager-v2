@@ -3,7 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react'
 
 // --- Mocks ---
 
-const mockNavigate = vi.fn()
+const mockNavigateTo = vi.fn()
 let mockClients: Array<{
   id: string
   name: string
@@ -20,12 +20,9 @@ vi.mock('react-i18next', () => ({
   }),
 }))
 
-vi.mock('react-router-dom', () => ({
-  Link: (props: any) => <a href={props.to}>{props.children}</a>,
-}))
-
-vi.mock('react-router', () => ({
-  useNavigate: () => mockNavigate,
+vi.mock('../../../utils/navigation', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../../utils/navigation')>()),
+  navigateTo: (...args: unknown[]) => mockNavigateTo(...args),
 }))
 
 vi.mock('../../../utils/dateLocale', () => ({
@@ -170,7 +167,7 @@ describe('ConflictsCard', () => {
 
     const resolveButton = screen.getByText('resolveConflicts').closest('button')!
     fireEvent.click(resolveButton)
-    expect(mockNavigate).toHaveBeenCalledWith('/schedule')
+    expect(mockNavigateTo).toHaveBeenCalledWith('/schedule')
   })
 
   it('renders with empty conflicts array without crashing', () => {
@@ -219,7 +216,7 @@ describe('ClientWatchlist', () => {
     const clients = [makeClient({ id: 'client-42', name: 'Alice Smith' })]
     render(<ClientWatchlist clients={clients} />)
 
-    // The Link renders as <a href="/clients/client-42">
+    // Each client renders as a plain <a href="/clients/client-42">
     const links = screen.getAllByRole('link')
     const clientLinks = links.filter((link) => link.getAttribute('href') === '/clients/client-42')
     expect(clientLinks.length).toBeGreaterThan(0)

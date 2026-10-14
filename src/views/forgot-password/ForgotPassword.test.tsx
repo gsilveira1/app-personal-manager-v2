@@ -2,7 +2,6 @@ import '@testing-library/jest-dom'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter } from 'react-router-dom'
 import { ForgotPassword } from './ForgotPassword'
 
 vi.mock('react-i18next', () => ({
@@ -21,12 +20,7 @@ describe('ForgotPassword', () => {
     vi.clearAllMocks()
   })
 
-  const renderPage = () =>
-    render(
-      <MemoryRouter>
-        <ForgotPassword />
-      </MemoryRouter>
-    )
+  const renderPage = () => render(<ForgotPassword />)
 
   it('renders email field and submit button', () => {
     renderPage()
@@ -62,6 +56,6 @@ describe('ForgotPassword', () => {
 
   it('renders sign in link', () => {
     renderPage()
-    expect(screen.getByText('signIn')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'signIn' })).toHaveAttribute('href', '/login')
   })
 })

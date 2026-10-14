@@ -4,7 +4,6 @@ import userEvent from '@testing-library/user-event'
 
 // --- Mocks ---
 
-const mockNavigate = vi.fn()
 const mockLogout = vi.fn().mockResolvedValue(undefined)
 const mockClearDataOnLogout = vi.fn()
 const mockUser = { id: '1', name: 'John Doe', email: 'john@example.com', role: 'trainer' }
@@ -16,20 +15,11 @@ vi.mock('react-i18next', () => ({
   }),
 }))
 
-vi.mock('react-router-dom', () => ({
-  NavLink: (props: any) => {
-    const { children, className, ...rest } = props
-    const cls = typeof className === 'function' ? className({ isActive: false }) : className
-    return (
-      <a href={rest.to} className={cls} onClick={rest.onClick}>
-        {children}
-      </a>
-    )
-  },
-}))
+const mockNavigateTo = vi.fn()
 
-vi.mock('react-router', () => ({
-  useNavigate: () => mockNavigate,
+vi.mock('../../../utils/navigation', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../../utils/navigation')>()),
+  navigateTo: (...args: unknown[]) => mockNavigateTo(...args),
 }))
 
 vi.mock('../../LanguageSwitcher', () => ({
@@ -86,6 +76,32 @@ describe('AppHeader', () => {
 describe('Sidebar', () => {
   beforeEach(() => {
     mockClients = []
+    window.history.replaceState(null, '', '/')
+  })
+
+  const currentLinks = () => screen.getAllByRole('link').filter((link) => link.getAttribute('aria-current') === 'page')
+
+  it('marks only the link of the current page with aria-current="page" and the active classes', () => {
+    window.history.replaceState(null, '', '/clients')
+    render(<Sidebar isOpen={true} onClose={vi.fn()} />)
+
+    const clientsLink = screen.getByTestId('nav-clients')
+    expect(currentLinks()).toEqual([clientsLink])
+    expect(clientsLink).toHaveClass('bg-indigo-600', 'text-white')
+    expect(screen.getByTestId('nav-dashboard')).not.toHaveAttribute('aria-current')
+    expect(screen.getByTestId('nav-dashboard')).toHaveClass('text-slate-300')
+    expect(screen.getByTestId('nav-dashboard')).not.toHaveClass('bg-indigo-600')
+  })
+
+  it('marks the dashboard link as current when the page is /dashboards, and no other link', () => {
+    window.history.replaceState(null, '', '/dashboards')
+    render(<Sidebar isOpen={true} onClose={vi.fn()} />)
+
+    const dashboardLink = screen.getByTestId('nav-dashboard')
+    expect(currentLinks()).toEqual([dashboardLink])
+    expect(dashboardLink).toHaveClass('bg-indigo-600', 'text-white')
+    expect(screen.getByTestId('nav-clients')).not.toHaveAttribute('aria-current')
+    expect(screen.getByTestId('nav-clients')).not.toHaveClass('bg-indigo-600')
   })
 
   it('renders the logo text "PersonalMgr"', () => {
@@ -214,7 +230,7 @@ describe('UserMenu', () => {
       await user.click(screen.getByTestId('user-menu-toggle'))
       await user.click(screen.getByTestId('user-menu-admin'))
 
-      expect(mockNavigate).toHaveBeenCalledWith('/admin/users')
+      expect(mockNavigateTo).toHaveBeenCalledWith('/admin/users')
       expect(screen.queryByTestId('user-menu-admin')).not.toBeInTheDocument()
     } finally {
       mockUser.role = 'trainer'
@@ -234,6 +250,6 @@ describe('UserMenu', () => {
 
     expect(mockLogout).toHaveBeenCalledTimes(1)
     expect(mockClearDataOnLogout).toHaveBeenCalledTimes(1)
-    expect(mockNavigate).toHaveBeenCalledWith('/login')
+    expect(mockNavigateTo).toHaveBeenCalledWith('/login')
   })
 })

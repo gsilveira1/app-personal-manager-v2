@@ -2,18 +2,12 @@ import '@testing-library/jest-dom'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter } from 'react-router-dom'
 import { Clients } from './Clients'
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string) => key,
   }),
-}))
-
-const mockNavigate = vi.fn()
-vi.mock('react-router', () => ({
-  useNavigate: () => mockNavigate,
 }))
 
 const mockAddClient = vi.fn()
@@ -67,12 +61,7 @@ describe('Clients', () => {
     vi.clearAllMocks()
   })
 
-  const renderClients = () =>
-    render(
-      <MemoryRouter>
-        <Clients />
-      </MemoryRouter>
-    )
+  const renderClients = () => render(<Clients />)
 
   it('renders page title', () => {
     renderClients()

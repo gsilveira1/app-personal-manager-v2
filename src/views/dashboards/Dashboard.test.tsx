@@ -1,7 +1,6 @@
 import '@testing-library/jest-dom'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
 import { Dashboard } from './Dashboard'
 
 vi.mock('react-i18next', () => ({
@@ -93,12 +92,7 @@ describe('Dashboard', () => {
     vi.clearAllMocks()
   })
 
-  const renderDashboard = () =>
-    render(
-      <MemoryRouter>
-        <Dashboard />
-      </MemoryRouter>
-    )
+  const renderDashboard = () => render(<Dashboard />)
 
   it('renders dashboard title', () => {
     renderDashboard()
@@ -115,7 +109,9 @@ describe('Dashboard', () => {
 
   it('renders new session link', () => {
     renderDashboard()
-    expect(screen.getByText(/newSession/)).toBeInTheDocument()
+    const link = screen.getByText(/newSession/).closest('a')
+    expect(link).toBeInTheDocument()
+    expect(link).toHaveAttribute('href', '/schedule')
   })
 
   it('renders weekly overview chart', () => {

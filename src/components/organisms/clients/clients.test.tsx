@@ -4,10 +4,11 @@ import userEvent from '@testing-library/user-event'
 
 // ---- Mocks ----
 
-const mockNavigate = vi.fn()
+const mockNavigateTo = vi.fn()
 
-vi.mock('react-router', () => ({
-  useNavigate: () => mockNavigate,
+vi.mock('../../../utils/navigation', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../../utils/navigation')>()),
+  navigateTo: (...args: unknown[]) => mockNavigateTo(...args),
 }))
 
 vi.mock('react-i18next', () => ({
@@ -105,7 +106,7 @@ describe('ClientsTable', () => {
     render(<ClientsTable clients={clients} plans={plans} searchTerm="" onSearchChange={vi.fn()} />)
 
     fireEvent.click(screen.getByText('Maria Silva'))
-    expect(mockNavigate).toHaveBeenCalledWith('/clients/c1')
+    expect(mockNavigateTo).toHaveBeenCalledWith('/clients/c1')
   })
 
   it('renders status badge for Active client', () => {
@@ -146,10 +147,10 @@ describe('ClientsTable', () => {
     const row = screen.getByTestId('client-row-c1')
     const buttonsInRow = row.querySelectorAll('button')
     const viewButton = buttonsInRow[buttonsInRow.length - 1]
-    mockNavigate.mockClear()
+    mockNavigateTo.mockClear()
     fireEvent.click(viewButton)
-    expect(mockNavigate).toHaveBeenCalledTimes(1)
-    expect(mockNavigate).toHaveBeenCalledWith('/clients/c1')
+    expect(mockNavigateTo).toHaveBeenCalledTimes(1)
+    expect(mockNavigateTo).toHaveBeenCalledWith('/clients/c1')
   })
 
   it('paginates clients correctly when initialItemsPerPage is specified', () => {

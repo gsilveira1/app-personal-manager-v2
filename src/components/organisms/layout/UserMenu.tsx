@@ -1,32 +1,31 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router'
 import { LogOut, Shield, User as UserIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { useAuthStore } from '../../../states/stores/auth/authStore'
 import { useStore } from '../../../states/stores/store'
+import { navigateTo } from '../../../utils/navigation'
 
 export const UserMenu: React.FC = () => {
   const { user, logout } = useAuthStore()
   const { clearDataOnLogout } = useStore()
-  const navigate = useNavigate()
   const [isOpen, setIsOpen] = useState(false)
   const { t } = useTranslation('common')
 
   const handleLogout = async () => {
     await logout()
     clearDataOnLogout()
-    navigate('/login')
+    navigateTo('/login')
   }
 
   const handleGoToProfile = () => {
     setIsOpen(false)
-    navigate('/settings')
+    navigateTo('/settings')
   }
 
   const handleGoToAdmin = () => {
     setIsOpen(false)
-    navigate('/admin/users')
+    navigateTo('/admin/users')
   }
 
   const avatarSrc = user?.avatar || `https://i.pravatar.cc/150?u=${encodeURIComponent(user?.email || 'trainer')}`

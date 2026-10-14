@@ -1,5 +1,4 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import type { Client } from '../../../types'
@@ -23,17 +22,17 @@ export const ClientWatchlist: React.FC<ClientWatchlistProps> = ({ clients }) => 
               <div className="flex items-center gap-3">
                 <img src={client.avatar} alt={client.name} className="h-9 w-9 rounded-full object-cover" />
                 <div>
-                  <Link to={`/clients/${client.id}`} className="text-sm font-semibold text-slate-800 hover:text-indigo-600">
+                  <a href={`/clients/${client.id}`} className="text-sm font-semibold text-slate-800 hover:text-indigo-600">
                     {client.name}
-                  </Link>
+                  </a>
                   <p className="text-xs text-slate-400">{tc('needsFollowUp')}</p>
                 </div>
               </div>
-              <Link to={`/clients/${client.id}`}>
+              <a href={`/clients/${client.id}`}>
                 <Button variant="secondary" className="h-8 px-3 text-xs">
                   {tco('view')}
                 </Button>
-              </Link>
+              </a>
             </div>
           ))
         ) : (

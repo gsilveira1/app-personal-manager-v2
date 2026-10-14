@@ -1,7 +1,6 @@
 import React from 'react'
 import { Calendar, CheckCircle2, Video, MapPin } from 'lucide-react'
 import { parseISO } from 'date-fns'
-import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import type { Session, Client } from '../../../types'
@@ -47,9 +46,9 @@ export const TodayAgenda: React.FC<TodayAgendaProps> = ({ sessions, clients, onT
                     <span className="font-bold text-indigo-600 text-sm w-16 text-center">{formatLocalized(parseISO(session.date), 'h:mm a')}</span>
                     <img src={client?.avatar} alt={client?.name} className="h-10 w-10 rounded-full object-cover" />
                     <div>
-                      <Link to={`/clients/${client?.id}`} className="font-semibold text-slate-800 hover:text-indigo-600">
+                      <a href={`/clients/${client?.id}`} className="font-semibold text-slate-800 hover:text-indigo-600">
                         {client?.name || tco('unknownClient')}
-                      </Link>
+                      </a>
                       <p className="text-xs text-slate-500 flex items-center gap-2 mt-0.5">
                         {session.type === 'Online' ? <Video className="h-3 w-3" /> : <MapPin className="h-3 w-3" />}
                         {session.type === 'Online' ? tc('online') : tc('inPerson')} {session.category === 'Check-in' ? tc('checkIn') : tc('workout')} • {session.durationMinutes} min

@@ -1,8 +1,8 @@
 import React from 'react'
-import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ListChecks, MessageCircle, Zap } from 'lucide-react'
 import { TabBar } from '../../components/molecules/TabBar'
+import { useUrlSearchParams } from '../../hooks/useUrlSearchParams'
 import { NotificationQueueSection, WhatsAppConnectionCard, NotificationAutomationsSection } from '../../components/organisms/notifications'
 
 const TAB_PARAM = 'tab'
@@ -21,7 +21,7 @@ const findTab = (id: string | null) => TABS.find((tab) => tab.id === id) ?? TABS
 
 export const Notifications: React.FC = () => {
   const { t } = useTranslation('notifications')
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useUrlSearchParams()
   const active = findTab(searchParams.get(TAB_PARAM))
 
   const handleTabChange = (tab: NotificationTab) => {

@@ -1,7 +1,7 @@
 import React from 'react'
-import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useStore } from '../../../states/stores/store'
+import { isActivePath } from '../../../utils/navigation'
 import { LayoutDashboard, Users, Calendar, Dumbbell, X, Settings, UserPlus, MessageSquare, Bell, Bot } from 'lucide-react'
 
 interface SidebarProps {
@@ -45,23 +45,25 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </button>
         </div>
         <nav className="flex-1 px-3 py-4 space-y-1">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              data-testid={`nav-${item.to === '/' ? 'dashboard' : item.to.slice(1).replace(/\//g, '-')}`}
-              onClick={() => window.innerWidth < 768 && onClose()}
-              className={({ isActive }) =>
-                `flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors group ${isActive ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`
-              }
-            >
-              <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
-              {item.label}
-              {item.badge !== undefined && (
-                <span className="ml-auto bg-red-500 text-white text-xs font-bold h-5 min-w-[20px] px-1 rounded-full flex items-center justify-center">{item.badge > 9 ? '9+' : item.badge}</span>
-              )}
-            </NavLink>
-          ))}
+          {navItems.map((item) => {
+            const isActive = isActivePath(item.to)
+            return (
+              <a
+                key={item.to}
+                href={item.to}
+                aria-current={isActive ? 'page' : undefined}
+                data-testid={`nav-${item.to === '/' ? 'dashboard' : item.to.slice(1).replace(/\//g, '-')}`}
+                onClick={() => window.innerWidth < 768 && onClose()}
+                className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors group ${isActive ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
+              >
+                <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
+                {item.label}
+                {item.badge !== undefined && (
+                  <span className="ml-auto bg-red-500 text-white text-xs font-bold h-5 min-w-[20px] px-1 rounded-full flex items-center justify-center">{item.badge > 9 ? '9+' : item.badge}</span>
+                )}
+              </a>
+            )
+          })}
         </nav>
       </div>
 

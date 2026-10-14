@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import * as api from '../../services/api/apiService'
 import { Card, Button, Input, Label } from '../../components/ui'
@@ -84,14 +83,14 @@ export const ResetPassword = () => {
           <h1 className="text-2xl font-bold text-slate-900">{t('invalidTokenTitle')}</h1>
           <p className="text-slate-500 text-sm mt-2">{t('invalidTokenSubtitle')}</p>
           <div className="mt-6">
-            <Link to="/forgot-password">
+            <a href="/forgot-password">
               <Button className="w-full">{t('requestNewLink')}</Button>
-            </Link>
+            </a>
           </div>
           <p className="text-center text-sm text-slate-500 mt-6">
-            <Link to="/login" className="font-medium text-emerald-600 hover:underline">
+            <a href="/login" className="font-medium text-emerald-600 hover:underline">
               {t('signIn')}
-            </Link>
+            </a>
           </p>
         </div>
       </Card>
@@ -107,9 +106,9 @@ export const ResetPassword = () => {
           <h1 className="text-2xl font-bold text-slate-900">{t('passwordResetSuccessTitle')}</h1>
           <p className="text-slate-500 text-sm mt-2">{t('passwordResetSuccessSubtitle')}</p>
           <div className="mt-6">
-            <Link to="/login">
+            <a href="/login">
               <Button className="w-full">{t('goToLogin')}</Button>
-            </Link>
+            </a>
           </div>
         </div>
       </Card>
@@ -160,9 +159,9 @@ export const ResetPassword = () => {
       </form>
 
       <p className="text-center text-sm text-slate-500 mt-6">
-        <Link to="/login" className="font-medium text-emerald-600 hover:underline">
+        <a href="/login" className="font-medium text-emerald-600 hover:underline">
           {t('signIn')}
-        </Link>
+        </a>
       </p>
     </Card>
   )

@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter } from 'react-router-dom'
 import { WorkoutPlayer } from './WorkoutPlayer'
 import * as api from '../../services/api/apiService'
 
@@ -10,6 +9,11 @@ vi.mock('../../services/api/apiService', () => ({
   recordPortalSession: vi.fn(),
 }))
 
+const renderAt = (url: string) => {
+  window.history.replaceState(null, '', url)
+  return render(<WorkoutPlayer />)
+}
+
 describe('WorkoutPlayer', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -17,11 +21,7 @@ describe('WorkoutPlayer', () => {
   })
 
   it('renders error when token is missing', async () => {
-    render(
-      <MemoryRouter initialEntries={['/workout-player']}>
-        <WorkoutPlayer />
-      </MemoryRouter>
-    )
+    renderAt('/workout-player')
 
     expect(await screen.findByText('Token de treino não informado.')).toBeInTheDocument()
   })
@@ -59,11 +59,7 @@ describe('WorkoutPlayer', () => {
       ],
     })
 
-    render(
-      <MemoryRouter initialEntries={['/workout-player?token=valid-jwt']}>
-        <WorkoutPlayer />
-      </MemoryRouter>
-    )
+    renderAt('/workout-player?token=valid-jwt')
 
     expect(await screen.findByText('Adaptação Hipertrofia')).toBeInTheDocument()
     expect(screen.getByText(/Treino A - Peito e Tríceps/)).toBeInTheDocument()
@@ -113,11 +109,7 @@ describe('WorkoutPlayer', () => {
       durationSeconds: 300,
     })
 
-    render(
-      <MemoryRouter initialEntries={['/workout-player?token=valid-jwt']}>
-        <WorkoutPlayer />
-      </MemoryRouter>
-    )
+    renderAt('/workout-player?token=valid-jwt')
 
     const startBtn = await screen.findByRole('button', { name: /Iniciar Treino de Hoje/i })
     await user.click(startBtn)

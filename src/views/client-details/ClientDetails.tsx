@@ -1,9 +1,9 @@
 import { useState, useRef } from 'react'
-import { useParams, useNavigate } from 'react-router'
 import { ArrowLeft, Save, Edit2, FileText, DollarSign, MessageCircle, PauseCircle, PlayCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { useStore } from '../../states/stores/store'
+import { clientIdFromPath, navigateTo } from '../../utils/navigation'
 import { Card, Button } from '../../components/atoms'
 import { useClientDetails } from '../../hooks/useClientDetails'
 import { ClientProfileHeader } from '../../components/organisms/client-details/ClientProfileHeader'
@@ -20,8 +20,7 @@ import type { MedicalHistory, RecordPaymentBody } from '../../types'
 
 export const ClientDetails = () => {
   const { t } = useTranslation('clients')
-  const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
+  const [id] = useState<string | undefined>(() => clientIdFromPath() ?? undefined)
   const { clients, sessions, evaluations, plans, updateClient, uploadClientAvatar, setClientStatus, recordClientPayment } = useStore()
 
   const [activeTab, setActiveTab] = useState<'history' | 'sheets' | 'anamnesis' | 'evaluations' | 'messages'>('history')
@@ -51,7 +50,7 @@ export const ClientDetails = () => {
     return (
       <div className="flex flex-col items-center justify-center h-96">
         <h2 className="text-xl font-semibold text-slate-900">{t('notFound')}</h2>
-        <Button variant="outline" className="mt-4" onClick={() => navigate('/clients')}>
+        <Button variant="outline" className="mt-4" onClick={() => navigateTo('/clients')}>
           {t('backToClients')}
         </Button>
       </div>
@@ -104,7 +103,7 @@ export const ClientDetails = () => {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <Button variant="ghost" onClick={() => navigate('/clients')} className="pl-0 text-slate-500 hover:text-slate-900">
+        <Button variant="ghost" onClick={() => navigateTo('/clients')} className="pl-0 text-slate-500 hover:text-slate-900">
           <ArrowLeft className="mr-2 h-4 w-4" /> {t('backToClients')}
         </Button>
 
