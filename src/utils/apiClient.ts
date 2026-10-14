@@ -10,8 +10,8 @@ export class ApiError extends Error {
 }
 
 // Same-origin by default: the Astro dev server and Nginx both proxy `/api` to the backend.
-// VITE_API_URL overrides it for setups that call the API on another origin.
-export const API_BASE_URL: string = import.meta.env.VITE_API_URL || '/api'
+// PUBLIC_API_URL overrides it for setups that call the API on another origin (Astro only exposes PUBLIC_* to the browser).
+export const API_BASE_URL: string = import.meta.env.PUBLIC_API_URL || '/api'
 
 /**
  * A wrapper around the Fetch API to make authenticated requests to the backend.

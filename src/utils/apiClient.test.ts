@@ -23,8 +23,20 @@ vi.stubGlobal('localStorage', localStorageMock)
 import apiClient, { API_BASE_URL, ApiError } from './apiClient'
 
 describe('apiClient', () => {
-  it('defaults to the same-origin /api prefix when VITE_API_URL is not set', () => {
+  it('defaults to the same-origin /api prefix when PUBLIC_API_URL is not set', () => {
     expect(API_BASE_URL).toBe('/api')
+  })
+
+  it('reads the API origin from PUBLIC_API_URL, the only prefix Astro exposes to the browser', async () => {
+    vi.stubEnv('PUBLIC_API_URL', 'https://api.example.test/api')
+    vi.resetModules()
+    try {
+      const fresh = await import('./apiClient')
+      expect(fresh.API_BASE_URL).toBe('https://api.example.test/api')
+    } finally {
+      vi.unstubAllEnvs()
+      vi.resetModules()
+    }
   })
 
   const mockFetch = vi.fn()
