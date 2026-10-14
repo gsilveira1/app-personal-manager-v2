@@ -1,17 +1,8 @@
-import { defineConfig } from 'vitest/config'
-import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
-import { VitePWA } from 'vite-plugin-pwa'
+/// <reference types="vitest/config" />
+import { getViteConfig } from 'astro/config'
 
-export default defineConfig({
-  plugins: [
-    react(),
-    tailwindcss(),
-    VitePWA({
-      registerType: 'autoUpdate',
-      injectRegister: false,
-    }),
-  ],
+// Astro's own test wiring: the React integration, PostCSS and the PWA virtual modules come from astro.config.mjs.
+export default getViteConfig({
   test: {
     environment: 'jsdom',
     globals: true,

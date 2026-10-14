@@ -10,7 +10,7 @@ astro.config.*
 vitest.config.*
 eslint.config.*
 .prettierrc*
-pwa-assets.config.*
+postcss.config.*
 
 # Sensitive files & environments
 .env*

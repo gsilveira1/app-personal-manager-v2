@@ -1,1 +1,3 @@
-@import "tailwindcss";
+/* Tailwind runs through Astro's PostCSS pipeline (postcss.config.mjs). The file is named explicitly because
+   Vite's SSR build pass does not resolve the bare "tailwindcss" specifier when PostCSS, not the Vite plugin, compiles it. */
+@import "tailwindcss/index.css";

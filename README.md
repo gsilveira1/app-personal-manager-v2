@@ -10,9 +10,9 @@ The client uses an Astro MPA foundation to deliver static HTML shells and select
 
 - **Framework**: [Astro 5+](https://astro.build/) in `output: 'static'` MPA mode with [`@astrojs/react`](https://docs.astro.build/en/guides/integrations-guide/react/).
 - **Component Layer**: React 19 interactive islands (`client:load`, `client:idle`, `client:only="react"`).
-- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/) with `@tailwindcss/vite`.
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/) through Astro's PostCSS pipeline (`@tailwindcss/postcss`, see `postcss.config.mjs`).
 - **State Management**: [Zustand](https://github.com/pmndrs/zustand) for client-side stores and session state.
-- **Offline & PWA**: [`vite-plugin-pwa`](https://vite-pwa-org.netlify.app/) with Workbox caching strategies, background sync, and offline indicator (`PWABadge`).
+- **Offline & PWA**: the [`@vite-pwa/astro`](https://vite-pwa-org.netlify.app/frameworks/astro) integration generates the Workbox service worker after the Astro build; `PWABadge` shows the update toast.
 - **Internationalization**: `react-i18next` with multi-language support (pt-BR, en, es).
 - **Icons & Visuals**: `lucide-react` & `recharts`.
 
@@ -24,8 +24,9 @@ The client uses an Astro MPA foundation to deliver static HTML shells and select
 app-personal-manager-client/
 ├── Dockerfile                  # Hardened multi-stage unprivileged production image
 ├── .dockerignore               # Optimized build context ignore rules
-├── astro.config.mjs            # Astro configuration (React, Tailwind, PWA, API proxy)
-├── vitest.config.ts            # Vitest unit & component test configuration
+├── astro.config.mjs            # Astro configuration (React, PWA integration, API proxy)
+├── postcss.config.mjs          # Tailwind v4 via Astro's PostCSS pipeline
+├── vitest.config.ts            # Vitest wired through Astro's getViteConfig()
 ├── eslint.config.js            # ESLint flat config with Prettier integration
 ├── package.json                # NPM scripts and dependencies
 ├── public/                     # Static assets, icons, and PWA manifest
@@ -91,7 +92,7 @@ npx prettier --write .
 ### Testing
 
 ```bash
-# Run unit & component tests (Vitest)
+# Run unit & component tests (Vitest, configured by Astro's getViteConfig so islands, PostCSS and PWA virtual modules match the app)
 npm test
 
 # Run tests in watch mode
