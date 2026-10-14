@@ -11,7 +11,7 @@ vi.mock('react-i18next', () => ({
 }))
 
 const mockRequestPasswordReset = vi.fn()
-vi.mock('../services/api/apiService', () => ({
+vi.mock('../../services/api/apiService', () => ({
   requestPasswordReset: (...args: unknown[]) => mockRequestPasswordReset(...args),
 }))
 
@@ -39,10 +39,15 @@ describe('ForgotPassword', () => {
     await waitFor(() => {
       expect(screen.getByText('checkYourEmail')).toBeInTheDocument()
     })
+    // Regression: the API mock used to point at a path that does not exist, so it never
+    // applied and the "success" came from the catch branch instead of from the API call.
+    expect(mockRequestPasswordReset).toHaveBeenCalledWith('test@test.com')
   })
 
-  it('shows success even on API error (security pattern)', async () => {
-    mockRequestPasswordReset.mockRejectedValue(new Error('Not found'))
+  it('shows success even on API error (security pattern) but logs the failure', async () => {
+    const failure = new Error('Not found')
+    mockRequestPasswordReset.mockRejectedValue(failure)
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
     const user = userEvent.setup()
     renderPage()
 
@@ -52,6 +57,9 @@ describe('ForgotPassword', () => {
     await waitFor(() => {
       expect(screen.getByText('checkYourEmail')).toBeInTheDocument()
     })
+    // The visitor must not learn whether the address exists, but the failure is never silent.
+    expect(consoleError).toHaveBeenCalledWith('[ForgotPassword] Password reset request failed:', failure)
+    consoleError.mockRestore()
   })
 
   it('renders sign in link', () => {
